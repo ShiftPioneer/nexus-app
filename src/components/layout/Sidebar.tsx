@@ -3,17 +3,18 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
-  Home, 
-  Calendar, 
-  CheckSquare, 
+  LayoutDashboard, 
   Target, 
-  FileText, 
-  Heart,
+  CheckSquare, 
+  ListTodo, 
+  Clock,
+  Zap,
   Brain,
+  BookText,
+  BookOpen,
   Settings
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
 import ThemeToggle from "../theme/ThemeToggle";
 
 interface SidebarProps {
@@ -26,47 +27,60 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
 
   const navItems = [
     { 
-      name: "Home", 
-      icon: <Home className="h-5 w-5" />, 
+      name: "Dashboard", 
+      icon: <LayoutDashboard className="h-5 w-5" />, 
       path: "/" 
     },
     { 
-      name: "Planning", 
-      icon: <Calendar className="h-5 w-5" />, 
+      name: "Goals & Planning", 
+      icon: <Target className="h-5 w-5" />, 
       path: "/planning" 
     },
     { 
-      name: "Habits", 
+      name: "Habit Tracker", 
       icon: <CheckSquare className="h-5 w-5" />, 
       path: "/habits" 
     },
     { 
-      name: "Goals", 
-      icon: <Target className="h-5 w-5" />, 
-      path: "/goals" 
+      name: "Tasks", 
+      icon: <ListTodo className="h-5 w-5" />, 
+      path: "/tasks" 
     },
     { 
-      name: "Journal", 
-      icon: <FileText className="h-5 w-5" />, 
-      path: "/journal" 
+      name: "Time Design", 
+      icon: <Clock className="h-5 w-5" />, 
+      path: "/time-design" 
     },
     { 
-      name: "Wellbeing", 
-      icon: <Heart className="h-5 w-5" />, 
-      path: "/wellbeing" 
+      name: "Energy Hub", 
+      icon: <Zap className="h-5 w-5" />, 
+      path: "/energy" 
     },
     { 
-      name: "Mindset", 
+      name: "Mindset OS", 
       icon: <Brain className="h-5 w-5" />, 
       path: "/mindset" 
     },
+    { 
+      name: "Digital Journal", 
+      icon: <BookText className="h-5 w-5" />, 
+      path: "/journal" 
+    },
+    { 
+      name: "Knowledge", 
+      icon: <BookOpen className="h-5 w-5" />, 
+      path: "/knowledge" 
+    },
   ];
 
-  const handleComingSoon = () => {
-    toast({
-      title: "Coming Soon",
-      description: "This feature is under development and will be available soon!",
-    });
+  const handleComingSoon = (e) => {
+    if (e.currentTarget.getAttribute('href') !== '/journal') {
+      e.preventDefault();
+      toast({
+        title: "Coming Soon",
+        description: "This feature is under development and will be available soon!",
+      });
+    }
   };
 
   return (
@@ -105,7 +119,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, toggleSidebar }) => {
             <li key={item.name}>
               <NavLink
                 to={item.path}
-                onClick={item.path === "/" ? undefined : handleComingSoon}
+                onClick={item.path === "/" || item.path === "/journal" ? undefined : handleComingSoon}
                 className={({ isActive }) =>
                   cn(
                     "flex items-center gap-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",

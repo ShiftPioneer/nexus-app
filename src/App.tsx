@@ -6,6 +6,13 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import Journal from "./pages/Journal";
+import Tasks from "./pages/Tasks";
+import TimeDesign from "./pages/TimeDesign";
+import Energy from "./pages/Energy";
+import Mindset from "./pages/Mindset";
+import Knowledge from "./pages/Knowledge";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -20,11 +27,13 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/planning" element={<Index />} />
             <Route path="/habits" element={<Index />} />
-            <Route path="/goals" element={<Index />} />
-            <Route path="/journal" element={<Index />} />
-            <Route path="/wellbeing" element={<Index />} />
-            <Route path="/mindset" element={<Index />} />
-            <Route path="/settings" element={<Index />} />
+            <Route path="/tasks" element={<Tasks />} />
+            <Route path="/time-design" element={<TimeDesign />} />
+            <Route path="/energy" element={<Energy />} />
+            <Route path="/mindset" element={<Mindset />} />
+            <Route path="/journal" element={<Journal />} />
+            <Route path="/knowledge" element={<Knowledge />} />
+            <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
