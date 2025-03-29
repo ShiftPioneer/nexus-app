@@ -1,14 +1,33 @@
-// Update this page (the content is just a fallback if you fail to update the page)
 
-const Index = () => {
+import React from "react";
+import AppLayout from "@/components/layout/AppLayout";
+import WelcomeSection from "@/components/dashboard/WelcomeSection";
+import StatsSection from "@/components/dashboard/StatsSection";
+import TasksSection from "@/components/dashboard/TasksSection";
+import HabitsSection from "@/components/dashboard/HabitsSection";
+import GoalSection from "@/components/dashboard/GoalSection";
+import JournalSection from "@/components/dashboard/JournalSection";
+
+const Dashboard = () => {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <AppLayout>
+      <div className="animate-fade-in">
+        <WelcomeSection />
+        <StatsSection />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <TasksSection />
+            <GoalSection />
+          </div>
+          <div className="space-y-6">
+            <HabitsSection />
+            <JournalSection />
+          </div>
+        </div>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 
-export default Index;
+export default Dashboard;
