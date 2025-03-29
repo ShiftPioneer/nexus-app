@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import Energy from "./pages/Energy";
 import Mindset from "./pages/Mindset";
 import Knowledge from "./pages/Knowledge";
 import Settings from "./pages/Settings";
+import Planning from "./pages/Planning";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +25,7 @@ const App = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/planning" element={<Index />} />
+            <Route path="/planning" element={<Planning />} />
             <Route path="/habits" element={<Index />} />
             <Route path="/tasks" element={<Tasks />} />
             <Route path="/time-design" element={<TimeDesign />} />
