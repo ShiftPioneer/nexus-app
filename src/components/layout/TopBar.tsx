@@ -1,18 +1,14 @@
 
 import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Menu, User, Search, Bell } from "lucide-react";
+import { User, Search, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import ThemeToggle from "../theme/ThemeToggle";
 
-interface TopBarProps {
-  toggleSidebar: () => void;
-  sidebarOpen: boolean;
-}
-
-const TopBar: React.FC<TopBarProps> = ({ toggleSidebar, sidebarOpen }) => {
+const TopBar = () => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   
@@ -26,27 +22,9 @@ const TopBar: React.FC<TopBarProps> = ({ toggleSidebar, sidebarOpen }) => {
   return (
     <header className="bg-background border-b border-border h-16 flex items-center px-4 lg:px-6">
       <div className="flex items-center gap-2">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label="Toggle Sidebar"
-          onClick={toggleSidebar}
-          className="md:hidden"
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-        
-        {isMobile && !sidebarOpen && (
-          <div className="flex items-center">
-            <div className="h-8 w-8 rounded-md bg-gradient-to-br from-primary to-energy flex items-center justify-center">
-              <span className="font-bold text-white">L</span>
-            </div>
-            <span className="ml-2 text-lg font-semibold">Life OS</span>
-          </div>
-        )}
+        <SidebarTrigger />
       </div>
       
-      {/* Search bar - hidden on mobile */}
       <div className="hidden sm:flex mx-4 flex-1 max-w-md relative">
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

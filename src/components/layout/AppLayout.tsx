@@ -1,30 +1,29 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import Sidebar from "./Sidebar";
+import { Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
 import TopBar from "./TopBar";
+import NavigationMenu from "./NavigationMenu";
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
+const AppLayout = ({ children }: AppLayoutProps) => {
   const isMobile = useIsMobile();
-  const [sidebarOpen, setSidebarOpen] = useState(!isMobile);
-
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
 
   return (
-    <div className="flex h-screen bg-background text-foreground overflow-hidden">
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+    <div className="flex h-screen overflow-hidden bg-background">
+      <Sidebar>
+        <SidebarContent>
+          <NavigationMenu />
+        </SidebarContent>
+      </Sidebar>
       
       <div className="flex flex-col flex-1 overflow-hidden">
-        <TopBar toggleSidebar={toggleSidebar} sidebarOpen={sidebarOpen} />
-        
-        <main className="flex-1 overflow-auto p-4 md:p-6">
-          <div className="mx-auto max-w-7xl">
+        <TopBar />
+        <main className="flex-1 overflow-auto">
+          <div className="container max-w-7xl mx-auto p-4 md:p-6">
             {children}
           </div>
         </main>
