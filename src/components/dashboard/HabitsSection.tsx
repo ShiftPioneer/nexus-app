@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -77,7 +76,7 @@ const HabitsSection = () => {
           toast({
             title: "Achievement Unlocked!",
             description: `You've reached your streak goal of ${habit.target} days for ${habit.title}!`,
-            variant: "success",
+            variant: "default",
           });
         }, 1000);
       }
