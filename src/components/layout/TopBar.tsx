@@ -5,7 +5,6 @@ import { User, Search, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 import ThemeToggle from "../theme/ThemeToggle";
 
 const TopBar = () => {
@@ -21,10 +20,6 @@ const TopBar = () => {
 
   return (
     <header className="bg-background border-b border-border h-16 flex items-center px-4 lg:px-6">
-      <div className="flex items-center gap-2">
-        <SidebarTrigger />
-      </div>
-      
       <div className="hidden sm:flex mx-4 flex-1 max-w-md relative">
         <div className="relative w-full">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />

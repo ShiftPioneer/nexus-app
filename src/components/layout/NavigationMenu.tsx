@@ -19,6 +19,7 @@ import {
   BookText,
   BookOpen,
   Settings,
+  Timer
 } from "lucide-react";
 
 const NavigationMenu = () => {
@@ -44,6 +45,11 @@ const NavigationMenu = () => {
       title: "Time Design",
       icon: Clock,
       path: "/time-design",
+    },
+    {
+      title: "Focus",
+      icon: Timer,
+      path: "/focus",
     },
     {
       title: "Energy",

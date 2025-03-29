@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Sidebar, SidebarContent, SidebarTrigger } from "@/components/ui/sidebar";
+import { Sidebar, SidebarContent, SidebarRail } from "@/components/ui/sidebar";
 import TopBar from "./TopBar";
 import NavigationMenu from "./NavigationMenu";
 
@@ -14,7 +14,15 @@ const AppLayout = ({ children }: AppLayoutProps) => {
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
-      <Sidebar>
+      <Sidebar 
+        variant="sidebar"
+        collapsible="icon"
+        style={{
+          '--sidebar-width': '14rem',
+          '--sidebar-width-icon': '2.5rem'
+        } as React.CSSProperties}
+      >
+        <SidebarRail />
         <SidebarContent>
           <NavigationMenu />
         </SidebarContent>

@@ -15,6 +15,7 @@ import Mindset from "./pages/Mindset";
 import Knowledge from "./pages/Knowledge";
 import Settings from "./pages/Settings";
 import Planning from "./pages/Planning";
+import Focus from "./pages/Focus";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const App = () => {
               <Route path="/journal" element={<Journal />} />
               <Route path="/knowledge" element={<Knowledge />} />
               <Route path="/settings" element={<Settings />} />
+              <Route path="/focus" element={<Focus />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
