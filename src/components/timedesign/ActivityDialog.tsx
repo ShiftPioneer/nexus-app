@@ -20,6 +20,14 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 
 interface ActivityDialogProps {
   open: boolean;
@@ -38,8 +46,8 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<TimeActivity["category"]>("work");
   const [color, setColor] = useState<TimeActivity["color"]>("purple");
-  const [startDate, setStartDate] = useState(format(new Date(), "yyyy-MM-dd"));
-  const [endDate, setEndDate] = useState(format(new Date(), "yyyy-MM-dd"));
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
   const [syncWithGoogleCalendar, setSyncWithGoogleCalendar] = useState(false);
@@ -50,8 +58,8 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
       setDescription(activity.description || "");
       setCategory(activity.category);
       setColor(activity.color);
-      setStartDate(format(activity.startDate, "yyyy-MM-dd"));
-      setEndDate(format(activity.endDate, "yyyy-MM-dd"));
+      setStartDate(activity.startDate);
+      setEndDate(activity.endDate);
       setStartTime(activity.startTime);
       setEndTime(activity.endTime);
       setSyncWithGoogleCalendar(activity.syncWithGoogleCalendar || false);
@@ -65,8 +73,8 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
     setDescription("");
     setCategory("work");
     setColor("purple");
-    setStartDate(format(new Date(), "yyyy-MM-dd"));
-    setEndDate(format(new Date(), "yyyy-MM-dd"));
+    setStartDate(new Date());
+    setEndDate(new Date());
     setStartTime("09:00");
     setEndTime("10:00");
     setSyncWithGoogleCalendar(false);
@@ -79,8 +87,8 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
       description,
       category,
       color,
-      startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      startDate,
+      endDate,
       startTime,
       endTime,
       syncWithGoogleCalendar,
@@ -91,7 +99,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{activity ? "Edit Activity" : "New Activity"}</DialogTitle>
         </DialogHeader>
@@ -166,13 +174,30 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input
-                id="startDate"
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
+              <Label>Start Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => date && setStartDate(date)}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-2">
               <Label htmlFor="startTime">Start Time</Label>
@@ -187,13 +212,30 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="endDate">End Date</Label>
-              <Input
-                id="endDate"
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
+              <Label>End Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => date && setEndDate(date)}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-2">
               <Label htmlFor="endTime">End Time</Label>

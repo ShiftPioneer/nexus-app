@@ -1,12 +1,12 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,117 +18,233 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ProjectCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onProjectCreate: (project: Omit<Project, "id">) => void;
+  onProjectCreate: (project: Project) => void;
+  existingProjects: Project[];
 }
 
 const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
   open,
   onOpenChange,
   onProjectCreate,
+  existingProjects
 }) => {
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    
-    const newProject: Omit<Project, "id"> = {
-      title: formData.get("title") as string,
-      description: formData.get("description") as string,
-      category: formData.get("category") as Project["category"],
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<Project["category"]>("career");
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [blockingProjects, setBlockingProjects] = useState<string[]>([]);
+  const [blockedByProjects, setBlockedByProjects] = useState<string[]>([]);
+
+  const handleSubmit = () => {
+    const newProject: Project = {
+      id: "",
+      title,
+      description,
+      category,
       progress: 0,
-      startDate: new Date(formData.get("startDate") as string),
-      endDate: new Date(formData.get("endDate") as string),
+      startDate,
+      endDate,
       status: "not-started",
+      blockingProjects,
+      blockedByProjects
     };
     
     onProjectCreate(newProject);
-    onOpenChange(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setCategory("career");
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setBlockingProjects([]);
+    setBlockedByProjects([]);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) resetForm();
+      onOpenChange(isOpen);
+    }}>
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
           <DialogTitle>Create New Project</DialogTitle>
-          <DialogDescription>
-            Set up a new project with milestones and deadlines.
-          </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4 py-4">
           <div className="space-y-2">
             <Label htmlFor="title">Project Title</Label>
-            <Input 
-              id="title" 
-              name="title" 
-              placeholder="Name your project" 
-              required 
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter your project title"
+            />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe your project"
+              rows={3}
             />
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
-            <Select name="category" required>
+            <Select
+              value={category}
+              onValueChange={(val) => setCategory(val as Project["category"])}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="career">Career</SelectItem>
+                <SelectItem value="education">Education</SelectItem>
                 <SelectItem value="wealth">Wealth</SelectItem>
                 <SelectItem value="health">Health</SelectItem>
                 <SelectItem value="relationships">Relationships</SelectItem>
                 <SelectItem value="spirituality">Spirituality</SelectItem>
-                <SelectItem value="education">Education</SelectItem>
-                <SelectItem value="career">Career</SelectItem>
               </SelectContent>
             </Select>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea 
-              id="description" 
-              name="description" 
-              placeholder="Add some details about your project" 
-              required 
-              rows={4} 
-            />
-          </div>
-          
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input 
-                id="startDate" 
-                name="startDate" 
-                type="date"
-                defaultValue={format(new Date(), "yyyy-MM-dd")}
-                required 
-              />
+              <Label>Start Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => date && setStartDate(date)}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="endDate">End Date</Label>
-              <Input 
-                id="endDate" 
-                name="endDate" 
-                type="date"
-                defaultValue={format(new Date(), "yyyy-MM-dd")}
-                required 
-              />
+              <Label>End Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => date && setEndDate(date)}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
-          
-          <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit" className="px-8 bg-blue-600 hover:bg-blue-700">Create Project</Button>
-          </div>
-        </form>
+
+          {existingProjects.length > 0 && (
+            <>
+              <div className="space-y-2">
+                <Label>Blocking</Label>
+                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
+                  {existingProjects.map(project => (
+                    <div key={`blocking-${project.id}`} className="flex items-center space-x-2 mb-2">
+                      <Checkbox 
+                        id={`blocking-${project.id}`}
+                        checked={blockingProjects.includes(project.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setBlockingProjects([...blockingProjects, project.id]);
+                          } else {
+                            setBlockingProjects(blockingProjects.filter(id => id !== project.id));
+                          }
+                        }}
+                      />
+                      <label htmlFor={`blocking-${project.id}`} className="text-sm">{project.title}</label>
+                    </div>
+                  ))}
+                  {existingProjects.length === 0 && <p className="text-sm text-muted-foreground">No existing projects to select</p>}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Blocked By</Label>
+                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
+                  {existingProjects.map(project => (
+                    <div key={`blockedby-${project.id}`} className="flex items-center space-x-2 mb-2">
+                      <Checkbox 
+                        id={`blockedby-${project.id}`}
+                        checked={blockedByProjects.includes(project.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setBlockedByProjects([...blockedByProjects, project.id]);
+                          } else {
+                            setBlockedByProjects(blockedByProjects.filter(id => id !== project.id));
+                          }
+                        }}
+                      />
+                      <label htmlFor={`blockedby-${project.id}`} className="text-sm">{project.title}</label>
+                    </div>
+                  ))}
+                  {existingProjects.length === 0 && <p className="text-sm text-muted-foreground">No existing projects to select</p>}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} disabled={!title.trim()}>
+            Create Project
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

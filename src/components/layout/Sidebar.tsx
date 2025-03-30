@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar as ShadcnSidebar,
@@ -20,9 +20,11 @@ import {
   BookOpen,
   Brain,
   LayoutGrid,
-  BarChart3,
   Settings,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { Button } from "../ui/button";
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -31,6 +33,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = () => {
   const location = useLocation();
   const currentPath = location.pathname;
+  const [isCollapsed, setIsCollapsed] = useState(false);
   
   const menuItems = [
     {
@@ -79,11 +82,6 @@ const Sidebar: React.FC<SidebarProps> = () => {
       icon: LayoutGrid,
     },
     {
-      title: "Stats",
-      path: "/stats",
-      icon: BarChart3,
-    },
-    {
       title: "Settings",
       path: "/settings",
       icon: Settings,
@@ -91,35 +89,52 @@ const Sidebar: React.FC<SidebarProps> = () => {
   ];
 
   return (
-    <ShadcnSidebar
-      variant="sidebar"
-      collapsible="icon"
-      style={{
-        '--sidebar-width': '10rem', // narrower width
-        '--sidebar-width-icon': '1.5rem'
-      } as React.CSSProperties}
-    >
-      <SidebarRail />
-      <SidebarContent>
-        <SidebarMenu>
-          {menuItems.map((item) => (
-            <SidebarMenuItem key={item.path}>
-              <SidebarMenuButton 
-                asChild 
-                isActive={currentPath === item.path}
-                tooltip={item.title}
+    <>
+      <ShadcnSidebar
+        variant="sidebar"
+        collapsed={isCollapsed}
+        collapsible={true}
+        className="transition-all duration-300"
+        style={{
+          '--sidebar-width': '14rem',
+          '--sidebar-width-collapsed': '4rem'
+        } as React.CSSProperties}
+      >
+        <SidebarRail>
+          <div className="h-full flex flex-col justify-between">
+            <div className="flex justify-center py-4">
+              <Button 
+                size="icon" 
+                variant="ghost"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+                className="rounded-full h-8 w-8"
               >
-                <Link to={item.path} className="w-full">
-                  <item.icon className="h-4 w-4" />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-      <SidebarFooter />
-    </ShadcnSidebar>
+                {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+              </Button>
+            </div>
+          </div>
+        </SidebarRail>
+        <SidebarContent>
+          <SidebarMenu>
+            {menuItems.map((item) => (
+              <SidebarMenuItem key={item.path}>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={currentPath === item.path}
+                  tooltip={item.title}
+                >
+                  <Link to={item.path} className="w-full">
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter />
+      </ShadcnSidebar>
+    </>
   );
 };
 

@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Smile, Meh, Frown, X } from "lucide-react";
 
 interface JournalEditorProps {
@@ -17,6 +18,32 @@ interface JournalEditorProps {
 const JournalEditor: React.FC<JournalEditorProps> = ({ initialEntry, onSave, onCancel }) => {
   const [entry, setEntry] = useState<JournalEntry>({ ...initialEntry });
   const [tagInput, setTagInput] = useState("");
+  const [activeTab, setActiveTab] = useState("reflections");
+  
+  // Structured reflection questions
+  const [reflections, setReflections] = useState({
+    intentions: initialEntry.content.includes("Today's intentions:") ? 
+      initialEntry.content.split("Today's intentions:")[1]?.split("3 Morning Affirmations:")[0]?.trim() : "",
+    morningAffirmations: initialEntry.content.includes("3 Morning Affirmations:") ? 
+      initialEntry.content.split("3 Morning Affirmations:")[1]?.split("3 Things I'm Grateful For:")[0]?.trim() : "",
+    gratitude: initialEntry.content.includes("3 Things I'm Grateful For:") ? 
+      initialEntry.content.split("3 Things I'm Grateful For:")[1]?.split("What Would make Today Great:")[0]?.trim() : "",
+    makeTodayGreat: initialEntry.content.includes("What Would make Today Great:") ? 
+      initialEntry.content.split("What Would make Today Great:")[1]?.split("Highlight of The Day:")[0]?.trim() : "",
+    highlight: initialEntry.content.includes("Highlight of The Day:") ? 
+      initialEntry.content.split("Highlight of The Day:")[1]?.split("3 Night Affirmations:")[0]?.trim() : "",
+    nightAffirmations: initialEntry.content.includes("3 Night Affirmations:") ? 
+      initialEntry.content.split("3 Night Affirmations:")[1]?.split("What Made Today Great/Bad:")[0]?.trim() : "",
+    todayEvaluation: initialEntry.content.includes("What Made Today Great/Bad:") ? 
+      initialEntry.content.split("What Made Today Great/Bad:")[1]?.split("What Can Be Improved/Fixed:")[0]?.trim() : "",
+    improvement: initialEntry.content.includes("What Can Be Improved/Fixed:") ? 
+      initialEntry.content.split("What Can Be Improved/Fixed:")[1]?.split("Feel Free:")[0]?.trim() : "",
+    freeThoughts: initialEntry.content.includes("Feel Free:") ? 
+      initialEntry.content.split("Feel Free:")[1]?.trim() : "",
+  });
+  
+  // Notes section
+  const [notes, setNotes] = useState(initialEntry.content);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -40,6 +67,33 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ initialEntry, onSave, onC
   const handleRemoveTag = (tag: string) => {
     setEntry(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
   };
+  
+  const handleReflectionChange = (field: keyof typeof reflections, value: string) => {
+    setReflections(prev => ({ ...prev, [field]: value }));
+  };
+  
+  const handleSave = () => {
+    let finalContent = "";
+    
+    if (activeTab === "reflections") {
+      finalContent += "Today's intentions: " + reflections.intentions + "\n\n";
+      finalContent += "3 Morning Affirmations: " + reflections.morningAffirmations + "\n\n";
+      finalContent += "3 Things I'm Grateful For: " + reflections.gratitude + "\n\n";
+      finalContent += "What Would make Today Great: " + reflections.makeTodayGreat + "\n\n";
+      finalContent += "Highlight of The Day: " + reflections.highlight + "\n\n";
+      finalContent += "3 Night Affirmations: " + reflections.nightAffirmations + "\n\n";
+      finalContent += "What Made Today Great/Bad: " + reflections.todayEvaluation + "\n\n";
+      finalContent += "What Can Be Improved/Fixed: " + reflections.improvement + "\n\n";
+      finalContent += "Feel Free: " + reflections.freeThoughts;
+    } else {
+      finalContent = notes;
+    }
+    
+    onSave({
+      ...entry,
+      content: finalContent
+    });
+  };
 
   return (
     <div className="space-y-4">
@@ -55,17 +109,138 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ initialEntry, onSave, onC
         />
       </div>
 
-      <div>
-        <Label htmlFor="content">Journal Content</Label>
-        <Textarea
-          id="content"
-          name="content"
-          placeholder="Write your thoughts here..."
-          value={entry.content}
-          onChange={handleChange}
-          className="min-h-[200px] mt-1 resize-y"
-        />
-      </div>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid grid-cols-2 mb-4">
+          <TabsTrigger value="reflections">Reflections</TabsTrigger>
+          <TabsTrigger value="notes">Notes</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="reflections" className="space-y-4">
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="intentions">Today's intentions</Label>
+              <Textarea
+                id="intentions"
+                placeholder="What do you intend to focus on today?"
+                value={reflections.intentions}
+                onChange={(e) => handleReflectionChange("intentions", e.target.value)}
+                className="mt-1 resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="morningAffirmations">3 Morning Affirmations</Label>
+              <Textarea
+                id="morningAffirmations"
+                placeholder="Write three positive affirmations for your morning"
+                value={reflections.morningAffirmations}
+                onChange={(e) => handleReflectionChange("morningAffirmations", e.target.value)}
+                className="mt-1 resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="gratitude">3 Things I'm Grateful For</Label>
+              <Textarea
+                id="gratitude"
+                placeholder="What are you grateful for today?"
+                value={reflections.gratitude}
+                onChange={(e) => handleReflectionChange("gratitude", e.target.value)}
+                className="mt-1 resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="makeTodayGreat">What Would make Today Great</Label>
+              <Textarea
+                id="makeTodayGreat"
+                placeholder="What actions or events would make today great?"
+                value={reflections.makeTodayGreat}
+                onChange={(e) => handleReflectionChange("makeTodayGreat", e.target.value)}
+                className="mt-1 resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="highlight">Highlight of The Day</Label>
+              <Textarea
+                id="highlight"
+                placeholder="What was the best moment of your day?"
+                value={reflections.highlight}
+                onChange={(e) => handleReflectionChange("highlight", e.target.value)}
+                className="mt-1 resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="nightAffirmations">3 Night Affirmations</Label>
+              <Textarea
+                id="nightAffirmations"
+                placeholder="Write three positive affirmations for your evening"
+                value={reflections.nightAffirmations}
+                onChange={(e) => handleReflectionChange("nightAffirmations", e.target.value)}
+                className="mt-1 resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="todayEvaluation">What Made Today Great/Bad</Label>
+              <Textarea
+                id="todayEvaluation"
+                placeholder="Reflect on what went well and what didn't"
+                value={reflections.todayEvaluation}
+                onChange={(e) => handleReflectionChange("todayEvaluation", e.target.value)}
+                className="mt-1 resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="improvement">What Can Be Improved/Fixed</Label>
+              <Textarea
+                id="improvement"
+                placeholder="What can you improve tomorrow?"
+                value={reflections.improvement}
+                onChange={(e) => handleReflectionChange("improvement", e.target.value)}
+                className="mt-1 resize-none"
+                rows={3}
+              />
+            </div>
+            
+            <div>
+              <Label htmlFor="freeThoughts">Feel Free</Label>
+              <Textarea
+                id="freeThoughts"
+                placeholder="Express any additional thoughts or feelings"
+                value={reflections.freeThoughts}
+                onChange={(e) => handleReflectionChange("freeThoughts", e.target.value)}
+                className="mt-1 resize-y"
+                rows={5}
+              />
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="notes">
+          <div>
+            <Label htmlFor="content">Journal Content</Label>
+            <Textarea
+              id="content"
+              name="content"
+              placeholder="Write your thoughts here..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="min-h-[300px] mt-1 resize-y"
+            />
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <div>
         <Label>How are you feeling?</Label>
@@ -133,8 +308,8 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ initialEntry, onSave, onC
           Cancel
         </Button>
         <Button 
-          onClick={() => onSave(entry)} 
-          disabled={!entry.title.trim() || !entry.content.trim()}
+          onClick={handleSave} 
+          disabled={!entry.title.trim()}
         >
           Save Entry
         </Button>

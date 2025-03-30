@@ -23,7 +23,7 @@ const FocusStatsCard: React.FC<FocusStatsCardProps> = ({ stats }) => {
               </div>
               <span>Today</span>
             </div>
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">{stats.todayMinutes} minutes</span>
+            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">{stats.todayMinutes || 0} minutes</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -32,7 +32,7 @@ const FocusStatsCard: React.FC<FocusStatsCardProps> = ({ stats }) => {
               </div>
               <span>This Week</span>
             </div>
-            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs">{stats.weekMinutes} minutes</span>
+            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs">{stats.weekMinutes || 0} minutes</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -48,7 +48,7 @@ const FocusStatsCard: React.FC<FocusStatsCardProps> = ({ stats }) => {
               </div>
               <span>Current Streak</span>
             </div>
-            <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">{stats.currentStreak} days</span>
+            <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-xs">{stats.currentStreak || 0} days</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -61,32 +61,38 @@ const FocusStatsCard: React.FC<FocusStatsCardProps> = ({ stats }) => {
               </div>
               <span>Total Sessions</span>
             </div>
-            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">{stats.totalSessions} sessions</span>
+            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">{stats.totalSessions || 0} sessions</span>
           </div>
         </div>
 
         <div className="pt-4 border-t">
           <h4 className="font-medium mb-3">Top Focus Categories</h4>
-          <div className="space-y-3">
-            {stats.categoryStats.map((stat, index) => (
-              <div key={index} className="space-y-1">
-                <div className="flex justify-between">
-                  <span>{stat.category}</span>
-                  <span>{stat.sessions} sessions</span>
+          {stats.categoryStats && stats.categoryStats.length > 0 ? (
+            <div className="space-y-3">
+              {stats.categoryStats.map((stat, index) => (
+                <div key={index} className="space-y-1">
+                  <div className="flex justify-between">
+                    <span>{stat.category}</span>
+                    <span>{stat.sessions} sessions</span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div 
+                      className={`h-2 rounded-full ${
+                        stat.category === "Deep Work" ? "bg-purple-600" :
+                        stat.category === "Study" ? "bg-blue-500" :
+                        stat.category === "Creative" ? "bg-orange-500" : "bg-green-500"
+                      }`} 
+                      style={{ width: `${stat.percentage}%` }}
+                    ></div>
+                  </div>
                 </div>
-                <div className="w-full bg-muted rounded-full h-2">
-                  <div 
-                    className={`h-2 rounded-full ${
-                      stat.category === "Deep Work" ? "bg-purple-600" :
-                      stat.category === "Study" ? "bg-blue-500" :
-                      stat.category === "Creative" ? "bg-orange-500" : "bg-green-500"
-                    }`} 
-                    style={{ width: `${stat.percentage}%` }}
-                  ></div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-4 text-muted-foreground">
+              <p>Complete focus sessions to see your stats</p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

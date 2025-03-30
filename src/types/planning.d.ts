@@ -10,6 +10,8 @@ interface Goal {
   endDate: Date;
   milestones: Milestone[];
   status: "not-started" | "in-progress" | "completed";
+  blockingGoals?: string[];
+  blockedByGoals?: string[];
 }
 
 interface Project {
@@ -21,6 +23,8 @@ interface Project {
   startDate: Date;
   endDate: Date;
   status: "not-started" | "in-progress" | "completed";
+  blockingProjects?: string[];
+  blockedByProjects?: string[];
 }
 
 interface Milestone {

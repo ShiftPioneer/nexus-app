@@ -117,7 +117,7 @@ const Journal = () => {
           </div>
           <Button onClick={() => setShowNewEntry(true)} className="gap-2">
             <Plus size={18} />
-            New Entry
+            New Journal
           </Button>
         </div>
 
@@ -234,7 +234,7 @@ const Journal = () => {
                         </p>
                         <Button onClick={() => setShowNewEntry(true)} className="mt-4 gap-2">
                           <Plus size={16} />
-                          Create New Entry
+                          Create New Journal
                         </Button>
                       </div>
                     )}

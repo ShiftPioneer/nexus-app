@@ -1,20 +1,130 @@
 
-import React from "react";
+import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ListTodo, Plus } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ListTodo, Plus, Clock, Search, Sliders, CalendarIcon, Star, Tag, ChevronRight, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TaskDialog from "@/components/tasks/TaskDialog";
+import KanbanBoard from "@/components/tasks/KanbanBoard";
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  priority: 'high' | 'medium' | 'low';
+  category: string;
+  dueDate?: Date;
+  importance: number;
+  relatedGoals?: string[];
+  relatedProjects?: string[];
+  status: 'todo' | 'in-progress' | 'completed' | 'overdue';
+  createdAt: Date;
+}
 
 const Tasks = () => {
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("all");
+  const [showTaskDialog, setShowTaskDialog] = useState(false);
+  const [taskList, setTaskList] = useState<Task[]>([
+    {
+      id: "1",
+      title: "Complete Project Proposal",
+      description: "Outline the main points and deliverables",
+      priority: "high",
+      category: "Work",
+      dueDate: new Date(),
+      importance: 50,
+      status: "todo",
+      createdAt: new Date()
+    },
+    {
+      id: "2",
+      title: "Schedule Team Meeting",
+      description: "Coordinate with team members about availability",
+      priority: "medium",
+      category: "Work",
+      dueDate: new Date(Date.now() + 86400000), // tomorrow
+      importance: 20,
+      status: "todo",
+      createdAt: new Date()
+    },
+    {
+      id: "3",
+      title: "Review Monthly Budget",
+      description: "Analyze expenses and revenue for the month",
+      priority: "medium",
+      category: "Finance",
+      dueDate: new Date(Date.now() + 3 * 86400000), // 3 days from now
+      importance: 30,
+      status: "todo",
+      createdAt: new Date()
+    },
+    {
+      id: "4",
+      title: "Update LinkedIn Profile",
+      description: "Add recent achievements and update skills",
+      priority: "low",
+      category: "Career",
+      status: "completed",
+      importance: 15,
+      createdAt: new Date(Date.now() - 86400000) // yesterday
+    },
+    {
+      id: "5",
+      title: "Book Dentist Appointment",
+      description: "Schedule regular checkup",
+      priority: "medium",
+      category: "Health",
+      dueDate: new Date(Date.now() + 7 * 86400000), // a week from now
+      importance: 25,
+      status: "todo",
+      createdAt: new Date()
+    },
+  ]);
   
-  const handleComingSoon = () => {
+  const handleCreateTask = (task: Task) => {
+    const newTask = {
+      ...task,
+      id: `task-${Date.now()}`,
+      createdAt: new Date()
+    };
+    setTaskList([newTask, ...taskList]);
     toast({
-      title: "Coming Soon",
-      description: "The Tasks management feature is under development and will be available soon!",
+      title: "Task Created",
+      description: "Your task has been created successfully!",
+    });
+    setShowTaskDialog(false);
+  };
+  
+  const handleUpdateTaskStatus = (taskId: string, newStatus: Task['status']) => {
+    setTaskList(taskList.map(task => 
+      task.id === taskId ? { ...task, status: newStatus } : task
+    ));
+    toast({
+      description: `Task status updated to ${newStatus.replace('-', ' ')}`,
     });
   };
+
+  const filteredTasks = taskList.filter(task => {
+    if (activeTab === "all") return true;
+    if (activeTab === "today") {
+      if (!task.dueDate) return false;
+      const today = new Date();
+      return task.dueDate.getDate() === today.getDate() &&
+             task.dueDate.getMonth() === today.getMonth() &&
+             task.dueDate.getFullYear() === today.getFullYear();
+    }
+    if (activeTab === "upcoming") return task.status === "todo" || task.status === "in-progress";
+    if (activeTab === "completed") return task.status === "completed";
+    if (activeTab === "overdue") {
+      if (!task.dueDate) return false;
+      return task.dueDate < new Date() && task.status !== "completed";
+    }
+    return true;
+  });
 
   return (
     <AppLayout>
@@ -25,30 +135,165 @@ const Tasks = () => {
               <ListTodo className="h-6 w-6 text-primary" />
               Tasks
             </h1>
-            <p className="text-muted-foreground">Manage your tasks, projects and priorities</p>
+            <p className="text-muted-foreground">Manage your daily tasks and to-dos</p>
           </div>
-          <Button onClick={handleComingSoon} className="gap-2">
+          <Button onClick={() => setShowTaskDialog(true)} className="gap-2">
             <Plus size={18} />
             New Task
           </Button>
         </div>
         
-        <Card className="border-dashed">
-          <CardHeader>
-            <CardTitle>Task Management</CardTitle>
-            <CardDescription>Organize your projects and tasks with our powerful task manager</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <ListTodo className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">Task Manager Coming Soon</h3>
-            <p className="text-muted-foreground mb-6 max-w-md">
-              We're working hard to bring you a powerful task management system with projects, kanban boards, 
-              priority settings, and more.
-            </p>
-            <Button onClick={handleComingSoon}>Get Notified When Ready</Button>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="relative flex-grow">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Search tasks..." className="pl-9" />
+          </div>
+          
+          <div className="flex gap-2">
+            <Button variant="outline" size="icon" className="aspect-square">
+              <Filter className="h-4 w-4" />
+            </Button>
+            
+            <div className="relative">
+              <Button variant="outline" className="gap-2">
+                <Tag className="h-4 w-4" />
+                <span>All Categories</span>
+                <ChevronRight className="h-4 w-4 rotate-90" />
+              </Button>
+            </div>
+            
+            <div className="relative">
+              <Button variant="outline" className="gap-2">
+                <Star className="h-4 w-4" />
+                <span>All Priorities</span>
+                <ChevronRight className="h-4 w-4 rotate-90" />
+              </Button>
+            </div>
+          </div>
+        </div>
+        
+        <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="all">All Tasks</TabsTrigger>
+            <TabsTrigger value="today">Today</TabsTrigger>
+            <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+            <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsTrigger value="overdue">Overdue</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value={activeTab} className="mt-4">
+            <Card>
+              <CardHeader className="pb-0">
+                <CardTitle>Task List</CardTitle>
+                <CardDescription>Manage and organize your tasks</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4 pt-4">
+                  {filteredTasks.length === 0 ? (
+                    <div className="text-center py-8">
+                      <ListTodo className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
+                      <h3 className="mt-4 text-lg font-medium">No tasks found</h3>
+                      <p className="mt-2 text-muted-foreground">
+                        {activeTab === "all" 
+                          ? "Start by creating your first task." 
+                          : `No ${activeTab} tasks. Try creating a new task or changing filters.`
+                        }
+                      </p>
+                      <Button onClick={() => setShowTaskDialog(true)} className="mt-4">
+                        Create New Task
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {filteredTasks.map((task) => (
+                        <Card
+                          key={task.id}
+                          className={`border-l-4 ${
+                            task.priority === "high"
+                              ? "border-l-red-500"
+                              : task.priority === "medium"
+                              ? "border-l-orange-500"
+                              : "border-l-blue-500"
+                          } hover:shadow-md transition-shadow`}
+                        >
+                          <CardContent className="p-4">
+                            <div className="flex items-center gap-3">
+                              <div className="flex-shrink-0">
+                                <input 
+                                  type="checkbox"
+                                  checked={task.status === "completed"}
+                                  onChange={() => handleUpdateTaskStatus(
+                                    task.id, 
+                                    task.status === "completed" ? "todo" : "completed"
+                                  )}
+                                  className="h-5 w-5 rounded-full"
+                                />
+                              </div>
+                              
+                              <div className="flex-grow">
+                                <h3 className={`font-medium ${task.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
+                                  {task.title}
+                                </h3>
+                                {task.description && (
+                                  <p className="text-sm text-muted-foreground mt-0.5">
+                                    {task.description}
+                                  </p>
+                                )}
+                              </div>
+                              
+                              <div className="flex items-center gap-2 flex-shrink-0">
+                                <span className="text-xs px-2 py-1 rounded-full bg-muted">
+                                  {task.category}
+                                </span>
+                                
+                                {task.dueDate && (
+                                  <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1 bg-muted">
+                                    <Clock className="h-3 w-3" />
+                                    {task.dueDate.toLocaleDateString()}
+                                  </span>
+                                )}
+                                
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  task.priority === "high"
+                                    ? "bg-red-100 text-red-800"
+                                    : task.priority === "medium"
+                                    ? "bg-orange-100 text-orange-800"
+                                    : "bg-blue-100 text-blue-800"
+                                }`}>
+                                  {task.priority}
+                                </span>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+              <CardFooter className="border-t p-4">
+                <p className="text-muted-foreground text-sm">
+                  Showing {filteredTasks.length} {filteredTasks.length === 1 ? "task" : "tasks"}
+                </p>
+              </CardFooter>
+            </Card>
+          </TabsContent>
+        </Tabs>
+        
+        <div className="mt-8">
+          <h2 className="text-xl font-semibold mb-4">Task Board</h2>
+          <KanbanBoard 
+            tasks={taskList} 
+            onUpdateTaskStatus={handleUpdateTaskStatus}
+          />
+        </div>
       </div>
+      
+      <TaskDialog
+        open={showTaskDialog}
+        onOpenChange={setShowTaskDialog}
+        onCreateTask={handleCreateTask}
+      />
     </AppLayout>
   );
 };

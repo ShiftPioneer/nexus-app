@@ -16,7 +16,6 @@ import {
   BookOpen,
   Brain,
   LayoutGrid,
-  BarChart3,
   Settings,
 } from "lucide-react";
 
@@ -38,6 +37,11 @@ const NavigationMenu = () => {
     {
       title: "Tasks",
       path: "/tasks",
+      icon: CheckCircle,
+    },
+    {
+      title: "Habits",
+      path: "/habits",
       icon: CheckCircle,
     },
     {
@@ -69,11 +73,6 @@ const NavigationMenu = () => {
       title: "Knowledge",
       path: "/knowledge",
       icon: LayoutGrid,
-    },
-    {
-      title: "Stats",
-      path: "/stats",
-      icon: BarChart3,
     },
     {
       title: "Settings",

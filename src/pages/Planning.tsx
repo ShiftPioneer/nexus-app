@@ -2,11 +2,8 @@
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, Target, Filter, ListFilter, LayoutGrid, Calendar, Clock, BarChart3 } from "lucide-react";
+import { Plus, Target, Filter, ListFilter, LayoutGrid, Calendar, Clock } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { format } from "date-fns";
 import PlanningBoardView from "@/components/planning/PlanningBoardView";
 import PlanningListView from "@/components/planning/PlanningListView";
 import GoalCreationDialog from "@/components/planning/GoalCreationDialog";
@@ -44,6 +41,8 @@ const Planning = () => {
           dueDate: new Date(2024, 3, 1),
         },
       ],
+      blockingGoals: [],
+      blockedByGoals: []
     },
     {
       id: "2",
@@ -69,6 +68,8 @@ const Planning = () => {
           dueDate: new Date(2024, 2, 15),
         },
       ],
+      blockingGoals: [],
+      blockedByGoals: []
     },
   ]);
 
@@ -81,7 +82,9 @@ const Planning = () => {
       progress: 40,
       startDate: new Date(2024, 2, 10),
       endDate: new Date(2024, 5, 30),
-      status: "in-progress"
+      status: "in-progress",
+      blockingProjects: [],
+      blockedByProjects: []
     },
     {
       id: "2",
@@ -91,7 +94,9 @@ const Planning = () => {
       progress: 25,
       startDate: new Date(2024, 3, 1),
       endDate: new Date(2024, 7, 15),
-      status: "in-progress"
+      status: "in-progress",
+      blockingProjects: [],
+      blockedByProjects: []
     }
   ]);
 
@@ -107,7 +112,7 @@ const Planning = () => {
     <AppLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-4xl font-bold">Goals & Planning</h1>
+          <h1 className="text-4xl font-bold">Planning</h1>
           <p className="text-muted-foreground mt-2">Track your personal and professional goals and projects.</p>
         </div>
 
@@ -133,10 +138,19 @@ const Planning = () => {
             </Button>
           </div>
 
-          <Button onClick={handleNewItem} className="gap-1">
-            <Plus size={18} />
-            New {contentType === "goals" ? "Goal" : "Project"}
-          </Button>
+          <div className="flex gap-2">
+            {contentType === "goals" ? (
+              <Button onClick={() => setShowGoalDialog(true)} className="gap-1">
+                <Plus size={18} />
+                New Goal
+              </Button>
+            ) : (
+              <Button onClick={() => setShowProjectDialog(true)} className="gap-1">
+                <Plus size={18} />
+                New Project
+              </Button>
+            )}
+          </div>
         </div>
 
         <div className="flex bg-muted rounded-lg p-1 w-fit">
@@ -188,6 +202,7 @@ const Planning = () => {
           onGoalCreate={(newGoal) => {
             setGoals([...goals, { ...newGoal, id: String(goals.length + 1) }]);
           }}
+          existingGoals={goals}
         />
 
         <ProjectCreationDialog 
@@ -196,6 +211,7 @@ const Planning = () => {
           onProjectCreate={(newProject) => {
             setProjects([...projects, { ...newProject, id: String(projects.length + 1) }]);
           }}
+          existingProjects={projects}
         />
       </div>
     </AppLayout>
