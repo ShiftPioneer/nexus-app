@@ -1,93 +1,102 @@
 
 import React from "react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-
-interface Habit {
-  id: string;
-  title: string;
-  category: string;
-  streak: number;
-  target: number;
-  status: "completed" | "pending" | "missed";
-  completionDates: Date[];
-  type: "daily" | "weekly" | "monthly";
-  createdAt: Date;
-}
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
 interface HabitStatisticsCategoriesProps {
   habits: Habit[];
 }
 
-const COLORS = {
-  mindfulness: '#9333ea', // Purple
-  health: '#10b981', // Green
-  learning: '#3b82f6', // Blue
-  productivity: '#f97316', // Orange
-  finance: '#14b8a6', // Teal
-  relationship: '#ec4899', // Pink
-  career: '#0f766e', // Dark teal
-};
-
-const HabitStatisticsCategories: React.FC<HabitStatisticsCategoriesProps> = ({ habits }) => {
-  // Calculate habits by category
-  const categoryCounts: Record<string, number> = habits.reduce((acc, habit) => {
-    const category = habit.category.toLowerCase();
-    return {
-      ...acc,
-      [category]: (acc[category] || 0) + 1
-    };
-  }, {} as Record<string, number>);
-  
-  const pieData = Object.entries(categoryCounts).map(([category, count]) => {
-    const percentage = Math.round((count / habits.length) * 100);
-    return {
-      name: category.charAt(0).toUpperCase() + category.slice(1),
-      value: count,
-      percentage,
-      color: (COLORS as Record<string, string>)[category] || '#94a3b8',
-    };
-  });
-  
-  const renderColorfulLegendText = (value: string, entry: any) => {
-    return <span style={{ color: '#888', fontSize: '14px' }}>{value}</span>;
+const HabitStatisticsCategories = ({ habits }: HabitStatisticsCategoriesProps) => {
+  // Define colors for different categories
+  const categoryColors = {
+    health: "#22c55e",
+    mindfulness: "#8b5cf6",
+    learning: "#3b82f6",
+    productivity: "#f59e0b",
+    relationships: "#ec4899",
+    finance: "#10b981",
+    other: "#94a3b8"
   };
-  
+
+  // Get habit count by category
+  const getCategoryData = () => {
+    // If no habits, return empty data
+    if (habits.length === 0) {
+      return [
+        { name: "No Habits", value: 1, color: "#94a3b8" }
+      ];
+    }
+    
+    // Count habits by category
+    const categoryMap = habits.reduce((acc, habit) => {
+      const category = habit.category || "other";
+      if (!acc[category]) {
+        acc[category] = { count: 0, completed: 0 };
+      }
+      acc[category].count += 1;
+      acc[category].completed += habit.completionDates.length;
+      return acc;
+    }, {} as Record<string, { count: number, completed: number }>);
+    
+    // Convert to array format for chart
+    return Object.keys(categoryMap).map(category => {
+      const data = categoryMap[category];
+      return {
+        name: category,
+        value: data.count,
+        completionRate: Math.round((data.completed / (data.count * 30)) * 100),
+        color: categoryColors[category as keyof typeof categoryColors] || "#94a3b8"
+      };
+    });
+  };
+
+  const categoryData = getCategoryData();
+
   return (
-    <div className="space-y-8">
-      <div>
-        <h3 className="text-lg font-medium mb-4">Habits by Category</h3>
-        <div className="h-64">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={pieData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={100}
-                fill="#8884d8"
-                paddingAngle={2}
-                dataKey="value"
-                label={({ name, percentage }) => `${name} ${percentage}%`}
-              >
-                {pieData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-y-2 mt-6">
-          {pieData.map((item, index) => (
-            <div key={index} className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: item.color }}></div>
-              <div className="text-sm">{item.name}</div>
-              <div className="text-sm font-medium">{item.percentage}%</div>
+    <div className="space-y-6">
+      <div className="h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={categoryData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={100}
+              fill="#8884d8"
+              dataKey="value"
+              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+            >
+              {categoryData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip
+              formatter={(value, name) => [`${value}`, `${name} habits`]}
+            />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        {categoryData.map((category, index) => (
+          <div key={index} className="rounded-lg border p-3">
+            <div className="flex items-center gap-2">
+              <div 
+                className="h-3 w-3 rounded-full" 
+                style={{ backgroundColor: category.color }} 
+              />
+              <p className="font-medium capitalize">{category.name}</p>
             </div>
-          ))}
-        </div>
+            <div className="mt-2 flex justify-between text-sm">
+              <p className="text-muted-foreground">Count: {category.value}</p>
+              <p className="text-muted-foreground">
+                Completion: {category.completionRate}%
+              </p>
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

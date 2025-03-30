@@ -1,219 +1,205 @@
 
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
-import { Button } from "@/components/ui/button";
-import { Plus, Target, Filter, ListFilter, LayoutGrid, Calendar, Clock } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import PlanningBoardView from "@/components/planning/PlanningBoardView";
-import PlanningListView from "@/components/planning/PlanningListView";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Plus, Target, ClipboardList } from "lucide-react";
 import GoalCreationDialog from "@/components/planning/GoalCreationDialog";
 import ProjectCreationDialog from "@/components/planning/ProjectCreationDialog";
+import PlanningBoardView from "@/components/planning/PlanningBoardView";
+import PlanningListView from "@/components/planning/PlanningListView";
+import { useToast } from "@/hooks/use-toast";
 
 const Planning = () => {
-  const [viewType, setViewType] = useState<"list" | "board">("list");
-  const [contentType, setContentType] = useState<"goals" | "projects">("goals");
+  const { toast } = useToast();
+  const [view, setView] = useState<'list' | 'board'>('list');
   const [showGoalDialog, setShowGoalDialog] = useState(false);
   const [showProjectDialog, setShowProjectDialog] = useState(false);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
-  // Mock data - In a real app, this would come from a backend
-  const [goals, setGoals] = useState<Goal[]>([
-    {
-      id: "1",
-      title: "Learn Spanish",
-      description: "Become conversationally fluent in Spanish",
-      category: "education",
-      timeframe: "month",
-      progress: 65,
-      startDate: new Date(2024, 0, 15),
-      endDate: new Date(2024, 6, 15),
-      status: "in-progress",
-      milestones: [
-        {
-          id: "m1",
-          title: "Complete Beginner Course",
-          completed: true,
-          dueDate: new Date(2024, 2, 1),
-        },
-        {
-          id: "m2",
-          title: "Have first conversation",
-          completed: false,
-          dueDate: new Date(2024, 3, 1),
-        },
-      ],
-      blockingGoals: [],
-      blockedByGoals: []
-    },
-    {
-      id: "2",
-      title: "Run 5K",
-      description: "Train and complete a 5K run",
-      category: "health",
-      timeframe: "quarter",
-      progress: 85,
-      startDate: new Date(2024, 1, 1),
-      endDate: new Date(2024, 4, 1),
-      status: "in-progress",
-      milestones: [
-        {
-          id: "m1",
-          title: "Run 1K without stopping",
-          completed: true,
-          dueDate: new Date(2024, 1, 15),
-        },
-        {
-          id: "m2",
-          title: "Run 3K without stopping",
-          completed: true,
-          dueDate: new Date(2024, 2, 15),
-        },
-      ],
-      blockingGoals: [],
-      blockedByGoals: []
-    },
-  ]);
-
-  const [projects, setProjects] = useState<Project[]>([
-    {
-      id: "1",
-      title: "Website Redesign",
-      description: "Complete the redesign of the company website",
-      category: "career",
-      progress: 40,
-      startDate: new Date(2024, 2, 10),
-      endDate: new Date(2024, 5, 30),
-      status: "in-progress",
-      blockingProjects: [],
-      blockedByProjects: []
-    },
-    {
-      id: "2",
-      title: "Marketing Campaign",
-      description: "Plan and execute Q2 marketing campaign",
-      category: "career",
-      progress: 25,
-      startDate: new Date(2024, 3, 1),
-      endDate: new Date(2024, 7, 15),
-      status: "in-progress",
-      blockingProjects: [],
-      blockedByProjects: []
-    }
-  ]);
-
-  const handleNewItem = () => {
-    if (contentType === "goals") {
-      setShowGoalDialog(true);
+  const handleGoalCreate = (goal: Goal) => {
+    if (selectedGoal) {
+      // Update existing goal
+      setGoals(goals.map(g => g.id === goal.id ? goal : g));
+      toast({
+        title: "Goal Updated",
+        description: "Your goal has been updated successfully.",
+      });
+      setSelectedGoal(null);
     } else {
-      setShowProjectDialog(true);
+      // Add new goal
+      setGoals([...goals, goal]);
+      toast({
+        title: "Goal Created",
+        description: "Your new goal has been created successfully.",
+      });
     }
+    setShowGoalDialog(false);
+  };
+  
+  const handleProjectCreate = (project: Project) => {
+    if (selectedProject) {
+      // Update existing project
+      setProjects(projects.map(p => p.id === project.id ? project : p));
+      toast({
+        title: "Project Updated",
+        description: "Your project has been updated successfully.",
+      });
+      setSelectedProject(null);
+    } else {
+      // Add new project
+      setProjects([...projects, project]);
+      toast({
+        title: "Project Created",
+        description: "Your new project has been created successfully.",
+      });
+    }
+    setShowProjectDialog(false);
+  };
+
+  const handleEditGoal = (goal: Goal) => {
+    setSelectedGoal(goal);
+    setShowGoalDialog(true);
+  };
+
+  const handleEditProject = (project: Project) => {
+    setSelectedProject(project);
+    setShowProjectDialog(true);
   };
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-4xl font-bold">Planning</h1>
-          <p className="text-muted-foreground mt-2">Track your personal and professional goals and projects.</p>
-        </div>
-
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex bg-muted rounded-lg p-1">
-            <Button
-              variant={contentType === "goals" ? "default" : "ghost"}
-              className="rounded-md"
-              onClick={() => setContentType("goals")}
-            >
-              Goals
+      <div className="animate-fade-in space-y-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold">Planning</h1>
+            <p className="text-muted-foreground">Set and manage your goals and projects</p>
+          </div>
+          
+          <div className="flex gap-3">
+            <Button onClick={() => setShowGoalDialog(true)} className="gap-2">
+              <Plus size={18} />
+              New Goal
             </Button>
-            <Button
-              variant={contentType === "projects" ? "default" : "ghost"}
-              className="rounded-md"
-              onClick={() => setContentType("projects")}
-            >
-              Projects
-            </Button>
-            <Button variant="ghost" className="rounded-md">
-              <Filter className="h-4 w-4 mr-1" />
-              Filter
+            <Button onClick={() => setShowProjectDialog(true)} className="gap-2" variant="outline">
+              <Plus size={18} />
+              New Project
             </Button>
           </div>
-
-          <div className="flex gap-2">
-            {contentType === "goals" ? (
-              <Button onClick={() => setShowGoalDialog(true)} className="gap-1">
-                <Plus size={18} />
-                New Goal
+        </div>
+        
+        <Tabs defaultValue="goals">
+          <div className="flex justify-between items-center">
+            <TabsList>
+              <TabsTrigger value="goals" className="gap-2">
+                <Target className="h-4 w-4" />
+                Goals
+              </TabsTrigger>
+              <TabsTrigger value="projects" className="gap-2">
+                <ClipboardList className="h-4 w-4" />
+                Projects
+              </TabsTrigger>
+            </TabsList>
+            
+            <div className="flex gap-2">
+              <Button 
+                variant={view === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setView('list')}
+              >
+                List
               </Button>
+              <Button 
+                variant={view === 'board' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setView('board')}
+              >
+                Board
+              </Button>
+            </div>
+          </div>
+          
+          <TabsContent value="goals" className="mt-6">
+            {goals.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px]">
+                  <Target className="h-12 w-12 text-muted-foreground opacity-50" />
+                  <h3 className="mt-4 text-lg font-medium">No goals yet</h3>
+                  <p className="mt-2 text-muted-foreground text-center max-w-md">
+                    Create your first goal to track your progress toward important milestones.
+                  </p>
+                  <Button onClick={() => setShowGoalDialog(true)} className="mt-4 gap-2">
+                    <Plus size={16} />
+                    Create First Goal
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : view === 'list' ? (
+              <PlanningListView 
+                items={goals} 
+                itemType="goal" 
+                onEditItem={(goal) => handleEditGoal(goal as Goal)}
+              />
             ) : (
-              <Button onClick={() => setShowProjectDialog(true)} className="gap-1">
-                <Plus size={18} />
-                New Project
-              </Button>
+              <PlanningBoardView 
+                items={goals} 
+                itemType="goal" 
+                onEditItem={(goal) => handleEditGoal(goal as Goal)}
+              />
             )}
-          </div>
-        </div>
-
-        <div className="flex bg-muted rounded-lg p-1 w-fit">
-          <Button
-            variant={viewType === "list" ? "default" : "ghost"}
-            className="rounded-md"
-            onClick={() => setViewType("list")}
-          >
-            List View
-          </Button>
-          <Button
-            variant={viewType === "board" ? "default" : "ghost"}
-            className="rounded-md"
-            onClick={() => setViewType("board")}
-          >
-            Board View
-          </Button>
-        </div>
-
-        {viewType === "list" ? (
-          <PlanningListView 
-            goals={contentType === "goals" ? goals : []} 
-            projects={contentType === "projects" ? projects : []}
-            contentType={contentType}
-            onUpdateGoal={(updatedGoal) => {
-              setGoals(goals.map(g => g.id === updatedGoal.id ? updatedGoal : g));
-            }}
-            onUpdateProject={(updatedProject) => {
-              setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
-            }}
-          />
-        ) : (
-          <PlanningBoardView 
-            goals={contentType === "goals" ? goals : []} 
-            projects={contentType === "projects" ? projects : []}
-            contentType={contentType}
-            onUpdateGoal={(updatedGoal) => {
-              setGoals(goals.map(g => g.id === updatedGoal.id ? updatedGoal : g));
-            }}
-            onUpdateProject={(updatedProject) => {
-              setProjects(projects.map(p => p.id === updatedProject.id ? updatedProject : p));
-            }}
-          />
-        )}
-
-        <GoalCreationDialog 
-          open={showGoalDialog} 
-          onOpenChange={setShowGoalDialog}
-          onGoalCreate={(newGoal) => {
-            setGoals([...goals, { ...newGoal, id: String(goals.length + 1) }]);
-          }}
-          existingGoals={goals}
-        />
-
-        <ProjectCreationDialog 
-          open={showProjectDialog} 
-          onOpenChange={setShowProjectDialog}
-          onProjectCreate={(newProject) => {
-            setProjects([...projects, { ...newProject, id: String(projects.length + 1) }]);
-          }}
-          existingProjects={projects}
-        />
+          </TabsContent>
+          
+          <TabsContent value="projects" className="mt-6">
+            {projects.length === 0 ? (
+              <Card>
+                <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px]">
+                  <ClipboardList className="h-12 w-12 text-muted-foreground opacity-50" />
+                  <h3 className="mt-4 text-lg font-medium">No projects yet</h3>
+                  <p className="mt-2 text-muted-foreground text-center max-w-md">
+                    Create your first project to organize your work and track progress.
+                  </p>
+                  <Button onClick={() => setShowProjectDialog(true)} className="mt-4 gap-2">
+                    <Plus size={16} />
+                    Create First Project
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : view === 'list' ? (
+              <PlanningListView 
+                items={projects} 
+                itemType="project" 
+                onEditItem={(project) => handleEditProject(project as Project)}
+              />
+            ) : (
+              <PlanningBoardView 
+                items={projects} 
+                itemType="project" 
+                onEditItem={(project) => handleEditProject(project as Project)}
+              />
+            )}
+          </TabsContent>
+        </Tabs>
       </div>
+      
+      <GoalCreationDialog
+        open={showGoalDialog}
+        onOpenChange={setShowGoalDialog}
+        onGoalCreate={handleGoalCreate}
+        initialGoal={selectedGoal}
+        existingGoals={goals}
+      />
+      
+      <ProjectCreationDialog
+        open={showProjectDialog}
+        onOpenChange={setShowProjectDialog}
+        onProjectCreate={handleProjectCreate}
+        initialProject={selectedProject}
+        existingProjects={projects}
+      />
     </AppLayout>
   );
 };

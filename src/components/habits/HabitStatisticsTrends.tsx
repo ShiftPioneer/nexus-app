@@ -1,90 +1,144 @@
 
 import React from "react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-interface Habit {
-  id: string;
-  title: string;
-  category: string;
-  streak: number;
-  target: number;
-  status: "completed" | "pending" | "missed";
-  completionDates: Date[];
-  type: "daily" | "weekly" | "monthly";
-  createdAt: Date;
-}
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface HabitStatisticsTrendsProps {
   habits: Habit[];
 }
 
-const HabitStatisticsTrends: React.FC<HabitStatisticsTrendsProps> = ({ habits }) => {
-  // Generate dummy trend data for the charts
-  const dailyCompletionData = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date();
-    date.setDate(date.getDate() - 6 + i);
-    const dayName = date.toLocaleDateString('en-US', { weekday: 'short' });
+const HabitStatisticsTrends = ({ habits }: HabitStatisticsTrendsProps) => {
+  // Calculate weekly completion data
+  const getWeeklyData = () => {
+    const data = [];
+    const today = new Date();
     
-    // Calculate how many habits were completed on this day
-    const completedCount = habits.reduce((acc, habit) => {
-      const wasCompletedOnDay = habit.completionDates.some(completionDate => 
-        completionDate.getDate() === date.getDate() &&
-        completionDate.getMonth() === date.getMonth() &&
-        completionDate.getFullYear() === date.getFullYear()
-      );
-      return acc + (wasCompletedOnDay ? 1 : 0);
-    }, 0);
+    // If no habits, return empty data for the last 12 weeks
+    if (habits.length === 0) {
+      return Array.from({ length: 12 }, (_, i) => {
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - ((11 - i) * 7));
+        return {
+          week: `W${i+1}`,
+          date: weekStart.toISOString().split('T')[0],
+          rate: 0,
+          completed: 0,
+          total: 0
+        };
+      });
+    }
     
-    return {
-      name: dayName,
-      completed: completedCount,
-      target: habits.filter(h => h.type === "daily").length
-    };
-  });
+    // Get data for the last 12 weeks
+    for (let i = 11; i >= 0; i--) {
+      // Calculate the start and end of the week
+      const weekEnd = new Date();
+      weekEnd.setDate(weekEnd.getDate() - (i * 7));
+      const weekStart = new Date(weekEnd);
+      weekStart.setDate(weekStart.getDate() - 6);
+      
+      // Count completed habits this week
+      let completedCount = 0;
+      let totalPossible = 0;
+      
+      // Loop through each day of the week
+      for (let d = 0; d < 7; d++) {
+        const day = new Date(weekStart);
+        day.setDate(day.getDate() + d);
+        const dayString = day.toISOString().split('T')[0];
+        
+        // Get habits that existed on this day
+        const existingHabits = habits.filter(habit => {
+          const habitCreatedDate = new Date(habit.createdAt);
+          return habitCreatedDate <= day;
+        });
+        
+        // Count completed habits on this day
+        const completed = existingHabits.filter(habit => {
+          return habit.completionDates.some(d => 
+            new Date(d).toISOString().split('T')[0] === dayString
+          );
+        }).length;
+        
+        completedCount += completed;
+        totalPossible += existingHabits.length;
+      }
+      
+      const weekNum = 12 - i;
+      
+      data.push({
+        week: `W${weekNum}`,
+        date: weekStart.toISOString().split('T')[0],
+        rate: totalPossible > 0 ? Math.round((completedCount / totalPossible) * 100) : 0,
+        completed: completedCount,
+        total: totalPossible
+      });
+    }
+    
+    return data;
+  };
+
+  const weeklyData = getWeeklyData();
   
-  const weeklyProgressData = Array.from({ length: 7 }, (_, i) => {
-    const day = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'][i];
-    // Using sine wave to generate realistic varying data
-    const value = Math.abs(Math.sin(i * 0.5) * 2) + 0.5;
-    return {
-      name: day,
-      value: value.toFixed(1)
-    };
-  });
-  
+  // If no habits, show a placeholder empty chart
+  if (habits.length === 0) {
+    return (
+      <div className="text-center pt-10 pb-20">
+        <p className="text-muted-foreground mb-6">No habits data available yet</p>
+        <div className="h-[250px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={weeklyData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="week" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Line type="monotone" dataKey="rate" stroke="#8884d8" name="Completion Rate (%)" />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-12">
-      <div>
-        <h3 className="text-lg font-medium mb-3">Daily Completion Rate</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart
-            data={dailyCompletionData}
-            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-          >
+    <div className="space-y-8">
+      <div className="h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={weeklyData}>
             <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
+            <XAxis dataKey="week" />
+            <YAxis yAxisId="left" />
+            <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
             <Tooltip />
-            <Area type="monotone" dataKey="completed" stackId="1" stroke="#4f46e5" fill="#4f46e5" fillOpacity={0.3} />
-            <Area type="monotone" dataKey="target" stackId="2" stroke="#e2e8f0" fill="#e2e8f0" fillOpacity={0.3} />
-          </AreaChart>
+            <Legend />
+            <Line
+              yAxisId="left"
+              type="monotone"
+              dataKey="completed"
+              stroke="#22c55e"
+              activeDot={{ r: 8 }}
+              name="Completed Habits"
+            />
+            <Line 
+              yAxisId="left" 
+              type="monotone" 
+              dataKey="total" 
+              stroke="#94a3b8" 
+              name="Total Possible" 
+            />
+            <Line
+              yAxisId="right"
+              type="monotone"
+              dataKey="rate"
+              stroke="#8b5cf6"
+              name="Completion Rate (%)"
+            />
+          </LineChart>
         </ResponsiveContainer>
       </div>
       
-      <div>
-        <h3 className="text-lg font-medium mb-3">Weekly Progress</h3>
-        <ResponsiveContainer width="100%" height={300}>
-          <AreaChart
-            data={weeklyProgressData}
-            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="name" />
-            <YAxis />
-            <Tooltip />
-            <Area type="monotone" dataKey="value" stroke="#ef4444" fill="#ef4444" fillOpacity={0.3} />
-          </AreaChart>
-        </ResponsiveContainer>
+      <div className="text-sm text-muted-foreground text-center">
+        <p>Weekly trends show your habit completion over the last 12 weeks</p>
+        <p>A higher completion rate indicates better consistency in maintaining your habits</p>
       </div>
     </div>
   );

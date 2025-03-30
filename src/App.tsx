@@ -32,6 +32,7 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/planning" element={<Planning />} />
               <Route path="/tasks" element={<Tasks />} />
+              <Route path="/habits" element={<Habits />} />
               <Route path="/time-design" element={<TimeDesign />} />
               <Route path="/energy" element={<Energy />} />
               <Route path="/mindset" element={<Mindset />} />
@@ -39,7 +40,6 @@ const App = () => {
               <Route path="/knowledge" element={<Knowledge />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/focus" element={<Focus />} />
-              <Route path="/habits" element={<Habits />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

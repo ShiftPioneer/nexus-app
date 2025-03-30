@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, CheckCircle2, Award, BarChart2, LineChart, Calendar, Filter } from "lucide-react";
@@ -13,23 +13,12 @@ import HabitStatisticsCategories from "@/components/habits/HabitStatisticsCatego
 import HabitStatisticsStreaks from "@/components/habits/HabitStatisticsStreaks";
 import HabitCreationDialog from "@/components/habits/HabitCreationDialog";
 
-interface Habit {
-  id: string;
-  title: string;
-  category: string;
-  streak: number;
-  target: number;
-  status: "completed" | "pending" | "missed";
-  completionDates: Date[];
-  type: "daily" | "weekly" | "monthly";
-  createdAt: Date;
-}
-
 const Habits = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("active");
   const [statisticsTab, setStatisticsTab] = useState("overview");
   const [showHabitDialog, setShowHabitDialog] = useState(false);
+  const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   
   const [habits, setHabits] = useState<Habit[]>([
     {
@@ -91,19 +80,35 @@ const Habits = () => {
   ]);
   
   const handleCreateHabit = (habit: Habit) => {
-    const newHabit = {
-      ...habit,
-      id: `habit-${Date.now()}`,
-      createdAt: new Date(),
-      streak: 0,
-      completionDates: []
-    };
-    setHabits([...habits, newHabit]);
-    toast({
-      title: "Habit Created",
-      description: "Your new habit has been created successfully!",
-    });
+    if (selectedHabit) {
+      // Update existing habit
+      setHabits(habits.map(h => h.id === habit.id ? habit : h));
+      toast({
+        title: "Habit Updated",
+        description: "Your habit has been updated successfully!",
+      });
+      setSelectedHabit(null);
+    } else {
+      // Create new habit
+      const newHabit = {
+        ...habit,
+        id: `habit-${Date.now()}`,
+        createdAt: new Date(),
+        streak: 0,
+        completionDates: []
+      };
+      setHabits([...habits, newHabit]);
+      toast({
+        title: "Habit Created",
+        description: "Your new habit has been created successfully!",
+      });
+    }
     setShowHabitDialog(false);
+  };
+  
+  const handleEditHabit = (habit: Habit) => {
+    setSelectedHabit(habit);
+    setShowHabitDialog(true);
   };
   
   const completeHabit = (id: string) => {
@@ -142,8 +147,8 @@ const Habits = () => {
   const todayCompleted = habits.filter(h => h.status === "completed").length;
   const totalHabits = habits.length;
   const completionRate = Math.round((habits.reduce((acc, habit) => 
-    acc + habit.completionDates.length, 0) / (habits.length * 30)) * 100);
-  const longestStreak = Math.max(...habits.map(h => h.streak));
+    acc + habit.completionDates.length, 0) / (Math.max(1, habits.length) * 30)) * 100);
+  const longestStreak = habits.length > 0 ? Math.max(...habits.map(h => h.streak)) : 0;
   const accountabilityScore = habits.reduce((acc, habit) => acc + habit.streak * 10, 0);
 
   const pendingHabits = habits.filter(habit => habit.status === "pending");
@@ -161,7 +166,7 @@ const Habits = () => {
             </h1>
             <p className="text-muted-foreground">Build consistency with your daily habits.</p>
           </div>
-          <Button onClick={() => setShowHabitDialog(true)} className="gap-2">
+          <Button onClick={() => {setSelectedHabit(null); setShowHabitDialog(true);}} className="gap-2">
             <Plus size={18} />
             New Habit
           </Button>
@@ -169,7 +174,7 @@ const Habits = () => {
         
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-blue-50">
+          <Card className="bg-blue-50 dark:bg-blue-950/30">
             <CardContent className="pt-6">
               <div className="flex justify-between items-center">
                 <div>
@@ -179,8 +184,8 @@ const Habits = () => {
                     <span className="mr-1">+{Math.round(accountabilityScore * 0.1)} this week</span>
                   </p>
                 </div>
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <Award className="h-6 w-6 text-blue-600" />
+                <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
+                  <Award className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
               </div>
             </CardContent>
@@ -198,7 +203,7 @@ const Habits = () => {
                   <CheckCircle2 className="h-6 w-6 text-primary" />
                 </div>
               </div>
-              <Progress value={(todayCompleted / totalHabits) * 100} className="h-2 mt-4" />
+              <Progress value={(todayCompleted / Math.max(1, totalHabits)) * 100} className="h-2 mt-4" />
             </CardContent>
           </Card>
           
@@ -210,8 +215,8 @@ const Habits = () => {
                   <h2 className="text-3xl font-bold">{longestStreak}</h2>
                   <p className="text-xs text-muted-foreground mt-1">days in a row</p>
                 </div>
-                <div className="bg-orange-100 p-3 rounded-full">
-                  <Award className="h-6 w-6 text-orange-600" />
+                <div className="bg-orange-100 dark:bg-orange-950/50 p-3 rounded-full">
+                  <Award className="h-6 w-6 text-orange-600 dark:text-orange-400" />
                 </div>
               </div>
             </CardContent>
@@ -225,8 +230,8 @@ const Habits = () => {
                   <h2 className="text-3xl font-bold">{completionRate}%</h2>
                   <p className="text-xs text-muted-foreground mt-1">overall success</p>
                 </div>
-                <div className="bg-green-100 p-3 rounded-full">
-                  <BarChart2 className="h-6 w-6 text-green-600" />
+                <div className="bg-green-100 dark:bg-green-950/50 p-3 rounded-full">
+                  <BarChart2 className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
               </div>
             </CardContent>
@@ -234,7 +239,7 @@ const Habits = () => {
         </div>
         
         <Tabs defaultValue="active" value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center flex-wrap gap-3">
             <TabsList>
               <TabsTrigger value="active">Active Habits</TabsTrigger>
               <TabsTrigger value="statistics">Statistics</TabsTrigger>
@@ -245,11 +250,11 @@ const Habits = () => {
             <div className="flex items-center gap-2">
               <Button variant="outline" size="sm" className="gap-1">
                 <Filter className="h-4 w-4" />
-                <span>Filter</span>
+                <span className="hidden sm:inline">Filter</span>
               </Button>
               <Button variant="outline" size="sm" className="gap-1">
                 <Calendar className="h-4 w-4" />
-                <span>Week</span>
+                <span className="hidden sm:inline">Week</span>
               </Button>
             </div>
           </div>
@@ -262,14 +267,18 @@ const Habits = () => {
                 <p className="mt-2 text-muted-foreground">
                   Start by creating your first habit to track.
                 </p>
-                <Button onClick={() => setShowHabitDialog(true)} className="mt-4">
+                <Button onClick={() => {setSelectedHabit(null); setShowHabitDialog(true);}} className="mt-4">
                   Create New Habit
                 </Button>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pendingHabits.map(habit => (
-                  <Card key={habit.id} className="overflow-hidden hover:border-primary/50 transition-colors">
+                  <Card 
+                    key={habit.id} 
+                    className="overflow-hidden hover:border-primary/50 transition-colors cursor-pointer"
+                    onClick={() => handleEditHabit(habit)}
+                  >
                     <CardContent className="p-0">
                       <div className="p-4">
                         <div className="flex justify-between items-start mb-3">
@@ -292,7 +301,10 @@ const Habits = () => {
                           </div>
                           <Button 
                             size="sm" 
-                            onClick={() => completeHabit(habit.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              completeHabit(habit.id);
+                            }}
                           >
                             Complete
                           </Button>
@@ -327,14 +339,14 @@ const Habits = () => {
           <TabsContent value="statistics" className="mt-6">
             <Card>
               <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between flex-wrap gap-3">
                   <CardTitle className="text-lg flex items-center gap-2">
                     <LineChart className="h-5 w-5" />
                     Habit Statistics
                   </CardTitle>
                   
                   <Tabs defaultValue="overview" value={statisticsTab} onValueChange={setStatisticsTab}>
-                    <TabsList>
+                    <TabsList className="overflow-x-auto">
                       <TabsTrigger value="overview">Overview</TabsTrigger>
                       <TabsTrigger value="trends">Trends</TabsTrigger>
                       <TabsTrigger value="categories">Categories</TabsTrigger>
@@ -364,7 +376,11 @@ const Habits = () => {
             ) : (
               <div className="space-y-4">
                 {completedHabits.map(habit => (
-                  <Card key={habit.id} className="overflow-hidden bg-muted/5 border-success/30">
+                  <Card 
+                    key={habit.id} 
+                    className="overflow-hidden bg-muted/5 border-success/30 cursor-pointer"
+                    onClick={() => handleEditHabit(habit)}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full flex items-center justify-center bg-success/20">
@@ -402,7 +418,11 @@ const Habits = () => {
             ) : (
               <div className="space-y-4">
                 {missedHabits.map(habit => (
-                  <Card key={habit.id} className="overflow-hidden border-destructive/30">
+                  <Card 
+                    key={habit.id} 
+                    className="overflow-hidden border-destructive/30 cursor-pointer"
+                    onClick={() => handleEditHabit(habit)}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full flex items-center justify-center bg-destructive/20">
@@ -419,7 +439,10 @@ const Habits = () => {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => completeHabit(habit.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            completeHabit(habit.id);
+                          }}
                         >
                           Complete
                         </Button>
@@ -437,6 +460,7 @@ const Habits = () => {
         open={showHabitDialog}
         onOpenChange={setShowHabitDialog}
         onHabitCreate={handleCreateHabit}
+        initialHabit={selectedHabit}
       />
     </AppLayout>
   );

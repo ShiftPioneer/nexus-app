@@ -17,6 +17,7 @@ import {
   Brain,
   LayoutGrid,
   Settings,
+  Calendar,
 } from "lucide-react";
 
 const NavigationMenu = () => {
@@ -42,7 +43,7 @@ const NavigationMenu = () => {
     {
       title: "Habits",
       path: "/habits",
-      icon: CheckCircle,
+      icon: Calendar,
     },
     {
       title: "Time Design",

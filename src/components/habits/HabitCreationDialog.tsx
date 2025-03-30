@@ -1,121 +1,119 @@
 
 import React, { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-
-interface Habit {
-  id: string;
-  title: string;
-  category: string;
-  streak: number;
-  target: number;
-  status: "completed" | "pending" | "missed";
-  completionDates: Date[];
-  type: "daily" | "weekly" | "monthly";
-  createdAt: Date;
-}
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useForm } from "react-hook-form";
 
 interface HabitCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onHabitCreate: (habit: Habit) => void;
+  initialHabit?: Habit | null;
 }
-
-const CATEGORIES = [
-  "mindfulness",
-  "health",
-  "learning",
-  "productivity",
-  "finance",
-  "relationship",
-  "career",
-];
 
 const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
   open,
   onOpenChange,
   onHabitCreate,
+  initialHabit = null,
 }) => {
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("mindfulness");
-  const [type, setType] = useState<"daily" | "weekly" | "monthly">("daily");
-  const [target, setTarget] = useState(10);
-  const [scoreValue, setScoreValue] = useState(5);
-  const [penaltyValue, setPenaltyValue] = useState(10);
+  const [title, setTitle] = useState(initialHabit?.title || "");
+  const [category, setCategory] = useState<string>(initialHabit?.category || "health");
+  const [target, setTarget] = useState<number>(initialHabit?.target || 21);
+  const [type, setType] = useState<"daily" | "weekly" | "monthly">(initialHabit?.type || "daily");
   
-  const handleSubmit = () => {
-    const newHabit: Habit = {
-      id: "",
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!title.trim()) {
+      return;
+    }
+    
+    const habit: Habit = {
+      id: initialHabit?.id || `habit-${Date.now()}`,
       title,
       category,
-      streak: 0,
+      streak: initialHabit?.streak || 0,
       target,
-      status: "pending",
-      completionDates: [],
+      status: initialHabit?.status || "pending",
+      completionDates: initialHabit?.completionDates || [],
       type,
-      createdAt: new Date()
+      createdAt: initialHabit?.createdAt || new Date(),
     };
     
-    onHabitCreate(newHabit);
+    onHabitCreate(habit);
     resetForm();
   };
   
   const resetForm = () => {
-    setTitle("");
-    setCategory("mindfulness");
-    setType("daily");
-    setTarget(10);
-    setScoreValue(5);
-    setPenaltyValue(10);
+    if (!initialHabit) {
+      setTitle("");
+      setCategory("health");
+      setTarget(21);
+      setType("daily");
+    }
   };
   
+  const categoryOptions = [
+    { value: "health", label: "Health" },
+    { value: "mindfulness", label: "Mindfulness" },
+    { value: "learning", label: "Learning" },
+    { value: "productivity", label: "Productivity" },
+    { value: "relationships", label: "Relationships" },
+    { value: "finance", label: "Finance" },
+    { value: "other", label: "Other" },
+  ];
+  
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) resetForm();
-      onOpenChange(isOpen);
-    }}>
-      <DialogContent className="sm:max-w-[550px]">
-        <DialogHeader>
-          <DialogTitle>Create New Habit</DialogTitle>
-        </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Habit Name</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="What habit would you like to build?"
-            />
-            <p className="text-xs text-muted-foreground">Be specific (e.g., "Meditate for 10 minutes" instead of just "Meditate")</p>
-          </div>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[500px]">
+        <form onSubmit={handleSubmit}>
+          <DialogHeader>
+            <DialogTitle>{initialHabit ? "Edit Habit" : "Create New Habit"}</DialogTitle>
+            <DialogDescription>
+              {initialHabit 
+                ? "Update your habit details below."
+                : "Add a new habit to track. Consistent habits lead to long-term success."
+              }
+            </DialogDescription>
+          </DialogHeader>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Select
-                value={type}
-                onValueChange={(val) => setType(val as "daily" | "weekly" | "monthly")}
-              >
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="title">Habit Name</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="E.g., Morning Meditation"
+                required
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="category">Category</Label>
+              <Select value={category} onValueChange={setCategory}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoryOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="type">Frequency</Label>
+              <Select value={type} onValueChange={(val: "daily" | "weekly" | "monthly") => setType(val)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select frequency" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="daily">Daily</SelectItem>
@@ -125,98 +123,30 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
               </Select>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select
-                value={category}
-                onValueChange={setCategory}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((cat) => (
-                    <SelectItem key={cat} value={cat}>
-                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid gap-2">
+              <Label htmlFor="target">Target (days)</Label>
+              <Input
+                id="target"
+                type="number"
+                min={1}
+                value={target}
+                onChange={(e) => setTarget(parseInt(e.target.value))}
+              />
+              <p className="text-xs text-muted-foreground">
+                It takes at least 21 days to form a habit (recommended)
+              </p>
             </div>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="duration">Duration</Label>
-            <Input
-              id="duration"
-              placeholder="10 minutes"
-              className="w-full"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="target">Initial Commitment</Label>
-            <Select
-              value={String(target)}
-              onValueChange={(val) => setTarget(parseInt(val, 10))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select target" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="3">3 Days</SelectItem>
-                <SelectItem value="7">7 Days</SelectItem>
-                <SelectItem value="10">10 Days</SelectItem>
-                <SelectItem value="21">21 Days</SelectItem>
-                <SelectItem value="30">30 Days</SelectItem>
-                <SelectItem value="66">66 Days</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="pt-4 border-t">
-            <h4 className="text-sm font-medium mb-4">Gamification Settings</h4>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="score">Score Value (when completed)</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="score"
-                    type="number"
-                    value={scoreValue}
-                    onChange={(e) => setScoreValue(parseInt(e.target.value, 10))}
-                    className="w-full"
-                  />
-                  <span className="text-muted-foreground">points</span>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="penalty">Penalty Value (when missed)</Label>
-                <div className="flex items-center gap-2">
-                  <Input
-                    id="penalty"
-                    type="number"
-                    value={penaltyValue}
-                    onChange={(e) => setPenaltyValue(parseInt(e.target.value, 10))}
-                    className="w-full"
-                  />
-                  <span className="text-muted-foreground">points</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={!title.trim()}>
-            Create Habit
-          </Button>
-        </DialogFooter>
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">
+              {initialHabit ? "Save Changes" : "Create Habit"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

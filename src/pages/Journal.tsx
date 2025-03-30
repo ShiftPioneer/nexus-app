@@ -1,11 +1,9 @@
-
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { Search, Plus, PenSquare, Calendar, BookText, Tag, Clock } from "lucide-react";
@@ -234,7 +232,7 @@ const Journal = () => {
                         </p>
                         <Button onClick={() => setShowNewEntry(true)} className="mt-4 gap-2">
                           <Plus size={16} />
-                          Create New Journal
+                          New Journal
                         </Button>
                       </div>
                     )}
