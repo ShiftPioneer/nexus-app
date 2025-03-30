@@ -1,9 +1,11 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Plus, Award, ArrowRight } from "lucide-react";
+import { CheckCircle, Plus, Award, ArrowRight, Clock, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
 
 interface Habit {
   id: string;
@@ -11,7 +13,8 @@ interface Habit {
   streak: number;
   target: number;
   status: "completed" | "pending" | "missed";
-  category: "health" | "productivity" | "mindfulness" | "personal";
+  category: "health" | "productivity" | "mindfulness" | "personal" | "religion" | "other";
+  duration?: string;
 }
 
 const HabitsSection = () => {
@@ -22,7 +25,8 @@ const HabitsSection = () => {
       streak: 7,
       target: 10,
       status: "completed",
-      category: "mindfulness"
+      category: "mindfulness",
+      duration: "10 minutes"
     },
     {
       id: "2",
@@ -30,26 +34,21 @@ const HabitsSection = () => {
       streak: 3,
       target: 5,
       status: "pending",
-      category: "health"
+      category: "health",
+      duration: "30 minutes"
     },
     {
       id: "3",
-      title: "Read 30 minutes",
+      title: "Read",
       streak: 12,
       target: 30,
       status: "pending",
-      category: "personal"
+      category: "personal",
+      duration: "20 pages"
     },
-    {
-      id: "4",
-      title: "Water Intake",
-      streak: 5,
-      target: 8,
-      status: "pending",
-      category: "health"
-    }
   ]);
 
+  const navigate = useNavigate();
   const { toast } = useToast();
   
   const completeHabit = (id: string) => {
@@ -83,24 +82,24 @@ const HabitsSection = () => {
     }
   };
   
-  const addNewHabit = () => {
-    toast({
-      description: "Habit creation coming soon!",
-    });
+  const navigateToHabits = () => {
+    navigate("/habits");
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'health':
-        return 'bg-success/10 text-success';
+        return 'bg-green-100 text-green-600';
       case 'productivity':
-        return 'bg-primary/10 text-primary';
+        return 'bg-orange-100 text-orange-600';
       case 'mindfulness':
-        return 'bg-accent/10 text-accent';
+        return 'bg-blue-100 text-blue-600';
       case 'personal':
-        return 'bg-secondary/10 text-secondary';
+        return 'bg-purple-100 text-purple-600';
+      case 'religion':
+        return 'bg-amber-100 text-amber-600';
       default:
-        return 'bg-muted/10 text-muted-foreground';
+        return 'bg-gray-100 text-gray-600';
     }
   };
 
@@ -112,18 +111,18 @@ const HabitsSection = () => {
         <CardHeader className="pb-2">
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Daily Habits</CardTitle>
-              <CardDescription>Track your consistency and build momentum</CardDescription>
+              <CardTitle>Habits</CardTitle>
+              <CardDescription>Track your daily habits and build streaks</CardDescription>
             </div>
-            <Button onClick={addNewHabit} size="sm" className="gap-1">
+            <Button onClick={navigateToHabits} size="sm" className="gap-1">
               <Plus className="h-4 w-4" />
-              <span>New Habit</span>
+              <span>View All</span>
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {habits.map((habit) => (
+          <div className="space-y-2">
+            {habits.slice(0, 3).map((habit) => (
               <Card 
                 key={habit.id} 
                 className={cn(
@@ -131,7 +130,7 @@ const HabitsSection = () => {
                   habit.status === "completed" && "border-success/30 bg-success/5"
                 )}
               >
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="flex justify-between items-center">
                     <div className="flex items-center gap-3">
                       <div 
@@ -146,14 +145,13 @@ const HabitsSection = () => {
                         />
                       </div>
                       <div>
-                        <h4 className="font-medium text-sm">{habit.title}</h4>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Award className="h-3.5 w-3.5 text-energy" />
-                          <span className="text-xs text-muted-foreground">
-                            {habit.streak} day streak
-                          </span>
-                          <span className="text-xs px-1.5 py-0.5 rounded-full text-muted-foreground bg-muted/30">
-                            {habit.target} day goal
+                        <h4 className="font-medium">{habit.title}</h4>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
+                          <Clock className="h-3.5 w-3.5" />
+                          <span>{habit.duration}</span>
+                          <span className="flex items-center gap-1">
+                            <Award className="h-3.5 w-3.5 text-orange-500" />
+                            <span>{habit.streak} day streak</span>
                           </span>
                         </div>
                       </div>
@@ -163,8 +161,7 @@ const HabitsSection = () => {
                       {habit.status === "pending" ? (
                         <Button 
                           size="sm" 
-                          variant="outline"
-                          onClick={() => completeHabit(habit.id)}
+                          onClick={(e) => completeHabit(habit.id)}
                           className="opacity-0 group-hover:opacity-100 transition-opacity"
                         >
                           Complete
@@ -176,40 +173,13 @@ const HabitsSection = () => {
                       )}
                     </div>
                   </div>
-
-                  <div className="mt-3">
-                    <div className="progress-bar-bg">
-                      <div 
-                        className="progress-bar-fill"
-                        style={{ 
-                          width: `${(habit.streak / habit.target) * 100}%`,
-                          backgroundColor: habit.category === 'health' ? '#39D98A' : 
-                                        habit.category === 'productivity' ? '#FF6500' :
-                                        habit.category === 'mindfulness' ? '#00D4FF' : '#024CAA'
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                  
-                  <div className="mt-3 flex justify-between items-center">
-                    <div className={`px-2 py-0.5 rounded-full text-xs ${getCategoryColor(habit.category)}`}>
-                      {habit.category.charAt(0).toUpperCase() + habit.category.slice(1)}
-                    </div>
-                    
-                    {habit.streak === (habit.target - 1) && habit.status === "pending" && (
-                      <div className="text-xs text-energy flex items-center gap-1">
-                        <span>1 more to reach your goal!</span>
-                        <ArrowRight className="h-3 w-3" />
-                      </div>
-                    )}
-                  </div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
           <div className="mt-4 flex justify-center">
-            <Button variant="outline" onClick={addNewHabit}>
+            <Button variant="outline" onClick={navigateToHabits}>
               View All Habits
             </Button>
           </div>
