@@ -20,34 +20,32 @@ import {
 } from "@/components/ui/select";
 import { format } from "date-fns";
 
-interface GoalCreationDialogProps {
+interface ProjectCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onGoalCreate: (goal: Omit<Goal, "id">) => void;
+  onProjectCreate: (project: Omit<Project, "id">) => void;
 }
 
-const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
+const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
   open,
   onOpenChange,
-  onGoalCreate,
+  onProjectCreate,
 }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData(e.target as HTMLFormElement);
     
-    const newGoal: Omit<Goal, "id"> = {
+    const newProject: Omit<Project, "id"> = {
       title: formData.get("title") as string,
       description: formData.get("description") as string,
-      category: formData.get("category") as Goal["category"],
-      timeframe: formData.get("timeframe") as Goal["timeframe"],
+      category: formData.get("category") as Project["category"],
       progress: 0,
       startDate: new Date(formData.get("startDate") as string),
       endDate: new Date(formData.get("endDate") as string),
       status: "not-started",
-      milestones: [],
     };
     
-    onGoalCreate(newGoal);
+    onProjectCreate(newProject);
     onOpenChange(false);
   };
 
@@ -55,57 +53,38 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>Create New Goal</DialogTitle>
+          <DialogTitle>Create New Project</DialogTitle>
           <DialogDescription>
-            Set a clear goal with a defined timeframe to track your progress.
+            Set up a new project with milestones and deadlines.
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Goal Title</Label>
+            <Label htmlFor="title">Project Title</Label>
             <Input 
               id="title" 
               name="title" 
-              placeholder="What do you want to achieve?" 
+              placeholder="Name your project" 
               required 
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select name="category" required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="wealth">Wealth</SelectItem>
-                  <SelectItem value="health">Health</SelectItem>
-                  <SelectItem value="relationships">Relationships</SelectItem>
-                  <SelectItem value="spirituality">Spirituality</SelectItem>
-                  <SelectItem value="education">Education</SelectItem>
-                  <SelectItem value="career">Career</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="timeframe">Timeframe</Label>
-              <Select name="timeframe" required>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select timeframe" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="week">Week</SelectItem>
-                  <SelectItem value="month">Month</SelectItem>
-                  <SelectItem value="quarter">Quarter</SelectItem>
-                  <SelectItem value="year">Year</SelectItem>
-                  <SelectItem value="decade">10 Years</SelectItem>
-                  <SelectItem value="lifetime">All Time</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select name="category" required>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="wealth">Wealth</SelectItem>
+                <SelectItem value="health">Health</SelectItem>
+                <SelectItem value="relationships">Relationships</SelectItem>
+                <SelectItem value="spirituality">Spirituality</SelectItem>
+                <SelectItem value="education">Education</SelectItem>
+                <SelectItem value="career">Career</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="space-y-2">
@@ -113,9 +92,9 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
             <Textarea 
               id="description" 
               name="description" 
-              placeholder="Add some details about your goal" 
+              placeholder="Add some details about your project" 
               required 
-              rows={3} 
+              rows={4} 
             />
           </div>
           
@@ -147,7 +126,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit" className="px-8 bg-blue-600 hover:bg-blue-700">Create Goal</Button>
+            <Button type="submit" className="px-8 bg-blue-600 hover:bg-blue-700">Create Project</Button>
           </div>
         </form>
       </DialogContent>
@@ -155,4 +134,4 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   );
 };
 
-export default GoalCreationDialog;
+export default ProjectCreationDialog;

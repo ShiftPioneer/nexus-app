@@ -1,125 +1,105 @@
 
 import React from "react";
-import { useLocation, Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
+  LayoutGrid,
+  CheckCircle,
+  BarChart3,
+  BookOpen,
+  Settings,
+  Target,
+  LayoutDashboard,
+  Clock,
+  Sparkles,
+  Brain,
+  Zap
+} from "lucide-react";
+
+import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
-import {
-  LayoutDashboard,
-  Target,
-  ListTodo,
-  Clock,
-  Zap,
-  Brain,
-  BookText,
-  BookOpen,
-  Settings,
-  Timer
-} from "lucide-react";
 
 const NavigationMenu = () => {
   const location = useLocation();
+  const currentPath = location.pathname;
 
   const menuItems = [
     {
       title: "Dashboard",
-      icon: LayoutDashboard,
       path: "/",
+      icon: LayoutDashboard,
     },
     {
-      title: "Goals & Planning",
-      icon: Target,
+      title: "Planning",
       path: "/planning",
+      icon: Target,
     },
     {
       title: "Tasks",
-      icon: ListTodo,
       path: "/tasks",
+      icon: CheckCircle,
     },
     {
       title: "Time Design",
-      icon: Clock,
       path: "/time-design",
-    },
-    {
-      title: "Focus",
-      icon: Timer,
-      path: "/focus",
+      icon: Clock,
     },
     {
       title: "Energy",
-      icon: Zap,
       path: "/energy",
+      icon: Zap,
     },
     {
-      title: "Mindset OS",
-      icon: Brain,
-      path: "/mindset",
+      title: "Focus",
+      path: "/focus",
+      icon: Sparkles,
     },
     {
       title: "Journal",
-      icon: BookText,
       path: "/journal",
+      icon: BookOpen,
+    },
+    {
+      title: "Mindset",
+      path: "/mindset",
+      icon: Brain,
     },
     {
       title: "Knowledge",
-      icon: BookOpen,
       path: "/knowledge",
+      icon: LayoutGrid,
+    },
+    {
+      title: "Stats",
+      path: "/stats",
+      icon: BarChart3,
+    },
+    {
+      title: "Settings",
+      path: "/settings",
+      icon: Settings,
     },
   ];
 
-  const isActive = (path: string) => {
-    return location.pathname === path;
-  };
-
   return (
-    <>
-      <SidebarGroup>
-        <SidebarGroupLabel>Navigation</SidebarGroupLabel>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            {menuItems.map((item) => (
-              <SidebarMenuItem key={item.path}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive(item.path)}
-                  tooltip={item.title}
-                >
-                  <Link to={item.path} className="flex items-center gap-2">
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.title}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            ))}
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-
-      <SidebarGroup>
-        <SidebarGroupContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                asChild
-                isActive={isActive("/settings")}
-                tooltip="Settings"
-              >
-                <Link to="/settings" className="flex items-center gap-2">
-                  <Settings className="h-4 w-4" />
-                  <span>Settings</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroupContent>
-      </SidebarGroup>
-    </>
+    <SidebarMenu>
+      {menuItems.map((item) => (
+        <SidebarMenuItem key={item.path}>
+          <SidebarMenuButton 
+            asChild 
+            isActive={currentPath === item.path}
+            tooltip={item.title}
+          >
+            <Link to={item.path} className="w-full">
+              <item.icon className="h-4 w-4" />
+              <span>{item.title}</span>
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
   );
 };
 

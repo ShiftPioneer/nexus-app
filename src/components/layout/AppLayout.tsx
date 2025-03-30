@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Sidebar, SidebarContent, SidebarRail } from "@/components/ui/sidebar";
 import TopBar from "./TopBar";
@@ -18,8 +18,8 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         variant="sidebar"
         collapsible="icon"
         style={{
-          '--sidebar-width': '14rem',
-          '--sidebar-width-icon': '2.5rem'
+          '--sidebar-width': '12rem',
+          '--sidebar-width-icon': '1.5rem'
         } as React.CSSProperties}
       >
         <SidebarRail />
