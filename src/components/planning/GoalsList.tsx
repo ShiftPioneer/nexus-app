@@ -43,7 +43,7 @@ const GoalsList: React.FC<GoalsListProps> = ({ goals, onGoalUpdate }) => {
                 {goal.title}
               </span>
               <span className="text-sm font-normal text-muted-foreground">
-                {goal.timeframe === "short-term" ? "Short Term" : "Long Term"}
+                {goal.timeframe}
               </span>
             </CardTitle>
           </CardHeader>
