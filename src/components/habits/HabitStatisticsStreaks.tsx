@@ -3,7 +3,7 @@ import React from "react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Fire, Award } from "lucide-react";
+import { Flame, Award } from "lucide-react";
 
 interface HabitStatisticsStreaksProps {
   habits: Habit[];
@@ -110,7 +110,7 @@ const HabitStatisticsStreaks = ({ habits }: HabitStatisticsStreaksProps) => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2 text-orange-500">
-                      <Fire className="h-5 w-5" />
+                      <Flame className="h-5 w-5" />
                       <span className="font-bold text-xl">{habit.streak}</span>
                       <span className="text-xs text-muted-foreground">days</span>
                     </div>

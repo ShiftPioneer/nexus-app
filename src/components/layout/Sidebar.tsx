@@ -4,23 +4,10 @@ import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar as ShadcnSidebar,
   SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   SidebarFooter,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import {
-  LayoutDashboard,
-  Target,
-  CheckCircle,
-  Clock,
-  Zap,
-  Sparkles,
-  BookOpen,
-  Brain,
-  LayoutGrid,
-  Settings,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
@@ -38,13 +25,14 @@ const Sidebar: React.FC<SidebarProps> = () => {
   return (
     <ShadcnSidebar
       variant="sidebar"
-      collapsed={isCollapsed}
-      collapsible="icon"
-      className="transition-all duration-300"
+      // Remove the collapsed prop as it doesn't exist in the type definition
+      // Use data attributes to control the collapsed state
+      className={`transition-all duration-300 ${isCollapsed ? 'collapsed' : ''}`}
       style={{
         '--sidebar-width': '14rem',
         '--sidebar-width-collapsed': '4rem'
       } as React.CSSProperties}
+      data-collapsed={isCollapsed}
     >
       <SidebarRail>
         <div className="h-full flex flex-col justify-between">
