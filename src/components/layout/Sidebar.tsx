@@ -2,9 +2,13 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
+  Sidebar as ShadcnSidebar,
+  SidebarContent,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarFooter,
+  SidebarRail,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
@@ -20,10 +24,14 @@ import {
   Settings,
 } from "lucide-react";
 
-const NavigationMenu = () => {
+interface SidebarProps {
+  collapsed?: boolean;
+}
+
+const Sidebar: React.FC<SidebarProps> = () => {
   const location = useLocation();
   const currentPath = location.pathname;
-
+  
   const menuItems = [
     {
       title: "Dashboard",
@@ -83,23 +91,36 @@ const NavigationMenu = () => {
   ];
 
   return (
-    <SidebarMenu>
-      {menuItems.map((item) => (
-        <SidebarMenuItem key={item.path}>
-          <SidebarMenuButton 
-            asChild 
-            isActive={currentPath === item.path}
-            tooltip={item.title}
-          >
-            <Link to={item.path} className="w-full">
-              <item.icon className="h-4 w-4" />
-              <span>{item.title}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
-    </SidebarMenu>
+    <ShadcnSidebar
+      variant="sidebar"
+      collapsible="icon"
+      style={{
+        '--sidebar-width': '10rem', // narrower width
+        '--sidebar-width-icon': '1.5rem'
+      } as React.CSSProperties}
+    >
+      <SidebarRail />
+      <SidebarContent>
+        <SidebarMenu>
+          {menuItems.map((item) => (
+            <SidebarMenuItem key={item.path}>
+              <SidebarMenuButton 
+                asChild 
+                isActive={currentPath === item.path}
+                tooltip={item.title}
+              >
+                <Link to={item.path} className="w-full">
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+      </SidebarContent>
+      <SidebarFooter />
+    </ShadcnSidebar>
   );
 };
 
-export default NavigationMenu;
+export default Sidebar;

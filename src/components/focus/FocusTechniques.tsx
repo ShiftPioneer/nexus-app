@@ -51,7 +51,8 @@ const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) =
                   index === 1 ? "bg-blue-100 text-blue-700" :
                   "bg-green-100 text-green-700"
                 }`}>
-                  <technique.icon size={32} />
+                  {/* Fix: Use React component properly */}
+                  <technique.icon className="h-8 w-8" />
                 </div>
               </div>
               
