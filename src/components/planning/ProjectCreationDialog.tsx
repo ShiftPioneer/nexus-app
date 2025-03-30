@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,13 +34,15 @@ interface ProjectCreationDialogProps {
   onOpenChange: (open: boolean) => void;
   onProjectCreate: (project: Project) => void;
   existingProjects: Project[];
+  initialProject?: Project | null;
 }
 
 const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
   open,
   onOpenChange,
   onProjectCreate,
-  existingProjects
+  existingProjects,
+  initialProject = null
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -50,16 +52,31 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
   const [blockingProjects, setBlockingProjects] = useState<string[]>([]);
   const [blockedByProjects, setBlockedByProjects] = useState<string[]>([]);
 
+  // If an initial project is provided, populate the form with its values
+  useEffect(() => {
+    if (initialProject) {
+      setTitle(initialProject.title);
+      setDescription(initialProject.description);
+      setCategory(initialProject.category);
+      setStartDate(initialProject.startDate);
+      setEndDate(initialProject.endDate);
+      setBlockingProjects(initialProject.blockingProjects || []);
+      setBlockedByProjects(initialProject.blockedByProjects || []);
+    } else {
+      resetForm();
+    }
+  }, [initialProject]);
+
   const handleSubmit = () => {
     const newProject: Project = {
-      id: "",
+      id: initialProject?.id || "",
       title,
       description,
       category,
-      progress: 0,
+      progress: initialProject?.progress || 0,
       startDate,
       endDate,
-      status: "not-started",
+      status: initialProject?.status || "not-started",
       blockingProjects,
       blockedByProjects
     };
@@ -85,7 +102,7 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
     }}>
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>Create New Project</DialogTitle>
+          <DialogTitle>{initialProject ? 'Edit Project' : 'Create New Project'}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
@@ -191,7 +208,9 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
               <div className="space-y-2">
                 <Label>Blocking</Label>
                 <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {existingProjects.map(project => (
+                  {existingProjects
+                    .filter(project => initialProject ? project.id !== initialProject.id : true)
+                    .map(project => (
                     <div key={`blocking-${project.id}`} className="flex items-center space-x-2 mb-2">
                       <Checkbox 
                         id={`blocking-${project.id}`}
@@ -207,14 +226,18 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
                       <label htmlFor={`blocking-${project.id}`} className="text-sm">{project.title}</label>
                     </div>
                   ))}
-                  {existingProjects.length === 0 && <p className="text-sm text-muted-foreground">No existing projects to select</p>}
+                  {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).length === 0 && 
+                    <p className="text-sm text-muted-foreground">No existing projects to select</p>
+                  }
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Blocked By</Label>
                 <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {existingProjects.map(project => (
+                  {existingProjects
+                    .filter(project => initialProject ? project.id !== initialProject.id : true)
+                    .map(project => (
                     <div key={`blockedby-${project.id}`} className="flex items-center space-x-2 mb-2">
                       <Checkbox 
                         id={`blockedby-${project.id}`}
@@ -230,7 +253,9 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
                       <label htmlFor={`blockedby-${project.id}`} className="text-sm">{project.title}</label>
                     </div>
                   ))}
-                  {existingProjects.length === 0 && <p className="text-sm text-muted-foreground">No existing projects to select</p>}
+                  {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).length === 0 && 
+                    <p className="text-sm text-muted-foreground">No existing projects to select</p>
+                  }
                 </div>
               </div>
             </>
@@ -242,7 +267,7 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={!title.trim()}>
-            Create Project
+            {initialProject ? 'Update Project' : 'Create Project'}
           </Button>
         </DialogFooter>
       </DialogContent>

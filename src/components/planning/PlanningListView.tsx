@@ -8,19 +8,17 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 interface PlanningListViewProps {
-  goals: Goal[];
-  projects: Project[];
+  goals?: Goal[];
+  projects?: Project[];
   contentType: "goals" | "projects";
-  onUpdateGoal: (goal: Goal) => void;
-  onUpdateProject: (project: Project) => void;
+  onEditItem: (item: Goal | Project) => void;
 }
 
 const PlanningListView: React.FC<PlanningListViewProps> = ({
-  goals,
-  projects,
+  goals = [],
+  projects = [],
   contentType,
-  onUpdateGoal,
-  onUpdateProject,
+  onEditItem,
 }) => {
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -43,7 +41,7 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
 
   const renderGoals = () => {
     return goals.map((goal) => (
-      <Card key={goal.id} className="group hover:shadow-md transition-shadow">
+      <Card key={goal.id} className="group hover:shadow-md transition-shadow cursor-pointer" onClick={() => onEditItem(goal)}>
         <CardContent className="p-6">
           <div className="flex flex-col gap-4">
             <div className="flex justify-between">
@@ -84,7 +82,7 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
 
   const renderProjects = () => {
     return projects.map((project) => (
-      <Card key={project.id} className="group hover:shadow-md transition-shadow">
+      <Card key={project.id} className="group hover:shadow-md transition-shadow cursor-pointer" onClick={() => onEditItem(project)}>
         <CardContent className="p-6">
           <div className="flex flex-col gap-4">
             <div className="flex justify-between">

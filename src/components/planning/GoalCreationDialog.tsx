@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -34,6 +34,7 @@ interface GoalCreationDialogProps {
   onOpenChange: (open: boolean) => void;
   onGoalCreate: (goal: Goal) => void;
   existingGoals: Goal[];
+  initialGoal?: Goal | null;
 }
 
 const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
@@ -41,6 +42,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   onOpenChange,
   onGoalCreate,
   existingGoals,
+  initialGoal = null,
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -51,18 +53,34 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   const [blockingGoals, setBlockingGoals] = useState<string[]>([]);
   const [blockedByGoals, setBlockedByGoals] = useState<string[]>([]);
 
+  // If an initial goal is provided, populate the form with its values
+  useEffect(() => {
+    if (initialGoal) {
+      setTitle(initialGoal.title);
+      setDescription(initialGoal.description);
+      setCategory(initialGoal.category);
+      setTimeframe(initialGoal.timeframe);
+      setStartDate(initialGoal.startDate);
+      setEndDate(initialGoal.endDate);
+      setBlockingGoals(initialGoal.blockingGoals || []);
+      setBlockedByGoals(initialGoal.blockedByGoals || []);
+    } else {
+      resetForm();
+    }
+  }, [initialGoal]);
+
   const handleSubmit = () => {
     const newGoal: Goal = {
-      id: "",
+      id: initialGoal?.id || "",
       title,
       description,
       category,
       timeframe,
-      progress: 0,
+      progress: initialGoal?.progress || 0,
       startDate,
       endDate,
-      status: "not-started",
-      milestones: [],
+      status: initialGoal?.status || "not-started",
+      milestones: initialGoal?.milestones || [],
       blockingGoals,
       blockedByGoals
     };
@@ -89,7 +107,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
     }}>
       <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>Create New Goal</DialogTitle>
+          <DialogTitle>{initialGoal ? 'Edit Goal' : 'Create New Goal'}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
@@ -217,7 +235,9 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
               <div className="space-y-2">
                 <Label>Blocking</Label>
                 <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {existingGoals.map(goal => (
+                  {existingGoals
+                    .filter(goal => initialGoal ? goal.id !== initialGoal.id : true)
+                    .map(goal => (
                     <div key={`blocking-${goal.id}`} className="flex items-center space-x-2 mb-2">
                       <Checkbox 
                         id={`blocking-${goal.id}`}
@@ -233,14 +253,18 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
                       <label htmlFor={`blocking-${goal.id}`} className="text-sm">{goal.title}</label>
                     </div>
                   ))}
-                  {existingGoals.length === 0 && <p className="text-sm text-muted-foreground">No existing goals to select</p>}
+                  {existingGoals.filter(goal => initialGoal ? goal.id !== initialGoal.id : true).length === 0 && 
+                    <p className="text-sm text-muted-foreground">No existing goals to select</p>
+                  }
                 </div>
               </div>
 
               <div className="space-y-2">
                 <Label>Blocked By</Label>
                 <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {existingGoals.map(goal => (
+                  {existingGoals
+                    .filter(goal => initialGoal ? goal.id !== initialGoal.id : true)
+                    .map(goal => (
                     <div key={`blockedby-${goal.id}`} className="flex items-center space-x-2 mb-2">
                       <Checkbox 
                         id={`blockedby-${goal.id}`}
@@ -256,7 +280,9 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
                       <label htmlFor={`blockedby-${goal.id}`} className="text-sm">{goal.title}</label>
                     </div>
                   ))}
-                  {existingGoals.length === 0 && <p className="text-sm text-muted-foreground">No existing goals to select</p>}
+                  {existingGoals.filter(goal => initialGoal ? goal.id !== initialGoal.id : true).length === 0 && 
+                    <p className="text-sm text-muted-foreground">No existing goals to select</p>
+                  }
                 </div>
               </div>
             </>
@@ -268,7 +294,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
             Cancel
           </Button>
           <Button onClick={handleSubmit} disabled={!title.trim()}>
-            Create Goal
+            {initialGoal ? 'Update Goal' : 'Create Goal'}
           </Button>
         </DialogFooter>
       </DialogContent>

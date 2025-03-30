@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Target, ClipboardList } from "lucide-react";
 import GoalCreationDialog from "@/components/planning/GoalCreationDialog";
 import ProjectCreationDialog from "@/components/planning/ProjectCreationDialog";
@@ -32,7 +32,11 @@ const Planning = () => {
       setSelectedGoal(null);
     } else {
       // Add new goal
-      setGoals([...goals, goal]);
+      const newGoal = {
+        ...goal,
+        id: Date.now().toString(), // Generate a unique ID
+      };
+      setGoals([...goals, newGoal]);
       toast({
         title: "Goal Created",
         description: "Your new goal has been created successfully.",
@@ -52,7 +56,11 @@ const Planning = () => {
       setSelectedProject(null);
     } else {
       // Add new project
-      setProjects([...projects, project]);
+      const newProject = {
+        ...project,
+        id: Date.now().toString(), // Generate a unique ID
+      };
+      setProjects([...projects, newProject]);
       toast({
         title: "Project Created",
         description: "Your new project has been created successfully.",
@@ -140,14 +148,14 @@ const Planning = () => {
               </Card>
             ) : view === 'list' ? (
               <PlanningListView 
-                items={goals} 
-                itemType="goal" 
+                goals={goals} 
+                contentType="goals" 
                 onEditItem={(goal) => handleEditGoal(goal as Goal)}
               />
             ) : (
               <PlanningBoardView 
-                items={goals} 
-                itemType="goal" 
+                goals={goals} 
+                contentType="goals" 
                 onEditItem={(goal) => handleEditGoal(goal as Goal)}
               />
             )}
@@ -170,14 +178,14 @@ const Planning = () => {
               </Card>
             ) : view === 'list' ? (
               <PlanningListView 
-                items={projects} 
-                itemType="project" 
+                projects={projects} 
+                contentType="projects" 
                 onEditItem={(project) => handleEditProject(project as Project)}
               />
             ) : (
               <PlanningBoardView 
-                items={projects} 
-                itemType="project" 
+                projects={projects} 
+                contentType="projects" 
                 onEditItem={(project) => handleEditProject(project as Project)}
               />
             )}

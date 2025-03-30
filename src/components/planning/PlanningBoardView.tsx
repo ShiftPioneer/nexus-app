@@ -4,19 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Circle, CircleDashed, CheckCircle2 } from "lucide-react";
 
 interface PlanningBoardViewProps {
-  goals: Goal[];
-  projects: Project[];
+  goals?: Goal[];
+  projects?: Project[];
   contentType: "goals" | "projects";
-  onUpdateGoal: (goal: Goal) => void;
-  onUpdateProject: (project: Project) => void;
+  onEditItem: (item: Goal | Project) => void;
 }
 
 const PlanningBoardView: React.FC<PlanningBoardViewProps> = ({
-  goals,
-  projects,
+  goals = [],
+  projects = [],
   contentType,
-  onUpdateGoal,
-  onUpdateProject,
+  onEditItem,
 }) => {
   const items = contentType === "goals" ? goals : projects;
 
@@ -26,7 +24,7 @@ const PlanningBoardView: React.FC<PlanningBoardViewProps> = ({
 
   const renderItem = (item: any) => {
     return (
-      <Card key={item.id} className="mb-3">
+      <Card key={item.id} className="mb-3 cursor-pointer hover:shadow-md transition-shadow" onClick={() => onEditItem(item)}>
         <CardContent className="p-4">
           <h3 className="font-medium">{item.title}</h3>
           <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
