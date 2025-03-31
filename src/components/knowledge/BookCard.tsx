@@ -1,34 +1,24 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash2, BookOpen, Star } from "lucide-react";
 import { Book } from "@/types/knowledge";
 import { cn } from "@/lib/utils";
-
 interface BookCardProps {
   book: Book;
   onEdit: (book: Book) => void;
   onDelete: (book: Book) => void;
   listView?: boolean;
 }
-
-export function BookCard({ book, onEdit, onDelete, listView = false }: BookCardProps) {
+export function BookCard({
+  book,
+  onEdit,
+  onDelete,
+  listView = false
+}: BookCardProps) {
   const renderStars = (rating: number) => {
-    return Array(5)
-      .fill(0)
-      .map((_, i) => (
-        <Star
-          key={i}
-          size={16}
-          className={cn(
-            "inline",
-            i < rating ? "fill-amber-500 text-amber-500" : "text-gray-300"
-          )}
-        />
-      ));
+    return Array(5).fill(0).map((_, i) => <Star key={i} size={16} className={cn("inline", i < rating ? "fill-amber-500 text-amber-500" : "text-gray-300")} />);
   };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Reading Now":
@@ -41,24 +31,14 @@ export function BookCard({ book, onEdit, onDelete, listView = false }: BookCardP
         return "bg-gray-100 text-gray-800";
     }
   };
-
   if (listView) {
-    return (
-      <Card className="overflow-hidden">
+    return <Card className="overflow-hidden">
         <CardContent className="p-4">
           <div className="flex items-center gap-4">
             <div className="shrink-0 h-16 w-12 bg-gray-100 rounded overflow-hidden">
-              {book.coverImage ? (
-                <img
-                  src={book.coverImage}
-                  alt={book.title}
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+              {book.coverImage ? <img src={book.coverImage} alt={book.title} className="h-full w-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-200">
                   <BookOpen className="h-6 w-6 text-gray-500" />
-                </div>
-              )}
+                </div>}
             </div>
             
             <div className="flex-1">
@@ -78,11 +58,9 @@ export function BookCard({ book, onEdit, onDelete, listView = false }: BookCardP
               </div>
               
               <div className="flex flex-wrap gap-1 mt-2">
-                {book.relatedSkillsets.map((skill) => (
-                  <span key={skill} className="text-xs bg-gray-100 px-2 py-1 rounded">
+                {book.relatedSkillsets.map(skill => <span key={skill} className="text-xs bg-gray-100 px-2 py-1 rounded">
                     {skill}
-                  </span>
-                ))}
+                  </span>)}
               </div>
               
               <div className="flex justify-end gap-2 mt-2">
@@ -96,13 +74,10 @@ export function BookCard({ book, onEdit, onDelete, listView = false }: BookCardP
             </div>
           </div>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
-  return (
-    <Card className="overflow-hidden">
-      <CardContent className="p-4">
+  return <Card className="overflow-hidden">
+      <CardContent className="p-4 bg-accent-dark">
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-start">
             <h3 className="font-medium text-sm line-clamp-2">{book.title}</h3>
@@ -129,6 +104,5 @@ export function BookCard({ book, onEdit, onDelete, listView = false }: BookCardP
           </div>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 }
