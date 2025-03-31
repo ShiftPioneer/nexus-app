@@ -1,53 +1,80 @@
 
-import React from "react";
+import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Zap, Activity } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Zap, BarChart2, Dumbbell } from "lucide-react";
+import { DashboardTab } from "@/components/energy/DashboardTab";
+import { WorkoutsTab } from "@/components/energy/WorkoutsTab";
+import { AnalyticsTab } from "@/components/energy/AnalyticsTab";
 
 const Energy = () => {
-  const { toast } = useToast();
-  
-  const handleComingSoon = () => {
-    toast({
-      title: "Coming Soon",
-      description: "The Energy Hub feature is under development and will be available soon!",
-    });
-  };
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
     <AppLayout>
       <div className="animate-fade-in space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <Zap className="h-6 w-6 text-primary" />
-              Energy Hub
-            </h1>
-            <p className="text-muted-foreground">Track your energy levels, exercise, nutrition, and well-being</p>
-          </div>
-          <Button onClick={handleComingSoon} className="gap-2">
-            <Activity size={18} />
-            Track Energy
-          </Button>
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <Zap className="h-6 w-6 text-primary" />
+            Energy Hub
+          </h1>
+          <p className="text-muted-foreground">Track your workouts, analyze progress, and achieve your fitness goals</p>
         </div>
         
-        <Card className="border-dashed">
-          <CardHeader>
-            <CardTitle>Energy & Well-being</CardTitle>
-            <CardDescription>Monitor and optimize your physical and mental energy</CardDescription>
-          </CardHeader>
-          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-            <Zap className="h-16 w-16 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">Energy Hub Coming Soon</h3>
-            <p className="text-muted-foreground mb-6 max-w-md">
-              We're developing comprehensive tools to help you track energy levels, 
-              exercise, nutrition, sleep, and overall well-being.
-            </p>
-            <Button onClick={handleComingSoon}>Get Notified When Ready</Button>
-          </CardContent>
-        </Card>
+        <Tabs 
+          value={activeTab} 
+          onValueChange={setActiveTab}
+          className="w-full"
+        >
+          <div className="bg-card border rounded-lg overflow-hidden mb-6">
+            <TabsList className="w-full justify-start rounded-none border-b bg-muted/50 p-0">
+              <TabsTrigger 
+                value="dashboard"
+                className={cn(
+                  "data-[state=active]:bg-background rounded-none border-r px-8 py-3",
+                  "flex items-center gap-2"
+                )}
+              >
+                <Zap className="h-4 w-4" />
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger 
+                value="workouts"
+                className={cn(
+                  "data-[state=active]:bg-background rounded-none border-r px-8 py-3",
+                  "flex items-center gap-2"
+                )}
+              >
+                <Dumbbell className="h-4 w-4" />
+                Workouts
+              </TabsTrigger>
+              <TabsTrigger 
+                value="analytics"
+                className={cn(
+                  "data-[state=active]:bg-background rounded-none px-8 py-3",
+                  "flex items-center gap-2"
+                )}
+              >
+                <BarChart2 className="h-4 w-4" />
+                Analytics
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <TabsContent value="dashboard" className="mt-0">
+            <DashboardTab />
+          </TabsContent>
+          
+          <TabsContent value="workouts" className="mt-0">
+            <WorkoutsTab />
+          </TabsContent>
+          
+          <TabsContent value="analytics" className="mt-0">
+            <AnalyticsTab />
+          </TabsContent>
+        </Tabs>
       </div>
     </AppLayout>
   );
