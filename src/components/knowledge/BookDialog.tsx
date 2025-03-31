@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Book, ReadingStatus } from "@/types/knowledge";
-import { Upload, Star } from "lucide-react";
+import { Upload } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 
 interface BookDialogProps {
   open: boolean;
@@ -15,16 +16,12 @@ interface BookDialogProps {
   book: Book | null;
 }
 
-const readingStatuses: ReadingStatus[] = [
-  'Reading Now',
-  'Not Yet Read',
-  'Finished'
-];
+const readingStatuses: ReadingStatus[] = ["Reading Now", "Not Yet Read", "Finished"];
 
 export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps) {
   const [title, setTitle] = useState('');
   const [author, setAuthor] = useState('');
-  const [readingStatus, setReadingStatus] = useState<ReadingStatus>('Not Yet Read');
+  const [readingStatus, setReadingStatus] = useState<ReadingStatus>("Not Yet Read");
   const [rating, setRating] = useState(0);
   const [coverImage, setCoverImage] = useState('');
   const [description, setDescription] = useState('');
@@ -39,14 +36,14 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
       setReadingStatus(book.readingStatus);
       setRating(book.rating);
       setCoverImage(book.coverImage || '');
-      setDescription(book.description || '');
+      setDescription(book.description);
       setRelatedSkillsets(book.relatedSkillsets.join(', '));
-      setSummary(book.summary || '');
-      setKeyLessons(book.keyLessons || '');
+      setSummary(book.summary);
+      setKeyLessons(book.keyLessons);
     } else {
       setTitle('');
       setAuthor('');
-      setReadingStatus('Not Yet Read');
+      setReadingStatus("Not Yet Read");
       setRating(0);
       setCoverImage('');
       setDescription('');
@@ -75,7 +72,7 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
   // Mock function for image upload (in a real app, this would upload to a server)
   const handleImageUpload = () => {
     // This would be replaced with actual file upload logic
-    alert('Image upload feature would go here');
+    alert('Cover image upload feature would go here');
   };
 
   return (
@@ -84,31 +81,29 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
         <DialogHeader>
           <DialogTitle>{book ? 'Edit Book' : 'Add New Book'}</DialogTitle>
           <DialogDescription>
-            Add a new book to your collection.
+            Add a book to your bookshelf and track your reading progress.
           </DialogDescription>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <label htmlFor="title" className="text-sm font-medium">Book Title</label>
-              <Input
-                id="title"
-                placeholder="e.g., Atomic Habits"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <label htmlFor="author" className="text-sm font-medium">Author</label>
-              <Input
-                id="author"
-                placeholder="e.g., James Clear"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-              />
-            </div>
+          <div className="grid gap-2">
+            <label htmlFor="title" className="text-sm font-medium">Book Title</label>
+            <Input
+              id="title"
+              placeholder="Enter book title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <label htmlFor="author" className="text-sm font-medium">Author</label>
+            <Input
+              id="author"
+              placeholder="Enter author name"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+            />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -127,48 +122,38 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
             </div>
             
             <div className="grid gap-2">
-              <label className="text-sm font-medium">Rating</label>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setRating(star)}
-                    className="focus:outline-none"
-                  >
-                    <Star
-                      className={`h-5 w-5 ${star <= rating ? 'text-amber-400 fill-amber-400' : 'text-gray-300'}`}
-                    />
-                  </button>
-                ))}
+              <div className="flex justify-between">
+                <label htmlFor="rating" className="text-sm font-medium">Rating</label>
+                <span className="text-sm font-medium">{rating}/5</span>
               </div>
+              <Slider 
+                value={[rating]} 
+                onValueChange={(values) => setRating(values[0])} 
+                min={0} 
+                max={5} 
+                step={1}
+              />
             </div>
           </div>
           
           <div className="grid gap-2">
-            <label className="text-sm font-medium">Book Cover</label>
+            <label className="text-sm font-medium">Cover Image</label>
             <div className="border border-dashed rounded-md p-6 flex flex-col items-center justify-center text-center">
               {coverImage ? (
-                <div className="relative w-full h-40">
-                  <img 
-                    src={coverImage} 
-                    alt={title} 
-                    className="h-full mx-auto object-contain"
-                  />
+                <div className="mb-2">
+                  <img src={coverImage} alt="Preview" className="max-h-32 mx-auto" />
                 </div>
               ) : (
-                <>
-                  <Upload className="h-8 w-8 text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">Click to upload cover image or PDF</p>
-                </>
+                <Upload className="h-8 w-8 text-muted-foreground mb-2" />
               )}
+              <p className="text-sm text-muted-foreground">Click to upload a cover image</p>
               <Button
                 variant="outline"
                 size="sm"
                 className="mt-2"
                 onClick={handleImageUpload}
               >
-                Select File
+                Select Image
               </Button>
             </div>
           </div>
@@ -177,7 +162,7 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
             <label htmlFor="description" className="text-sm font-medium">Description</label>
             <Textarea
               id="description"
-              placeholder="Brief description of this book"
+              placeholder="Brief description of the book"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -187,17 +172,17 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
             <label htmlFor="skillsets" className="text-sm font-medium">Related Skillsets</label>
             <Input
               id="skillsets"
-              placeholder="e.g., Programming, Self-Improvement (comma separated)"
+              placeholder="e.g., Programming, Design (comma separated)"
               value={relatedSkillsets}
               onChange={(e) => setRelatedSkillsets(e.target.value)}
             />
           </div>
           
           <div className="grid gap-2">
-            <label htmlFor="summary" className="text-sm font-medium">Summary</label>
+            <label htmlFor="summary" className="text-sm font-medium">Book Summary</label>
             <Textarea
               id="summary"
-              placeholder="Short summary of the book's content"
+              placeholder="Summary of the book's main points"
               value={summary}
               onChange={(e) => setSummary(e.target.value)}
             />
@@ -207,7 +192,7 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
             <label htmlFor="keyLessons" className="text-sm font-medium">Key Lessons</label>
             <Textarea
               id="keyLessons"
-              placeholder="Main lessons or takeaways from this book"
+              placeholder="Important takeaways and lessons from the book"
               value={keyLessons}
               onChange={(e) => setKeyLessons(e.target.value)}
             />
@@ -219,7 +204,7 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
             Cancel
           </Button>
           <Button onClick={handleSave}>
-            {book ? 'Update Book' : 'Add Book'}
+            Save Book
           </Button>
         </DialogFooter>
       </DialogContent>

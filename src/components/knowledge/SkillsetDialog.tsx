@@ -5,13 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Slider } from "@/components/ui/slider";
 import { Skillset, SkillsetCategory } from "@/types/knowledge";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Slider } from "@/components/ui/slider";
+import { HexColorPicker } from "react-colorful";
 
 interface SkillsetDialogProps {
   open: boolean;
@@ -34,39 +30,33 @@ const skillsetCategories: SkillsetCategory[] = [
   'Other'
 ];
 
-const colorOptions = [
-  '#1E88E5', // blue
-  '#00BCD4', // teal
-  '#FFC107', // amber
-  '#FF5722', // deep orange
-  '#9C27B0', // purple
-  '#F44336', // red
-  '#2196F3', // lighter blue
-];
-
 export function SkillsetDialog({ open, onOpenChange, onSave, skillset }: SkillsetDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState<SkillsetCategory>('Programming');
-  const [mastery, setMastery] = useState(0);
-  const [lastPracticed, setLastPracticed] = useState<Date>(new Date());
-  const [selectedColor, setSelectedColor] = useState(colorOptions[0]);
+  const [mastery, setMastery] = useState<number>(50);
+  const [resourceCount, setResourceCount] = useState(0);
+  const [lastPracticed, setLastPracticed] = useState(new Date().toISOString().split('T')[0]);
+  const [color, setColor] = useState('#4285F4');
+  const [showColorPicker, setShowColorPicker] = useState(false);
   
   useEffect(() => {
     if (skillset) {
       setName(skillset.name);
       setDescription(skillset.description || '');
-      setCategory(skillset.category as SkillsetCategory);
+      setCategory(skillset.category);
       setMastery(skillset.mastery);
-      setLastPracticed(skillset.lastPracticed);
-      setSelectedColor(skillset.color || colorOptions[0]);
+      setResourceCount(skillset.resourceCount);
+      setLastPracticed(skillset.lastPracticed.toISOString().split('T')[0]);
+      setColor(skillset.color || '#4285F4');
     } else {
       setName('');
       setDescription('');
       setCategory('Programming');
-      setMastery(0);
-      setLastPracticed(new Date());
-      setSelectedColor(colorOptions[0]);
+      setMastery(50);
+      setResourceCount(0);
+      setLastPracticed(new Date().toISOString().split('T')[0]);
+      setColor('#4285F4');
     }
   }, [skillset, open]);
 
@@ -77,9 +67,9 @@ export function SkillsetDialog({ open, onOpenChange, onSave, skillset }: Skillse
       description,
       category,
       mastery,
-      lastPracticed,
-      resourceCount: skillset?.resourceCount || 0,
-      color: selectedColor
+      lastPracticed: new Date(lastPracticed),
+      resourceCount,
+      color
     };
     onSave(newSkillset);
   };
@@ -90,28 +80,18 @@ export function SkillsetDialog({ open, onOpenChange, onSave, skillset }: Skillse
         <DialogHeader>
           <DialogTitle>{skillset ? 'Edit Skillset' : 'Add New Skillset'}</DialogTitle>
           <DialogDescription>
-            Enter the details of your {skillset ? 'existing' : 'new'} skillset to track your progress.
+            Track your progress in learning and mastering new skills.
           </DialogDescription>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
-            <label htmlFor="name" className="text-sm font-medium">Skillset Name</label>
+            <label htmlFor="name" className="text-sm font-medium">Skill Name</label>
             <Input
               id="name"
-              placeholder="e.g. JavaScript, Public Speaking, etc."
+              placeholder="e.g., JavaScript, UI/UX Design, Public Speaking"
               value={name}
               onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-          
-          <div className="grid gap-2">
-            <label htmlFor="description" className="text-sm font-medium">Description</label>
-            <Textarea
-              id="description"
-              placeholder="Brief description of this skillset"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
           
@@ -130,58 +110,71 @@ export function SkillsetDialog({ open, onOpenChange, onSave, skillset }: Skillse
           </div>
           
           <div className="grid gap-2">
-            <label htmlFor="last-practiced" className="text-sm font-medium">Last Practiced</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !lastPracticed && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {lastPracticed ? format(lastPracticed, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={lastPracticed}
-                  onSelect={(date) => date && setLastPracticed(date)}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">
-              Mastery Level ({mastery}%)
-            </label>
-            <Slider
-              value={[mastery]}
-              min={0}
-              max={100}
-              step={1}
-              onValueChange={(value) => setMastery(value[0])}
+            <label htmlFor="description" className="text-sm font-medium">Description</label>
+            <Textarea
+              id="description"
+              placeholder="Brief description of this skill"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
             />
           </div>
           
           <div className="grid gap-2">
-            <label className="text-sm font-medium">Color</label>
-            <div className="flex gap-2">
-              {colorOptions.map((color) => (
-                <button
-                  key={color}
-                  type="button"
-                  className={`w-8 h-8 rounded-full cursor-pointer ${selectedColor === color ? 'ring-2 ring-offset-2 ring-primary' : ''}`}
-                  style={{ backgroundColor: color }}
-                  onClick={() => setSelectedColor(color)}
-                  aria-label={`Select color ${color}`}
-                />
-              ))}
+            <div className="flex justify-between">
+              <label htmlFor="mastery" className="text-sm font-medium">Mastery Level</label>
+              <span className="text-sm font-medium">{mastery}%</span>
             </div>
+            <Slider 
+              value={[mastery]} 
+              onValueChange={(values) => setMastery(values[0])} 
+              min={0} 
+              max={100} 
+              step={1}
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <label htmlFor="lastPracticed" className="text-sm font-medium">Last Practiced</label>
+              <Input
+                id="lastPracticed"
+                type="date"
+                value={lastPracticed}
+                onChange={(e) => setLastPracticed(e.target.value)}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <label htmlFor="resourceCount" className="text-sm font-medium">Resource Count</label>
+              <Input
+                id="resourceCount"
+                type="number"
+                value={resourceCount}
+                onChange={(e) => setResourceCount(parseInt(e.target.value) || 0)}
+                min={0}
+              />
+            </div>
+          </div>
+          
+          <div className="grid gap-2">
+            <label className="text-sm font-medium">Color</label>
+            <div className="flex items-center gap-2">
+              <div 
+                className="w-8 h-8 rounded-md cursor-pointer border"
+                style={{ backgroundColor: color }}
+                onClick={() => setShowColorPicker(!showColorPicker)}
+              />
+              <Input
+                value={color}
+                onChange={(e) => setColor(e.target.value)}
+                className="font-mono"
+              />
+            </div>
+            {showColorPicker && (
+              <div className="mt-2 p-2 border rounded-md">
+                <HexColorPicker color={color} onChange={setColor} />
+              </div>
+            )}
           </div>
         </div>
         
@@ -190,7 +183,7 @@ export function SkillsetDialog({ open, onOpenChange, onSave, skillset }: Skillse
             Cancel
           </Button>
           <Button onClick={handleSave}>
-            {skillset ? 'Save Changes' : 'Save'}
+            Save Skillset
           </Button>
         </DialogFooter>
       </DialogContent>

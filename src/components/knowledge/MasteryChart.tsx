@@ -1,6 +1,6 @@
 
 import React from "react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Cell } from "recharts";
 import { Skillset } from "@/types/knowledge";
 
 interface MasteryChartProps {
@@ -12,7 +12,7 @@ export function MasteryChart({ skillsets }: MasteryChartProps) {
   const chartData = skillsets.map(skillset => ({
     name: skillset.name,
     value: skillset.mastery,
-    color: skillset.color
+    color: skillset.color || "#4285F4"
   }));
 
   return (
@@ -37,9 +37,4 @@ export function MasteryChart({ skillsets }: MasteryChartProps) {
       </BarChart>
     </ResponsiveContainer>
   );
-}
-
-// Needed for the Bar component to work with custom colors
-function Cell({ fill, ...rest }: { fill: string, [key: string]: any }) {
-  return <rect {...rest} fill={fill} />;
 }

@@ -44,7 +44,12 @@ export function CategoryChart({ skillsets }: CategoryChartProps) {
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        <Tooltip formatter={(value) => `${value.toFixed(0)}%`} />
+        <Tooltip formatter={(value) => {
+          if (typeof value === 'number') {
+            return `${value.toFixed(0)}%`;
+          }
+          return value;
+        }} />
         <Legend />
       </PieChart>
     </ResponsiveContainer>
