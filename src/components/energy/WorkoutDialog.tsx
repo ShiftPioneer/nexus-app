@@ -23,15 +23,15 @@ interface WorkoutDialogProps {
 
 // Sample exercise templates for demonstration
 const exerciseTemplates: ExerciseTemplate[] = [
-  { id: "e1", name: "Bench Press", category: "Chest", equipment: "Barbell", description: "Lie on bench, lower bar to chest, press up" },
-  { id: "e2", name: "Squats", category: "Legs", equipment: "Barbell", description: "Stand with feet shoulder-width apart, lower body until thighs are parallel to ground" },
-  { id: "e3", name: "Pull-ups", category: "Back", equipment: "Pull-up Bar", description: "Hang from bar, pull body up until chin is over bar" },
-  { id: "e4", name: "Shoulder Press", category: "Shoulders", equipment: "Dumbbell/Barbell", description: "Press weights from shoulder height overhead" },
-  { id: "e5", name: "Deadlift", category: "Back/Legs", equipment: "Barbell", description: "Bend at hips and knees to lower bar against shins, stand up straight" },
-  { id: "e6", name: "Tricep Dips", category: "Arms", equipment: "", description: "Press weights from shoulder height overhead" },
-  { id: "e7", name: "Burpees", category: "Full Body", equipment: "", description: "Start standing, drop to push-up, return to standing, jump" },
-  { id: "e8", name: "Mountain Climbers", category: "Core", equipment: "", description: "Start in plank position, alternate bringing knees to chest" },
-  { id: "e9", name: "Jump Squats", category: "Legs", equipment: "", description: "Regular squat with an explosive jump at the top" },
+  { id: "e1", name: "Bench Press", category: "Chest", equipment: "Barbell", description: "Lie on bench, lower bar to chest, press up", primaryMuscleGroup: "Chest" },
+  { id: "e2", name: "Squats", category: "Legs", equipment: "Barbell", description: "Stand with feet shoulder-width apart, lower body until thighs are parallel to ground", primaryMuscleGroup: "Legs" },
+  { id: "e3", name: "Pull-ups", category: "Back", equipment: "Pull-up Bar", description: "Hang from bar, pull body up until chin is over bar", primaryMuscleGroup: "Back" },
+  { id: "e4", name: "Shoulder Press", category: "Shoulders", equipment: "Dumbbell/Barbell", description: "Press weights from shoulder height overhead", primaryMuscleGroup: "Shoulders" },
+  { id: "e5", name: "Deadlift", category: "Back/Legs", equipment: "Barbell", description: "Bend at hips and knees to lower bar against shins, stand up straight", primaryMuscleGroup: "Back/Legs" },
+  { id: "e6", name: "Tricep Dips", category: "Arms", equipment: "", description: "Press weights from shoulder height overhead", primaryMuscleGroup: "Arms" },
+  { id: "e7", name: "Burpees", category: "Full Body", equipment: "", description: "Start standing, drop to push-up, return to standing, jump", primaryMuscleGroup: "Full Body" },
+  { id: "e8", name: "Mountain Climbers", category: "Core", equipment: "", description: "Start in plank position, alternate bringing knees to chest", primaryMuscleGroup: "Core" },
+  { id: "e9", name: "Jump Squats", category: "Legs", equipment: "", description: "Regular squat with an explosive jump at the top", primaryMuscleGroup: "Legs" },
 ];
 
 export function WorkoutDialog({ open, onOpenChange, onSave, workout = null, schedulingMode = false }: WorkoutDialogProps) {

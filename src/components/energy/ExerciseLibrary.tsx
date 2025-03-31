@@ -15,42 +15,54 @@ const sampleExercises: ExerciseTemplate[] = [
     name: "Bench Press",
     category: "Chest",
     equipment: "Barbell, Bench",
-    description: "Lie on a bench and press the weight upward until arms are extended."
+    description: "Lie on a bench and press the weight upward until arms are extended.",
+    primaryMuscleGroup: "Chest",
+    secondaryMuscleGroups: ["Shoulders", "Arms"]
   },
   {
     id: "2",
     name: "Deadlift",
     category: "Back/Legs",
     equipment: "Barbell",
-    description: "Lift a barbell from the ground to hip level with a straight back."
+    description: "Lift a barbell from the ground to hip level with a straight back.",
+    primaryMuscleGroup: "Back/Legs",
+    secondaryMuscleGroups: ["Legs", "Arms"]
   },
   {
     id: "3",
     name: "Squat",
     category: "Legs",
     equipment: "Barbell, Squat Rack",
-    description: "Lower your body by bending your knees and then return to standing position."
+    description: "Lower your body by bending your knees and then return to standing position.",
+    primaryMuscleGroup: "Legs",
+    secondaryMuscleGroups: ["Core"]
   },
   {
     id: "4",
     name: "Pull-up",
     category: "Back",
     equipment: "Pull-up Bar",
-    description: "Hang from a bar and pull your body upward until chin is over the bar."
+    description: "Hang from a bar and pull your body upward until chin is over the bar.",
+    primaryMuscleGroup: "Back",
+    secondaryMuscleGroups: ["Arms"]
   },
   {
     id: "5",
     name: "Shoulder Press",
     category: "Shoulders",
     equipment: "Dumbbells",
-    description: "Press weights overhead from shoulder level until arms are fully extended."
+    description: "Press weights overhead from shoulder level until arms are fully extended.",
+    primaryMuscleGroup: "Shoulders",
+    secondaryMuscleGroups: ["Arms"]
   },
   {
     id: "6",
     name: "Bicep Curl",
     category: "Arms",
     equipment: "Dumbbells",
-    description: "Curl weights up toward shoulders while keeping elbows stationary."
+    description: "Curl weights up toward shoulders while keeping elbows stationary.",
+    primaryMuscleGroup: "Arms",
+    secondaryMuscleGroups: []
   }
 ];
 

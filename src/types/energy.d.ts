@@ -107,3 +107,33 @@ export interface PersonalBest {
   date: Date;
   notes?: string;
 }
+
+export type WorkoutPriority = 'Very Low' | 'Low' | 'Medium' | 'High' | 'Very High';
+
+export interface ProgressPhoto {
+  id: string;
+  date: Date;
+  imageUrl: string;
+  notes?: string;
+}
+
+export interface ExerciseTrackingItem extends Exercise {
+  completed: boolean;
+  setDetails: ExerciseSetDetail[];
+}
+
+export interface ExerciseSetDetail {
+  reps?: number;
+  weight?: number;
+  duration?: number;
+  distance?: number;
+  completed: boolean;
+}
+
+export interface WorkoutSession {
+  workout: Workout;
+  exercises: ExerciseTrackingItem[];
+  inProgress: boolean;
+  startTime?: Date;
+  endTime?: Date;
+}

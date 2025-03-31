@@ -44,7 +44,7 @@ const sidebarStyles = `
   
   .sidebar-icon-visible {
     position: fixed;
-    top: 4.5rem;
+    top: 0.5rem;
     left: 0;
     z-index: 50;
     border-radius: 0 8px 8px 0;
@@ -61,6 +61,28 @@ const sidebarStyles = `
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+  
+  /* Partially visible sidebar */
+  .sidebar-tab {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+    background-color: var(--background);
+    border-top-right-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border: 1px solid var(--border);
+    border-left: none;
+    padding: 10px 5px;
+    cursor: pointer;
+    z-index: 100;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar-tab:hover {
+    background-color: var(--accent);
   }
 `;
 
@@ -122,52 +144,60 @@ const NavigationMenu = () => {
   return (
     <>
       <style>{sidebarStyles}</style>
-      <div className={cn("relative", collapsed ? "sidebar-collapsed" : "")}>
+      <div className={cn("relative h-full", collapsed ? "sidebar-collapsed" : "")}>
         {collapsed && (
           <div 
-            className="sidebar-icon-visible cursor-pointer bg-background p-2 border-y border-r"
+            className="sidebar-tab"
             onClick={toggleSidebar}
           >
             <Menu className="h-5 w-5 text-primary" />
           </div>
         )}
         
-        <SidebarMenu className="sidebar-scroll-area">
+        <SidebarMenu className="sidebar-scroll-area border-r h-full shadow-sm">
           {!collapsed && (
-            <div className="app-logo border-b">
+            <div className="app-logo border-b bg-primary/5">
               <div className="flex items-center gap-2">
-                <Zap className="h-5 w-5 text-primary" />
-                <span>Life OS</span>
+                <Zap className="h-5 w-5 text-orange-500" />
+                <span className="text-orange-600">Life OS</span>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={toggleSidebar} 
-                className="h-6 w-6 p-0 rounded-full"
+                className="h-6 w-6 p-0 rounded-full hover:bg-orange-100"
               >
                 <ChevronRight className="h-4 w-4 sidebar-toggle" />
               </Button>
             </div>
           )}
           
-          {menuItems.map(item => (
-            <SidebarMenuItem key={item.path}>
-              <SidebarMenuButton 
-                asChild 
-                isActive={currentPath === item.path} 
-                tooltip={collapsed ? item.title : undefined}
-                className={cn(
-                  "hover:bg-muted/70 transition-all duration-200 sidebar-menu-button",
-                  currentPath === item.path ? "bg-muted/50" : ""
-                )}
-              >
-                <Link to={item.path} className="w-full">
-                  <item.icon className="h-4 w-4" />
-                  <span className="text-base font-normal py-[15px] my-[15px] text-accent-dark text-center menu-text">{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
+          <div className={cn("py-2", collapsed ? "px-2" : "px-0")}>
+            {menuItems.map(item => (
+              <SidebarMenuItem key={item.path}>
+                <SidebarMenuButton 
+                  asChild 
+                  isActive={currentPath === item.path} 
+                  tooltip={collapsed ? item.title : undefined}
+                  className={cn(
+                    "hover:bg-orange-100/70 transition-all duration-200 sidebar-menu-button",
+                    currentPath === item.path ? "bg-orange-100/80 text-orange-700" : "",
+                    collapsed ? "justify-center" : "px-4"
+                  )}
+                >
+                  <Link to={item.path} className="w-full">
+                    <item.icon className={cn("h-5 w-5", currentPath === item.path ? "text-orange-500" : "")} />
+                    <span className={cn(
+                      "text-base font-normal py-[12px] text-center menu-text transition-colors",
+                      currentPath === item.path ? "text-orange-600" : ""
+                    )}>
+                      {item.title}
+                    </span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </div>
         </SidebarMenu>
       </div>
     </>

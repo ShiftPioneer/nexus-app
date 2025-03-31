@@ -2,9 +2,8 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Plus, BookOpen, LibraryBigIcon, Upload } from "lucide-react";
 import { Book, ReadingStatus } from "@/types/knowledge";
-import { cn } from "@/lib/utils";
+import { LibraryBigIcon, BookOpen, Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookDialog } from "./BookDialog";
 import { BookCard } from "./BookCard";
@@ -154,9 +153,9 @@ export function BookshelfTab() {
             </Button>
           </div>
           <Button onClick={() => {
-          setCurrentBook(null);
-          setDialogOpen(true);
-        }} className="gap-1 w-full sm:w-auto">
+            setCurrentBook(null);
+            setDialogOpen(true);
+          }} className="gap-1 w-full sm:w-auto">
             <Plus size={18} />
             Add Book
           </Button>
@@ -164,7 +163,7 @@ export function BookshelfTab() {
       </div>
       
       {viewMode === "kanban" ? 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {Object.entries(booksByStatus).map(([status, books]) => 
             <Card 
               key={status} 
@@ -175,7 +174,7 @@ export function BookshelfTab() {
               <CardContent className="p-4 bg-orange-50">
                 <div className="flex items-center gap-2 mb-4">
                   <h3 className="font-bold text-lg text-slate-950">{status}</h3>
-                  <span className="bg-gray-100 rounded-full px-2 py-0.5 text-xs text-slate-950">
+                  <span className="bg-orange-100 rounded-full px-2 py-0.5 text-xs text-orange-800">
                     {books.length}
                   </span>
                 </div>
