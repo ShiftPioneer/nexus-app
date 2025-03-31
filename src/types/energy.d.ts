@@ -8,18 +8,51 @@ export interface Workout {
   exercises: Exercise[];
   notes?: string;
   status: 'Planned' | 'Completed';
+  tracking?: WorkoutTracking;
+}
+
+export interface WorkoutTracking {
+  startTime?: Date;
+  endTime?: Date;
+  exerciseProgress: Record<string, ExerciseProgress>;
+}
+
+export interface ExerciseProgress {
+  completed: boolean;
+  sets: ExerciseSet[];
+}
+
+export interface ExerciseSet {
+  reps?: number;
+  weight?: number;
+  duration?: number;
+  distance?: number;
+  completed: boolean;
 }
 
 export interface Exercise {
   id: string;
   name: string;
   category: MuscleGroup;
+  exerciseType?: ExerciseType;
   equipment?: string;
   sets: number;
   reps: number;
   weight?: number;
+  duration?: number;
+  distance?: number;
   notes?: string;
+  imageUrl?: string;
 }
+
+export type ExerciseType = 
+  | 'Weight Reps' 
+  | 'Reps Only' 
+  | 'Weighted Bodyweight' 
+  | 'Assisted Bodyweight' 
+  | 'Duration' 
+  | 'Weight & Duration' 
+  | 'Distance & Duration';
 
 export type MuscleGroup = 
   | 'Chest'
@@ -38,6 +71,10 @@ export interface ExerciseTemplate {
   category: MuscleGroup;
   equipment?: string;
   description: string;
+  exerciseType?: ExerciseType;
+  imageUrl?: string;
+  primaryMuscleGroup: MuscleGroup;
+  secondaryMuscleGroups?: MuscleGroup[];
 }
 
 // Added for analytics

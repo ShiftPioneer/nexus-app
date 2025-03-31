@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Workout, Exercise } from "@/types/energy";
+import { Workout, Exercise, ExerciseType } from "@/types/energy";
 import { Plus, Dumbbell, Calendar, Clock, FlameIcon, CheckCircle, ArrowRight } from "lucide-react";
 import { WorkoutDialog } from "./WorkoutDialog";
 import { cn } from "@/lib/utils";
@@ -14,14 +14,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ExerciseTrackingItem extends Exercise {
   completed: boolean;
-  setDetails?: Array<{
-    reps: number;
-    weight?: number;
-    duration?: number;
-  }>;
+  setDetails: ExerciseSetDetail[];
+}
+
+interface ExerciseSetDetail {
+  reps?: number;
+  weight?: number;
+  duration?: number;
+  distance?: number;
+  completed: boolean;
 }
 
 interface WorkoutSession {
@@ -48,12 +53,14 @@ const sampleWorkouts: Workout[] = [
         sets: 4,
         reps: 8,
         weight: 80,
+        exerciseType: "Weight Reps",
         notes: "Focus on controlled descent"
       },
       {
         id: "e2",
         name: "Pull-ups",
         category: "Back",
+        exerciseType: "Reps Only",
         sets: 4,
         reps: 10
       },
@@ -62,6 +69,7 @@ const sampleWorkouts: Workout[] = [
         name: "Shoulder Press",
         category: "Shoulders",
         equipment: "Dumbbells",
+        exerciseType: "Weight Reps",
         sets: 3,
         reps: 10,
         weight: 20
@@ -81,6 +89,7 @@ const sampleWorkouts: Workout[] = [
         name: "Squats",
         category: "Legs",
         equipment: "Barbell",
+        exerciseType: "Weight Reps",
         sets: 4,
         reps: 10,
         weight: 100
@@ -90,9 +99,19 @@ const sampleWorkouts: Workout[] = [
         name: "Romanian Deadlift",
         category: "Back/Legs",
         equipment: "Barbell",
+        exerciseType: "Weight Reps",
         sets: 3,
         reps: 12,
         weight: 80
+      },
+      {
+        id: "e3",
+        name: "Plank",
+        category: "Core",
+        exerciseType: "Duration",
+        sets: 3,
+        reps: 1,
+        duration: 60 // seconds
       }
     ],
     status: "Planned"
@@ -137,6 +156,9 @@ export function WorkoutsTab() {
       setDetails: Array(exercise.sets).fill(null).map(() => ({
         reps: exercise.reps || 0,
         weight: exercise.weight || 0,
+        duration: exercise.duration || 0,
+        distance: exercise.distance || 0,
+        completed: false
       }))
     }));
     
@@ -160,7 +182,7 @@ export function WorkoutsTab() {
       if (w.id === session.workout.id) {
         return {
           ...w,
-          status: "Completed",
+          status: "Completed" as const,
           duration: Math.round(duration),
           caloriesBurned: Math.round(duration * 5) // Simple placeholder calculation
         };
@@ -195,17 +217,36 @@ export function WorkoutsTab() {
     });
   };
   
-  const handleUpdateSet = (exerciseId: string, setIndex: number, field: 'reps' | 'weight' | 'duration', value: number) => {
+  const handleUpdateSet = (exerciseId: string, setIndex: number, field: 'reps' | 'weight' | 'duration' | 'distance', value: number) => {
     if (!currentSession) return;
     
     setCurrentSession({
       ...currentSession,
       exercises: currentSession.exercises.map(ex => {
-        if (ex.id === exerciseId && ex.setDetails) {
+        if (ex.id === exerciseId) {
           const newSetDetails = [...ex.setDetails];
           newSetDetails[setIndex] = {
             ...newSetDetails[setIndex],
             [field]: value
+          };
+          return { ...ex, setDetails: newSetDetails };
+        }
+        return ex;
+      })
+    });
+  };
+  
+  const handleToggleSetComplete = (exerciseId: string, setIndex: number) => {
+    if (!currentSession) return;
+    
+    setCurrentSession({
+      ...currentSession,
+      exercises: currentSession.exercises.map(ex => {
+        if (ex.id === exerciseId) {
+          const newSetDetails = [...ex.setDetails];
+          newSetDetails[setIndex] = {
+            ...newSetDetails[setIndex],
+            completed: !newSetDetails[setIndex].completed
           };
           return { ...ex, setDetails: newSetDetails };
         }
@@ -289,7 +330,9 @@ export function WorkoutsTab() {
                                 </div>
                                 <span className="font-medium">{exercise.name}</span>
                                 <span className="text-muted-foreground">
-                                  {exercise.sets} x {exercise.reps} {exercise.weight ? `@ ${exercise.weight}kg` : ''}
+                                  {exercise.sets} x {exercise.reps} 
+                                  {exercise.exerciseType === 'Weight Reps' && exercise.weight ? ` @ ${exercise.weight}kg` : ''}
+                                  {exercise.exerciseType === 'Duration' && exercise.duration ? ` for ${exercise.duration}s` : ''}
                                 </span>
                               </div>
                             ))}
@@ -370,6 +413,9 @@ export function WorkoutsTab() {
                     <div>
                       <h3 className="font-medium text-lg">{exercise.name}</h3>
                       <p className="text-sm text-muted-foreground">{exercise.category}</p>
+                      {exercise.exerciseType && (
+                        <p className="text-xs text-muted-foreground">Type: {exercise.exerciseType}</p>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <Switch 
@@ -388,26 +434,37 @@ export function WorkoutsTab() {
                     <div className="space-y-2">
                       {exercise.setDetails?.map((set, setIdx) => (
                         <div key={setIdx} className="grid grid-cols-12 gap-2 items-center">
-                          <div className="col-span-2 text-sm font-medium">Set {setIdx + 1}:</div>
-                          
-                          <div className="col-span-4">
-                            <Label className="text-xs">Reps</Label>
-                            <Input 
-                              type="number"
-                              value={set.reps}
-                              onChange={(e) => handleUpdateSet(
-                                exercise.id, 
-                                setIdx, 
-                                'reps', 
-                                parseInt(e.target.value) || 0
-                              )}
-                              min={0}
-                              className="h-8"
+                          <div className="col-span-2 text-sm font-medium flex items-center gap-2">
+                            <Switch
+                              size="sm"
+                              checked={set.completed}
+                              onCheckedChange={() => handleToggleSetComplete(exercise.id, setIdx)}
                             />
+                            <span>Set {setIdx + 1}</span>
                           </div>
                           
-                          {exercise.weight !== undefined ? (
-                            <div className="col-span-4">
+                          {(exercise.exerciseType === 'Weight Reps' || exercise.exerciseType === 'Reps Only' || 
+                            exercise.exerciseType === 'Weighted Bodyweight' || exercise.exerciseType === 'Assisted Bodyweight') && (
+                            <div className="col-span-3">
+                              <Label className="text-xs">Reps</Label>
+                              <Input 
+                                type="number"
+                                value={set.reps}
+                                onChange={(e) => handleUpdateSet(
+                                  exercise.id, 
+                                  setIdx, 
+                                  'reps', 
+                                  parseInt(e.target.value) || 0
+                                )}
+                                min={0}
+                                className="h-8"
+                              />
+                            </div>
+                          )}
+                          
+                          {(exercise.exerciseType === 'Weight Reps' || exercise.exerciseType === 'Weighted Bodyweight' || 
+                            exercise.exerciseType === 'Weight & Duration') && (
+                            <div className="col-span-3">
                               <Label className="text-xs">Weight (kg)</Label>
                               <Input 
                                 type="number"
@@ -423,8 +480,11 @@ export function WorkoutsTab() {
                                 className="h-8"
                               />
                             </div>
-                          ) : (
-                            <div className="col-span-4">
+                          )}
+                          
+                          {(exercise.exerciseType === 'Duration' || exercise.exerciseType === 'Weight & Duration' || 
+                            exercise.exerciseType === 'Distance & Duration') && (
+                            <div className="col-span-3">
                               <Label className="text-xs">Duration (sec)</Label>
                               <Input 
                                 type="number"
@@ -433,6 +493,24 @@ export function WorkoutsTab() {
                                   exercise.id, 
                                   setIdx, 
                                   'duration', 
+                                  parseInt(e.target.value) || 0
+                                )}
+                                min={0}
+                                className="h-8"
+                              />
+                            </div>
+                          )}
+                          
+                          {exercise.exerciseType === 'Distance & Duration' && (
+                            <div className="col-span-3">
+                              <Label className="text-xs">Distance (m)</Label>
+                              <Input 
+                                type="number"
+                                value={set.distance}
+                                onChange={(e) => handleUpdateSet(
+                                  exercise.id, 
+                                  setIdx, 
+                                  'distance', 
                                   parseInt(e.target.value) || 0
                                 )}
                                 min={0}

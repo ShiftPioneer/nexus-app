@@ -16,13 +16,13 @@ interface Task {
   id: string;
   title: string;
   description?: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: 'very high' | 'high' | 'medium' | 'low' | 'very low';
   category: string;
   dueDate?: Date;
   importance: number;
   relatedGoals?: string[];
   relatedProjects?: string[];
-  status: 'todo' | 'in-progress' | 'completed' | 'overdue' | 'deleted';
+  status: 'today' | 'todo' | 'in-progress' | 'completed' | 'overdue' | 'deleted';
   createdAt: Date;
 }
 
@@ -40,9 +40,11 @@ const CATEGORIES = [
 
 const PRIORITIES = [
   "All Priorities",
+  "Very High",
   "High",
   "Medium",
-  "Low"
+  "Low",
+  "Very Low"
 ];
 
 const Tasks = () => {
@@ -124,10 +126,17 @@ const Tasks = () => {
     setShowTaskDialog(false);
   };
   
-  const handleUpdateTaskStatus = (taskId: string, newStatus: Task['status']) => {
-    setTaskList(taskList.map(task => 
-      task.id === taskId ? { ...task, status: newStatus } : task
-    ));
+  const handleUpdateTaskStatus = (taskId: string, newStatus: Task['status'], newPriority?: Task['priority']) => {
+    setTaskList(taskList.map(task => {
+      if (task.id === taskId) {
+        return { 
+          ...task, 
+          status: newStatus,
+          priority: newPriority || task.priority
+        };
+      }
+      return task;
+    }));
     toast({
       description: `Task status updated to ${newStatus.replace('-', ' ')}`,
     });
@@ -146,6 +155,39 @@ const Tasks = () => {
     ));
     toast({
       description: "Task restored",
+    });
+  };
+
+  const handleMatrixDrop = (taskId: string, quadrant: string) => {
+    // Update task based on which quadrant it was dropped in
+    let newStatus: Task['status'] = 'todo';
+    let newPriority: Task['priority'] = 'medium';
+
+    switch (quadrant) {
+      case 'do': // Urgent & Important
+        newStatus = 'today';
+        newPriority = 'very high';
+        break;
+      case 'plan': // Not Urgent & Important
+        newStatus = 'todo';
+        newPriority = 'high';
+        break;
+      case 'delegate': // Urgent & Not Important
+        newStatus = 'todo';
+        newPriority = 'medium';
+        break;
+      case 'eliminate': // Not Urgent & Not Important
+        newStatus = 'deleted';
+        newPriority = 'very low';
+        break;
+    }
+
+    setTaskList(taskList.map(task => 
+      task.id === taskId ? { ...task, status: newStatus, priority: newPriority } : task
+    ));
+    
+    toast({
+      description: `Task moved to ${quadrant} quadrant`,
     });
   };
 
@@ -168,6 +210,7 @@ const Tasks = () => {
     // Filter by tab
     if (activeTab === "all") return task.status !== "deleted";
     if (activeTab === "today") {
+      if (task.status === "today") return true;
       if (!task.dueDate) return false;
       const today = new Date();
       return task.status !== "deleted" && 
@@ -186,20 +229,32 @@ const Tasks = () => {
   });
   
   // For Eisenhower matrix
-  const urgentImportantTasks = filteredTasks.filter(
-    task => task.priority === "high" && task.importance >= 70 && task.status !== "completed" && task.status !== "deleted"
+  const urgentImportantTasks = taskList.filter(
+    task => (task.priority === "very high" || task.priority === "high") && 
+    task.importance >= 70 && 
+    task.status !== "completed" && 
+    task.status !== "deleted"
   );
   
-  const notUrgentImportantTasks = filteredTasks.filter(
-    task => (task.priority === "medium" || task.priority === "low") && task.importance >= 70 && task.status !== "completed" && task.status !== "deleted"
+  const notUrgentImportantTasks = taskList.filter(
+    task => task.priority === "medium" && 
+    task.importance >= 70 && 
+    task.status !== "completed" && 
+    task.status !== "deleted"
   );
   
-  const urgentNotImportantTasks = filteredTasks.filter(
-    task => task.priority === "high" && task.importance < 70 && task.status !== "completed" && task.status !== "deleted"
+  const urgentNotImportantTasks = taskList.filter(
+    task => (task.priority === "very high" || task.priority === "high") && 
+    task.importance < 70 && 
+    task.status !== "completed" && 
+    task.status !== "deleted"
   );
   
-  const notUrgentNotImportantTasks = filteredTasks.filter(
-    task => (task.priority === "medium" || task.priority === "low") && task.importance < 70 && task.status !== "completed" && task.status !== "deleted"
+  const notUrgentNotImportantTasks = taskList.filter(
+    task => (task.priority === "low" || task.priority === "very low") && 
+    task.importance < 70 && 
+    task.status !== "completed" && 
+    task.status !== "deleted"
   );
 
   return (
@@ -214,17 +269,29 @@ const Tasks = () => {
             <p className="text-muted-foreground">Manage your daily tasks and to-dos</p>
           </div>
           <div className="flex gap-2 w-full sm:w-auto">
-            <Button variant="outline" onClick={() => setViewMode("list")} className={cn(viewMode === "list" && "bg-muted")}>
-              <List className="h-4 w-4" />
-              <span className="ml-2 hidden sm:inline">Tasks List</span>
+            <Button 
+              variant={viewMode === "list" ? "default" : "outline"} 
+              onClick={() => setViewMode("list")} 
+              className="flex-1 sm:flex-none"
+            >
+              <List className="h-4 w-4 mr-2" />
+              Tasks List
             </Button>
-            <Button variant="outline" onClick={() => setViewMode("board")} className={cn(viewMode === "board" && "bg-muted")}>
-              <LayoutGrid className="h-4 w-4" />
-              <span className="ml-2 hidden sm:inline">Tasks Board</span>
+            <Button 
+              variant={viewMode === "board" ? "default" : "outline"} 
+              onClick={() => setViewMode("board")} 
+              className="flex-1 sm:flex-none"
+            >
+              <LayoutGrid className="h-4 w-4 mr-2" />
+              Tasks Board
             </Button>
-            <Button variant="outline" onClick={() => setViewMode("matrix")} className={cn(viewMode === "matrix" && "bg-muted")}>
-              <Grid2X2 className="h-4 w-4" />
-              <span className="ml-2 hidden sm:inline">Tasks Matrix</span>
+            <Button 
+              variant={viewMode === "matrix" ? "default" : "outline"} 
+              onClick={() => setViewMode("matrix")} 
+              className="flex-1 sm:flex-none"
+            >
+              <Grid2X2 className="h-4 w-4 mr-2" />
+              Tasks Matrix
             </Button>
             <Button onClick={() => setShowTaskDialog(true)} className="gap-2">
               <Plus size={18} />
@@ -337,8 +404,11 @@ const Tasks = () => {
                             key={task.id}
                             className={cn(
                               "border-l-4",
+                              task.priority === "very high" ? "border-l-red-600" :
                               task.priority === "high" ? "border-l-red-500" : 
-                              task.priority === "medium" ? "border-l-orange-500" : "border-l-blue-500",
+                              task.priority === "medium" ? "border-l-orange-500" : 
+                              task.priority === "low" ? "border-l-blue-500" :
+                              "border-l-blue-300", // very low
                               task.status === "deleted" && "border-dashed opacity-75",
                               "hover:shadow-md transition-shadow"
                             )}
@@ -374,7 +444,7 @@ const Tasks = () => {
                                   )}
                                 </div>
                                 
-                                <div className="flex items-center gap-2 flex-shrink-0">
+                                <div className="flex flex-wrap items-center gap-2 flex-shrink-0">
                                   <span className="text-xs px-2 py-1 rounded-full bg-muted">
                                     {task.category}
                                   </span>
@@ -388,10 +458,13 @@ const Tasks = () => {
                                   
                                   <span className={cn(
                                     "text-xs px-2 py-1 rounded-full",
+                                    task.priority === "very high" ? "bg-red-100 text-red-800" :
                                     task.priority === "high" ? "bg-red-100 text-red-800" : 
-                                    task.priority === "medium" ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"
+                                    task.priority === "medium" ? "bg-orange-100 text-orange-800" : 
+                                    task.priority === "low" ? "bg-blue-100 text-blue-800" :
+                                    "bg-blue-50 text-blue-800" // very low
                                   )}>
-                                    {task.priority}
+                                    {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
                                   </span>
                                   
                                   {task.status === "deleted" ? (
@@ -432,163 +505,229 @@ const Tasks = () => {
         </Tabs>
         
         {viewMode === "board" && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Task Board</h2>
-            <KanbanBoard 
-              tasks={taskList.filter(task => task.status !== "deleted")} 
-              onUpdateTaskStatus={handleUpdateTaskStatus}
-            />
+          <div className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Task Board</CardTitle>
+                <CardDescription>Manage tasks using drag and drop</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <KanbanBoard 
+                  tasks={taskList.filter(task => task.status !== "deleted")} 
+                  onUpdateTaskStatus={handleUpdateTaskStatus}
+                />
+              </CardContent>
+            </Card>
           </div>
         )}
         
         {viewMode === "matrix" && (
-          <div className="mt-8">
-            <h2 className="text-xl font-semibold mb-4">Eisenhower Matrix</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Do - Urgent & Important */}
-              <Card className="border-l-4 border-l-green-500 overflow-hidden">
-                <CardHeader className="bg-green-50 pb-2">
-                  <CardTitle className="text-lg text-green-800">Do</CardTitle>
-                  <CardDescription className="text-green-800">
-                    Urgent & Important • {urgentImportantTasks.length} tasks
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 max-h-[350px] overflow-y-auto">
-                  {urgentImportantTasks.length === 0 ? (
-                    <div className="text-center py-4 text-sm text-muted-foreground">
-                      No tasks in this quadrant
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {urgentImportantTasks.map(task => (
-                        <Card key={task.id} className="p-2 shadow-sm">
-                          <div className="flex items-center gap-2">
-                            <input 
-                              type="checkbox"
-                              checked={task.status === "completed"}
-                              onChange={() => handleUpdateTaskStatus(
-                                task.id, 
-                                task.status === "completed" ? "todo" : "completed"
-                              )}
-                              className="h-4 w-4"
-                            />
-                            <span className="flex-1 text-sm font-medium">{task.title}</span>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              
-              {/* Plan - Not Urgent & Important */}
-              <Card className="border-l-4 border-l-blue-500 overflow-hidden">
-                <CardHeader className="bg-blue-50 pb-2">
-                  <CardTitle className="text-lg text-blue-800">Plan</CardTitle>
-                  <CardDescription className="text-blue-800">
-                    Not Urgent & Important • {notUrgentImportantTasks.length} tasks
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 max-h-[350px] overflow-y-auto">
-                  {notUrgentImportantTasks.length === 0 ? (
-                    <div className="text-center py-4 text-sm text-muted-foreground">
-                      No tasks in this quadrant
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {notUrgentImportantTasks.map(task => (
-                        <Card key={task.id} className="p-2 shadow-sm">
-                          <div className="flex items-center gap-2">
-                            <input 
-                              type="checkbox"
-                              checked={task.status === "completed"}
-                              onChange={() => handleUpdateTaskStatus(
-                                task.id, 
-                                task.status === "completed" ? "todo" : "completed"
-                              )}
-                              className="h-4 w-4"
-                            />
-                            <span className="flex-1 text-sm font-medium">{task.title}</span>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              
-              {/* Delegate - Urgent & Not Important */}
-              <Card className="border-l-4 border-l-yellow-500 overflow-hidden">
-                <CardHeader className="bg-yellow-50 pb-2">
-                  <CardTitle className="text-lg text-yellow-800">Delegate</CardTitle>
-                  <CardDescription className="text-yellow-800">
-                    Urgent & Not Important • {urgentNotImportantTasks.length} tasks
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 max-h-[350px] overflow-y-auto">
-                  {urgentNotImportantTasks.length === 0 ? (
-                    <div className="text-center py-4 text-sm text-muted-foreground">
-                      No tasks in this quadrant
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {urgentNotImportantTasks.map(task => (
-                        <Card key={task.id} className="p-2 shadow-sm">
-                          <div className="flex items-center gap-2">
-                            <input 
-                              type="checkbox"
-                              checked={task.status === "completed"}
-                              onChange={() => handleUpdateTaskStatus(
-                                task.id, 
-                                task.status === "completed" ? "todo" : "completed"
-                              )}
-                              className="h-4 w-4"
-                            />
-                            <span className="flex-1 text-sm font-medium">{task.title}</span>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-              
-              {/* Eliminate - Not Urgent & Not Important */}
-              <Card className="border-l-4 border-l-red-500 overflow-hidden">
-                <CardHeader className="bg-red-50 pb-2">
-                  <CardTitle className="text-lg text-red-800">Eliminate</CardTitle>
-                  <CardDescription className="text-red-800">
-                    Not Urgent & Not Important • {notUrgentNotImportantTasks.length} tasks
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 max-h-[350px] overflow-y-auto">
-                  {notUrgentNotImportantTasks.length === 0 ? (
-                    <div className="text-center py-4 text-sm text-muted-foreground">
-                      No tasks in this quadrant
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {notUrgentNotImportantTasks.map(task => (
-                        <Card key={task.id} className="p-2 shadow-sm">
-                          <div className="flex items-center gap-2">
-                            <input 
-                              type="checkbox"
-                              checked={task.status === "completed"}
-                              onChange={() => handleUpdateTaskStatus(
-                                task.id, 
-                                task.status === "completed" ? "todo" : "completed"
-                              )}
-                              className="h-4 w-4"
-                            />
-                            <span className="flex-1 text-sm font-medium">{task.title}</span>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </div>
+          <div className="mt-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Eisenhower Matrix</CardTitle>
+                <CardDescription>Prioritize tasks based on urgency and importance</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Do - Urgent & Important */}
+                  <Card className="border-l-4 border-l-green-500 overflow-hidden">
+                    <CardHeader className="bg-green-50 pb-2">
+                      <CardTitle className="text-lg text-green-800">Do</CardTitle>
+                      <CardDescription className="text-green-800">
+                        Urgent & Important • {urgentImportantTasks.length} tasks
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent 
+                      className="p-4 max-h-[350px] overflow-y-auto"
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const taskId = e.dataTransfer.getData("taskId");
+                        handleMatrixDrop(taskId, 'do');
+                      }}
+                    >
+                      {urgentImportantTasks.length === 0 ? (
+                        <div className="text-center py-4 text-sm text-muted-foreground border border-dashed rounded-lg p-8">
+                          Drop tasks here
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {urgentImportantTasks.map(task => (
+                            <Card 
+                              key={task.id} 
+                              className="p-2 shadow-sm cursor-move"
+                              draggable
+                              onDragStart={(e) => e.dataTransfer.setData("taskId", task.id)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <input 
+                                  type="checkbox"
+                                  checked={task.status === "completed"}
+                                  onChange={() => handleUpdateTaskStatus(
+                                    task.id, 
+                                    task.status === "completed" ? "todo" : "completed"
+                                  )}
+                                  className="h-4 w-4"
+                                />
+                                <span className="flex-1 text-sm font-medium">{task.title}</span>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Plan - Not Urgent & Important */}
+                  <Card className="border-l-4 border-l-blue-500 overflow-hidden">
+                    <CardHeader className="bg-blue-50 pb-2">
+                      <CardTitle className="text-lg text-blue-800">Plan</CardTitle>
+                      <CardDescription className="text-blue-800">
+                        Not Urgent & Important • {notUrgentImportantTasks.length} tasks
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent 
+                      className="p-4 max-h-[350px] overflow-y-auto"
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const taskId = e.dataTransfer.getData("taskId");
+                        handleMatrixDrop(taskId, 'plan');
+                      }}
+                    >
+                      {notUrgentImportantTasks.length === 0 ? (
+                        <div className="text-center py-4 text-sm text-muted-foreground border border-dashed rounded-lg p-8">
+                          Drop tasks here
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {notUrgentImportantTasks.map(task => (
+                            <Card 
+                              key={task.id} 
+                              className="p-2 shadow-sm cursor-move"
+                              draggable
+                              onDragStart={(e) => e.dataTransfer.setData("taskId", task.id)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <input 
+                                  type="checkbox"
+                                  checked={task.status === "completed"}
+                                  onChange={() => handleUpdateTaskStatus(
+                                    task.id, 
+                                    task.status === "completed" ? "todo" : "completed"
+                                  )}
+                                  className="h-4 w-4"
+                                />
+                                <span className="flex-1 text-sm font-medium">{task.title}</span>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Delegate - Urgent & Not Important */}
+                  <Card className="border-l-4 border-l-yellow-500 overflow-hidden">
+                    <CardHeader className="bg-yellow-50 pb-2">
+                      <CardTitle className="text-lg text-yellow-800">Delegate</CardTitle>
+                      <CardDescription className="text-yellow-800">
+                        Urgent & Not Important • {urgentNotImportantTasks.length} tasks
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent 
+                      className="p-4 max-h-[350px] overflow-y-auto"
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const taskId = e.dataTransfer.getData("taskId");
+                        handleMatrixDrop(taskId, 'delegate');
+                      }}
+                    >
+                      {urgentNotImportantTasks.length === 0 ? (
+                        <div className="text-center py-4 text-sm text-muted-foreground border border-dashed rounded-lg p-8">
+                          Drop tasks here
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {urgentNotImportantTasks.map(task => (
+                            <Card 
+                              key={task.id} 
+                              className="p-2 shadow-sm cursor-move"
+                              draggable
+                              onDragStart={(e) => e.dataTransfer.setData("taskId", task.id)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <input 
+                                  type="checkbox"
+                                  checked={task.status === "completed"}
+                                  onChange={() => handleUpdateTaskStatus(
+                                    task.id, 
+                                    task.status === "completed" ? "todo" : "completed"
+                                  )}
+                                  className="h-4 w-4"
+                                />
+                                <span className="flex-1 text-sm font-medium">{task.title}</span>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                  
+                  {/* Eliminate - Not Urgent & Not Important */}
+                  <Card className="border-l-4 border-l-red-500 overflow-hidden">
+                    <CardHeader className="bg-red-50 pb-2">
+                      <CardTitle className="text-lg text-red-800">Eliminate</CardTitle>
+                      <CardDescription className="text-red-800">
+                        Not Urgent & Not Important • {notUrgentNotImportantTasks.length} tasks
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent 
+                      className="p-4 max-h-[350px] overflow-y-auto"
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        const taskId = e.dataTransfer.getData("taskId");
+                        handleMatrixDrop(taskId, 'eliminate');
+                      }}
+                    >
+                      {notUrgentNotImportantTasks.length === 0 ? (
+                        <div className="text-center py-4 text-sm text-muted-foreground border border-dashed rounded-lg p-8">
+                          Drop tasks here
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          {notUrgentNotImportantTasks.map(task => (
+                            <Card 
+                              key={task.id} 
+                              className="p-2 shadow-sm cursor-move"
+                              draggable
+                              onDragStart={(e) => e.dataTransfer.setData("taskId", task.id)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <input 
+                                  type="checkbox"
+                                  checked={task.status === "completed"}
+                                  onChange={() => handleUpdateTaskStatus(
+                                    task.id, 
+                                    task.status === "completed" ? "todo" : "completed"
+                                  )}
+                                  className="h-4 w-4"
+                                />
+                                <span className="flex-1 text-sm font-medium">{task.title}</span>
+                              </div>
+                            </Card>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         )}
       

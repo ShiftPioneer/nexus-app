@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { LayoutDashboard, Target, CheckCircle, Clock, Zap, Sparkles, BookOpen, Brain, LayoutGrid, Settings, Calendar, ChevronRight } from "lucide-react";
+import { LayoutDashboard, Target, CheckCircle, Clock, Zap, Sparkles, BookOpen, Brain, LayoutGrid, Settings, Calendar, ChevronRight, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -43,10 +43,24 @@ const sidebarStyles = `
   }
   
   .sidebar-icon-visible {
-    position: absolute;
-    top: 10px;
-    right: 10px;
+    position: fixed;
+    top: 4.5rem;
+    left: 0;
     z-index: 50;
+    border-radius: 0 8px 8px 0;
+    padding: 8px 5px;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+
+  /* App logo styling */
+  .app-logo {
+    font-weight: bold;
+    font-size: 18px;
+    padding: 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 `;
 
@@ -111,16 +125,20 @@ const NavigationMenu = () => {
       <div className={cn("relative", collapsed ? "sidebar-collapsed" : "")}>
         {collapsed && (
           <div 
-            className="sidebar-icon-visible cursor-pointer bg-background p-1 rounded-full border shadow-sm"
+            className="sidebar-icon-visible cursor-pointer bg-background p-2 border-y border-r"
             onClick={toggleSidebar}
           >
-            <ChevronRight className="h-4 w-4" />
+            <Menu className="h-5 w-5 text-primary" />
           </div>
         )}
         
         <SidebarMenu className="sidebar-scroll-area">
           {!collapsed && (
-            <div className="flex justify-end p-2">
+            <div className="app-logo border-b">
+              <div className="flex items-center gap-2">
+                <Zap className="h-5 w-5 text-primary" />
+                <span>Life OS</span>
+              </div>
               <Button 
                 variant="ghost" 
                 size="sm" 
@@ -145,7 +163,7 @@ const NavigationMenu = () => {
               >
                 <Link to={item.path} className="w-full">
                   <item.icon className="h-4 w-4" />
-                  <span className="text-xl font-normal py-[15px] my-[15px] text-accent-dark text-center menu-text">{item.title}</span>
+                  <span className="text-base font-normal py-[15px] my-[15px] text-accent-dark text-center menu-text">{item.title}</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>

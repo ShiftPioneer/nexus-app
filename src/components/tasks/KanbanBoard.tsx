@@ -8,19 +8,19 @@ interface Task {
   id: string;
   title: string;
   description?: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: 'very high' | 'high' | 'medium' | 'low' | 'very low';
   category: string;
   dueDate?: Date;
   importance: number;
   relatedGoals?: string[];
   relatedProjects?: string[];
-  status: 'todo' | 'in-progress' | 'completed' | 'overdue';
+  status: 'today' | 'todo' | 'in-progress' | 'completed' | 'overdue' | 'deleted';
   createdAt: Date;
 }
 
 interface KanbanBoardProps {
   tasks: Task[];
-  onUpdateTaskStatus: (taskId: string, newStatus: Task['status']) => void;
+  onUpdateTaskStatus: (taskId: string, newStatus: Task['status'], newPriority?: Task['priority']) => void;
 }
 
 interface KanbanColumnProps {
@@ -62,8 +62,11 @@ const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, tasks, color, onDrag
               key={task.id}
               className={cn(
                 "bg-background rounded-lg p-3 shadow-sm border-l-4 cursor-move",
+                task.priority === "very high" ? "border-l-red-600" :
                 task.priority === "high" ? "border-l-red-500" : 
-                task.priority === "medium" ? "border-l-orange-500" : "border-l-blue-500"
+                task.priority === "medium" ? "border-l-orange-500" : 
+                task.priority === "low" ? "border-l-blue-500" :
+                "border-l-blue-300" // very low
               )}
               draggable
               onDragStart={(e) => e.dataTransfer.setData("taskId", task.id)}
@@ -106,7 +109,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ tasks, onUpdateTaskStatus }) 
     onUpdateTaskStatus(taskId, status);
   };
   
-  const todoTasks = tasks.filter(task => task.status === "todo");
+  const todoTasks = tasks.filter(task => task.status === "todo" || task.status === "today");
   const inProgressTasks = tasks.filter(task => task.status === "in-progress");
   const completedTasks = tasks.filter(task => task.status === "completed");
   const overdueTasks = tasks.filter(task => {
