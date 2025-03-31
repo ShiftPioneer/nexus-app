@@ -33,7 +33,7 @@ export function BookCard({
   };
   if (listView) {
     return <Card className="overflow-hidden">
-        <CardContent className="p-4">
+        <CardContent className="p-4 bg-accent-dark">
           <div className="flex items-center gap-4">
             <div className="shrink-0 h-16 w-12 bg-gray-100 rounded overflow-hidden">
               {book.coverImage ? <img src={book.coverImage} alt={book.title} className="h-full w-full object-cover" /> : <div className="w-full h-full flex items-center justify-center bg-gray-200">
@@ -44,8 +44,8 @@ export function BookCard({
             <div className="flex-1">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-lg">{book.title}</h3>
-                  <p className="text-sm text-muted-foreground">by {book.author}</p>
+                  <h3 className="font-bold text-lg text-slate-950">{book.title}</h3>
+                  <p className="text-sm text-muted-foreground text-slate-950">by {book.author}</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <span className={cn("text-xs px-2 py-1 rounded-full", getStatusColor(book.readingStatus))}>
@@ -57,13 +57,13 @@ export function BookCard({
                 </div>
               </div>
               
-              <div className="flex flex-wrap gap-1 mt-2">
-                {book.relatedSkillsets.map(skill => <span key={skill} className="text-xs bg-gray-100 px-2 py-1 rounded">
+              <div className="flex flex-wrap gap-1 mt-2 bg-transparent">
+                {book.relatedSkillsets.map(skill => <span key={skill} className="text-xs bg-gray-100 px-2 py-1 rounded text-slate-950">
                     {skill}
                   </span>)}
               </div>
               
-              <div className="flex justify-end gap-2 mt-2">
+              <div className="flex justify-end gap-2 mt-2 bg-accent-dark">
                 <Button size="icon" variant="outline" onClick={() => onEdit(book)}>
                   <Edit className="h-4 w-4" />
                 </Button>
