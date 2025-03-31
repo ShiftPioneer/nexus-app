@@ -80,19 +80,19 @@ export function BookCard({
       <CardContent className="p-4 bg-accent-dark">
         <div className="flex flex-col gap-2">
           <div className="flex justify-between items-start">
-            <h3 className="font-medium text-sm line-clamp-2">{book.title}</h3>
+            <h3 className="font-medium text-sm line-clamp-2 text-slate-950">{book.title}</h3>
             <span className={cn("text-xs px-2 py-0.5 rounded-full", getStatusColor(book.readingStatus))}>
               {book.readingStatus}
             </span>
           </div>
           
-          <p className="text-xs text-muted-foreground">by {book.author}</p>
+          <p className="text-xs text-muted-foreground text-slate-950">by {book.author}</p>
           
           <div className="flex mt-1">
             {renderStars(book.rating)}
           </div>
           
-          <div className="mt-auto pt-2 flex justify-between items-center">
+          <div className="mt-auto pt-2 flex justify-between items-center bg-accent-dark">
             <div className="flex gap-1">
               <Button size="icon" variant="outline" className="h-7 w-7" onClick={() => onEdit(book)}>
                 <Edit className="h-3 w-3" />

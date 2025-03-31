@@ -125,7 +125,7 @@ export function BookshelfTab() {
           {Object.entries(booksByStatus).map(([status, books]) => <Card key={status} className="overflow-hidden">
               <CardContent className="p-4 bg-accent-dark">
                 <div className="flex items-center gap-2 mb-4 bg-accent-dark">
-                  <h3 className="font-bold text-lg">{status}</h3>
+                  <h3 className="font-bold text-lg text-slate-950">{status}</h3>
                   <span className="bg-gray-100 rounded-full px-2 py-0.5 text-xs text-slate-950">
                     {books.length}
                   </span>
