@@ -4,6 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Flame, Award } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface HabitStatisticsStreaksProps {
   habits: Habit[];

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, CheckCircle2, Award, BarChart2, LineChart, Calendar, Filter, Clock, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
 import HabitStatisticsOverview from "@/components/habits/HabitStatisticsOverview";
 import HabitStatisticsTrends from "@/components/habits/HabitStatisticsTrends";
 import HabitStatisticsCategories from "@/components/habits/HabitStatisticsCategories";
@@ -28,7 +28,7 @@ const Habits = () => {
       category: "mindfulness",
       streak: 7,
       target: 15,
-      status: "completed",
+      status: "completed" as const,
       completionDates: Array.from({ length: 7 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - i);
@@ -46,7 +46,7 @@ const Habits = () => {
       category: "learning",
       streak: 3,
       target: 30,
-      status: "pending",
+      status: "pending" as const,
       completionDates: Array.from({ length: 3 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - i - 1);
@@ -64,7 +64,7 @@ const Habits = () => {
       category: "health",
       streak: 0,
       target: 5,
-      status: "missed",
+      status: "missed" as const,
       completionDates: [],
       type: "daily",
       createdAt: new Date(Date.now() - 5 * 86400000),
@@ -78,7 +78,7 @@ const Habits = () => {
       category: "health",
       streak: 12,
       target: 30,
-      status: "completed",
+      status: "completed" as const,
       completionDates: Array.from({ length: 12 }, (_, i) => {
         const date = new Date();
         date.setDate(date.getDate() - i);
@@ -92,7 +92,6 @@ const Habits = () => {
     }
   ]);
 
-  // Calculate accountability score
   useEffect(() => {
     const score = habits.reduce((total, habit) => {
       return total + (habit.streak * (habit.scoreValue || 5));
@@ -102,7 +101,6 @@ const Habits = () => {
   
   const handleCreateHabit = (habit: Habit) => {
     if (selectedHabit) {
-      // Update existing habit
       setHabits(habits.map(h => h.id === habit.id ? habit : h));
       toast({
         title: "Habit Updated",
@@ -110,8 +108,7 @@ const Habits = () => {
       });
       setSelectedHabit(null);
     } else {
-      // Create new habit
-      const newHabit = {
+      const newHabit: Habit = {
         ...habit,
         id: `habit-${Date.now()}`,
         createdAt: new Date(),
@@ -135,14 +132,13 @@ const Habits = () => {
   const completeHabit = (id: string) => {
     setHabits(habits.map(habit => {
       if (habit.id === id) {
-        const updatedHabit = { 
+        const updatedHabit: Habit = { 
           ...habit, 
-          status: "completed",
+          status: "completed" as const,
           streak: habit.streak + 1,
           completionDates: [...habit.completionDates, new Date()]
         };
         
-        // Update accountability score
         setAccountabilityScore(prev => prev + (habit.scoreValue || 5));
         
         return updatedHabit;
@@ -157,7 +153,6 @@ const Habits = () => {
         description: `${habit.title} completed for today. +${habit.scoreValue || 5} points!`,
       });
       
-      // Check if streak milestone reached
       const updatedStreak = habit.streak + 1;
       if (updatedStreak === habit.target) {
         setTimeout(() => {
@@ -174,14 +169,12 @@ const Habits = () => {
   const missHabit = (id: string) => {
     setHabits(habits.map(habit => {
       if (habit.id === id) {
-        // Reset streak and change status to missed
-        const updatedHabit = { 
+        const updatedHabit: Habit = { 
           ...habit, 
-          status: "missed",
+          status: "missed" as const,
           streak: 0
         };
         
-        // Update accountability score
         setAccountabilityScore(prev => Math.max(0, prev - (habit.penaltyValue || 10)));
         
         return updatedHabit;
@@ -199,7 +192,6 @@ const Habits = () => {
     }
   };
   
-  // Calculate statistics
   const todayCompleted = habits.filter(h => h.status === "completed").length;
   const totalHabits = habits.length;
   const completionRate = Math.round((habits.reduce((acc, habit) => 
@@ -238,10 +230,9 @@ const Habits = () => {
     return orderedDays;
   };
 
-  // Generate weekly habit completion data
   const generateWeeklyCompletionData = () => {
     const result = [];
-    const habitSubset = habits.slice(0, 5); // Limit to 5 habits for display
+    const habitSubset = habits.slice(0, 5);
     
     for (const habit of habitSubset) {
       const weekData = {
@@ -250,7 +241,6 @@ const Habits = () => {
         completions: Array(7).fill(false),
       };
       
-      // Simulate some completions
       for (let i = 0; i < 7; i++) {
         const date = new Date();
         date.setDate(date.getDate() - i);
@@ -288,10 +278,8 @@ const Habits = () => {
           </Button>
         </div>
         
-        {/* Main layout */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
-            {/* Habits list */}
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center justify-between">
@@ -410,7 +398,6 @@ const Habits = () => {
                             </div>
                           </div>
                           
-                          {/* Progress bar */}
                           <div className="mt-3">
                             <div className="h-2 bg-muted/30 rounded-full w-full overflow-hidden">
                               <div 
@@ -434,7 +421,6 @@ const Habits = () => {
               </CardContent>
             </Card>
             
-            {/* Statistics section */}
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between flex-wrap gap-3">
@@ -463,7 +449,6 @@ const Habits = () => {
           </div>
           
           <div className="space-y-6">
-            {/* Accountability Score */}
             <Card className="bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
               <CardContent className="pt-6">
                 <div className="flex justify-between items-center">
@@ -481,7 +466,6 @@ const Habits = () => {
               </CardContent>
             </Card>
             
-            {/* Streaks */}
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
@@ -514,7 +498,6 @@ const Habits = () => {
               </CardContent>
             </Card>
             
-            {/* Weekly Activity */}
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex items-center gap-2">
