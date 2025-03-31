@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Workout } from "@/types/energy";
@@ -7,6 +7,8 @@ import { Dumbbell, Calendar, Clock, FlameIcon, Plus, BarChart2, ArrowRight, Tren
 import { format } from "date-fns";
 import { ResponsiveContainer, BarChart, Bar, XAxis, LineChart, Line, CartesianGrid, Tooltip } from "recharts";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const sampleWorkouts: Workout[] = [
   {
@@ -124,6 +126,58 @@ const statsCards = [
 ];
 
 export function DashboardTab() {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [activeWorkouts, setActiveWorkouts] = useState<Workout[]>(sampleWorkouts);
+  
+  const handleStartWorkout = (workout: Workout) => {
+    toast({
+      title: "Starting Workout",
+      description: `Starting ${workout.name}`,
+    });
+    // In a real app this would navigate to a workout session page
+  };
+  
+  const handleQuickAction = (action: string) => {
+    switch (action) {
+      case "startWorkout":
+        toast({
+          title: "Start New Workout",
+          description: "Creating a new workout session",
+        });
+        break;
+      case "scheduleWorkout":
+        toast({
+          title: "Schedule Workout",
+          description: "Opening workout scheduler",
+        });
+        break;
+      case "browseExercises":
+        navigate("/energy?tab=workouts");
+        break;
+      case "trackProgress":
+        navigate("/energy?tab=analytics");
+        break;
+      default:
+        break;
+    }
+  };
+  
+  const viewAllWorkouts = () => {
+    navigate("/energy?tab=workouts");
+  };
+  
+  const viewAnalytics = () => {
+    navigate("/energy?tab=analytics");
+  };
+  
+  const viewCalendar = () => {
+    toast({
+      title: "Calendar View",
+      description: "Opening workout calendar",
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -155,7 +209,7 @@ export function DashboardTab() {
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-lg">This Week's Activity</h3>
-              <Button variant="outline" size="sm" className="gap-1">
+              <Button variant="outline" size="sm" className="gap-1" onClick={viewAnalytics}>
                 <BarChart2 className="h-4 w-4" />
                 View Analytics
               </Button>
@@ -165,7 +219,7 @@ export function DashboardTab() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="day" />
                 <Tooltip />
-                <Bar dataKey="calories" fill="#8884d8" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="calories" fill="#F97316" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -179,7 +233,7 @@ export function DashboardTab() {
                 <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} />
                 <XAxis dataKey="week" />
                 <Tooltip />
-                <Line type="monotone" dataKey="weight" stroke="#82ca9d" dot={{ r: 4 }} />
+                <Line type="monotone" dataKey="weight" stroke="#F97316" dot={{ r: 4 }} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -191,14 +245,14 @@ export function DashboardTab() {
           <CardContent className="p-6">
             <div className="flex justify-between items-center mb-6">
               <h3 className="font-bold text-lg">Upcoming Workouts</h3>
-              <Button variant="outline" size="sm" className="gap-1">
+              <Button variant="outline" size="sm" className="gap-1" onClick={viewCalendar}>
                 <Calendar className="h-4 w-4" />
                 View Calendar
               </Button>
             </div>
             
             <div className="space-y-4">
-              {sampleWorkouts
+              {activeWorkouts
                 .filter(workout => workout.status === "Planned")
                 .map(workout => (
                 <div key={workout.id} className="flex items-center gap-4 p-3 bg-muted/50 rounded-lg">
@@ -218,23 +272,23 @@ export function DashboardTab() {
                       </div>
                     </div>
                   </div>
-                  <Button size="sm" className="gap-1">
+                  <Button size="sm" className="gap-1" onClick={() => handleStartWorkout(workout)}>
                     Start
                     <ArrowRight className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
               
-              {sampleWorkouts.filter(w => w.status === "Planned").length === 0 && (
+              {activeWorkouts.filter(w => w.status === "Planned").length === 0 && (
                 <div className="text-center py-6 bg-muted/30 rounded-lg">
                   <p className="text-muted-foreground mb-2">No upcoming workouts</p>
-                  <Button size="sm">Schedule Workout</Button>
+                  <Button size="sm" onClick={() => handleQuickAction("scheduleWorkout")}>Schedule Workout</Button>
                 </div>
               )}
             </div>
             
             <div className="mt-4 flex justify-end">
-              <Button variant="link" className="gap-1">
+              <Button variant="link" className="gap-1" onClick={viewAllWorkouts}>
                 View all workouts
                 <ArrowRight className="h-4 w-4" />
               </Button>
@@ -249,19 +303,19 @@ export function DashboardTab() {
             </div>
             
             <div className="flex flex-col gap-3">
-              <Button className="w-full justify-start gap-2">
+              <Button className="w-full justify-start gap-2" onClick={() => handleQuickAction("startWorkout")}>
                 <Plus className="h-4 w-4" />
                 Start New Workout
               </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
+              <Button variant="outline" className="w-full justify-start gap-2" onClick={() => handleQuickAction("scheduleWorkout")}>
                 <Calendar className="h-4 w-4" />
                 Schedule Workout
               </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
+              <Button variant="outline" className="w-full justify-start gap-2" onClick={() => handleQuickAction("browseExercises")}>
                 <Dumbbell className="h-4 w-4" />
                 Browse Exercises
               </Button>
-              <Button variant="outline" className="w-full justify-start gap-2">
+              <Button variant="outline" className="w-full justify-start gap-2" onClick={() => handleQuickAction("trackProgress")}>
                 <BarChart2 className="h-4 w-4" />
                 Track Progress
               </Button>

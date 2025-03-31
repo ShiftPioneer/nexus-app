@@ -9,6 +9,28 @@ import { cn } from "@/lib/utils";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ExerciseLibrary } from "./ExerciseLibrary";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+
+interface ExerciseTrackingItem extends Exercise {
+  completed: boolean;
+  setDetails?: Array<{
+    reps: number;
+    weight?: number;
+    duration?: number;
+  }>;
+}
+
+interface WorkoutSession {
+  workout: Workout;
+  exercises: ExerciseTrackingItem[];
+  inProgress: boolean;
+  startTime?: Date;
+  endTime?: Date;
+}
 
 const sampleWorkouts: Workout[] = [
   {
@@ -83,6 +105,11 @@ export function WorkoutsTab() {
   const [currentWorkout, setCurrentWorkout] = useState<Workout | null>(null);
   const [viewMode, setViewMode] = useState<"calendar" | "list">("list");
   const [activeTab, setActiveTab] = useState<"workouts" | "exercises">("workouts");
+  const [sessionDialogOpen, setSessionDialogOpen] = useState(false);
+  const [currentSession, setCurrentSession] = useState<WorkoutSession | null>(null);
+  const [completedWorkouts, setCompletedWorkouts] = useState<WorkoutSession[]>([]);
+  
+  const { toast } = useToast();
   
   const handleAddWorkout = (workout: Workout) => {
     if (currentWorkout) {
@@ -104,17 +131,87 @@ export function WorkoutsTab() {
   };
 
   const handleStartWorkout = (workout: Workout) => {
-    // In a real app, this would navigate to a workout session screen
-    alert(`Starting workout: ${workout.name}`);
+    const exercises = workout.exercises.map(exercise => ({
+      ...exercise,
+      completed: false,
+      setDetails: Array(exercise.sets).fill(null).map(() => ({
+        reps: exercise.reps || 0,
+        weight: exercise.weight || 0,
+      }))
+    }));
+    
+    setCurrentSession({
+      workout,
+      exercises,
+      inProgress: true,
+      startTime: new Date()
+    });
+    
+    setSessionDialogOpen(true);
   };
 
-  const handleCompleteWorkout = (workout: Workout) => {
-    setWorkouts(workouts.map(w => {
-      if (w.id === workout.id) {
-        return { ...w, status: "Completed" };
+  const handleCompleteWorkout = (session: WorkoutSession) => {
+    // Calculate stats
+    const duration = ((session.endTime || new Date()).getTime() - (session.startTime || new Date()).getTime()) / 60000; // in minutes
+    const completedSets = session.exercises.reduce((count, exercise) => count + (exercise.completed ? exercise.sets : 0), 0);
+    
+    // Update the original workout
+    const updatedWorkouts = workouts.map(w => {
+      if (w.id === session.workout.id) {
+        return {
+          ...w,
+          status: "Completed",
+          duration: Math.round(duration),
+          caloriesBurned: Math.round(duration * 5) // Simple placeholder calculation
+        };
       }
       return w;
-    }));
+    });
+    
+    setWorkouts(updatedWorkouts);
+    setCompletedWorkouts([...completedWorkouts, {
+      ...session,
+      inProgress: false,
+      endTime: new Date()
+    }]);
+    
+    toast({
+      title: "Workout Completed",
+      description: `You've completed ${session.workout.name}! Great job!`,
+    });
+    
+    setSessionDialogOpen(false);
+    setCurrentSession(null);
+  };
+  
+  const handleToggleExerciseComplete = (exerciseId: string) => {
+    if (!currentSession) return;
+    
+    setCurrentSession({
+      ...currentSession,
+      exercises: currentSession.exercises.map(ex => 
+        ex.id === exerciseId ? { ...ex, completed: !ex.completed } : ex
+      )
+    });
+  };
+  
+  const handleUpdateSet = (exerciseId: string, setIndex: number, field: 'reps' | 'weight' | 'duration', value: number) => {
+    if (!currentSession) return;
+    
+    setCurrentSession({
+      ...currentSession,
+      exercises: currentSession.exercises.map(ex => {
+        if (ex.id === exerciseId && ex.setDetails) {
+          const newSetDetails = [...ex.setDetails];
+          newSetDetails[setIndex] = {
+            ...newSetDetails[setIndex],
+            [field]: value
+          };
+          return { ...ex, setDetails: newSetDetails };
+        }
+        return ex;
+      })
+    });
   };
 
   return (
@@ -242,12 +339,133 @@ export function WorkoutsTab() {
         </Tabs>
       </div>
       
+      {/* Workout Dialog */}
       <WorkoutDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSave={handleAddWorkout}
         workout={currentWorkout}
       />
+      
+      {/* Workout Session Dialog */}
+      <Dialog open={sessionDialogOpen} onOpenChange={(open) => !currentSession?.inProgress && setSessionDialogOpen(open)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {currentSession?.workout.name} - Workout in Progress
+            </DialogTitle>
+            <DialogDescription>
+              Complete your exercises and track your progress
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 py-4">
+            {currentSession?.exercises.map((exercise, idx) => (
+              <Card key={idx} className={cn(
+                "overflow-hidden transition-colors",
+                exercise.completed ? "border-green-500 bg-green-50" : ""
+              )}>
+                <CardContent className="p-4">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-medium text-lg">{exercise.name}</h3>
+                      <p className="text-sm text-muted-foreground">{exercise.category}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch 
+                        checked={exercise.completed}
+                        onCheckedChange={() => handleToggleExerciseComplete(exercise.id)}
+                      />
+                      <span className="text-sm">
+                        {exercise.completed ? "Completed" : "Mark as complete"}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4">
+                    <h4 className="font-medium text-sm mb-2">Track Your Sets:</h4>
+                    
+                    <div className="space-y-2">
+                      {exercise.setDetails?.map((set, setIdx) => (
+                        <div key={setIdx} className="grid grid-cols-12 gap-2 items-center">
+                          <div className="col-span-2 text-sm font-medium">Set {setIdx + 1}:</div>
+                          
+                          <div className="col-span-4">
+                            <Label className="text-xs">Reps</Label>
+                            <Input 
+                              type="number"
+                              value={set.reps}
+                              onChange={(e) => handleUpdateSet(
+                                exercise.id, 
+                                setIdx, 
+                                'reps', 
+                                parseInt(e.target.value) || 0
+                              )}
+                              min={0}
+                              className="h-8"
+                            />
+                          </div>
+                          
+                          {exercise.weight !== undefined ? (
+                            <div className="col-span-4">
+                              <Label className="text-xs">Weight (kg)</Label>
+                              <Input 
+                                type="number"
+                                value={set.weight}
+                                onChange={(e) => handleUpdateSet(
+                                  exercise.id, 
+                                  setIdx, 
+                                  'weight', 
+                                  parseFloat(e.target.value) || 0
+                                )}
+                                min={0}
+                                step={1}
+                                className="h-8"
+                              />
+                            </div>
+                          ) : (
+                            <div className="col-span-4">
+                              <Label className="text-xs">Duration (sec)</Label>
+                              <Input 
+                                type="number"
+                                value={set.duration}
+                                onChange={(e) => handleUpdateSet(
+                                  exercise.id, 
+                                  setIdx, 
+                                  'duration', 
+                                  parseInt(e.target.value) || 0
+                                )}
+                                min={0}
+                                className="h-8"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {exercise.notes && (
+                      <div className="mt-2 text-sm bg-muted p-2 rounded">
+                        <span className="font-medium">Notes:</span> {exercise.notes}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+          
+          <DialogFooter>
+            <Button 
+              variant="default" 
+              onClick={() => currentSession && handleCompleteWorkout(currentSession)}
+              disabled={!currentSession?.exercises.some(e => e.completed)}
+            >
+              Complete Workout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

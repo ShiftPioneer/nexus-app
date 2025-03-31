@@ -37,18 +37,21 @@ export function SkillsetDialog({ open, onOpenChange, onSave, skillset }: Skillse
   const [mastery, setMastery] = useState<number>(50);
   const [resourceCount, setResourceCount] = useState(0);
   const [lastPracticed, setLastPracticed] = useState(new Date().toISOString().split('T')[0]);
-  const [color, setColor] = useState('#4285F4');
+  const [color, setColor] = useState('#FEC6A1'); // Changed default color to orange
   const [showColorPicker, setShowColorPicker] = useState(false);
   
   useEffect(() => {
     if (skillset) {
       setName(skillset.name);
       setDescription(skillset.description || '');
-      setCategory(skillset.category);
+      // Fixed the type issue by ensuring we only set valid SkillsetCategory values
+      setCategory(skillsetCategories.includes(skillset.category as SkillsetCategory) 
+        ? (skillset.category as SkillsetCategory) 
+        : 'Other');
       setMastery(skillset.mastery);
       setResourceCount(skillset.resourceCount);
       setLastPracticed(skillset.lastPracticed.toISOString().split('T')[0]);
-      setColor(skillset.color || '#4285F4');
+      setColor(skillset.color || '#FEC6A1');
     } else {
       setName('');
       setDescription('');
@@ -56,13 +59,13 @@ export function SkillsetDialog({ open, onOpenChange, onSave, skillset }: Skillse
       setMastery(50);
       setResourceCount(0);
       setLastPracticed(new Date().toISOString().split('T')[0]);
-      setColor('#4285F4');
+      setColor('#FEC6A1');
     }
   }, [skillset, open]);
 
   const handleSave = () => {
     const newSkillset: Skillset = {
-      id: skillset?.id || '',
+      id: skillset?.id || Date.now().toString(),
       name,
       description,
       category,
@@ -97,7 +100,10 @@ export function SkillsetDialog({ open, onOpenChange, onSave, skillset }: Skillse
           
           <div className="grid gap-2">
             <label htmlFor="category" className="text-sm font-medium">Category</label>
-            <Select value={category} onValueChange={(value) => setCategory(value as SkillsetCategory)}>
+            <Select 
+              value={category} 
+              onValueChange={(value: string) => setCategory(value as SkillsetCategory)}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>

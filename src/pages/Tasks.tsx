@@ -4,11 +4,13 @@ import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ListTodo, Plus, Clock, Search, Sliders, CalendarIcon, Star, Tag, ChevronRight, Filter } from "lucide-react";
+import { ListTodo, Plus, Clock, Search, Sliders, CalendarIcon, Star, Tag, ChevronRight, Filter, LayoutGrid, List, Grid2X2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TaskDialog from "@/components/tasks/TaskDialog";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 interface Task {
   id: string;
@@ -20,14 +22,37 @@ interface Task {
   importance: number;
   relatedGoals?: string[];
   relatedProjects?: string[];
-  status: 'todo' | 'in-progress' | 'completed' | 'overdue';
+  status: 'todo' | 'in-progress' | 'completed' | 'overdue' | 'deleted';
   createdAt: Date;
 }
+
+const CATEGORIES = [
+  "All Categories",
+  "Work", 
+  "Personal", 
+  "Finance", 
+  "Health", 
+  "Career",
+  "Education",
+  "Family",
+  "Home"
+];
+
+const PRIORITIES = [
+  "All Priorities",
+  "High",
+  "Medium",
+  "Low"
+];
 
 const Tasks = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("all");
+  const [viewMode, setViewMode] = useState<"list" | "board" | "matrix">("list");
   const [showTaskDialog, setShowTaskDialog] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("All Categories");
+  const [selectedPriority, setSelectedPriority] = useState("All Priorities");
+  const [searchQuery, setSearchQuery] = useState("");
   const [taskList, setTaskList] = useState<Task[]>([
     {
       id: "1",
@@ -36,7 +61,7 @@ const Tasks = () => {
       priority: "high",
       category: "Work",
       dueDate: new Date(),
-      importance: 50,
+      importance: 80,
       status: "todo",
       createdAt: new Date()
     },
@@ -47,7 +72,7 @@ const Tasks = () => {
       priority: "medium",
       category: "Work",
       dueDate: new Date(Date.now() + 86400000), // tomorrow
-      importance: 20,
+      importance: 55,
       status: "todo",
       createdAt: new Date()
     },
@@ -107,29 +132,80 @@ const Tasks = () => {
       description: `Task status updated to ${newStatus.replace('-', ' ')}`,
     });
   };
+  
+  const handlePermanentDelete = (taskId: string) => {
+    setTaskList(taskList.filter(task => task.id !== taskId));
+    toast({
+      description: "Task permanently deleted",
+    });
+  };
+  
+  const handleRestore = (taskId: string) => {
+    setTaskList(taskList.map(task => 
+      task.id === taskId ? { ...task, status: "todo" } : task
+    ));
+    toast({
+      description: "Task restored",
+    });
+  };
 
   const filteredTasks = taskList.filter(task => {
-    if (activeTab === "all") return true;
+    // Filter by search query
+    if (searchQuery && !task.title.toLowerCase().includes(searchQuery.toLowerCase())) {
+      return false;
+    }
+    
+    // Filter by category
+    if (selectedCategory !== "All Categories" && task.category !== selectedCategory) {
+      return false;
+    }
+    
+    // Filter by priority
+    if (selectedPriority !== "All Priorities" && task.priority !== selectedPriority.toLowerCase()) {
+      return false;
+    }
+    
+    // Filter by tab
+    if (activeTab === "all") return task.status !== "deleted";
     if (activeTab === "today") {
       if (!task.dueDate) return false;
       const today = new Date();
-      return task.dueDate.getDate() === today.getDate() &&
-             task.dueDate.getMonth() === today.getMonth() &&
-             task.dueDate.getFullYear() === today.getFullYear();
+      return task.status !== "deleted" && 
+        task.dueDate.getDate() === today.getDate() &&
+        task.dueDate.getMonth() === today.getMonth() &&
+        task.dueDate.getFullYear() === today.getFullYear();
     }
-    if (activeTab === "upcoming") return task.status === "todo" || task.status === "in-progress";
+    if (activeTab === "upcoming") return task.status !== "deleted" && (task.status === "todo" || task.status === "in-progress");
     if (activeTab === "completed") return task.status === "completed";
     if (activeTab === "overdue") {
       if (!task.dueDate) return false;
-      return task.dueDate < new Date() && task.status !== "completed";
+      return task.status !== "deleted" && task.dueDate < new Date() && task.status !== "completed";
     }
-    return true;
+    if (activeTab === "deleted") return task.status === "deleted";
+    return task.status !== "deleted";
   });
+  
+  // For Eisenhower matrix
+  const urgentImportantTasks = filteredTasks.filter(
+    task => task.priority === "high" && task.importance >= 70 && task.status !== "completed" && task.status !== "deleted"
+  );
+  
+  const notUrgentImportantTasks = filteredTasks.filter(
+    task => (task.priority === "medium" || task.priority === "low") && task.importance >= 70 && task.status !== "completed" && task.status !== "deleted"
+  );
+  
+  const urgentNotImportantTasks = filteredTasks.filter(
+    task => task.priority === "high" && task.importance < 70 && task.status !== "completed" && task.status !== "deleted"
+  );
+  
+  const notUrgentNotImportantTasks = filteredTasks.filter(
+    task => (task.priority === "medium" || task.priority === "low") && task.importance < 70 && task.status !== "completed" && task.status !== "deleted"
+  );
 
   return (
     <AppLayout>
       <div className="animate-fade-in space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2">
               <ListTodo className="h-6 w-6 text-primary" />
@@ -137,163 +213,391 @@ const Tasks = () => {
             </h1>
             <p className="text-muted-foreground">Manage your daily tasks and to-dos</p>
           </div>
-          <Button onClick={() => setShowTaskDialog(true)} className="gap-2">
-            <Plus size={18} />
-            New Task
-          </Button>
+          <div className="flex gap-2 w-full sm:w-auto">
+            <Button variant="outline" onClick={() => setViewMode("list")} className={cn(viewMode === "list" && "bg-muted")}>
+              <List className="h-4 w-4" />
+              <span className="ml-2 hidden sm:inline">Tasks List</span>
+            </Button>
+            <Button variant="outline" onClick={() => setViewMode("board")} className={cn(viewMode === "board" && "bg-muted")}>
+              <LayoutGrid className="h-4 w-4" />
+              <span className="ml-2 hidden sm:inline">Tasks Board</span>
+            </Button>
+            <Button variant="outline" onClick={() => setViewMode("matrix")} className={cn(viewMode === "matrix" && "bg-muted")}>
+              <Grid2X2 className="h-4 w-4" />
+              <span className="ml-2 hidden sm:inline">Tasks Matrix</span>
+            </Button>
+            <Button onClick={() => setShowTaskDialog(true)} className="gap-2">
+              <Plus size={18} />
+              <span className="hidden sm:inline">New Task</span>
+            </Button>
+          </div>
         </div>
         
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search tasks..." className="pl-9" />
+            <Input 
+              placeholder="Search tasks..." 
+              className="pl-9" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
           
           <div className="flex gap-2">
-            <Button variant="outline" size="icon" className="aspect-square">
+            <Button variant="outline" size="icon" className="aspect-square lg:hidden">
               <Filter className="h-4 w-4" />
             </Button>
             
-            <div className="relative">
-              <Button variant="outline" className="gap-2">
-                <Tag className="h-4 w-4" />
-                <span>All Categories</span>
-                <ChevronRight className="h-4 w-4 rotate-90" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Tag className="h-4 w-4" />
+                  <span className="hidden sm:inline">{selectedCategory}</span>
+                  <ChevronRight className="h-4 w-4 rotate-90" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {CATEGORIES.map(category => (
+                  <DropdownMenuItem 
+                    key={category} 
+                    onClick={() => setSelectedCategory(category)}
+                    className={category === selectedCategory ? "bg-muted" : ""}
+                  >
+                    {category}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             
-            <div className="relative">
-              <Button variant="outline" className="gap-2">
-                <Star className="h-4 w-4" />
-                <span>All Priorities</span>
-                <ChevronRight className="h-4 w-4 rotate-90" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2">
+                  <Star className="h-4 w-4" />
+                  <span className="hidden sm:inline">{selectedPriority}</span>
+                  <ChevronRight className="h-4 w-4 rotate-90" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {PRIORITIES.map(priority => (
+                  <DropdownMenuItem 
+                    key={priority} 
+                    onClick={() => setSelectedPriority(priority)}
+                    className={priority === selectedPriority ? "bg-muted" : ""}
+                  >
+                    {priority}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
         
         <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
+          <TabsList className="flex-wrap">
             <TabsTrigger value="all">All Tasks</TabsTrigger>
             <TabsTrigger value="today">Today</TabsTrigger>
             <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
             <TabsTrigger value="completed">Completed</TabsTrigger>
             <TabsTrigger value="overdue">Overdue</TabsTrigger>
+            <TabsTrigger value="deleted">Deleted</TabsTrigger>
           </TabsList>
           
-          <TabsContent value={activeTab} className="mt-4">
-            <Card>
-              <CardHeader className="pb-0">
-                <CardTitle>Task List</CardTitle>
-                <CardDescription>Manage and organize your tasks</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4 pt-4">
-                  {filteredTasks.length === 0 ? (
-                    <div className="text-center py-8">
-                      <ListTodo className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
-                      <h3 className="mt-4 text-lg font-medium">No tasks found</h3>
-                      <p className="mt-2 text-muted-foreground">
-                        {activeTab === "all" 
-                          ? "Start by creating your first task." 
-                          : `No ${activeTab} tasks. Try creating a new task or changing filters.`
-                        }
-                      </p>
-                      <Button onClick={() => setShowTaskDialog(true)} className="mt-4">
-                        Create New Task
-                      </Button>
+          {viewMode === "list" && (
+            <TabsContent value={activeTab} className="mt-4">
+              <Card>
+                <CardHeader className="pb-0">
+                  <CardTitle>Task List</CardTitle>
+                  <CardDescription>Manage and organize your tasks</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4 pt-4">
+                    {filteredTasks.length === 0 ? (
+                      <div className="text-center py-8">
+                        <ListTodo className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
+                        <h3 className="mt-4 text-lg font-medium">No tasks found</h3>
+                        <p className="mt-2 text-muted-foreground">
+                          {activeTab === "all" 
+                            ? "Start by creating your first task." 
+                            : activeTab === "deleted"
+                            ? "No deleted tasks."
+                            : `No ${activeTab} tasks. Try creating a new task or changing filters.`
+                          }
+                        </p>
+                        {activeTab !== "deleted" && (
+                          <Button onClick={() => setShowTaskDialog(true)} className="mt-4">
+                            Create New Task
+                          </Button>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {filteredTasks.map((task) => (
+                          <Card
+                            key={task.id}
+                            className={cn(
+                              "border-l-4",
+                              task.priority === "high" ? "border-l-red-500" : 
+                              task.priority === "medium" ? "border-l-orange-500" : "border-l-blue-500",
+                              task.status === "deleted" && "border-dashed opacity-75",
+                              "hover:shadow-md transition-shadow"
+                            )}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-center gap-3">
+                                <div className="flex-shrink-0">
+                                  {task.status !== "deleted" && (
+                                    <input 
+                                      type="checkbox"
+                                      checked={task.status === "completed"}
+                                      onChange={() => handleUpdateTaskStatus(
+                                        task.id, 
+                                        task.status === "completed" ? "todo" : "completed"
+                                      )}
+                                      className="h-5 w-5 rounded-full"
+                                    />
+                                  )}
+                                </div>
+                                
+                                <div className="flex-grow">
+                                  <h3 className={cn(
+                                    "font-medium",
+                                    task.status === "completed" && "line-through text-muted-foreground",
+                                    task.status === "deleted" && "text-muted-foreground"
+                                  )}>
+                                    {task.title}
+                                  </h3>
+                                  {task.description && (
+                                    <p className="text-sm text-muted-foreground mt-0.5">
+                                      {task.description}
+                                    </p>
+                                  )}
+                                </div>
+                                
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  <span className="text-xs px-2 py-1 rounded-full bg-muted">
+                                    {task.category}
+                                  </span>
+                                  
+                                  {task.dueDate && (
+                                    <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1 bg-muted">
+                                      <Clock className="h-3 w-3" />
+                                      {task.dueDate.toLocaleDateString()}
+                                    </span>
+                                  )}
+                                  
+                                  <span className={cn(
+                                    "text-xs px-2 py-1 rounded-full",
+                                    task.priority === "high" ? "bg-red-100 text-red-800" : 
+                                    task.priority === "medium" ? "bg-orange-100 text-orange-800" : "bg-blue-100 text-blue-800"
+                                  )}>
+                                    {task.priority}
+                                  </span>
+                                  
+                                  {task.status === "deleted" ? (
+                                    <div className="flex gap-1">
+                                      <Button size="sm" variant="outline" onClick={() => handleRestore(task.id)}>
+                                        Restore
+                                      </Button>
+                                      <Button size="sm" variant="destructive" onClick={() => handlePermanentDelete(task.id)}>
+                                        Delete
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline" 
+                                      onClick={() => handleUpdateTaskStatus(task.id, "deleted")}
+                                    >
+                                      Delete
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+                <CardFooter className="border-t p-4">
+                  <p className="text-muted-foreground text-sm">
+                    Showing {filteredTasks.length} {filteredTasks.length === 1 ? "task" : "tasks"}
+                  </p>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          )}
+        </Tabs>
+        
+        {viewMode === "board" && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Task Board</h2>
+            <KanbanBoard 
+              tasks={taskList.filter(task => task.status !== "deleted")} 
+              onUpdateTaskStatus={handleUpdateTaskStatus}
+            />
+          </div>
+        )}
+        
+        {viewMode === "matrix" && (
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold mb-4">Eisenhower Matrix</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Do - Urgent & Important */}
+              <Card className="border-l-4 border-l-green-500 overflow-hidden">
+                <CardHeader className="bg-green-50 pb-2">
+                  <CardTitle className="text-lg text-green-800">Do</CardTitle>
+                  <CardDescription className="text-green-800">
+                    Urgent & Important • {urgentImportantTasks.length} tasks
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 max-h-[350px] overflow-y-auto">
+                  {urgentImportantTasks.length === 0 ? (
+                    <div className="text-center py-4 text-sm text-muted-foreground">
+                      No tasks in this quadrant
                     </div>
                   ) : (
-                    <div className="space-y-4">
-                      {filteredTasks.map((task) => (
-                        <Card
-                          key={task.id}
-                          className={`border-l-4 ${
-                            task.priority === "high"
-                              ? "border-l-red-500"
-                              : task.priority === "medium"
-                              ? "border-l-orange-500"
-                              : "border-l-blue-500"
-                          } hover:shadow-md transition-shadow`}
-                        >
-                          <CardContent className="p-4">
-                            <div className="flex items-center gap-3">
-                              <div className="flex-shrink-0">
-                                <input 
-                                  type="checkbox"
-                                  checked={task.status === "completed"}
-                                  onChange={() => handleUpdateTaskStatus(
-                                    task.id, 
-                                    task.status === "completed" ? "todo" : "completed"
-                                  )}
-                                  className="h-5 w-5 rounded-full"
-                                />
-                              </div>
-                              
-                              <div className="flex-grow">
-                                <h3 className={`font-medium ${task.status === "completed" ? "line-through text-muted-foreground" : ""}`}>
-                                  {task.title}
-                                </h3>
-                                {task.description && (
-                                  <p className="text-sm text-muted-foreground mt-0.5">
-                                    {task.description}
-                                  </p>
-                                )}
-                              </div>
-                              
-                              <div className="flex items-center gap-2 flex-shrink-0">
-                                <span className="text-xs px-2 py-1 rounded-full bg-muted">
-                                  {task.category}
-                                </span>
-                                
-                                {task.dueDate && (
-                                  <span className="text-xs px-2 py-1 rounded-full flex items-center gap-1 bg-muted">
-                                    <Clock className="h-3 w-3" />
-                                    {task.dueDate.toLocaleDateString()}
-                                  </span>
-                                )}
-                                
-                                <span className={`text-xs px-2 py-1 rounded-full ${
-                                  task.priority === "high"
-                                    ? "bg-red-100 text-red-800"
-                                    : task.priority === "medium"
-                                    ? "bg-orange-100 text-orange-800"
-                                    : "bg-blue-100 text-blue-800"
-                                }`}>
-                                  {task.priority}
-                                </span>
-                              </div>
-                            </div>
-                          </CardContent>
+                    <div className="space-y-2">
+                      {urgentImportantTasks.map(task => (
+                        <Card key={task.id} className="p-2 shadow-sm">
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="checkbox"
+                              checked={task.status === "completed"}
+                              onChange={() => handleUpdateTaskStatus(
+                                task.id, 
+                                task.status === "completed" ? "todo" : "completed"
+                              )}
+                              className="h-4 w-4"
+                            />
+                            <span className="flex-1 text-sm font-medium">{task.title}</span>
+                          </div>
                         </Card>
                       ))}
                     </div>
                   )}
-                </div>
-              </CardContent>
-              <CardFooter className="border-t p-4">
-                <p className="text-muted-foreground text-sm">
-                  Showing {filteredTasks.length} {filteredTasks.length === 1 ? "task" : "tasks"}
-                </p>
-              </CardFooter>
-            </Card>
-          </TabsContent>
-        </Tabs>
-        
-        <div className="mt-8">
-          <h2 className="text-xl font-semibold mb-4">Task Board</h2>
-          <KanbanBoard 
-            tasks={taskList} 
-            onUpdateTaskStatus={handleUpdateTaskStatus}
-          />
-        </div>
-      </div>
+                </CardContent>
+              </Card>
+              
+              {/* Plan - Not Urgent & Important */}
+              <Card className="border-l-4 border-l-blue-500 overflow-hidden">
+                <CardHeader className="bg-blue-50 pb-2">
+                  <CardTitle className="text-lg text-blue-800">Plan</CardTitle>
+                  <CardDescription className="text-blue-800">
+                    Not Urgent & Important • {notUrgentImportantTasks.length} tasks
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 max-h-[350px] overflow-y-auto">
+                  {notUrgentImportantTasks.length === 0 ? (
+                    <div className="text-center py-4 text-sm text-muted-foreground">
+                      No tasks in this quadrant
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {notUrgentImportantTasks.map(task => (
+                        <Card key={task.id} className="p-2 shadow-sm">
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="checkbox"
+                              checked={task.status === "completed"}
+                              onChange={() => handleUpdateTaskStatus(
+                                task.id, 
+                                task.status === "completed" ? "todo" : "completed"
+                              )}
+                              className="h-4 w-4"
+                            />
+                            <span className="flex-1 text-sm font-medium">{task.title}</span>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              {/* Delegate - Urgent & Not Important */}
+              <Card className="border-l-4 border-l-yellow-500 overflow-hidden">
+                <CardHeader className="bg-yellow-50 pb-2">
+                  <CardTitle className="text-lg text-yellow-800">Delegate</CardTitle>
+                  <CardDescription className="text-yellow-800">
+                    Urgent & Not Important • {urgentNotImportantTasks.length} tasks
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 max-h-[350px] overflow-y-auto">
+                  {urgentNotImportantTasks.length === 0 ? (
+                    <div className="text-center py-4 text-sm text-muted-foreground">
+                      No tasks in this quadrant
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {urgentNotImportantTasks.map(task => (
+                        <Card key={task.id} className="p-2 shadow-sm">
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="checkbox"
+                              checked={task.status === "completed"}
+                              onChange={() => handleUpdateTaskStatus(
+                                task.id, 
+                                task.status === "completed" ? "todo" : "completed"
+                              )}
+                              className="h-4 w-4"
+                            />
+                            <span className="flex-1 text-sm font-medium">{task.title}</span>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              {/* Eliminate - Not Urgent & Not Important */}
+              <Card className="border-l-4 border-l-red-500 overflow-hidden">
+                <CardHeader className="bg-red-50 pb-2">
+                  <CardTitle className="text-lg text-red-800">Eliminate</CardTitle>
+                  <CardDescription className="text-red-800">
+                    Not Urgent & Not Important • {notUrgentNotImportantTasks.length} tasks
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="p-4 max-h-[350px] overflow-y-auto">
+                  {notUrgentNotImportantTasks.length === 0 ? (
+                    <div className="text-center py-4 text-sm text-muted-foreground">
+                      No tasks in this quadrant
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {notUrgentNotImportantTasks.map(task => (
+                        <Card key={task.id} className="p-2 shadow-sm">
+                          <div className="flex items-center gap-2">
+                            <input 
+                              type="checkbox"
+                              checked={task.status === "completed"}
+                              onChange={() => handleUpdateTaskStatus(
+                                task.id, 
+                                task.status === "completed" ? "todo" : "completed"
+                              )}
+                              className="h-4 w-4"
+                            />
+                            <span className="flex-1 text-sm font-medium">{task.title}</span>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
       
       <TaskDialog
         open={showTaskDialog}
         onOpenChange={setShowTaskDialog}
         onCreateTask={handleCreateTask}
       />
+      </div>
     </AppLayout>
   );
 };
