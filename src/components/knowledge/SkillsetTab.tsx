@@ -95,8 +95,8 @@ export function SkillsetTab() {
               <div className="flex flex-col bg-blue-800">
                 <div className="flex justify-between items-start bg-transparent">
                   <div className="space-y-1">
-                    <h3 className="text-xl font-bold text-slate-950">{skillset.name}</h3>
-                    <p className="text-muted-foreground text-sm text-slate-950">{skillset.description}</p>
+                    <h3 className="text-xl font-bold text-yellow-500 text-left px-[14px]">{skillset.name}</h3>
+                    <p className="text-muted-foreground text-sm font-normal text-zinc-200">{skillset.description}</p>
                   </div>
                   <span className={cn("text-xs px-2 py-1 rounded-md", categoryColors[skillset.category] || "bg-gray-100 text-gray-800")}>
                     {skillset.category}
@@ -105,15 +105,15 @@ export function SkillsetTab() {
                 
                 <div className="mt-6 space-y-1">
                   <div className="flex justify-between">
-                    <span className="text-sm text-slate-950">Mastery</span>
+                    <span className="text-sm text-zinc-200">Mastery</span>
                     <span className="text-sm font-medium text-slate-950">{skillset.mastery}%</span>
                   </div>
                   <Progress value={skillset.mastery} className="h-2" />
                 </div>
                 
                 <div className="flex justify-between items-center mt-6 text-sm text-muted-foreground">
-                  <span className="text-slate-950">Resources: {skillset.resourceCount}</span>
-                  <span className="text-slate-950">Last practiced: {skillset.lastPracticed.toISOString().split('T')[0]}</span>
+                  <span className="text-zinc-200">Resources: {skillset.resourceCount}</span>
+                  <span className="text-zinc-200">Last practiced: {skillset.lastPracticed.toISOString().split('T')[0]}</span>
                 </div>
                 
                 <div className="flex justify-end gap-2 mt-4 bg-blue-800">
