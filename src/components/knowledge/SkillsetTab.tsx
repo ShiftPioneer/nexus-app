@@ -91,9 +91,9 @@ export function SkillsetTab() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {skillsets.map(skillset => <Card key={skillset.id} className={cn("overflow-hidden", getCardBorder(skillset.color))}>
-            <CardContent className="p-6 bg-accent-dark">
-              <div className="flex flex-col bg-accent-dark">
-                <div className="flex justify-between items-start">
+            <CardContent className="p-6 bg-blue-800">
+              <div className="flex flex-col bg-blue-800">
+                <div className="flex justify-between items-start bg-transparent">
                   <div className="space-y-1">
                     <h3 className="text-xl font-bold text-slate-950">{skillset.name}</h3>
                     <p className="text-muted-foreground text-sm text-slate-950">{skillset.description}</p>
@@ -116,7 +116,7 @@ export function SkillsetTab() {
                   <span className="text-slate-950">Last practiced: {skillset.lastPracticed.toISOString().split('T')[0]}</span>
                 </div>
                 
-                <div className="flex justify-end gap-2 mt-4">
+                <div className="flex justify-end gap-2 mt-4 bg-blue-800">
                   <Button size="icon" variant="outline" onClick={() => handleEdit(skillset)}>
                     <Edit className="h-4 w-4" />
                   </Button>
