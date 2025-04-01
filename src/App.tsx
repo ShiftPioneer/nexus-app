@@ -17,6 +17,12 @@ import Settings from "./pages/Settings";
 import Planning from "./pages/Planning";
 import Focus from "./pages/Focus";
 import Habits from "./pages/Habits";
+import GTDPage from "./pages/GTD";
+import CaptureView from "./components/gtd/views/CaptureView";
+import ClarifyView from "./components/gtd/views/ClarifyView";
+import OrganizeView from "./components/gtd/views/OrganizeView";
+import ReflectView from "./components/gtd/views/ReflectView";
+import EngageView from "./components/gtd/views/EngageView";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +46,7 @@ const App = () => {
               <Route path="/knowledge" element={<Knowledge />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/focus" element={<Focus />} />
+              <Route path="/gtd" element={<GTDPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

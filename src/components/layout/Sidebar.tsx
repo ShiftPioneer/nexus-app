@@ -1,33 +1,65 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Sidebar as ShadcnSidebar, SidebarContent, SidebarFooter, SidebarRail } from "@/components/ui/sidebar";
+import { Sidebar as ShadcnSidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
 import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import NavigationMenu from "./NavigationMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 interface SidebarProps {
   collapsed?: boolean;
 }
+
 const Sidebar: React.FC<SidebarProps> = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  
   const handleToggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
   };
-  return <div className="relative h-screen">
-      <ShadcnSidebar variant="sidebar" className={cn("transition-all duration-300 bg-[#1A1F2C] text-white border-r border-[#2A2F3C]", isCollapsed ? 'collapsed w-[4rem]' : 'w-[14rem]', "[&_[data-sidebar=content]]:scrollbar-none")} style={{
-      '--sidebar-width': '14rem',
-      '--sidebar-width-collapsed': '4rem'
-    } as React.CSSProperties} data-collapsed={isCollapsed}>
-        
-        
+
+  return (
+    <div className="relative h-screen">
+      <ShadcnSidebar 
+        variant="sidebar" 
+        className={cn(
+          "transition-all duration-500 ease-in-out bg-[#1A1F2C] text-white border-r border-[#2A2F3C]", 
+          isCollapsed ? 'collapsed w-[4rem]' : 'w-[14rem]', 
+          "[&_[data-sidebar=content]]:scrollbar-none"
+        )} 
+        style={{
+          '--sidebar-width': '14rem',
+          '--sidebar-width-collapsed': '4rem'
+        } as React.CSSProperties} 
+        data-collapsed={isCollapsed}
+      >
         <SidebarContent className="px-2 py-4 scrollbar-none bg-slate-950">
-          <div className={cn("flex items-center justify-between mb-6 px-2", isCollapsed ? "justify-center" : "")}>
-            {!isCollapsed && <>
+          <div className={cn(
+            "flex items-center justify-between mb-6 px-2 transition-all duration-500", 
+            isCollapsed ? "justify-center" : ""
+          )}>
+            {!isCollapsed ? (
+              <>
                 <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
-                <span className="p-1 cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors" onClick={handleToggleCollapse}>
+                <span 
+                  className="p-1 cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors" 
+                  onClick={handleToggleCollapse}
+                >
                   <ChevronLeft className="h-5 w-5 text-[#FF6500] bg-transparent" />
                 </span>
-              </>}
+              </>
+            ) : (
+              <div 
+                className="cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors p-1"
+                onClick={handleToggleCollapse}
+              >
+                <img 
+                  src="/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png" 
+                  alt="Nexus Logo" 
+                  className="h-8 w-8 object-contain"
+                />
+              </div>
+            )}
           </div>
           
           <NavigationMenu isCollapsed={isCollapsed} />
@@ -39,13 +71,24 @@ const Sidebar: React.FC<SidebarProps> = () => {
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
             
-            {!isCollapsed && <div className="flex flex-col">
+            {!isCollapsed && (
+              <div className="flex flex-col">
                 <span className="text-sm font-medium">John Doe</span>
                 <span className="text-xs text-[#0FA0CE]">Pro Plan</span>
-              </div>}
+              </div>
+            )}
           </div>
         </SidebarFooter>
       </ShadcnSidebar>
-    </div>;
+
+      {isCollapsed && (
+        <div 
+          className="absolute top-1/2 -translate-y-1/2 left-[3.8rem] h-12 w-1 bg-[#2A2F3C] rounded-r cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
+          onClick={handleToggleCollapse}
+        />
+      )}
+    </div>
+  );
 };
+
 export default Sidebar;

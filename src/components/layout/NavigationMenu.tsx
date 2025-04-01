@@ -5,7 +5,8 @@ import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui
 import { 
   LayoutDashboard, CheckCircle, Clock, Zap, 
   BookOpen, Brain, LayoutGrid, Settings, 
-  Calendar, BarChartHorizontal, Target, RefreshCcw
+  Calendar, BarChartHorizontal, Target, RefreshCcw,
+  CheckSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,11 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
       path: "/",
       icon: LayoutDashboard
     }, 
+    {
+      title: "GTD",
+      path: "/gtd",
+      icon: CheckSquare
+    },
     {
       title: "Tasks",
       path: "/tasks",
@@ -84,19 +90,19 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
             isActive={currentPath === item.path} 
             tooltip={isCollapsed ? item.title : undefined}
             className={cn(
-              "hover:bg-[#2A2F3C] transition-all duration-200",
+              "hover:bg-[#2A2F3C] transition-all duration-300 group",
               currentPath === item.path ? "bg-[#2A2F3C] text-[#0FA0CE]" : "text-[#B0B5BD]",
               isCollapsed ? "justify-center" : "px-2"
             )}
           >
             <Link to={item.path} className="w-full flex items-center gap-3">
               <item.icon className={cn(
-                "h-5 w-5", 
+                "h-5 w-5 transition-transform transform group-hover:scale-[1.2]", 
                 currentPath === item.path ? "text-[#0FA0CE]" : "text-[#B0B5BD]"
               )} />
               
               {!isCollapsed && (
-                <span className="text-sm font-medium">
+                <span className="text-sm font-medium group-hover:translate-x-1 transition-transform">
                   {item.title}
                 </span>
               )}
