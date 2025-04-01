@@ -4,11 +4,17 @@ import AppLayout from "@/components/layout/AppLayout";
 import { GTDProvider } from "@/components/gtd/GTDContext";
 import GTDNavigation from "@/components/gtd/GTDNavigation";
 import GTDView from "@/components/gtd/GTDView";
+import { AnimatePresence, motion } from "framer-motion";
 
 const GTDPage = () => {
   return (
     <AppLayout>
-      <div className="animate-fade-in">
+      <motion.div 
+        className="animate-fade-in"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         <GTDProvider>
           <div className="mb-6">
             <h1 className="text-3xl font-bold">Getting Things Done (GTD)</h1>
@@ -20,7 +26,7 @@ const GTDPage = () => {
           <GTDNavigation />
           <GTDView />
         </GTDProvider>
-      </div>
+      </motion.div>
     </AppLayout>
   );
 };

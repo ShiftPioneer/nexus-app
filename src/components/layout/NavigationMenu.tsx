@@ -97,12 +97,12 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
           >
             <Link to={item.path} className="w-full flex items-center gap-3">
               <item.icon className={cn(
-                "h-5 w-5 transition-transform transform group-hover:scale-[1.2]", 
+                "h-5 w-5 transition-transform transform duration-300 group-hover:scale-[1.2]", 
                 currentPath === item.path ? "text-[#0FA0CE]" : "text-[#B0B5BD]"
               )} />
               
               {!isCollapsed && (
-                <span className="text-sm font-medium group-hover:translate-x-1 transition-transform">
+                <span className="text-sm font-medium transition-transform duration-300 group-hover:translate-x-1">
                   {item.title}
                 </span>
               )}

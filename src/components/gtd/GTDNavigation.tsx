@@ -3,6 +3,7 @@ import React from "react";
 import { useGTD } from "./GTDContext";
 import { Inbox, CheckCircle2, LayoutGrid, RefreshCw, Play } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 const GTDNavigation = () => {
   const { activeView, setActiveView } = useGTD();
@@ -43,7 +44,7 @@ const GTDNavigation = () => {
   return (
     <div className="flex flex-wrap gap-2 mb-8">
       {navItems.map(item => (
-        <button
+        <motion.button
           key={item.view}
           onClick={() => setActiveView(item.view)}
           className={cn(
@@ -52,10 +53,12 @@ const GTDNavigation = () => {
               ? "bg-blue-600 text-white" 
               : "bg-slate-800 text-slate-200 hover:bg-slate-700"
           )}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           <item.icon className="h-5 w-5" />
           <span>{item.title}</span>
-        </button>
+        </motion.button>
       ))}
     </div>
   );

@@ -2,6 +2,7 @@
 import React from "react";
 import { GTDTask, useGTD } from "./GTDContext";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { Checkbox } from "@/components/ui/checkbox";
