@@ -90,7 +90,7 @@ export function SkillsetTab() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {skillsets.map(skillset => <Card key={skillset.id} className="bg-blue-800 rounded-25px rounded">
+        {skillsets.map(skillset => <Card key={skillset.id} className="bg-blue-800 rounded-25px rounded-2xl">
             <CardContent className="p-6 bg-blue-800 rounded-2xl">
               <div className="flex flex-col bg-blue-800">
                 <div className="flex justify-between items-start bg-transparent">
@@ -105,8 +105,8 @@ export function SkillsetTab() {
                 
                 <div className="mt-6 space-y-1">
                   <div className="flex justify-between">
-                    <span className="text-sm text-zinc-200">Mastery</span>
-                    <span className="text-sm font-medium text-slate-950">{skillset.mastery}%</span>
+                    <span className="text-sm text-lime-500 font-bold">Mastery</span>
+                    <span className="text-sm text-lime-500 font-bold py-0 my-[10px]">{skillset.mastery}%</span>
                   </div>
                   <Progress value={skillset.mastery} className="h-2" />
                 </div>
@@ -117,7 +117,7 @@ export function SkillsetTab() {
                 </div>
                 
                 <div className="flex justify-end gap-2 mt-4 bg-blue-800">
-                  <Button size="icon" variant="outline" onClick={() => handleEdit(skillset)}>
+                  <Button size="icon" variant="outline" onClick={() => handleEdit(skillset)} className="bg-lime-500 hover:bg-lime-400 font-normal text-slate-950">
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button size="icon" variant="outline" onClick={() => handleDelete(skillset.id)} className="text-destructive hover:text-destructive">

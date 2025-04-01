@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -8,55 +7,30 @@ import { SkillsetTab } from "@/components/knowledge/SkillsetTab";
 import { ResourcesTab } from "@/components/knowledge/ResourcesTab";
 import { BookshelfTab } from "@/components/knowledge/BookshelfTab";
 import { BookOpen, LayoutGrid, Brain } from "lucide-react";
-
 const Knowledge = () => {
   const [activeTab, setActiveTab] = useState("skillsets");
-
-  return (
-    <AppLayout>
+  return <AppLayout>
       <div className="animate-fade-in space-y-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-primary" />
             Knowledge Hub
           </h1>
-          <p className="text-muted-foreground">Track your learning progress and manage your educational resources</p>
+          <p className="text-muted-foreground my-[10px]">Track your learning progress and manage your educational resources</p>
         </div>
         
-        <Tabs 
-          value={activeTab} 
-          onValueChange={setActiveTab}
-          className="w-full"
-        >
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <div className="bg-card border rounded-lg overflow-hidden mb-6">
             <TabsList className="w-full justify-start rounded-none border-b bg-muted/50 p-0">
-              <TabsTrigger 
-                value="skillsets"
-                className={cn(
-                  "data-[state=active]:bg-background rounded-none border-r px-8 py-3",
-                  "flex items-center gap-2"
-                )}
-              >
+              <TabsTrigger value="skillsets" className={cn("data-[state=active]:bg-background rounded-none border-r px-8 py-3", "flex items-center gap-2")}>
                 <Brain className="h-4 w-4" />
                 Skillsets
               </TabsTrigger>
-              <TabsTrigger 
-                value="resources"
-                className={cn(
-                  "data-[state=active]:bg-background rounded-none border-r px-8 py-3",
-                  "flex items-center gap-2"
-                )}
-              >
+              <TabsTrigger value="resources" className={cn("data-[state=active]:bg-background rounded-none border-r px-8 py-3", "flex items-center gap-2")}>
                 <LayoutGrid className="h-4 w-4" />
                 Resources
               </TabsTrigger>
-              <TabsTrigger 
-                value="bookshelf"
-                className={cn(
-                  "data-[state=active]:bg-background rounded-none px-8 py-3",
-                  "flex items-center gap-2"
-                )}
-              >
+              <TabsTrigger value="bookshelf" className={cn("data-[state=active]:bg-background rounded-none px-8 py-3", "flex items-center gap-2")}>
                 <BookOpen className="h-4 w-4" />
                 Bookshelf
               </TabsTrigger>
@@ -76,8 +50,6 @@ const Knowledge = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Knowledge;
