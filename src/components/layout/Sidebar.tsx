@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import NavigationMenu from "./NavigationMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -38,28 +39,46 @@ const Sidebar: React.FC<SidebarProps> = () => {
             "flex items-center justify-between mb-6 px-2 transition-all duration-500", 
             isCollapsed ? "justify-center" : ""
           )}>
-            {!isCollapsed ? (
-              <>
-                <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
-                <span 
-                  className="p-1 cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors" 
-                  onClick={handleToggleCollapse}
+            <AnimatePresence initial={false} mode="wait">
+              {!isCollapsed ? (
+                <motion.div
+                  key="expanded"
+                  className="flex items-center justify-between w-full"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  <ChevronLeft className="h-5 w-5 text-[#FF6500] bg-transparent" />
-                </span>
-              </>
-            ) : (
-              <div 
-                className="cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors p-1"
-                onClick={handleToggleCollapse}
-              >
-                <img 
-                  src="/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png" 
-                  alt="Nexus Logo" 
-                  className="h-8 w-8 object-contain"
-                />
-              </div>
-            )}
+                  <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
+                  <motion.span 
+                    className="p-1 cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors" 
+                    onClick={handleToggleCollapse}
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <ChevronLeft className="h-5 w-5 text-[#FF6500] bg-transparent" />
+                  </motion.span>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="collapsed"
+                  className="cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors p-1"
+                  onClick={handleToggleCollapse}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.3 }}
+                  whileHover={{ scale: 1.2 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <img 
+                    src="/lovable-uploads/a004fbed-90d6-44c1-bbf8-96e82ee8c546.png" 
+                    alt="Nexus Logo" 
+                    className="h-8 w-8 object-contain"
+                  />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           
           <NavigationMenu isCollapsed={isCollapsed} />
@@ -71,20 +90,31 @@ const Sidebar: React.FC<SidebarProps> = () => {
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
             
-            {!isCollapsed && (
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">John Doe</span>
-                <span className="text-xs text-[#0FA0CE]">Pro Plan</span>
-              </div>
-            )}
+            <AnimatePresence>
+              {!isCollapsed && (
+                <motion.div 
+                  className="flex flex-col"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <span className="text-sm font-medium">John Doe</span>
+                  <span className="text-xs text-[#0FA0CE]">Pro Plan</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </SidebarFooter>
       </ShadcnSidebar>
 
       {isCollapsed && (
-        <div 
+        <motion.div 
           className="absolute top-1/2 -translate-y-1/2 left-[3.8rem] h-12 w-1 bg-[#2A2F3C] rounded-r cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
           onClick={handleToggleCollapse}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          whileHover={{ opacity: 1 }}
         />
       )}
     </div>

@@ -9,6 +9,7 @@ import {
   CheckSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface NavigationMenuProps {
   isCollapsed?: boolean;
@@ -95,18 +96,25 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
               isCollapsed ? "justify-center" : "px-2"
             )}
           >
-            <Link to={item.path} className="w-full flex items-center gap-3">
-              <item.icon className={cn(
-                "h-5 w-5 transition-transform transform duration-300 group-hover:scale-[1.2]", 
-                currentPath === item.path ? "text-[#0FA0CE]" : "text-[#B0B5BD]"
-              )} />
-              
-              {!isCollapsed && (
-                <span className="text-sm font-medium transition-transform duration-300 group-hover:translate-x-1">
-                  {item.title}
-                </span>
-              )}
-            </Link>
+            <motion.div className="w-full" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link to={item.path} className="w-full flex items-center gap-3">
+                <motion.div 
+                  whileHover={{ scale: 1.2 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <item.icon className={cn(
+                    "h-5 w-5 transition-transform transform duration-300", 
+                    currentPath === item.path ? "text-[#0FA0CE]" : "text-[#B0B5BD]"
+                  )} />
+                </motion.div>
+                
+                {!isCollapsed && (
+                  <span className="text-sm font-medium transition-transform duration-300 group-hover:translate-x-1">
+                    {item.title}
+                  </span>
+                )}
+              </Link>
+            </motion.div>
           </SidebarMenuButton>
         </SidebarMenuItem>
       ))}
