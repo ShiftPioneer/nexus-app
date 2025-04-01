@@ -20,7 +20,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
     } as React.CSSProperties} data-collapsed={isCollapsed}>
         
         
-        <SidebarContent className="px-2 py-4 scrollbar-none">
+        <SidebarContent className="px-2 py-4 scrollbar-none bg-slate-950">
           <div className={cn("flex items-center justify-between mb-6 px-2", isCollapsed ? "justify-center" : "")}>
             {!isCollapsed && <>
                 <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
