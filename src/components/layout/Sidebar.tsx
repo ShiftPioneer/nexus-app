@@ -33,7 +33,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
           <NavigationMenu isCollapsed={isCollapsed} />
         </SidebarContent>
         
-        <SidebarFooter className="border-t border-[#2A2F3C] p-3">
+        <SidebarFooter className="border-t border-[#2A2F3C] p-3 bg-gray-950">
           <div className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3")}>
             <Avatar className="h-8 w-8 bg-[#FF5722]/20 text-[#FF5722]">
               <AvatarFallback>JD</AvatarFallback>
