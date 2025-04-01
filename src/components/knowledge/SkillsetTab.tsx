@@ -96,7 +96,7 @@ export function SkillsetTab() {
                 <div className="flex justify-between items-start bg-transparent">
                   <div className="space-y-1">
                     <h3 className="text-xl font-bold text-left px-0 text-primary-dark">{skillset.name}</h3>
-                    <p className="text-muted-foreground text-sm font-normal text-zinc-200">{skillset.description}</p>
+                    <p className="text-muted-foreground text-sm font-normal text-cyan-500">{skillset.description}</p>
                   </div>
                   <span className="bg-slate-950 text-lime-500 font-normal pd-5px px-[5px] py-[5px] rounded-1.5xl">
                     {skillset.category}
