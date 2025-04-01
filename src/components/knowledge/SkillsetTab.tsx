@@ -91,7 +91,7 @@ export function SkillsetTab() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {skillsets.map(skillset => <Card key={skillset.id} className="bg-blue-800 rounded-25px rounded">
-            <CardContent className="p-6 bg-blue-800">
+            <CardContent className="p-6 bg-blue-800 rounded-2xl">
               <div className="flex flex-col bg-blue-800">
                 <div className="flex justify-between items-start bg-transparent">
                   <div className="space-y-1">
