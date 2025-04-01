@@ -1,7 +1,7 @@
 
 import * as React from "react";
 import { ChartContainer, ChartTooltipContent, ChartTooltip } from "@/components/ui/chart";
-import { Area, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Line } from "recharts";
+import { Area, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, Line, ComposedChart } from "recharts";
 
 interface ChartProps {
   data: any[];
@@ -37,7 +37,7 @@ export function BarChart({
   return (
     <ChartContainer className={className} config={config}>
       <ResponsiveContainer>
-        <Bar
+        <ComposedChart
           data={data}
           layout={layout}
         >
@@ -71,7 +71,7 @@ export function BarChart({
               isAnimationActive={showAnimation}
             />
           ))}
-        </Bar>
+        </ComposedChart>
       </ResponsiveContainer>
     </ChartContainer>
   );
@@ -100,10 +100,7 @@ export function AreaChart({
   return (
     <ChartContainer className={className} config={config}>
       <ResponsiveContainer>
-        <Area
-          data={data}
-          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-        >
+        <ComposedChart data={data}>
           <defs>
             {categories.map((category) => (
               <linearGradient key={category} id={`color-${category}`} x1="0" y1="0" x2="0" y2="1">
@@ -136,7 +133,7 @@ export function AreaChart({
               isAnimationActive={showAnimation}
             />
           ))}
-        </Area>
+        </ComposedChart>
       </ResponsiveContainer>
     </ChartContainer>
   );
@@ -165,9 +162,7 @@ export function LineChart({
   return (
     <ChartContainer className={className} config={config}>
       <ResponsiveContainer>
-        <Line
-          data={data}
-        >
+        <ComposedChart data={data}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey={index} />
           <YAxis />
@@ -190,7 +185,7 @@ export function LineChart({
               isAnimationActive={showAnimation}
             />
           ))}
-        </Line>
+        </ComposedChart>
       </ResponsiveContainer>
     </ChartContainer>
   );
