@@ -25,7 +25,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
             {!isCollapsed && <>
                 <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
                 <span className="p-1 cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors" onClick={handleToggleCollapse}>
-                  <ChevronLeft className="h-5 w-5 text-[#0FA0CE]" />
+                  <ChevronLeft className="h-5 w-5 text-[#FF6500] bg-transparent" />
                 </span>
               </>}
           </div>
