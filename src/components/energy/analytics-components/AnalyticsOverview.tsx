@@ -2,7 +2,7 @@
 import React from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AreaChart, LineChart, BarChart } from "@/components/ui/chart";
+import { AreaChart, LineChart, BarChart } from "./EnergyCharts";
 import { Dumbbell, Activity, Flame, TrendingUp, Calendar } from "lucide-react";
 
 export function AnalyticsOverview() {
