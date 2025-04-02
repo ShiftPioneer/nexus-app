@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppLayout from "@/components/layout/AppLayout";
@@ -6,15 +7,24 @@ import FocusInsights from "@/components/focus/FocusInsights";
 import FocusTechniques from "@/components/focus/FocusTechniques";
 import FocusTimer from "@/components/focus/FocusTimer";
 import FocusStatsCard from "@/components/focus/FocusStatsCard";
+import { useFocusTimer } from "@/components/focus/FocusTimerService";
+import { useToast } from "@/hooks/use-toast";
 
 const Focus = () => {
   const [activeTab, setActiveTab] = useState("history");
-  const [timerMode, setTimerMode] = useState<"focus" | "shortBreak" | "longBreak">("focus");
-  const [timerDuration, setTimerDuration] = useState(25 * 60); // Default 25 minutes
-  const [time, setTime] = useState({ minutes: 25, seconds: 0 });
-  const [isRunning, setIsRunning] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [category, setCategory] = useState<FocusCategory>("Deep Work");
+  const { 
+    isTimerRunning, 
+    timeRemaining, 
+    timerProgress, 
+    category,
+    startTimer,
+    pauseTimer,
+    resumeTimer,
+    stopTimer,
+    resetTimer
+  } = useFocusTimer();
+  const { toast } = useToast();
+  
   const [focusStats, setFocusStats] = useState<FocusStats>({
     todayMinutes: 95,
     weekMinutes: 430,
@@ -56,103 +66,82 @@ const Focus = () => {
       xpEarned: 45
     }
   ]);
-  
-  // Keep a reference to the timer
-  const timerRef = useRef<number | null>(null);
-  const startTimeRef = useRef<number | null>(null);
-  const pausedTimeRef = useRef<number>(0);
 
-  // Cleanup timer on component unmount
   useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isTimerRunning) {
+        // Message displayed to the user when they try to leave
+        e.preventDefault();
+        e.returnValue = "You have an active focus session. Are you sure you want to leave?";
+        return e.returnValue;
       }
     };
-  }, []);
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isTimerRunning]);
 
   const updateTimerDuration = (minutes: number) => {
-    setTimerDuration(minutes * 60);
-    setTime({ minutes: minutes, seconds: 0 });
-    setProgress(0);
-    if (isRunning) {
-      stopTimer();
-      startTimeRef.current = null;
-      pausedTimeRef.current = 0;
-    }
+    resetTimer();
+    startTimer(minutes, category);
   };
 
-  const getInitialSeconds = (mode: string) => {
-    switch (mode) {
-      case "focus": return timerDuration;
-      case "shortBreak": return 5 * 60; // 5 minutes
-      case "longBreak": return 15 * 60; // 15 minutes
-      default: return timerDuration;
-    }
-  };
-
-  const resetTimer = () => {
-    stopTimer();
-    const initialSeconds = getInitialSeconds(timerMode);
-    const minutes = Math.floor(initialSeconds / 60);
-    const seconds = initialSeconds % 60;
-    setTime({ minutes, seconds });
-    setProgress(0);
-    startTimeRef.current = null;
-    pausedTimeRef.current = 0;
-  };
-
-  const startTimer = () => {
-    if (timerRef.current) return;
+  const handleModeChange = (mode: "focus" | "shortBreak" | "longBreak") => {
+    resetTimer();
     
-    if (!startTimeRef.current) {
-      startTimeRef.current = Date.now() - pausedTimeRef.current;
+    let minutes = 25;
+    let newCategory = "Focus";
+    if (mode === "shortBreak") {
+      minutes = 5;
+      newCategory = "Short Break";
+    } else if (mode === "longBreak") {
+      minutes = 15;
+      newCategory = "Long Break";
     }
     
-    const totalSeconds = getInitialSeconds(timerMode);
-    
-    timerRef.current = window.setInterval(() => {
-      const elapsedMillis = Date.now() - startTimeRef.current! + pausedTimeRef.current;
-      const elapsedSeconds = Math.floor(elapsedMillis / 1000);
-      const remainingSeconds = totalSeconds - elapsedSeconds;
-      
-      if (remainingSeconds <= 0) {
-        completeTimer();
-        return;
+    startTimer(minutes, newCategory);
+  };
+
+  const handleCategoryChange = (newCategory: FocusCategory) => {
+    if (isTimerRunning) {
+      toast({
+        title: "Category Change",
+        description: `Changed category to ${newCategory}`,
+      });
+    }
+    startTimer(timeRemaining.minutes, newCategory);
+  };
+
+  const toggleTimer = () => {
+    if (isTimerRunning) {
+      pauseTimer();
+    } else {
+      if (timerProgress > 0) {
+        resumeTimer();
+      } else {
+        startTimer(timeRemaining.minutes, category);
       }
-      
-      const minutes = Math.floor(remainingSeconds / 60);
-      const seconds = remainingSeconds % 60;
-      
-      setTime({ minutes, seconds });
-      
-      // Calculate progress
-      const completedPercentage = (elapsedSeconds / totalSeconds) * 100;
-      setProgress(completedPercentage);
-    }, 1000);
-  };
-  
-  const stopTimer = () => {
-    if (timerRef.current) {
-      if (startTimeRef.current) {
-        pausedTimeRef.current = Date.now() - startTimeRef.current;
-      }
-      clearInterval(timerRef.current);
-      timerRef.current = null;
     }
   };
-  
-  const completeTimer = () => {
-    stopTimer();
+
+  const startTechnique = (technique: FocusTechnique) => {
+    startTimer(technique.duration, technique.name as FocusCategory);
+  };
+
+  // Complete timer and record session handler
+  const handleCompleteSession = () => {
+    const sessionDuration = Math.round(timerProgress * timeRemaining.minutes / 100);
     
-    if (timerMode === "focus") {
-      // Record the completed session
+    if (sessionDuration > 0) {
       const newSession: FocusSession = {
         id: `session-${Date.now()}`,
         date: new Date(),
-        duration: Math.floor(timerDuration / 60),
-        category,
-        xpEarned: Math.floor(timerDuration / 60)
+        duration: sessionDuration,
+        category: category as FocusCategory,
+        xpEarned: sessionDuration
       };
       
       setSessions(prev => [newSession, ...prev]);
@@ -160,8 +149,8 @@ const Focus = () => {
       // Update stats
       setFocusStats(prev => ({
         ...prev,
-        todayMinutes: prev.todayMinutes + newSession.duration,
-        weekMinutes: prev.weekMinutes + newSession.duration,
+        todayMinutes: prev.todayMinutes + sessionDuration,
+        weekMinutes: prev.weekMinutes + sessionDuration,
         totalSessions: prev.totalSessions + 1,
         categoryStats: prev.categoryStats.map(stat => 
           stat.category === category 
@@ -169,53 +158,19 @@ const Focus = () => {
             : stat
         )
       }));
+      
+      toast({
+        title: "Session Recorded",
+        description: `Your ${sessionDuration} minute ${category} session has been recorded.`,
+      });
+      
+      resetTimer();
     }
-    
-    resetTimer();
-  };
-  
-  const toggleTimer = () => {
-    if (isRunning) {
-      stopTimer();
-    } else {
-      startTimer();
-    }
-    setIsRunning(!isRunning);
-  };
-
-  const handleModeChange = (mode: "focus" | "shortBreak" | "longBreak") => {
-    setTimerMode(mode);
-    setIsRunning(false);
-    stopTimer();
-    
-    let newSeconds = 25 * 60;
-    if (mode === "shortBreak") newSeconds = 5 * 60;
-    if (mode === "longBreak") newSeconds = 15 * 60;
-    
-    const minutes = Math.floor(newSeconds / 60);
-    const seconds = newSeconds % 60;
-    
-    setTime({ minutes, seconds });
-    setProgress(0);
-    startTimeRef.current = null;
-    pausedTimeRef.current = 0;
-  };
-
-  const handleCategoryChange = (newCategory: FocusCategory) => {
-    setCategory(newCategory);
-  };
-
-  const startTechnique = (technique: FocusTechnique) => {
-    setTimerMode("focus");
-    updateTimerDuration(technique.duration);
-    setIsRunning(true);
-    setCategory(technique.name as FocusCategory);
-    startTimer();
   };
 
   return (
     <AppLayout>
-      <div className="space-y-6 max-w-full">
+      <div className="space-y-6 max-w-full animate-fade-in">
         <div>
           <h1 className="text-4xl font-bold">Focus</h1>
           <p className="text-muted-foreground mt-2">Enhance your productivity with focused work sessions</p>
@@ -224,12 +179,12 @@ const Focus = () => {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Left section - Timer */}
           <FocusTimer 
-            timerMode={timerMode}
-            timerDuration={timerDuration}
-            time={time}
-            progress={progress}
-            category={category}
-            isRunning={isRunning}
+            timerMode={category === "Short Break" ? "shortBreak" : category === "Long Break" ? "longBreak" : "focus"}
+            timerDuration={timeRemaining.minutes * 60 + timeRemaining.seconds}
+            time={timeRemaining}
+            progress={timerProgress}
+            category={category as FocusCategory}
+            isRunning={isTimerRunning}
             onModeChange={handleModeChange}
             onDurationChange={updateTimerDuration}
             onCategoryChange={handleCategoryChange}
@@ -240,6 +195,24 @@ const Focus = () => {
           {/* Right section - Stats */}
           <FocusStatsCard stats={focusStats} />
         </div>
+
+        {/* Completion confirmation when timer is done */}
+        {timerProgress === 100 && (
+          <div className="bg-green-100 dark:bg-green-900 border border-green-500 rounded-md p-4 flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-medium text-green-800 dark:text-green-100">Focus Session Completed!</h3>
+              <p className="text-sm text-green-600 dark:text-green-300">
+                Great job! You've completed your focus session.
+              </p>
+            </div>
+            <button 
+              onClick={handleCompleteSession}
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+            >
+              Record Session
+            </button>
+          </div>
+        )}
 
         {/* Tabs section */}
         <Tabs defaultValue="history" value={activeTab} onValueChange={setActiveTab}>

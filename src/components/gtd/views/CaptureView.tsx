@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast";
 import TasksList from "../TasksList";
 import GTDPrinciple from "../GTDPrinciple";
 import QuickCaptureForm from "./capture/QuickCaptureForm";
+import { cn } from "@/lib/utils";
 
 const CaptureView: React.FC = () => {
   const { tasks, addTask } = useGTD();
@@ -24,8 +25,8 @@ const CaptureView: React.FC = () => {
     const newTask = {
       title: title.trim(),
       description: description.trim(),
-      priority: "Medium",
-      status: "inbox",
+      priority: "Medium" as const,
+      status: "inbox" as const,
       attachment: attachment ? {
         name: attachment.name,
         type: attachment.type,

@@ -20,6 +20,8 @@ const QuickCaptureForm: React.FC<QuickCaptureFormProps> = ({ onAddTask }) => {
   const [attachment, setAttachment] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
 
   const handleAddTask = () => {
     if (!title.trim()) {
@@ -43,26 +45,49 @@ const QuickCaptureForm: React.FC<QuickCaptureFormProps> = ({ onAddTask }) => {
     setAttachment(null);
   };
 
+  const processVoiceToText = (audioBlob: Blob) => {
+    // In a real app, you would send this blob to a speech-to-text service
+    // For now, we'll simulate it
+    setTimeout(() => {
+      setTitle("Voice recorded task");
+      setDescription("This task was created using voice input.");
+      toast({
+        title: "Voice processed",
+        description: "Voice recording has been converted to text",
+      });
+      setIsRecording(false);
+    }, 1000);
+  };
+
   const handleStartRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       setIsRecording(true);
       
-      // Mock voice recording - in a real app, you would implement actual voice recording
       toast({
         title: "Recording started",
         description: "Speak now to capture your task...",
       });
       
-      // Simulate recording for 3 seconds then stop
-      setTimeout(() => {
-        setIsRecording(false);
-        setTitle("Voice recorded task");
-        toast({
-          title: "Recording completed",
-          description: "Voice recording has been processed",
-        });
-      }, 3000);
+      // Create a new MediaRecorder instance
+      const recorder = new MediaRecorder(stream);
+      setMediaRecorder(recorder);
+      
+      // Set up event handlers
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          setRecordedChunks(prev => [...prev, event.data]);
+        }
+      };
+      
+      recorder.onstop = () => {
+        const audioBlob = new Blob(recordedChunks, { type: 'audio/webm' });
+        processVoiceToText(audioBlob);
+        stream.getTracks().forEach(track => track.stop());
+      };
+      
+      // Start recording
+      recorder.start();
     } catch (error) {
       toast({
         title: "Microphone error",
@@ -74,18 +99,22 @@ const QuickCaptureForm: React.FC<QuickCaptureFormProps> = ({ onAddTask }) => {
   };
 
   const handleStopRecording = () => {
-    setIsRecording(false);
-    toast({
-      title: "Recording stopped",
-      description: "Voice recording has been processed",
-    });
+    if (mediaRecorder && mediaRecorder.state !== "inactive") {
+      mediaRecorder.stop();
+      setIsRecording(false);
+    }
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setAttachment(file);
-      setTitle(`File: ${file.name}`);
+      // Don't set the title to the filename
+      // Just indicate a file is attached
+      toast({
+        title: "File attached",
+        description: `${file.name} has been attached to this task`,
+      });
     }
   };
 
@@ -97,12 +126,12 @@ const QuickCaptureForm: React.FC<QuickCaptureFormProps> = ({ onAddTask }) => {
   };
 
   return (
-    <Card className="bg-slate-900 border-slate-700 text-slate-200">
+    <Card className="bg-slate-900 border-slate-700 text-slate-200 scrollbar-none overflow-hidden">
       <CardHeader>
         <CardTitle>Quick Capture</CardTitle>
         <CardDescription className="text-slate-400">Quickly add tasks to your inbox</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 scrollbar-none">
         <div className="flex gap-2">
           <Button 
             variant="outline" 
@@ -232,7 +261,7 @@ const QuickCaptureForm: React.FC<QuickCaptureFormProps> = ({ onAddTask }) => {
         <Button 
           variant="default" 
           onClick={handleAddTask}
-          className="bg-[#FF5722] hover:bg-[#FF6E40] text-white"
+          className="bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white"
           disabled={isRecording || !title.trim()}
         >
           <Plus className="h-4 w-4 mr-2" />

@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.5 }}
                 >
                   <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
                   <motion.span 
@@ -65,10 +65,10 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   className="cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors p-1"
                   onClick={handleToggleCollapse}
                   initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  animate={{ opacity: 1, scale: 1.2 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{ scale: 1.2 }}
+                  transition={{ duration: 0.5 }}
+                  whileHover={{ scale: 1.3 }}
                   whileTap={{ scale: 0.9 }}
                 >
                   <img 
@@ -97,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.5 }}
                 >
                   <span className="text-sm font-medium">John Doe</span>
                   <span className="text-xs text-[#0FA0CE]">Pro Plan</span>

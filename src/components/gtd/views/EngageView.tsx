@@ -8,11 +8,14 @@ import FocusTechnique from "./engage/FocusTechnique";
 import FocusSession from "./engage/FocusSession";
 import TasksPanel from "./engage/TasksPanel";
 import ContextPanel from "./engage/ContextPanel";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const EngageView: React.FC = () => {
   const { tasks } = useGTD();
   const [selectedContext, setSelectedContext] = useState<string | null>(null);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const navigate = useNavigate();
   
   const nextActionTasks = tasks.filter(t => t.status === "next-action");
   const filteredTasks = selectedContext 
@@ -23,10 +26,8 @@ const EngageView: React.FC = () => {
   
   const handleStartPomodoro = () => {
     setIsTimerRunning(true);
-    // Here you would actually start a timer, but for this example we'll just toggle state
-    setTimeout(() => {
-      setIsTimerRunning(false);
-    }, 3000); // Just for demonstration
+    // Navigate to Focus page in actual implementation
+    navigate('/focus');
   };
   
   const handleEndSession = () => {
@@ -34,7 +35,12 @@ const EngageView: React.FC = () => {
   };
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <motion.div 
+      className="grid grid-cols-1 md:grid-cols-3 gap-6"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="md:col-span-2 space-y-6">
         <FocusSession 
           isTimerRunning={isTimerRunning}
@@ -55,10 +61,10 @@ const EngageView: React.FC = () => {
           setSelectedContext={setSelectedContext}
         />
         
-        <Card className="bg-slate-900 border-slate-700 text-slate-200">
+        <Card className="bg-slate-900 border-slate-700 text-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center">
-              <Calendar className="mr-2 h-5 w-5" />
+              <Calendar className="mr-2 h-5 w-5 text-[#0FA0CE]" />
               Today's Schedule
             </CardTitle>
           </CardHeader>
@@ -72,10 +78,10 @@ const EngageView: React.FC = () => {
           </CardContent>
         </Card>
         
-        <Card className="bg-slate-900 border-slate-700 text-slate-200">
+        <Card className="bg-slate-900 border-slate-700 text-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center">
-              <Lightbulb className="mr-2 h-5 w-5" />
+              <Lightbulb className="mr-2 h-5 w-5 text-[#0FA0CE]" />
               Focus Techniques
             </CardTitle>
           </CardHeader>
@@ -83,7 +89,7 @@ const EngageView: React.FC = () => {
             <FocusTechnique
               title="Pomodoro"
               description="Work for 25 minutes, then take a 5-minute break."
-              icon={<Clock className="h-5 w-5" />}
+              icon={<Clock className="h-5 w-5 text-[#0FA0CE]" />}
               buttonText="Try Now"
               buttonAction={handleStartPomodoro}
             />
@@ -91,14 +97,14 @@ const EngageView: React.FC = () => {
             <FocusTechnique
               title="Time Blocking"
               description="Dedicate specific time blocks to focused work."
-              icon={<Calendar className="h-5 w-5" />}
+              icon={<Calendar className="h-5 w-5 text-[#0FA0CE]" />}
               buttonText="Learn More"
               buttonAction={() => {}}
             />
           </CardContent>
         </Card>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

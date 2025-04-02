@@ -1,147 +1,136 @@
 
 import React from "react";
-import { GTDTask, useGTD } from "./GTDContext";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Calendar } from "lucide-react";
-import { format } from "date-fns";
-import { Checkbox } from "@/components/ui/checkbox";
+import { useGTD } from "./GTDContext";
+import { Card, CardHeader, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
+import { CheckCircle, Clock, MoreVertical, Tag, Calendar } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
   DropdownMenuItem, 
-  DropdownMenuSeparator, 
-  DropdownMenuTrigger 
+  DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface TasksListProps {
-  tasks: GTDTask[];
+  tasks: any[]; // Using any type to match the existing prop type
+  showActions?: boolean;
+  onTaskComplete?: (id: string) => void;
 }
 
-const TasksList: React.FC<TasksListProps> = ({ tasks }) => {
-  const { updateTask, deleteTask } = useGTD();
-  
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "Very High":
-        return "bg-red-600 text-white";
-      case "High":
-        return "bg-orange-500 text-white";
-      case "Medium":
-        return "bg-yellow-500 text-black";
-      case "Low":
-        return "bg-blue-500 text-white";
-      case "Very Low":
-        return "bg-gray-500 text-white";
-      default:
-        return "bg-gray-500 text-white";
-    }
-  };
-  
-  const handleComplete = (id: string) => {
-    updateTask(id, { status: "completed" });
-  };
-  
-  if (tasks.length === 0) {
+const TasksList: React.FC<TasksListProps> = ({ 
+  tasks,
+  showActions = false,
+  onTaskComplete
+}) => {
+  const { updateTask } = useGTD();
+
+  if (!tasks.length) {
     return (
-      <div className="bg-slate-800 border border-slate-700 rounded-md p-8 text-center">
-        <p className="text-slate-400">No tasks match the selected filter. Add a task or change your filter.</p>
-      </div>
+      <Card className="text-center p-6 bg-slate-900 border-slate-700 text-slate-200">
+        <p className="text-slate-400">No tasks to display</p>
+      </Card>
     );
   }
-  
+
+  const handleMarkComplete = (id: string) => {
+    if (onTaskComplete) {
+      onTaskComplete(id);
+    } else {
+      updateTask(id, { status: "completed" });
+    }
+  };
+
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       {tasks.map(task => (
-        <div 
-          key={task.id} 
-          className="flex items-center gap-4 p-4 bg-slate-800 border border-slate-700 rounded-md hover:border-slate-600 transition-all"
-        >
-          <Checkbox 
-            checked={task.status === "completed"} 
-            onCheckedChange={() => handleComplete(task.id)}
-          />
-          
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <h4 className={`font-medium ${task.status === "completed" ? "line-through text-slate-500" : "text-slate-200"}`}>
-                {task.title}
-              </h4>
-              <Badge className={getPriorityColor(task.priority)}>
-                {task.priority}
-              </Badge>
-              {task.tags?.map(tag => (
-                <Badge key={tag} variant="outline" className="text-xs">
+        <Card key={task.id} className="bg-slate-900 border-slate-700 text-slate-200">
+          <CardHeader className="p-4 pb-0">
+            <div className="flex justify-between items-start">
+              <div className="flex space-x-3 items-start">
+                <div className="mt-0.5">
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-6 w-6 rounded-full hover:bg-slate-700"
+                    onClick={() => handleMarkComplete(task.id)}
+                  >
+                    <CheckCircle className={cn(
+                      "h-5 w-5", 
+                      task.priority === "High" || task.priority === "Very High" 
+                        ? "text-red-500"
+                        : task.priority === "Medium"
+                          ? "text-yellow-500"
+                          : "text-slate-500"
+                    )} />
+                  </Button>
+                </div>
+                <div>
+                  <CardTitle className="text-base font-medium mb-1">{task.title}</CardTitle>
+                  {task.description && (
+                    <CardDescription className="text-sm text-slate-400 line-clamp-2">
+                      {task.description}
+                    </CardDescription>
+                  )}
+                </div>
+              </div>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-slate-700">
+                    <MoreVertical className="h-4 w-4 text-slate-400" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem onClick={() => handleMarkComplete(task.id)}>
+                    Mark Complete
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>Edit Task</DropdownMenuItem>
+                  <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            
+            <div className="flex flex-wrap gap-2 mt-3">
+              {task.tags?.map((tag: string) => (
+                <Badge key={tag} variant="outline" className="text-xs py-0 bg-slate-800 text-slate-300 border-slate-600">
+                  <Tag className="h-3 w-3 mr-1" />
                   {tag}
                 </Badge>
               ))}
-            </div>
-            
-            {task.description && (
-              <p className="text-sm text-slate-400 line-clamp-2">{task.description}</p>
-            )}
-            
-            <div className="flex items-center gap-2 mt-2 text-xs text-slate-500">
-              {task.dueDate && (
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  <span>{format(task.dueDate, "MMM d, yyyy")}</span>
-                </div>
-              )}
-              
               {task.context && (
-                <span className="bg-slate-700 px-2 py-1 rounded text-slate-300">
-                  @{task.context}
-                </span>
+                <Badge className="bg-slate-700 hover:bg-slate-600 text-xs">
+                  @ {task.context}
+                </Badge>
+              )}
+              {task.dueDate && (
+                <Badge variant="outline" className="text-xs py-0 flex items-center bg-slate-800 text-slate-300 border-slate-600">
+                  <Calendar className="h-3 w-3 mr-1" />
+                  {task.dueDate.toLocaleDateString()}
+                </Badge>
+              )}
+              {task.timeEstimate && (
+                <Badge variant="outline" className="text-xs py-0 flex items-center bg-slate-800 text-slate-300 border-slate-600">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {task.timeEstimate} min
+                </Badge>
               )}
             </div>
-          </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <DropdownMenuItem onClick={() => updateTask(task.id, { priority: "Very High" })}>
-                Set as Very High Priority
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateTask(task.id, { priority: "High" })}>
-                Set as High Priority
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateTask(task.id, { priority: "Medium" })}>
-                Set as Medium Priority
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateTask(task.id, { priority: "Low" })}>
-                Set as Low Priority
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateTask(task.id, { priority: "Very Low" })}>
-                Set as Very Low Priority
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => updateTask(task.id, { status: "next-action" })}>
-                Move to Next Actions
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateTask(task.id, { status: "project" })}>
-                Move to Projects
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateTask(task.id, { status: "waiting-for" })}>
-                Move to Waiting For
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateTask(task.id, { status: "someday" })}>
-                Move to Someday/Maybe
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => updateTask(task.id, { status: "reference" })}>
-                Move to Reference
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => deleteTask(task.id)} className="text-red-500">
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+          </CardHeader>
+          {showActions && (
+            <CardContent className="pt-0 pb-3 px-4">
+              <div className="flex justify-end gap-2 mt-3">
+                <Button size="sm" variant="outline" className="text-xs h-7">
+                  Edit
+                </Button>
+                <Button size="sm" className="text-xs h-7 bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white">
+                  Start Focus
+                </Button>
+              </div>
+            </CardContent>
+          )}
+        </Card>
       ))}
     </div>
   );

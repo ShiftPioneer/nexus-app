@@ -83,7 +83,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
   ];
   
   return (
-    <SidebarMenu className="space-y-1">
+    <SidebarMenu className="space-y-1 scrollbar-none">
       {menuItems.map(item => (
         <SidebarMenuItem key={item.path}>
           <SidebarMenuButton 

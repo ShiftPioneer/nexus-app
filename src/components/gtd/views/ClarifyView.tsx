@@ -6,6 +6,7 @@ import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { useToast } from "@/hooks/use-toast";
 import ClarifyCard from "./clarify/ClarifyCard";
 import InboxTasksList from "./clarify/InboxTasksList";
+import { GTDTask } from "../GTDContext";
 
 const ClarifyView: React.FC = () => {
   const { tasks, moveTask, setActiveView } = useGTD();

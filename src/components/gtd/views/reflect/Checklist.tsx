@@ -1,23 +1,22 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ReactNode } from "react";
 
-interface ChecklistItem {
-  id: string;
-  label: string;
-  checked: boolean;
+interface ChecklistItems {
+  [key: string]: boolean;
 }
 
 interface ChecklistProps {
   title: string;
-  icon: React.ReactNode;
-  items: Record<string, boolean>;
-  setItems: (items: Record<string, boolean>) => void;
+  icon: ReactNode;
+  items: ChecklistItems;
+  setItems: (items: ChecklistItems) => void;
   itemLabels: Record<string, string>;
-  showActions?: boolean;
   description?: string;
+  showActions?: boolean;
 }
 
 const Checklist: React.FC<ChecklistProps> = ({
@@ -26,77 +25,79 @@ const Checklist: React.FC<ChecklistProps> = ({
   items,
   setItems,
   itemLabels,
-  showActions = false,
   description,
+  showActions = false,
 }) => {
-  const handleCheck = (item: string) => {
-    setItems({
-      ...items,
-      [item]: !items[item]
+  const handleCheckChange = (key: string) => {
+    setItems({ [key]: !items[key] });
+  };
+
+  const handleMarkAllComplete = () => {
+    const updatedItems: ChecklistItems = {};
+    Object.keys(items).forEach(key => {
+      updatedItems[key] = true;
     });
+    setItems(updatedItems);
   };
 
-  const handleCompleteAll = () => {
-    const allChecked = Object.fromEntries(
-      Object.keys(items).map(key => [key, true])
-    );
-    setItems(allChecked as Record<string, boolean>);
-  };
-
-  const handleReset = () => {
-    const allUnchecked = Object.fromEntries(
-      Object.keys(items).map(key => [key, false])
-    );
-    setItems(allUnchecked as Record<string, boolean>);
+  const handleResetAll = () => {
+    const updatedItems: ChecklistItems = {};
+    Object.keys(items).forEach(key => {
+      updatedItems[key] = false;
+    });
+    setItems(updatedItems);
   };
 
   return (
-    <Card className="bg-slate-900 border-slate-700 text-slate-200">
+    <Card className="bg-slate-900 border-slate-700 text-slate-200 h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center">
+        <CardTitle className="text-lg text-slate-200 flex items-center">
           {icon}
           {title}
         </CardTitle>
-        {description && (
-          <p className="text-slate-400 mb-4">{description}</p>
-        )}
+        {description && <CardDescription className="text-slate-400">{description}</CardDescription>}
       </CardHeader>
-      <CardContent className="space-y-4">
-        {Object.entries(items).map(([key, checked]) => (
-          <div key={key} className="flex items-start space-x-2">
-            <Checkbox 
-              id={key} 
-              checked={checked} 
-              onCheckedChange={() => handleCheck(key)}
-              className="mt-1 border-orange-500 text-orange-500"
-            />
-            <label 
-              htmlFor={key} 
-              className={`text-sm ${checked ? "line-through text-slate-500" : "text-slate-300"}`}
-            >
-              {itemLabels[key]}
-            </label>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            {Object.entries(items).map(([key, checked]) => (
+              <div
+                key={key}
+                className="flex items-center space-x-2 hover:bg-slate-800 p-2 rounded-md cursor-pointer"
+                onClick={() => handleCheckChange(key)}
+              >
+                <Checkbox id={key} checked={checked} />
+                <label
+                  htmlFor={key}
+                  className="flex-grow cursor-pointer text-sm font-medium text-slate-300"
+                >
+                  {itemLabels[key]}
+                </label>
+              </div>
+            ))}
           </div>
-        ))}
-        
-        {showActions && (
-          <div className="pt-4 flex justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleReset}
-            >
-              Reset
-            </Button>
-            <Button
-              onClick={handleCompleteAll}
-              className="bg-[#FF5722] hover:bg-[#FF6E40] text-white"
-              size="sm"
-            >
-              Complete All
-            </Button>
-          </div>
-        )}
+
+          {showActions && (
+            <div className="flex justify-between pt-4">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleResetAll} 
+                className="text-slate-400"
+              >
+                Reset
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm" 
+                onClick={handleMarkAllComplete}
+                className="bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white"
+              >
+                Mark All Complete
+              </Button>
+            </div>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

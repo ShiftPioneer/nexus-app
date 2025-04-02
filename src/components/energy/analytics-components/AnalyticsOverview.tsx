@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AreaChart, LineChart, BarChart } from "./EnergyCharts";
 import { Dumbbell, Activity, Flame, TrendingUp, Calendar } from "lucide-react";
+import { motion } from "framer-motion";
 
 export function AnalyticsOverview() {
   // Sample data for analytics charts
@@ -38,75 +39,88 @@ export function AnalyticsOverview() {
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Total Workouts</CardDescription>
-            <CardTitle className="flex items-center gap-2">
-              <Dumbbell className="text-primary h-5 w-5" />
-              12
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xs text-muted-foreground">
-              <span className="text-green-600 font-medium">↑ 25%</span> vs last month
-            </div>
-          </CardContent>
-        </Card>
+      <motion.div 
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, staggerChildren: 0.1 }}
+      >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }}>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="pb-2">
+              <CardDescription>Total Workouts</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Dumbbell className="text-[#0FA0CE] h-5 w-5" />
+                12
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground">
+                <span className="text-green-600 font-medium">↑ 25%</span> vs last month
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Workout Minutes</CardDescription>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="text-primary h-5 w-5" />
-              720
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xs text-muted-foreground">
-              <span className="text-green-600 font-medium">↑ 12%</span> vs last month
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="pb-2">
+              <CardDescription>Workout Minutes</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="text-[#0FA0CE] h-5 w-5" />
+                720
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground">
+                <span className="text-green-600 font-medium">↑ 12%</span> vs last month
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Calories Burned</CardDescription>
-            <CardTitle className="flex items-center gap-2">
-              <Flame className="text-primary h-5 w-5" />
-              5,340
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xs text-muted-foreground">
-              <span className="text-green-600 font-medium">↑ 18%</span> vs last month
-            </div>
-          </CardContent>
-        </Card>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="pb-2">
+              <CardDescription>Calories Burned</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Flame className="text-[#0FA0CE] h-5 w-5" />
+                5,340
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground">
+                <span className="text-green-600 font-medium">↑ 18%</span> vs last month
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardDescription>Active Days</CardDescription>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="text-primary h-5 w-5" />
-              16
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xs text-muted-foreground">
-              <span className="text-green-600 font-medium">↑ 5%</span> vs last month
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }}>
+          <Card className="shadow-lg hover:shadow-xl transition-shadow duration-300">
+            <CardHeader className="pb-2">
+              <CardDescription>Active Days</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="text-[#0FA0CE] h-5 w-5" />
+                16
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-xs text-muted-foreground">
+                <span className="text-green-600 font-medium">↑ 5%</span> vs last month
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </motion.div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle>Workout Frequency</CardTitle>
             <CardDescription>Weekly workout distribution</CardDescription>
           </CardHeader>
-          <CardContent className="px-2">
+          <CardContent className="px-2 overflow-hidden">
             <BarChart 
               data={weeklyWorkoutData}
               categories={["workouts"]}
@@ -117,12 +131,12 @@ export function AnalyticsOverview() {
           </CardContent>
         </Card>
         
-        <Card className="overflow-hidden">
+        <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
           <CardHeader>
             <CardTitle>Calories Burned</CardTitle>
             <CardDescription>Daily calorie expenditure</CardDescription>
           </CardHeader>
-          <CardContent className="px-2">
+          <CardContent className="px-2 overflow-hidden">
             <AreaChart 
               data={calorieData}
               categories={["calories"]}
@@ -135,12 +149,12 @@ export function AnalyticsOverview() {
         </Card>
       </div>
       
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
         <CardHeader>
           <CardTitle>Muscle Group Focus</CardTitle>
           <CardDescription>Number of workouts per muscle group</CardDescription>
         </CardHeader>
-        <CardContent className="px-2">
+        <CardContent className="px-2 overflow-hidden">
           <BarChart 
             data={exerciseData}
             categories={["sessions"]}

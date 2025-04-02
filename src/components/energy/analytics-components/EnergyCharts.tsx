@@ -23,12 +23,15 @@ export function BarChart({
   layout = "horizontal"
 }: ChartProps) {
   const config = categories.reduce((acc, category) => {
-    // Generate some colors based on the category name
-    const hue = (category.length * 40) % 360;
+    // Generate blue-based colors
+    const hue = 210; // Blue hue
+    const saturation = 70;
+    const lightness = 50 + (category.length * 3) % 20;
+    
     return {
       ...acc,
       [category]: { 
-        color: `hsl(${hue}, 70%, 60%)`,
+        color: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
         label: category
       }
     };
@@ -40,6 +43,7 @@ export function BarChart({
         <ComposedChart
           data={data}
           layout={layout}
+          className="scrollbar-none"
         >
           <CartesianGrid strokeDasharray="3 3" />
           {layout === "horizontal" ? (
@@ -86,12 +90,15 @@ export function AreaChart({
   valueFormatter = (value: number) => value.toString()
 }: ChartProps) {
   const config = categories.reduce((acc, category) => {
-    // Generate some colors based on the category name
-    const hue = (category.length * 40) % 360;
+    // Generate blue-based colors
+    const hue = 210; // Blue hue
+    const saturation = 70;
+    const lightness = 50 + (category.length * 3) % 20;
+    
     return {
       ...acc,
       [category]: { 
-        color: `hsl(${hue}, 70%, 60%)`,
+        color: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
         label: category
       }
     };
@@ -100,7 +107,7 @@ export function AreaChart({
   return (
     <ChartContainer className={className} config={config}>
       <ResponsiveContainer>
-        <ComposedChart data={data}>
+        <ComposedChart data={data} className="scrollbar-none">
           <defs>
             {categories.map((category) => (
               <linearGradient key={category} id={`color-${category}`} x1="0" y1="0" x2="0" y2="1">
@@ -148,12 +155,15 @@ export function LineChart({
   valueFormatter = (value: number) => value.toString()
 }: ChartProps) {
   const config = categories.reduce((acc, category) => {
-    // Generate some colors based on the category name
-    const hue = (category.length * 40) % 360;
+    // Generate blue-based colors
+    const hue = 210; // Blue hue
+    const saturation = 70;
+    const lightness = 50 + (category.length * 3) % 20;
+    
     return {
       ...acc,
       [category]: { 
-        color: `hsl(${hue}, 70%, 60%)`,
+        color: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
         label: category
       }
     };
@@ -162,7 +172,7 @@ export function LineChart({
   return (
     <ChartContainer className={className} config={config}>
       <ResponsiveContainer>
-        <ComposedChart data={data}>
+        <ComposedChart data={data} className="scrollbar-none">
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey={index} />
           <YAxis />
