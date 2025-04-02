@@ -91,7 +91,7 @@ const HabitStatisticsTrends = ({ habits }: HabitStatisticsTrendsProps) => {
               <YAxis />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="rate" stroke="#8884d8" name="Completion Rate (%)" />
+              <Line type="monotone" dataKey="rate" stroke="#7E69AB" name="Completion Rate (%)" />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -114,7 +114,7 @@ const HabitStatisticsTrends = ({ habits }: HabitStatisticsTrendsProps) => {
               yAxisId="left"
               type="monotone"
               dataKey="completed"
-              stroke="#22c55e"
+              stroke="#7E69AB"
               activeDot={{ r: 8 }}
               name="Completed Habits"
             />
@@ -122,14 +122,14 @@ const HabitStatisticsTrends = ({ habits }: HabitStatisticsTrendsProps) => {
               yAxisId="left" 
               type="monotone" 
               dataKey="total" 
-              stroke="#94a3b8" 
+              stroke="#6E59A5" 
               name="Total Possible" 
             />
             <Line
               yAxisId="right"
               type="monotone"
               dataKey="rate"
-              stroke="#8b5cf6"
+              stroke="#FF6500"
               name="Completion Rate (%)"
             />
           </LineChart>

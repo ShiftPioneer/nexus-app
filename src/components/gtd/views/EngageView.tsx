@@ -7,7 +7,6 @@ import { useFocusTimer } from "@/components/focus/FocusTimerService";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TasksPanel from "./engage/TasksPanel";
 import ContextPanel from "./engage/ContextPanel";
-import FocusSession from "./engage/FocusSession";
 import { useToast } from "@/hooks/use-toast";
 import { Progress } from "@/components/ui/progress";
 import { Clock, Play, Pause, RotateCcw, Check } from "lucide-react";
@@ -31,7 +30,7 @@ const EngageView: React.FC = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   
-  // Filter tasks that are next actions or tagged as today
+  // Filter tasks that are next actions and not completed/deleted
   const nextActionTasks = tasks.filter(task => 
     task.status === "next-action" && 
     task.status !== "completed" &&
@@ -41,7 +40,7 @@ const EngageView: React.FC = () => {
   // Filter tasks by context
   const contexts = Array.from(
     new Set(tasks.filter(t => t.context).map(t => t.context))
-  );
+  ) as string[];
 
   const handleStartFocus = (taskTitle: string) => {
     setSelectedTask(taskTitle);
@@ -200,7 +199,7 @@ const EngageView: React.FC = () => {
               <TabsContent value="contexts" className="mt-4">
                 <ContextPanel 
                   tasks={nextActionTasks}
-                  contexts={contexts as string[]}
+                  contexts={contexts}
                   onStartFocus={handleStartFocus}
                   onCompleteTask={handleCompleteTask}
                 />

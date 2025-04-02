@@ -10,7 +10,7 @@ export interface TaskAttachment {
   name: string;
   type: string;
   url?: string;
-  file?: File;  // Added File support
+  file?: File;
 }
 
 export interface GTDTask {
@@ -161,14 +161,12 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (taskToDelete && taskToDelete.status === "project") {
       console.log("Project deleted:", taskToDelete);
       // Here you would remove from the Planning page
-      // e.g., removeProjectFromPlanning(taskToDelete);
     }
     
     // If task was a next action, remove from Tasks page
     if (taskToDelete && taskToDelete.status === "next-action") {
       console.log("Next action deleted:", taskToDelete);
       // Here you would remove from the Tasks page
-      // e.g., removeTaskFromTasksPage(taskToDelete);
     }
   };
 
@@ -189,7 +187,6 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         } else if (task.status === "project" && newStatus !== "project") {
           console.log("Project moved to another status:", updatedTask);
           // Here you would remove from the Planning page
-          // e.g., removeProjectFromPlanning(updatedTask);
         }
         
         // Handle syncing with Tasks page if task is moved to/from next-action status
@@ -199,7 +196,6 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         } else if (task.status === "next-action" && newStatus !== "next-action") {
           console.log("Next action moved to another status:", updatedTask);
           // Here you would remove from the Tasks page
-          // e.g., removeTaskFromTasksPage(updatedTask);
         }
         
         return updatedTask;

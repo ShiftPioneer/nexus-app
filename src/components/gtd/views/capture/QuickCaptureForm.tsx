@@ -1,84 +1,59 @@
 
-import React, { useState, useRef } from 'react';
-import { useGTD } from '../../GTDContext';
+import React, { useState, useRef } from "react";
+import { useGTD } from "../../GTDContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { Mic, MicOff, Paperclip } from "lucide-react";
-import { useToast } from '@/hooks/use-toast';
-
-interface SpeechRecognitionEvent {
-  results: {
-    [index: number]: {
-      [index: number]: {
-        transcript: string;
-        isFinal: boolean;
-      }
-    };
-  };
-}
-
-interface SpeechRecognitionErrorEvent {
-  error: string;
-}
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { Mic, Upload, Plus, X } from "lucide-react";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
 const QuickCaptureForm: React.FC = () => {
   const { addTask } = useGTD();
   const { toast } = useToast();
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [priority, setPriority] = useState<string>('Medium');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState<"Very Low" | "Low" | "Medium" | "High" | "Very High">("Medium");
   const [isRecording, setIsRecording] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [attachment, setAttachment] = useState<{ name: string; type: string; url?: string; file?: File } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
+  // Speech recognition setup
   const recognitionRef = useRef<any>(null);
-
-  // Initialize speech recognition
+  
   const startRecording = () => {
-    try {
-      // Use TypeScript type assertions to bypass type checking for browser APIs
-      const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-      
-      if (!SpeechRecognitionAPI) {
-        toast({
-          title: "Speech recognition not supported",
-          description: "Your browser doesn't support speech recognition.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      recognitionRef.current = new SpeechRecognitionAPI();
-      
+    // Initialize speech recognition if supported
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
       
-      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+      recognitionRef.current.onstart = () => {
+        setIsRecording(true);
+        toast({
+          title: "Voice Recording Started",
+          description: "Speak now to capture your task..."
+        });
+      };
+      
+      recognitionRef.current.onresult = (event: any) => {
         const transcript = Array.from(event.results)
-          .map((result) => result[0])
-          .map((result) => result.transcript)
+          .map((result: any) => result[0].transcript)
           .join('');
         
         setTitle(transcript);
       };
       
-      recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
-        console.error('Speech recognition error', event.error);
-        setIsRecording(false);
+      recognitionRef.current.onerror = (event: any) => {
+        console.error("Speech recognition error", event);
         toast({
-          title: "Recording error",
-          description: `Error: ${event.error}`,
+          title: "Speech Recognition Error",
+          description: "There was a problem with voice input.",
           variant: "destructive"
         });
+        setIsRecording(false);
       };
       
       recognitionRef.current.onend = () => {
@@ -86,154 +61,128 @@ const QuickCaptureForm: React.FC = () => {
       };
       
       recognitionRef.current.start();
-      setIsRecording(true);
-      
+    } else {
       toast({
-        title: "Recording started",
-        description: "Speak now to capture your task"
-      });
-    } catch (error) {
-      console.error('Speech recognition error:', error);
-      toast({
-        title: "Recording error",
-        description: "Could not start recording. Please check your browser permissions.",
+        title: "Feature Not Supported",
+        description: "Voice input is not supported in this browser.",
         variant: "destructive"
       });
     }
   };
-
+  
   const stopRecording = () => {
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setIsRecording(false);
       toast({
-        title: "Recording stopped",
-        description: "Voice input captured"
-      });
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setSelectedFile(file);
-      toast({
-        title: "File attached",
-        description: `${file.name} has been attached to this task.`
+        title: "Voice Recording Stopped",
+        description: "Your task has been captured."
       });
     }
   };
   
-  const openFileSelector = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const fileType = file.type.split('/')[0];
+      const isValidType = ['image', 'application', 'text'].includes(fileType);
+      
+      if (isValidType) {
+        const fileURL = URL.createObjectURL(file);
+        setAttachment({
+          name: file.name,
+          type: file.type,
+          url: fileURL,
+          file: file
+        });
+        
+        toast({
+          title: "File Attached",
+          description: `${file.name} has been attached to the task.`
+        });
+      } else {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image, document, or text file.",
+          variant: "destructive"
+        });
+      }
     }
   };
-
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!title.trim()) {
       toast({
-        title: "Task title required",
-        description: "Please enter a title for your task.",
+        title: "Required Field Missing",
+        description: "Please enter a task title.",
         variant: "destructive"
       });
       return;
     }
     
-    // Create basic task
-    const newTask = {
+    addTask({
       title,
       description,
-      priority: priority as "Very Low" | "Low" | "Medium" | "High" | "Very High",
-      status: 'inbox' as const,
-      // Add attachment if a file was selected
-      attachment: selectedFile ? {
-        name: selectedFile.name,
-        type: selectedFile.type,
-        file: selectedFile
-      } : undefined
-    };
-    
-    // Add task to GTD context
-    addTask(newTask);
-    
-    // Clear form
-    setTitle('');
-    setDescription('');
-    setPriority('Medium');
-    setSelectedFile(null);
-    
-    // Show success message
-    toast({
-      title: "Task captured",
-      description: "Task has been added to your inbox."
+      priority,
+      status: "inbox",
+      attachment: attachment || undefined
     });
+    
+    toast({
+      title: "Task Added",
+      description: "The task has been added to your inbox."
+    });
+    
+    // Reset form
+    setTitle("");
+    setDescription("");
+    setPriority("Medium");
+    setAttachment(null);
+  };
+  
+  const removeAttachment = () => {
+    if (attachment?.url) {
+      URL.revokeObjectURL(attachment.url);
+    }
+    setAttachment(null);
+  };
+  
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
   };
 
   return (
-    <div className="bg-card border rounded-lg shadow-sm p-4 md:p-6">
-      <h3 className="text-lg font-medium mb-4">Quick Capture</h3>
-      
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1">
+    <Card className="border-blue-600/20 bg-slate-800/50">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-2xl font-semibold text-white">Quick Capture</CardTitle>
+        <CardDescription>Quickly add tasks to your inbox</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
             <Input
-              placeholder="What's on your mind?"
+              placeholder="Task title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="pr-10"
+              className="bg-slate-800 border-slate-700 text-white"
             />
           </div>
           
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className={isRecording ? "bg-red-500 text-white hover:bg-red-600" : ""}
-            onClick={isRecording ? stopRecording : startRecording}
-            title={isRecording ? "Stop recording" : "Start voice recording"}
-          >
-            {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-          </Button>
-          
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            onClick={openFileSelector}
-            title="Attach file"
-          >
-            <Paperclip className="h-4 w-4" />
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            className="hidden"
-            accept="image/*,application/pdf,text/plain"
-          />
-        </div>
-        
-        {selectedFile && (
-          <div className="text-sm text-muted-foreground">
-            Attached: {selectedFile.name}
+          <div>
+            <Textarea
+              placeholder="Description (optional)"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="h-20 bg-slate-800 border-slate-700 text-white"
+            />
           </div>
-        )}
-        
-        <Textarea
-          placeholder="Add details (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={3}
-        />
-        
-        <div className="flex flex-col sm:flex-row gap-4 justify-between items-center">
-          <div className="w-full sm:w-1/3">
-            <Select value={priority} onValueChange={setPriority}>
-              <SelectTrigger>
-                <SelectValue placeholder="Priority" />
+          
+          <div>
+            <Select value={priority} onValueChange={(value: any) => setPriority(value)}>
+              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                <SelectValue placeholder="Set Priority" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="Very Low">Very Low</SelectItem>
@@ -245,12 +194,69 @@ const QuickCaptureForm: React.FC = () => {
             </Select>
           </div>
           
-          <Button type="submit" className="w-full sm:w-auto">
-            Add to Inbox
-          </Button>
-        </div>
-      </form>
-    </div>
+          {attachment && (
+            <div className="border border-slate-700 rounded-md p-2 flex justify-between items-center bg-slate-800">
+              <div className="truncate">
+                {attachment.type.startsWith('image') ? (
+                  <div className="flex items-center">
+                    <div className="w-8 h-8 mr-2 rounded overflow-hidden">
+                      <img src={attachment.url} alt="Attached" className="w-full h-full object-cover" />
+                    </div>
+                    <span className="text-sm">{attachment.name}</span>
+                  </div>
+                ) : (
+                  <span className="text-sm">{attachment.name}</span>
+                )}
+              </div>
+              <Button 
+                type="button" 
+                variant="ghost" 
+                size="sm" 
+                onClick={removeAttachment} 
+                className="text-red-500"
+              >
+                <X size={16} />
+              </Button>
+            </div>
+          )}
+          
+          <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleFileChange} 
+            className="hidden" 
+            accept="image/*,application/pdf,application/msword,text/plain"
+          />
+          
+          <div className="flex justify-end space-x-2">
+            <Button
+              type="button"
+              variant="outline" 
+              onClick={isRecording ? stopRecording : startRecording}
+              className={`${isRecording ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+            >
+              <Mic className={`h-4 w-4 mr-2 ${isRecording ? 'animate-pulse' : ''}`} />
+              {isRecording ? 'Stop Recording' : 'Voice Input'}
+            </Button>
+            
+            <Button
+              type="button"
+              variant="outline"
+              onClick={triggerFileInput}
+              className="bg-slate-700 text-slate-300 hover:bg-slate-600"
+            >
+              <Upload className="h-4 w-4 mr-2" />
+              Attach File
+            </Button>
+            
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Task
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
 

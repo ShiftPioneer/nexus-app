@@ -99,16 +99,16 @@ const HabitStatisticsOverview = ({ habits }: HabitStatisticsOverviewProps) => {
             <Area 
               type="monotone" 
               dataKey="completed" 
-              stroke="#22c55e" 
-              fill="#22c55e" 
+              stroke="#7E69AB" 
+              fill="#7E69AB" 
               fillOpacity={0.3} 
               name="Completed"
             />
             <Area 
               type="monotone" 
               dataKey="total" 
-              stroke="#94a3b8" 
-              fill="#94a3b8" 
+              stroke="#FF6500" 
+              fill="#FF6500" 
               fillOpacity={0.1} 
               name="Total Habits"
             />

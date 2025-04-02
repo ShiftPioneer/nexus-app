@@ -7,12 +7,12 @@ interface HabitStatisticsCategoriesProps {
 }
 
 const HabitStatisticsCategories = ({ habits }: HabitStatisticsCategoriesProps) => {
-  // Define colors for different categories
+  // Define colors for different categories using app's secondary colors
   const categoryColors = {
-    health: "#22c55e",
-    mindfulness: "#8b5cf6",
-    learning: "#3b82f6",
-    productivity: "#f59e0b",
+    health: "#7E69AB",      // Secondary Purple
+    mindfulness: "#6E59A5", // Tertiary Purple
+    learning: "#3b82f6",    // Blue
+    productivity: "#FF6500", // Primary Orange
     relationships: "#ec4899",
     finance: "#10b981",
     other: "#94a3b8"

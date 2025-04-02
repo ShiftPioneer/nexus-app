@@ -82,14 +82,14 @@ const HabitStatisticsStreaks = ({ habits }: HabitStatisticsStreaksProps) => {
               formatter={(value) => [`${value} habits`, 'Count']}
               labelFormatter={(label) => `Streak: ${label} days`}
             />
-            <Bar dataKey="count" fill="#8b5cf6" name="Habits" />
+            <Bar dataKey="count" fill="#7E69AB" name="Habits" />
           </BarChart>
         </ResponsiveContainer>
       </div>
       
       <div className="space-y-4">
         <h3 className="text-lg font-medium flex items-center gap-2">
-          <Award className="h-5 w-5 text-orange-500" />
+          <Award className="h-5 w-5 text-[#FF6500]" />
           Top Streaks
         </h3>
         
@@ -110,7 +110,7 @@ const HabitStatisticsStreaks = ({ habits }: HabitStatisticsStreaksProps) => {
                         </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-orange-500">
+                    <div className="flex items-center gap-2 text-[#FF6500]">
                       <Flame className="h-5 w-5" />
                       <span className="font-bold text-xl">{habit.streak}</span>
                       <span className="text-xs text-muted-foreground">days</span>
@@ -119,7 +119,7 @@ const HabitStatisticsStreaks = ({ habits }: HabitStatisticsStreaksProps) => {
                   
                   <div className="mt-3 w-full bg-muted h-2 rounded-full overflow-hidden">
                     <div 
-                      className="bg-orange-500 h-2 rounded-full"
+                      className="bg-[#FF6500] h-2 rounded-full"
                       style={{ width: `${Math.min(100, (habit.streak / habit.target) * 100)}%` }}
                     />
                   </div>
