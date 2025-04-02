@@ -6,6 +6,7 @@ import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ interface AppLayoutProps {
 const AppLayout = ({ children }: AppLayoutProps) => {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useAuth();
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -27,8 +29,11 @@ const AppLayout = ({ children }: AppLayoutProps) => {
         
         {/* Mobile Sidebar - conditionally rendered */}
         {isMobile && mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 bg-black bg-opacity-50" onClick={() => setMobileMenuOpen(false)}>
-            <div className="w-64 h-full bg-[#1A1F2C] text-white overflow-auto" onClick={e => e.stopPropagation()}>
+          <div className="fixed inset-0 z-50 bg-black bg-opacity-75 transition-opacity" onClick={() => setMobileMenuOpen(false)}>
+            <div 
+              className="fixed inset-y-0 left-0 w-64 bg-[#1A1F2C] text-white overflow-auto transform transition-transform duration-300 ease-in-out" 
+              onClick={e => e.stopPropagation()}
+            >
               <Sidebar />
             </div>
           </div>

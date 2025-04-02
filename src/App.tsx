@@ -16,21 +16,36 @@ import GTD from './pages/GTD';
 import Auth from './pages/Auth';
 import { FocusTimerProvider } from './components/focus/FocusTimerService';
 import { Toaster } from '@/components/ui/toaster';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  // Check if user is logged in from localStorage
-  const isAuthenticated = localStorage.getItem('supabase.auth.token') !== null;
+  const { user, loading } = useAuth();
   
-  // For development, you can disable this check
-  // return <>{children}</>;
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF6500]"></div>
+    </div>;
+  }
   
-  // Uncomment this for production use
-  return isAuthenticated ? <>{children}</> : <Navigate to="/auth" />;
+  return user ? <>{children}</> : <Navigate to="/auth" />;
 };
 
 function App() {
+  // Ensure token is set in localStorage for backwards compatibility
+  useEffect(() => {
+    const checkAndSetLocalStorage = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        localStorage.setItem('supabase.auth.token', JSON.stringify(data.session));
+      }
+    };
+    
+    checkAndSetLocalStorage();
+  }, []);
+
   return (
     <Router>
       <AuthProvider>
