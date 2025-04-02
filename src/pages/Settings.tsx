@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,16 +11,16 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
 const Settings = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [profileData, setProfileData] = useState({
     name: "John Doe",
     email: "john.doe@example.com",
     language: "english",
     timezone: "UTC+0"
   });
-  
   const [notificationSettings, setNotificationSettings] = useState({
     email: true,
     push: true,
@@ -29,59 +28,52 @@ const Settings = () => {
     habitTracking: true,
     weeklyReport: true
   });
-  
   const [privacySettings, setPrivacySettings] = useState({
     publicProfile: false,
     shareProgress: false,
-    dataCollection: true,
+    dataCollection: true
   });
-  
   const handleSave = () => {
     toast({
       title: "Settings Saved",
-      description: "Your settings have been saved successfully.",
+      description: "Your settings have been saved successfully."
     });
   };
-
   const updateProfileData = (field: string, value: string) => {
     setProfileData(prev => ({
       ...prev,
       [field]: value
     }));
   };
-  
   const toggleNotification = (setting: string) => {
     setNotificationSettings(prev => ({
       ...prev,
       [setting]: !prev[setting as keyof typeof prev]
     }));
   };
-  
   const togglePrivacySetting = (setting: string) => {
     setPrivacySettings(prev => ({
       ...prev,
       [setting]: !prev[setting as keyof typeof prev]
     }));
   };
-
-  return (
-    <AppLayout>
+  return <AppLayout>
       <div className="animate-fade-in space-y-6 max-w-5xl mx-auto">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
+            <h1 className="text-2xl font-bold flex items-center gap-2 mx-0">
               <SettingsIcon className="h-6 w-6 text-primary" />
               Settings
             </h1>
-            <p className="text-muted-foreground">Manage your account settings and preferences</p>
+            <p className="text-muted-foreground my-[10px] mx-0">Manage your account settings and preferences</p>
           </div>
-          <Button onClick={handleSave}>Save Changes</Button>
+          <Button onClick={handleSave} className="my-[30px] text-right mx-[200px]">Save Changes</Button>
         </div>
         
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-4 rounded-md height-[30px] px-[10px] py-0 my-[20px]">
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="appearance">Appearance</TabsTrigger>
+            <TabsTrigger value="appearance" className="my-0">Appearance</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="privacy">Privacy</TabsTrigger>
           </TabsList>
@@ -105,30 +97,18 @@ const Settings = () => {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="name">Name</Label>
-                      <Input 
-                        id="name" 
-                        value={profileData.name} 
-                        onChange={(e) => updateProfileData("name", e.target.value)}
-                      />
+                      <Input id="name" value={profileData.name} onChange={e => updateProfileData("name", e.target.value)} />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input 
-                        id="email" 
-                        type="email" 
-                        value={profileData.email} 
-                        onChange={(e) => updateProfileData("email", e.target.value)}
-                      />
+                      <Input id="email" type="email" value={profileData.email} onChange={e => updateProfileData("email", e.target.value)} />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="language">Language</Label>
-                      <Select 
-                        value={profileData.language}
-                        onValueChange={(value) => updateProfileData("language", value)}
-                      >
+                      <Select value={profileData.language} onValueChange={value => updateProfileData("language", value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select language" />
                         </SelectTrigger>
@@ -142,10 +122,7 @@ const Settings = () => {
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="timezone">Timezone</Label>
-                      <Select 
-                        value={profileData.timezone}
-                        onValueChange={(value) => updateProfileData("timezone", value)}
-                      >
+                      <Select value={profileData.timezone} onValueChange={value => updateProfileData("timezone", value)}>
                         <SelectTrigger>
                           <SelectValue placeholder="Select timezone" />
                         </SelectTrigger>
@@ -294,11 +271,7 @@ const Settings = () => {
                         <Label htmlFor="email-notifications">Email Notifications</Label>
                         <p className="text-sm text-muted-foreground">Receive updates via email</p>
                       </div>
-                      <Switch 
-                        id="email-notifications" 
-                        checked={notificationSettings.email}
-                        onCheckedChange={() => toggleNotification('email')}
-                      />
+                      <Switch id="email-notifications" checked={notificationSettings.email} onCheckedChange={() => toggleNotification('email')} />
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -306,11 +279,7 @@ const Settings = () => {
                         <Label htmlFor="push-notifications">Push Notifications</Label>
                         <p className="text-sm text-muted-foreground">Get alerts on your device</p>
                       </div>
-                      <Switch 
-                        id="push-notifications" 
-                        checked={notificationSettings.push}
-                        onCheckedChange={() => toggleNotification('push')}
-                      />
+                      <Switch id="push-notifications" checked={notificationSettings.push} onCheckedChange={() => toggleNotification('push')} />
                     </div>
                   </div>
                 </div>
@@ -323,11 +292,7 @@ const Settings = () => {
                         <Label htmlFor="task-reminders">Task Reminders</Label>
                         <p className="text-sm text-muted-foreground">Get reminded about upcoming tasks</p>
                       </div>
-                      <Switch 
-                        id="task-reminders" 
-                        checked={notificationSettings.taskReminders}
-                        onCheckedChange={() => toggleNotification('taskReminders')}
-                      />
+                      <Switch id="task-reminders" checked={notificationSettings.taskReminders} onCheckedChange={() => toggleNotification('taskReminders')} />
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -335,11 +300,7 @@ const Settings = () => {
                         <Label htmlFor="habit-tracking">Habit Tracking</Label>
                         <p className="text-sm text-muted-foreground">Get notified about habits to complete</p>
                       </div>
-                      <Switch 
-                        id="habit-tracking" 
-                        checked={notificationSettings.habitTracking}
-                        onCheckedChange={() => toggleNotification('habitTracking')}
-                      />
+                      <Switch id="habit-tracking" checked={notificationSettings.habitTracking} onCheckedChange={() => toggleNotification('habitTracking')} />
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -347,11 +308,7 @@ const Settings = () => {
                         <Label htmlFor="weekly-report">Weekly Report</Label>
                         <p className="text-sm text-muted-foreground">Receive a weekly summary of your progress</p>
                       </div>
-                      <Switch 
-                        id="weekly-report" 
-                        checked={notificationSettings.weeklyReport}
-                        onCheckedChange={() => toggleNotification('weeklyReport')}
-                      />
+                      <Switch id="weekly-report" checked={notificationSettings.weeklyReport} onCheckedChange={() => toggleNotification('weeklyReport')} />
                     </div>
                   </div>
                 </div>
@@ -409,11 +366,7 @@ const Settings = () => {
                         <Label htmlFor="public-profile">Public Profile</Label>
                         <p className="text-sm text-muted-foreground">Make your profile visible to others</p>
                       </div>
-                      <Switch 
-                        id="public-profile" 
-                        checked={privacySettings.publicProfile}
-                        onCheckedChange={() => togglePrivacySetting('publicProfile')}
-                      />
+                      <Switch id="public-profile" checked={privacySettings.publicProfile} onCheckedChange={() => togglePrivacySetting('publicProfile')} />
                     </div>
                     
                     <div className="flex items-center justify-between">
@@ -421,11 +374,7 @@ const Settings = () => {
                         <Label htmlFor="share-progress">Share Progress</Label>
                         <p className="text-sm text-muted-foreground">Allow others to see your goal progress</p>
                       </div>
-                      <Switch 
-                        id="share-progress" 
-                        checked={privacySettings.shareProgress}
-                        onCheckedChange={() => togglePrivacySetting('shareProgress')}
-                      />
+                      <Switch id="share-progress" checked={privacySettings.shareProgress} onCheckedChange={() => togglePrivacySetting('shareProgress')} />
                     </div>
                   </div>
                 </div>
@@ -439,11 +388,7 @@ const Settings = () => {
                         <Label htmlFor="data-collection">Data Collection</Label>
                         <p className="text-sm text-muted-foreground">Allow us to collect anonymous usage data</p>
                       </div>
-                      <Switch 
-                        id="data-collection" 
-                        checked={privacySettings.dataCollection}
-                        onCheckedChange={() => togglePrivacySetting('dataCollection')}
-                      />
+                      <Switch id="data-collection" checked={privacySettings.dataCollection} onCheckedChange={() => togglePrivacySetting('dataCollection')} />
                     </div>
                   </div>
                   
@@ -486,8 +431,6 @@ const Settings = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Settings;
