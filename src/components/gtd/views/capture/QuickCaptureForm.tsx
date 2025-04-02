@@ -14,30 +14,22 @@ import {
 import { Mic, MicOff, Paperclip } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start: () => void;
-  stop: () => void;
-  onresult: (event: any) => void;
-  onerror: (event: any) => void;
-  onend: (event: any) => void;
-}
-
 interface SpeechRecognitionEvent {
   results: {
-    transcript: string;
-    isFinal: boolean;
-  }[][];
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+        isFinal: boolean;
+      }
+    };
+  };
 }
 
-interface Window {
-  SpeechRecognition?: typeof SpeechRecognition;
-  webkitSpeechRecognition?: typeof SpeechRecognition;
+interface SpeechRecognitionErrorEvent {
+  error: string;
 }
 
-const QuickCaptureForm = () => {
+const QuickCaptureForm: React.FC = () => {
   const { addTask } = useGTD();
   const { toast } = useToast();
   const [title, setTitle] = useState('');
@@ -47,12 +39,13 @@ const QuickCaptureForm = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   // Initialize speech recognition
   const startRecording = () => {
     try {
-      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      // Use TypeScript type assertions to bypass type checking for browser APIs
+      const SpeechRecognitionAPI = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
       
       if (!SpeechRecognitionAPI) {
         toast({
@@ -63,22 +56,22 @@ const QuickCaptureForm = () => {
         return;
       }
       
-      recognitionRef.current = new SpeechRecognitionAPI() as SpeechRecognition;
+      recognitionRef.current = new SpeechRecognitionAPI();
       
       recognitionRef.current.continuous = true;
       recognitionRef.current.interimResults = true;
       recognitionRef.current.lang = 'en-US';
       
-      recognitionRef.current.onresult = (event: any) => {
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = Array.from(event.results)
-          .map((result: any) => result[0])
-          .map((result: any) => result.transcript)
+          .map((result) => result[0])
+          .map((result) => result.transcript)
           .join('');
         
         setTitle(transcript);
       };
       
-      recognitionRef.current.onerror = (event: any) => {
+      recognitionRef.current.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.error('Speech recognition error', event.error);
         setIsRecording(false);
         toast({

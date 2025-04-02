@@ -89,8 +89,8 @@ const ClarifyView: React.FC = () => {
   };
   
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="space-y-6">
+    <div className="space-y-6">
+      <DragDropContext onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <ClarifyCard
             icon={<Clock className="h-8 w-8" />}
@@ -148,8 +148,8 @@ const ClarifyView: React.FC = () => {
           onAddTask={handleAddTask}
           onGoToCapture={handleGoToCapture}
         />
-      </div>
-    </DragDropContext>
+      </DragDropContext>
+    </div>
   );
 };
 

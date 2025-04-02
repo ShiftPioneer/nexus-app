@@ -1,110 +1,247 @@
 
-import React, { useState } from "react";
-import { useGTD } from "../GTDContext";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calendar, Clock, Lightbulb } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import FocusTechnique from "./engage/FocusTechnique";
-import FocusSession from "./engage/FocusSession";
+import { useGTD } from "../GTDContext";
+import { useFocusTimer } from "@/components/focus/FocusTimerService";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TasksPanel from "./engage/TasksPanel";
 import ContextPanel from "./engage/ContextPanel";
+import FocusSession from "./engage/FocusSession";
+import { useToast } from "@/hooks/use-toast";
+import { Progress } from "@/components/ui/progress";
+import { Clock, Play, Pause, RotateCcw, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 
 const EngageView: React.FC = () => {
-  const { tasks } = useGTD();
-  const [selectedContext, setSelectedContext] = useState<string | null>(null);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const [activeTab, setActiveTab] = useState("tasks");
+  const { tasks, updateTask } = useGTD();
+  const { 
+    isTimerRunning, 
+    timeRemaining, 
+    timerProgress, 
+    category,
+    startTimer,
+    pauseTimer,
+    resumeTimer,
+    stopTimer,
+    resetTimer 
+  } = useFocusTimer();
+  const [selectedTask, setSelectedTask] = useState<string | null>(null);
+  const { toast } = useToast();
   const navigate = useNavigate();
   
-  const nextActionTasks = tasks.filter(t => t.status === "next-action");
-  const filteredTasks = selectedContext 
-    ? nextActionTasks.filter(t => t.context === selectedContext) 
-    : nextActionTasks;
+  // Filter tasks that are next actions or tagged as today
+  const nextActionTasks = tasks.filter(task => 
+    task.status === "next-action" && 
+    task.status !== "completed" &&
+    task.status !== "deleted"
+  );
   
-  const contexts = Array.from(new Set(tasks.map(t => t.context).filter(Boolean)));
-  
-  const handleStartPomodoro = () => {
-    setIsTimerRunning(true);
-    // Navigate to Focus page in actual implementation
-    navigate('/focus');
+  // Filter tasks by context
+  const contexts = Array.from(
+    new Set(tasks.filter(t => t.context).map(t => t.context))
+  );
+
+  const handleStartFocus = (taskTitle: string) => {
+    setSelectedTask(taskTitle);
+    startTimer(25, taskTitle); // 25-minute focus session with task name as category
+    
+    toast({
+      title: "Focus session started",
+      description: `Now focusing on: ${taskTitle}`,
+    });
   };
-  
-  const handleEndSession = () => {
-    setIsTimerRunning(false);
+
+  const handleCompleteTask = (taskId: string) => {
+    updateTask(taskId, { status: "completed" });
+    
+    // If this is the selected task and timer is running, stop it
+    const task = tasks.find(t => t.id === taskId);
+    if (task && selectedTask === task.title && isTimerRunning) {
+      stopTimer();
+      setSelectedTask(null);
+    }
+    
+    toast({
+      title: "Task completed",
+      description: "Task has been marked as complete",
+    });
   };
-  
-  return (
-    <motion.div 
-      className="grid grid-cols-1 md:grid-cols-3 gap-6"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <div className="md:col-span-2 space-y-6">
-        <FocusSession 
-          isTimerRunning={isTimerRunning}
-          handleStartPomodoro={handleStartPomodoro}
-          handleEndSession={handleEndSession}
-        />
-        
-        <TasksPanel 
-          filteredTasks={filteredTasks}
-          handleStartPomodoro={handleStartPomodoro}
-        />
-      </div>
+
+  const toggleTimer = () => {
+    if (isTimerRunning) {
+      pauseTimer();
+    } else {
+      resumeTimer();
+    }
+  };
+
+  const stopFocusSession = () => {
+    stopTimer();
+    setSelectedTask(null);
+    
+    // Record completed session if there was progress
+    if (timerProgress > 0) {
+      toast({
+        title: "Focus session ended",
+        description: "Your focus session has been recorded",
+      });
       
-      <div className="space-y-6">
-        <ContextPanel 
-          contexts={contexts}
-          selectedContext={selectedContext}
-          setSelectedContext={setSelectedContext}
-        />
+      // Navigate to focus page to see stats
+      navigate('/focus');
+    }
+  };
+
+  // Format time as MM:SS
+  const formatTime = (minutes: number, seconds: number) => {
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          {selectedTask && (isTimerRunning || timerProgress > 0) ? (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <span>Current Focus Session</span>
+                  </div>
+                  <span className="text-2xl font-mono">
+                    {formatTime(timeRemaining.minutes, timeRemaining.seconds)}
+                  </span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <h3 className="text-lg font-medium">{selectedTask}</h3>
+                  
+                  <Progress value={timerProgress} className="h-2" />
+                  
+                  <div className="flex justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        {isTimerRunning ? "Currently focusing on this task" : "Session paused"}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={toggleTimer}
+                      >
+                        {isTimerRunning ? (
+                          <>
+                            <Pause className="h-4 w-4 mr-1" />
+                            Pause
+                          </>
+                        ) : (
+                          <>
+                            <Play className="h-4 w-4 mr-1" />
+                            Resume
+                          </>
+                        )}
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => resetTimer()}
+                      >
+                        <RotateCcw className="h-4 w-4 mr-1" />
+                        Reset
+                      </Button>
+                      
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={stopFocusSession}
+                        className="text-red-500 border-red-500 hover:bg-red-100 hover:text-red-600"
+                      >
+                        Stop Session
+                      </Button>
+                      
+                      <Button
+                        size="sm"
+                        onClick={() => {
+                          const taskToComplete = tasks.find(t => t.title === selectedTask);
+                          if (taskToComplete) {
+                            handleCompleteTask(taskToComplete.id);
+                          }
+                        }}
+                        className="bg-green-600 hover:bg-green-700"
+                      >
+                        <Check className="h-4 w-4 mr-1" />
+                        Complete Task
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ) : (
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              <TabsList>
+                <TabsTrigger value="tasks">Tasks</TabsTrigger>
+                <TabsTrigger value="contexts">Contexts</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="tasks" className="mt-4">
+                <TasksPanel 
+                  tasks={nextActionTasks}
+                  onStartFocus={handleStartFocus}
+                  onCompleteTask={handleCompleteTask}
+                />
+              </TabsContent>
+              
+              <TabsContent value="contexts" className="mt-4">
+                <ContextPanel 
+                  tasks={nextActionTasks}
+                  contexts={contexts as string[]}
+                  onStartFocus={handleStartFocus}
+                  onCompleteTask={handleCompleteTask}
+                />
+              </TabsContent>
+            </Tabs>
+          )}
+        </div>
         
-        <Card className="bg-slate-900 border-slate-700 text-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center">
-              <Calendar className="mr-2 h-5 w-5 text-[#0FA0CE]" />
-              Today's Schedule
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <p className="text-slate-500 mb-4">Your calendar events will appear here.</p>
-              <Button variant="outline">
-                Connect Calendar
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-        
-        <Card className="bg-slate-900 border-slate-700 text-slate-200 shadow-lg hover:shadow-xl transition-shadow duration-300">
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center">
-              <Lightbulb className="mr-2 h-5 w-5 text-[#0FA0CE]" />
-              Focus Techniques
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FocusTechnique
-              title="Pomodoro"
-              description="Work for 25 minutes, then take a 5-minute break."
-              icon={<Clock className="h-5 w-5 text-[#0FA0CE]" />}
-              buttonText="Try Now"
-              buttonAction={handleStartPomodoro}
-            />
-            
-            <FocusTechnique
-              title="Time Blocking"
-              description="Dedicate specific time blocks to focused work."
-              icon={<Calendar className="h-5 w-5 text-[#0FA0CE]" />}
-              buttonText="Learn More"
-              buttonAction={() => {}}
-            />
-          </CardContent>
-        </Card>
+        <div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Session Tracking</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Today's Sessions</h4>
+                  <div className="text-2xl font-bold">3</div>
+                  <p className="text-xs text-muted-foreground">25 minutes average</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium">Completed Tasks</h4>
+                  <div className="text-2xl font-bold">
+                    {tasks.filter(t => t.status === "completed").length}
+                  </div>
+                  <p className="text-xs text-muted-foreground">Today</p>
+                </div>
+                
+                <Button 
+                  onClick={() => navigate('/focus')}
+                  className="w-full"
+                >
+                  View All Focus Statistics
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
