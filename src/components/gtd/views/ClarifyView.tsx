@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { useGTD } from "../GTDContext";
 import { Clock, User, Calendar, FileText, Trash } from "lucide-react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
+import { DragDropContext, DropResult, Droppable } from "react-beautiful-dnd";
 import { useToast } from "@/hooks/use-toast";
 import ClarifyCard from "./clarify/ClarifyCard";
 import InboxTasksList from "./clarify/InboxTasksList";

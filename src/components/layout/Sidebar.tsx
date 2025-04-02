@@ -47,7 +47,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.3 }}
                 >
                   <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
                   <motion.span 
@@ -67,14 +67,14 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1.2 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.3 }}
                   whileHover={{ scale: 1.3 }}
                   whileTap={{ scale: 0.9 }}
                 >
                   <img 
                     src="/lovable-uploads/a004fbed-90d6-44c1-bbf8-96e82ee8c546.png" 
                     alt="Nexus Logo" 
-                    className="h-8 w-8 object-contain"
+                    className="h-8 w-8 object-contain transform scale-120"
                   />
                 </motion.div>
               )}
@@ -97,7 +97,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.5 }}
+                  transition={{ duration: 0.3 }}
                 >
                   <span className="text-sm font-medium">John Doe</span>
                   <span className="text-xs text-[#0FA0CE]">Pro Plan</span>

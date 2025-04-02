@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { v4 as uuidv4 } from 'uuid';
 
 export type TaskPriority = "Very Low" | "Low" | "Medium" | "High" | "Very High";
 export type TaskStatus = "inbox" | "next-action" | "project" | "waiting-for" | "someday" | "reference" | "completed" | "deleted" | "today";
@@ -9,6 +10,7 @@ export interface TaskAttachment {
   name: string;
   type: string;
   url?: string;
+  file?: File;  // Added File support
 }
 
 export interface GTDTask {
@@ -49,38 +51,47 @@ export const useGTD = () => {
 
 export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
-  const [tasks, setTasks] = useState<GTDTask[]>([
-    {
-      id: "1",
-      title: "Review project proposal",
-      description: "Need to check the details and provide feedback",
-      priority: "Medium",
-      status: "inbox",
-      createdAt: new Date(),
-      tags: ["work", "review"],
-      context: "office"
-    },
-    {
-      id: "2",
-      title: "Schedule dentist appointment",
-      priority: "High",
-      status: "next-action",
-      createdAt: new Date(),
-      context: "phone"
-    },
-    {
-      id: "3",
-      title: "Deep work session: Complete research",
-      description: "Focus on gathering key insights for the presentation",
-      priority: "Medium",
-      status: "waiting-for",
-      createdAt: new Date(),
-      tags: ["focus", "research"],
-      context: "deep-work"
-    }
-  ]);
+  const [tasks, setTasks] = useState<GTDTask[]>(() => {
+    // Try to get tasks from local storage
+    const savedTasks = localStorage.getItem('gtdTasks');
+    return savedTasks ? JSON.parse(savedTasks) : [
+      {
+        id: "1",
+        title: "Review project proposal",
+        description: "Need to check the details and provide feedback",
+        priority: "Medium",
+        status: "inbox",
+        createdAt: new Date(),
+        tags: ["work", "review"],
+        context: "office"
+      },
+      {
+        id: "2",
+        title: "Schedule dentist appointment",
+        priority: "High",
+        status: "next-action",
+        createdAt: new Date(),
+        context: "phone"
+      },
+      {
+        id: "3",
+        title: "Deep work session: Complete research",
+        description: "Focus on gathering key insights for the presentation",
+        priority: "Medium",
+        status: "waiting-for",
+        createdAt: new Date(),
+        tags: ["focus", "research"],
+        context: "deep-work"
+      }
+    ];
+  });
 
   const [activeView, setActiveView] = useState<"capture" | "clarify" | "organize" | "reflect" | "engage">("capture");
+
+  // Save tasks to local storage when they change
+  useEffect(() => {
+    localStorage.setItem('gtdTasks', JSON.stringify(tasks));
+  }, [tasks]);
 
   // Sync with Tasks page when adding or modifying Next Actions
   useEffect(() => {
@@ -100,7 +111,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const addTask = (task: Omit<GTDTask, "id" | "createdAt">) => {
     const newTask: GTDTask = {
       ...task,
-      id: Date.now().toString(),
+      id: uuidv4(),
       createdAt: new Date(),
     };
     
@@ -109,15 +120,13 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // If task is a project, sync with Planning page
     if (task.status === "project") {
       console.log("New project added:", newTask);
-      // Here you would sync with the Planning page
-      // e.g., addProjectToPlanning(newTask);
+      navigate('/planning', { state: { newProject: newTask } });
     }
     
     // If task is a next action, sync with Tasks page
     if (task.status === "next-action") {
       console.log("New next action added:", newTask);
-      // Here you would sync with the Tasks page
-      // e.g., addTaskToTasksPage(newTask);
+      navigate('/tasks', { state: { newTask: newTask } });
     }
   };
 
@@ -129,15 +138,13 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         // If task status changed to project, sync with Planning page
         if (updates.status === "project" && task.status !== "project") {
           console.log("Task converted to project:", updatedTask);
-          // Here you would sync with the Planning page
-          // e.g., addProjectToPlanning(updatedTask);
+          navigate('/planning', { state: { newProject: updatedTask } });
         }
         
         // If task status changed to next-action, sync with Tasks page
         if (updates.status === "next-action" && task.status !== "next-action") {
           console.log("Task converted to next action:", updatedTask);
-          // Here you would sync with the Tasks page
-          // e.g., addTaskToTasksPage(updatedTask);
+          navigate('/tasks', { state: { newTask: updatedTask } });
         }
         
         return updatedTask;
@@ -178,8 +185,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         // Handle syncing with Planning page if task is moved to/from project status
         if (newStatus === "project" && task.status !== "project") {
           console.log("Task moved to projects:", updatedTask);
-          // Here you would sync with the Planning page
-          // e.g., addProjectToPlanning(updatedTask);
+          navigate('/planning', { state: { newProject: updatedTask } });
         } else if (task.status === "project" && newStatus !== "project") {
           console.log("Project moved to another status:", updatedTask);
           // Here you would remove from the Planning page
@@ -189,8 +195,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         // Handle syncing with Tasks page if task is moved to/from next-action status
         if (newStatus === "next-action" && task.status !== "next-action") {
           console.log("Task moved to next actions:", updatedTask);
-          // Here you would sync with the Tasks page
-          // e.g., addTaskToTasksPage(updatedTask);
+          navigate('/tasks', { state: { newTask: updatedTask } });
         } else if (task.status === "next-action" && newStatus !== "next-action") {
           console.log("Next action moved to another status:", updatedTask);
           // Here you would remove from the Tasks page
@@ -201,16 +206,6 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       return task;
     }));
-  };
-
-  // Function to navigate to Planning page
-  const goToPlanning = () => {
-    navigate('/planning');
-  };
-
-  // Function to navigate to Tasks page
-  const goToTasks = () => {
-    navigate('/tasks');
   };
 
   return (

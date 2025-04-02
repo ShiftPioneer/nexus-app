@@ -12,7 +12,7 @@ const GTDView: React.FC = () => {
   const { activeView } = useGTD();
   
   return (
-    <AnimatePresence mode="wait">
+    <AnimatePresence mode="wait" initial={false}>
       <motion.div 
         key={activeView}
         initial={{ opacity: 0, x: 20 }}

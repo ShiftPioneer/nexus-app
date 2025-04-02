@@ -1,11 +1,9 @@
 
 import React, { useState, useRef } from "react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { useGTD } from "../../GTDContext";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Mic, Type, Plus, Camera, File, StopCircle, Loader } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
+import { Mic, Upload, X, StopCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface QuickCaptureFormProps {
@@ -15,15 +13,131 @@ interface QuickCaptureFormProps {
 const QuickCaptureForm: React.FC<QuickCaptureFormProps> = ({ onAddTask }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [inputMethod, setInputMethod] = useState<"text" | "voice" | "photo" | "file">("text");
+  const [file, setFile] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [attachment, setAttachment] = useState<File | null>(null);
+  const [transcript, setTranscript] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
-  const [recordedChunks, setRecordedChunks] = useState<Blob[]>([]);
-
-  const handleAddTask = () => {
+  
+  // Reference for speech recognition
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  
+  const handleStartRecording = () => {
+    if (!('SpeechRecognition' in window || 'webkitSpeechRecognition' in window)) {
+      toast({
+        title: "Voice input not supported",
+        description: "Your browser doesn't support voice input.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      toast({
+        title: "Voice input not supported",
+        description: "Your browser doesn't support voice input.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    try {
+      recognitionRef.current = new SpeechRecognition();
+      const recognition = recognitionRef.current;
+      
+      recognition.lang = 'en-US';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      
+      recognition.onresult = (event) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        if (finalTranscript !== '') {
+          setTranscript(finalTranscript);
+          if (title === '') {
+            setTitle(finalTranscript);
+          } else {
+            setDescription(prevDesc => prevDesc + ' ' + finalTranscript);
+          }
+        }
+      };
+      
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+        setIsRecording(false);
+        toast({
+          title: "Voice input error",
+          description: `Error: ${event.error}`,
+          variant: "destructive",
+        });
+      };
+      
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+      
+      recognition.start();
+      setIsRecording(true);
+      
+      toast({
+        title: "Voice recording started",
+        description: "Speak now to capture your task...",
+      });
+    } catch (err) {
+      console.error('Failed to start recording:', err);
+      toast({
+        title: "Voice input error",
+        description: "Could not start voice recording.",
+        variant: "destructive",
+      });
+    }
+  };
+  
+  const handleStopRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
+      toast({
+        title: "Voice recording stopped",
+        description: "Recording has been added to your task.",
+      });
+    }
+  };
+  
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+      setFile(selectedFile);
+      
+      toast({
+        title: "File attached",
+        description: `${selectedFile.name} has been attached to your task.`,
+      });
+    }
+  };
+  
+  const handleRemoveFile = () => {
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
     if (!title.trim()) {
       toast({
         title: "Error",
@@ -33,241 +147,105 @@ const QuickCaptureForm: React.FC<QuickCaptureFormProps> = ({ onAddTask }) => {
       return;
     }
     
-    onAddTask(title.trim(), description.trim(), attachment || undefined);
+    onAddTask(title, description, file || undefined);
+    
+    // Clear form
     setTitle("");
     setDescription("");
-    setAttachment(null);
-  };
-
-  const handleClear = () => {
-    setTitle("");
-    setDescription("");
-    setAttachment(null);
-  };
-
-  const processVoiceToText = (audioBlob: Blob) => {
-    // In a real app, you would send this blob to a speech-to-text service
-    // For now, we'll simulate it
-    setTimeout(() => {
-      setTitle("Voice recorded task");
-      setDescription("This task was created using voice input.");
-      toast({
-        title: "Voice processed",
-        description: "Voice recording has been converted to text",
-      });
-      setIsRecording(false);
-    }, 1000);
-  };
-
-  const handleStartRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      setIsRecording(true);
-      
-      toast({
-        title: "Recording started",
-        description: "Speak now to capture your task...",
-      });
-      
-      // Create a new MediaRecorder instance
-      const recorder = new MediaRecorder(stream);
-      setMediaRecorder(recorder);
-      
-      // Set up event handlers
-      recorder.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          setRecordedChunks(prev => [...prev, event.data]);
-        }
-      };
-      
-      recorder.onstop = () => {
-        const audioBlob = new Blob(recordedChunks, { type: 'audio/webm' });
-        processVoiceToText(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-      
-      // Start recording
-      recorder.start();
-    } catch (error) {
-      toast({
-        title: "Microphone error",
-        description: "Could not access microphone. Please check your permissions.",
-        variant: "destructive",
-      });
-      console.error("Microphone access error:", error);
-    }
-  };
-
-  const handleStopRecording = () => {
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-      mediaRecorder.stop();
-      setIsRecording(false);
-    }
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setAttachment(file);
-      // Don't set the title to the filename
-      // Just indicate a file is attached
-      toast({
-        title: "File attached",
-        description: `${file.name} has been attached to this task`,
-      });
-    }
-  };
-
-  const handleSelectFile = (type: "photo" | "file") => {
-    setInputMethod(type);
+    setFile(null);
+    setTranscript("");
     if (fileInputRef.current) {
-      fileInputRef.current.click();
+      fileInputRef.current.value = '';
     }
   };
-
+  
   return (
-    <Card className="bg-slate-900 border-slate-700 text-slate-200 scrollbar-none overflow-hidden">
-      <CardHeader>
-        <CardTitle>Quick Capture</CardTitle>
-        <CardDescription className="text-slate-400">Quickly add tasks to your inbox</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4 scrollbar-none">
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => setInputMethod("text")}
-            className={cn(
-              "rounded-md", 
-              inputMethod === "text" ? "bg-slate-700" : "bg-transparent"
-            )}
-          >
-            <Type className="h-4 w-4 mr-2" />
-            Type
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => {
-              setInputMethod("voice");
-              if (!isRecording) {
-                handleStartRecording();
-              }
-            }}
-            className={cn(
-              "rounded-md", 
-              inputMethod === "voice" ? "bg-slate-700" : "bg-transparent"
-            )}
-          >
-            <Mic className="h-4 w-4 mr-2" />
-            Voice
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => handleSelectFile("photo")}
-            className={cn(
-              "rounded-md", 
-              inputMethod === "photo" ? "bg-slate-700" : "bg-transparent"
-            )}
-          >
-            <Camera className="h-4 w-4 mr-2" />
-            Photo
-          </Button>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            onClick={() => handleSelectFile("file")}
-            className={cn(
-              "rounded-md", 
-              inputMethod === "file" ? "bg-slate-700" : "bg-transparent"
-            )}
-          >
-            <File className="h-4 w-4 mr-2" />
-            File
-          </Button>
+    <Card className="bg-slate-900 border-slate-700 text-slate-200">
+      <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <h3 className="text-xl font-semibold mb-4">Quick Capture</h3>
+        
+        <div className="space-y-2">
+          <label htmlFor="task-title" className="block text-sm font-medium text-slate-300">
+            Task Title
+          </label>
+          <input
+            id="task-title"
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full p-2 rounded-md bg-slate-800 border border-slate-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="What needs to be done?"
+          />
         </div>
         
-        <input 
-          type="file" 
-          ref={fileInputRef} 
-          className="hidden" 
-          accept={inputMethod === "photo" ? "image/*" : "*/*"} 
-          onChange={handleFileUpload} 
-        />
+        <div className="space-y-2">
+          <label htmlFor="task-description" className="block text-sm font-medium text-slate-300">
+            Description (Optional)
+          </label>
+          <textarea
+            id="task-description"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full p-2 rounded-md bg-slate-800 border border-slate-600 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px]"
+            placeholder="Add more details..."
+          />
+        </div>
         
-        {isRecording ? (
-          <div className="p-4 bg-slate-800 border border-red-500 rounded-md text-center">
-            <div className="flex items-center justify-center mb-2">
-              <div className="animate-pulse h-4 w-4 rounded-full bg-red-500 mr-2" />
-              <span className="text-red-500">Recording...</span>
-            </div>
-            <Button 
-              variant="destructive" 
-              size="sm" 
-              onClick={handleStopRecording}
-              className="flex items-center"
+        <div className="flex flex-wrap gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            className={`flex items-center gap-2 ${isRecording ? 'bg-red-500/20 text-red-500 border-red-500' : 'text-blue-500'}`}
+            onClick={isRecording ? handleStopRecording : handleStartRecording}
+          >
+            {isRecording ? <StopCircle className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+            {isRecording ? 'Stop Recording' : 'Use Voice'}
+          </Button>
+          
+          <Button
+            type="button"
+            variant="outline"
+            className="flex items-center gap-2 text-green-500"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Upload className="h-4 w-4" />
+            Attach File
+          </Button>
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            className="hidden"
+            onChange={handleFileChange}
+            accept="image/*,.pdf,.doc,.docx,.txt,.xls,.xlsx"
+          />
+        </div>
+        
+        {file && (
+          <div className="flex items-center justify-between p-2 bg-slate-800 rounded-md">
+            <span className="text-sm truncate max-w-[80%]">{file.name}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              className="text-red-500 hover:bg-red-500/20"
+              onClick={handleRemoveFile}
             >
-              <StopCircle className="h-4 w-4 mr-2" />
-              Stop Recording
+              <X className="h-4 w-4" />
             </Button>
           </div>
-        ) : (
-          <>
-            <Input
-              placeholder="Task title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="bg-slate-800 border-slate-700 text-slate-200"
-              disabled={isRecording}
-            />
-            
-            <Textarea
-              placeholder="Description (optional)"
-              rows={4}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="bg-slate-800 border-slate-700 text-slate-200"
-              disabled={isRecording}
-            />
-
-            {attachment && (
-              <div className="bg-slate-800 border border-slate-700 rounded-md p-2 flex items-center justify-between">
-                <div className="flex items-center">
-                  {attachment.type.includes('image') ? (
-                    <Camera className="h-4 w-4 mr-2 text-blue-400" />
-                  ) : (
-                    <File className="h-4 w-4 mr-2 text-blue-400" />
-                  )}
-                  <span className="text-sm text-slate-300 truncate">{attachment.name}</span>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm"
-                  onClick={() => setAttachment(null)}
-                  className="text-slate-400 hover:text-slate-200"
-                >
-                  Remove
-                </Button>
-              </div>
-            )}
-          </>
         )}
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <Button variant="outline" onClick={handleClear}>
-          Clear
-        </Button>
-        <Button 
-          variant="default" 
-          onClick={handleAddTask}
-          className="bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white"
-          disabled={isRecording || !title.trim()}
-        >
-          <Plus className="h-4 w-4 mr-2" />
+        
+        {isRecording && (
+          <div className="p-2 bg-red-500/10 border border-red-500/30 rounded-md animate-pulse">
+            <p className="text-sm text-red-400">Recording... Speak now</p>
+          </div>
+        )}
+        
+        <Button type="submit" className="w-full bg-[#FF6500] hover:bg-[#FF7F38]">
           Add to Inbox
         </Button>
-      </CardFooter>
+      </form>
     </Card>
   );
 };
