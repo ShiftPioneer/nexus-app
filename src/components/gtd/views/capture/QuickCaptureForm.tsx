@@ -1,157 +1,131 @@
 
-import React, { useState, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useGTD } from "../../GTDContext";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar as CalendarIcon, Mic, MicOff, Paperclip } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Mic, Upload, Plus, X } from "lucide-react";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { format } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Label } from "@/components/ui/label";
+import TagInput from "../../../ui/tag-input";
 
-// Define interfaces for SpeechRecognition to fix TypeScript errors
-interface SpeechRecognitionEvent extends Event {
-  resultIndex: number;
-  results: {
-    [index: number]: {
-      [index: number]: {
-        transcript: string;
-        confidence: number;
-      };
-      isFinal: boolean;
-      length: number;
-    };
-    length: number;
-  };
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  start(): void;
-  stop(): void;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: Event) => void) | null;
-  onend: (() => void) | null;
-  onstart: (() => void) | null;
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition?: new () => SpeechRecognition;
-    webkitSpeechRecognition?: new () => SpeechRecognition;
-  }
-}
-
-const QuickCaptureForm: React.FC = () => {
-  const { addTask } = useGTD();
-  const { toast } = useToast();
+const QuickCaptureForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<"Very Low" | "Low" | "Medium" | "High" | "Very High">("Medium");
+  const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [tags, setTags] = useState<string[]>([]);
+  const [context, setContext] = useState("");
+  const [attachment, setAttachment] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
-  const [attachment, setAttachment] = useState<{ name: string; type: string; url?: string; file?: File } | null>(null);
+  const [recordedText, setRecordedText] = useState("");
+  
+  const { addTask } = useGTD();
+  const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Speech recognition setup
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const recognitionRef = useRef<any>(null);
   
-  const startRecording = () => {
-    // Initialize speech recognition if supported
-    const SpeechRecognitionConstructor = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (SpeechRecognitionConstructor) {
-      recognitionRef.current = new SpeechRecognitionConstructor();
-      const recognition = recognitionRef.current;
+  useEffect(() => {
+    // Initialize speech recognition
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
       
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      
-      recognition.onstart = () => {
-        setIsRecording(true);
-        toast({
-          title: "Voice Recording Started",
-          description: "Speak now to capture your task..."
-        });
-      };
-      
-      recognition.onresult = (event: SpeechRecognitionEvent) => {
-        let transcript = '';
+      recognitionRef.current.onresult = (event: any) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
         
-        // Process results correctly
-        for (let i = event.resultIndex; i < event.results.length; i++) {
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
           if (event.results[i].isFinal) {
-            transcript += event.results[i][0].transcript;
+            finalTranscript += event.results[i][0].transcript;
+          } else {
+            interimTranscript += event.results[i][0].transcript;
           }
         }
         
-        if (transcript) {
-          setTitle(transcript);
+        if (finalTranscript) {
+          setRecordedText(finalTranscript);
         }
       };
       
-      recognition.onerror = () => {
-        console.error("Speech recognition error");
+      recognitionRef.current.onerror = () => {
+        setIsRecording(false);
         toast({
           title: "Speech Recognition Error",
-          description: "There was a problem with voice input.",
-          variant: "destructive"
+          description: "An error occurred with speech recognition",
+          variant: "destructive",
         });
-        setIsRecording(false);
       };
-      
-      recognition.onend = () => {
-        setIsRecording(false);
-      };
-      
-      recognition.start();
-    } else {
-      toast({
-        title: "Feature Not Supported",
-        description: "Voice input is not supported in this browser.",
-        variant: "destructive"
-      });
     }
+    
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [toast]);
+  
+  const toggleRecording = () => {
+    if (!recognitionRef.current) {
+      toast({
+        title: "Speech Recognition Not Available",
+        description: "Your browser does not support speech recognition",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    if (isRecording) {
+      recognitionRef.current.stop();
+      if (recordedText) {
+        setDescription((prev) => prev + ' ' + recordedText);
+        setRecordedText("");
+      }
+    } else {
+      recognitionRef.current.start();
+    }
+    
+    setIsRecording(!isRecording);
   };
   
-  const stopRecording = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsRecording(false);
-      toast({
-        title: "Voice Recording Stopped",
-        description: "Your task has been captured."
-      });
-    }
+  const handleSelectFile = () => {
+    fileInputRef.current?.click();
   };
   
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const fileType = file.type.split('/')[0];
-      const isValidType = ['image', 'application', 'text'].includes(fileType);
-      
-      if (isValidType) {
-        const fileURL = URL.createObjectURL(file);
-        setAttachment({
-          name: file.name,
-          type: file.type,
-          url: fileURL,
-          file: file
-        });
-        
-        toast({
-          title: "File Attached",
-          description: `${file.name} has been attached to the task.`
-        });
-      } else {
-        toast({
-          title: "Invalid File Type",
-          description: "Please select an image, document, or text file.",
-          variant: "destructive"
-        });
-      }
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      setAttachment(file);
+      toast({
+        title: "File Attached",
+        description: `${file.name} has been attached`,
+      });
     }
   };
   
@@ -160,145 +134,187 @@ const QuickCaptureForm: React.FC = () => {
     
     if (!title.trim()) {
       toast({
-        title: "Required Field Missing",
-        description: "Please enter a task title.",
-        variant: "destructive"
+        title: "Missing Information",
+        description: "Please enter a title for the task",
+        variant: "destructive",
       });
       return;
     }
     
-    addTask({
+    const newTask = {
       title,
       description,
       priority,
-      status: "inbox",
-      attachment: attachment || undefined
-    });
+      status: "inbox" as const,
+      ...(dueDate && { dueDate }),
+      ...(tags.length && { tags }),
+      ...(context && { context }),
+      ...(attachment && {
+        attachment: {
+          name: attachment.name,
+          type: attachment.type,
+          url: URL.createObjectURL(attachment),
+        },
+      }),
+    };
+    
+    addTask(newTask);
     
     toast({
-      title: "Task Added",
-      description: "The task has been added to your inbox."
+      title: "Task Captured",
+      description: "Your task has been added to the inbox",
     });
     
-    // Reset form
+    // Reset the form
     setTitle("");
     setDescription("");
     setPriority("Medium");
+    setDueDate(undefined);
+    setTags([]);
+    setContext("");
     setAttachment(null);
+    setRecordedText("");
   };
   
-  const removeAttachment = () => {
-    if (attachment?.url) {
-      URL.revokeObjectURL(attachment.url);
-    }
-    setAttachment(null);
-  };
-  
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
-
   return (
-    <Card className="bg-card border-primary/20">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-2xl font-semibold">Quick Capture</CardTitle>
-        <CardDescription>Quickly add tasks to your inbox</CardDescription>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="text-xl">Quick Capture</CardTitle>
       </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit}>
+        <CardContent className="space-y-4">
           <div>
+            <Label htmlFor="title">What's on your mind?</Label>
             <Input
-              placeholder="Task title"
+              id="title"
+              placeholder="Enter task title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
+              className="mt-1"
             />
           </div>
-          
+
           <div>
-            <Textarea
-              placeholder="Description (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="h-20"
-            />
-          </div>
-          
-          <div>
-            <Select value={priority} onValueChange={(value: any) => setPriority(value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Set Priority" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Very Low">Very Low</SelectItem>
-                <SelectItem value="Low">Low</SelectItem>
-                <SelectItem value="Medium">Medium</SelectItem>
-                <SelectItem value="High">High</SelectItem>
-                <SelectItem value="Very High">Very High</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {attachment && (
-            <div className="border rounded-md p-2 flex justify-between items-center">
-              <div className="truncate">
-                {attachment.type.startsWith('image') ? (
-                  <div className="flex items-center">
-                    <div className="w-8 h-8 mr-2 rounded overflow-hidden">
-                      <img src={attachment.url} alt="Attached" className="w-full h-full object-cover" />
-                    </div>
-                    <span className="text-sm">{attachment.name}</span>
-                  </div>
-                ) : (
-                  <span className="text-sm">{attachment.name}</span>
-                )}
-              </div>
-              <Button 
-                type="button" 
-                variant="ghost" 
-                size="sm" 
-                onClick={removeAttachment} 
-                className="text-destructive"
+            <div className="flex justify-between items-center mb-1">
+              <Label htmlFor="description">Details (optional)</Label>
+              <Button
+                type="button"
+                size="sm"
+                variant={isRecording ? "destructive" : "outline"}
+                className="h-8 gap-1"
+                onClick={toggleRecording}
               >
-                <X size={16} />
+                {isRecording ? (
+                  <>
+                    <MicOff className="h-4 w-4" /> Stop
+                  </>
+                ) : (
+                  <>
+                    <Mic className="h-4 w-4" /> Record
+                  </>
+                )}
               </Button>
             </div>
-          )}
-          
-          <input 
-            type="file" 
-            ref={fileInputRef} 
-            onChange={handleFileChange} 
-            className="hidden" 
-            accept="image/*,application/pdf,application/msword,text/plain"
-          />
-          
-          <div className="flex justify-end space-x-2">
-            <Button
-              type="button"
-              variant="outline" 
-              onClick={isRecording ? stopRecording : startRecording}
-              className={`${isRecording ? 'bg-destructive hover:bg-destructive/90 text-white' : ''}`}
-            >
-              <Mic className={`h-4 w-4 mr-2 ${isRecording ? 'animate-pulse' : ''}`} />
-              {isRecording ? 'Stop Recording' : 'Voice Input'}
-            </Button>
-            
+            <Textarea
+              id="description"
+              placeholder="Describe your task"
+              value={`${description}${recordedText ? ` ${recordedText}` : ''}`}
+              onChange={(e) => setDescription(e.target.value)}
+              className="mt-1 min-h-[100px]"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="priority">Priority</Label>
+              <Select
+                value={priority}
+                onValueChange={(value) => setPriority(value as any)}
+              >
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Very Low">Very Low</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Very High">Very High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label>Due Date (optional)</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal mt-1",
+                      !dueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? format(dueDate, "PPP") : "Pick a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          <div>
+            <Label htmlFor="tags">Tags (optional)</Label>
+            <TagInput 
+              id="tags" 
+              placeholder="Add tags..."
+              value={tags}
+              onChange={setTags}
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="context">Context (optional)</Label>
+            <Input
+              id="context"
+              placeholder="e.g., Home, Work, Errands"
+              value={context}
+              onChange={(e) => setContext(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleFileChange}
+            />
             <Button
               type="button"
               variant="outline"
-              onClick={triggerFileInput}
+              className="mt-1 w-full"
+              onClick={handleSelectFile}
             >
-              <Upload className="h-4 w-4 mr-2" />
-              Attach File
-            </Button>
-            
-            <Button type="submit" className="bg-primary hover:bg-primary/90">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Task
+              <Paperclip className="h-4 w-4 mr-2" />
+              {attachment ? attachment.name : "Attach File (optional)"}
             </Button>
           </div>
-        </form>
-      </CardContent>
+        </CardContent>
+        <CardFooter>
+          <Button type="submit" className="w-full">Capture Task</Button>
+        </CardFooter>
+      </form>
     </Card>
   );
 };

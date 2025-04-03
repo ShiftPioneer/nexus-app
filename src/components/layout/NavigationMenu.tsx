@@ -51,6 +51,11 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
       icon: Brain
     }, 
     {
+      title: "Mindset",
+      path: "/mindset",
+      icon: Zap
+    },
+    {
       title: "Time Design",
       path: "/time-design",
       icon: Clock

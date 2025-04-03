@@ -1,26 +1,29 @@
+
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings as SettingsIcon, User, Bell, Shield, Palette, Key, Languages, Bookmark, Send, Globe } from "lucide-react";
+import { Settings as SettingsIcon, User, Bell, Shield, Palette, Key, Languages, Bookmark, Send, Globe, CalendarCheck2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import AvatarSelector from "@/components/settings/AvatarSelector";
+
 const Settings = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  
   const [profileData, setProfileData] = useState({
     name: "John Doe",
     email: "john.doe@example.com",
     language: "english",
-    timezone: "UTC+0"
+    timezone: "UTC+0",
+    avatar: "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png", // Default avatar
   });
+  
   const [notificationSettings, setNotificationSettings] = useState({
     email: true,
     push: true,
@@ -28,54 +31,86 @@ const Settings = () => {
     habitTracking: true,
     weeklyReport: true
   });
+  
   const [privacySettings, setPrivacySettings] = useState({
     publicProfile: false,
     shareProgress: false,
     dataCollection: true
   });
+  
+  const [calendarSettings, setCalendarSettings] = useState({
+    googleCalendarSync: false,
+    syncTasksToCalendar: true,
+    syncEventsToTasks: true
+  });
+  
   const handleSave = () => {
     toast({
       title: "Settings Saved",
       description: "Your settings have been saved successfully."
     });
   };
+  
   const updateProfileData = (field: string, value: string) => {
     setProfileData(prev => ({
       ...prev,
       [field]: value
     }));
   };
+  
   const toggleNotification = (setting: string) => {
     setNotificationSettings(prev => ({
       ...prev,
       [setting]: !prev[setting as keyof typeof prev]
     }));
   };
+  
   const togglePrivacySetting = (setting: string) => {
     setPrivacySettings(prev => ({
       ...prev,
       [setting]: !prev[setting as keyof typeof prev]
     }));
   };
-  return <AppLayout>
+  
+  const toggleCalendarSetting = (setting: string) => {
+    setCalendarSettings(prev => ({
+      ...prev,
+      [setting]: !prev[setting as keyof typeof prev]
+    }));
+  };
+  
+  const handleAvatarChange = (avatar: string) => {
+    updateProfileData("avatar", avatar);
+  };
+  
+  const handleConnectGoogleCalendar = () => {
+    toast({
+      title: "Google Calendar",
+      description: "Google Calendar integration coming soon!"
+    });
+  };
+  
+  return (
+    <AppLayout>
       <div className="animate-fade-in space-y-6 max-w-5xl mx-auto">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2 mx-0">
+            <h1 className="text-2xl font-bold flex items-center gap-2">
               <SettingsIcon className="h-6 w-6 text-primary" />
               Settings
             </h1>
-            <p className="text-muted-foreground my-[10px] mx-0">Manage your account settings and preferences</p>
+            <p className="text-muted-foreground">Manage your account settings and preferences</p>
           </div>
-          <Button onClick={handleSave} className="my-[30px] text-right mx-[200px]">Save Changes</Button>
+          <Button onClick={handleSave}>Save Changes</Button>
         </div>
         
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 rounded-md height-[30px] px-[10px] py-0 my-[20px]">
+          <TabsList className="grid w-full grid-cols-5 rounded-md">
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="appearance" className="my-0">Appearance</TabsTrigger>
+            <TabsTrigger value="appearance">Appearance</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="privacy">Privacy</TabsTrigger>
+            <TabsTrigger value="integrations">Integrations</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="space-y-4">
@@ -85,12 +120,11 @@ const Settings = () => {
                 <CardDescription>Manage your personal information and account settings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <Avatar className="h-24 w-24">
-                    <AvatarImage src="https://github.com/shadcn.png" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <Button variant="outline">Change Avatar</Button>
+                <div className="flex flex-col sm:flex-row sm:items-start space-y-4 sm:space-y-0 sm:space-x-4">
+                  <AvatarSelector 
+                    currentAvatar={profileData.avatar} 
+                    onAvatarChange={handleAvatarChange}
+                  />
                 </div>
 
                 <div className="space-y-4">
@@ -429,8 +463,130 @@ const Settings = () => {
               </CardContent>
             </Card>
           </TabsContent>
+          
+          <TabsContent value="integrations" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CalendarCheck2 className="h-5 w-5 text-primary" />
+                  Calendar Integration
+                </CardTitle>
+                <CardDescription>Connect and synchronize with external calendar services</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 rounded-md bg-red-100">
+                      <CalendarCheck2 className="h-6 w-6 text-red-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium">Google Calendar</h4>
+                      <p className="text-sm text-muted-foreground">Connect your Google Calendar account</p>
+                    </div>
+                  </div>
+                  <Button 
+                    variant={calendarSettings.googleCalendarSync ? "default" : "outline"} 
+                    onClick={handleConnectGoogleCalendar}
+                  >
+                    {calendarSettings.googleCalendarSync ? "Connected" : "Connect"}
+                  </Button>
+                </div>
+                
+                <div className="space-y-4 pt-4 border-t">
+                  <h4 className="font-medium">Sync Settings</h4>
+                  
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="sync-tasks">Sync Tasks to Calendar</Label>
+                        <p className="text-sm text-muted-foreground">Add your tasks to your connected calendar</p>
+                      </div>
+                      <Switch 
+                        id="sync-tasks" 
+                        disabled={!calendarSettings.googleCalendarSync} 
+                        checked={calendarSettings.syncTasksToCalendar}
+                        onCheckedChange={() => toggleCalendarSetting('syncTasksToCalendar')}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="sync-events">Import Calendar Events as Tasks</Label>
+                        <p className="text-sm text-muted-foreground">Calendar events appear in your task list</p>
+                      </div>
+                      <Switch 
+                        id="sync-events" 
+                        disabled={!calendarSettings.googleCalendarSync}
+                        checked={calendarSettings.syncEventsToTasks}
+                        onCheckedChange={() => toggleCalendarSetting('syncEventsToTasks')}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Third-Party Integrations</CardTitle>
+                <CardDescription>Connect with other productivity tools and services</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-md bg-blue-100">
+                        <svg className="h-6 w-6 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M10.5 14l4-4l-4-4v8zM19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Notion</h4>
+                        <p className="text-sm text-muted-foreground">Import and export data with Notion</p>
+                      </div>
+                    </div>
+                    <Button variant="outline">Connect</Button>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-md bg-purple-100">
+                        <svg className="h-6 w-6 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-7h2v7zm0-8h-2V7h2v2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Todoist</h4>
+                        <p className="text-sm text-muted-foreground">Sync tasks with Todoist</p>
+                      </div>
+                    </div>
+                    <Button variant="outline">Connect</Button>
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="p-2 rounded-md bg-green-100">
+                        <svg className="h-6 w-6 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
+                          <path d="M14 9h-4v2h2v4h2V9z" />
+                          <path d="M10 7h4v2h-4z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Evernote</h4>
+                        <p className="text-sm text-muted-foreground">Import notes from Evernote</p>
+                      </div>
+                    </div>
+                    <Button variant="outline">Connect</Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>;
+    </AppLayout>
+  );
 };
+
 export default Settings;

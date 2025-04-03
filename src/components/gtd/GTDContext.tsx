@@ -84,6 +84,14 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         createdAt: new Date(),
         tags: ["focus", "research"],
         context: "deep-work"
+      },
+      {
+        id: "4",
+        title: "Daily exercise routine",
+        priority: "High",
+        status: "today",
+        createdAt: new Date(),
+        tags: ["health", "exercise"]
       }
     ];
   });
@@ -95,18 +103,10 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.setItem('gtdTasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  // Sync with Tasks page when adding or modifying Next Actions
+  // Sync tasks between different components
   useEffect(() => {
-    const nextActionTasks = tasks.filter(task => task.status === "next-action");
-    console.log("Tasks to sync with Tasks page:", nextActionTasks);
-    // You would sync these with the Tasks page state
-  }, [tasks]);
-
-  // Sync projects with Planning page
-  useEffect(() => {
-    const projectTasks = tasks.filter(task => task.status === "project");
-    console.log("Projects to sync with Planning page:", projectTasks);
-    // Here you would sync with the Planning page's state
+    // This is a general sync effect that can be enhanced based on specific sync requirements
+    console.log("Tasks updated:", tasks);
   }, [tasks]);
 
   const getTaskById = (id: string): GTDTask | undefined => {
@@ -120,37 +120,19 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       createdAt: new Date(),
     };
     
-    setTasks([...tasks, newTask]);
+    setTasks(prevTasks => [...prevTasks, newTask]);
     
-    // If task is a project, sync with Planning page
-    if (task.status === "project") {
-      console.log("New project added:", newTask);
-      navigate('/planning', { state: { newProject: newTask } });
-    }
-    
-    // If task is a next action, sync with Tasks page
-    if (task.status === "next-action") {
-      console.log("New next action added:", newTask);
-      navigate('/tasks', { state: { newTask: newTask } });
-    }
+    // Log for debugging
+    console.log(`New task added (${task.status}):`, newTask);
   };
 
   const updateTask = (id: string, updates: Partial<GTDTask>) => {
-    setTasks(tasks.map(task => {
+    setTasks(prevTasks => prevTasks.map(task => {
       if (task.id === id) {
         const updatedTask = { ...task, ...updates };
         
-        // If task status changed to project, sync with Planning page
-        if (updates.status === "project" && task.status !== "project") {
-          console.log("Task converted to project:", updatedTask);
-          navigate('/planning', { state: { newProject: updatedTask } });
-        }
-        
-        // If task status changed to next-action, sync with Tasks page
-        if (updates.status === "next-action" && task.status !== "next-action") {
-          console.log("Task converted to next action:", updatedTask);
-          navigate('/tasks', { state: { newTask: updatedTask } });
-        }
+        // Log for debugging
+        console.log(`Task updated (${task.id}):`, updatedTask);
         
         return updatedTask;
       }
@@ -160,23 +142,14 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const deleteTask = (id: string) => {
     const taskToDelete = tasks.find(task => task.id === id);
-    setTasks(tasks.filter(task => task.id !== id));
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
     
-    // If task was a project, remove from Planning page
-    if (taskToDelete && taskToDelete.status === "project") {
-      console.log("Project deleted:", taskToDelete);
-      // Here you would remove from the Planning page
-    }
-    
-    // If task was a next action, remove from Tasks page
-    if (taskToDelete && taskToDelete.status === "next-action") {
-      console.log("Next action deleted:", taskToDelete);
-      // Here you would remove from the Tasks page
-    }
+    // Log for debugging
+    console.log(`Task deleted (${id}):`, taskToDelete);
   };
 
   const moveTask = (id: string, newStatus: TaskStatus, newPriority?: TaskPriority) => {
-    setTasks(tasks.map(task => {
+    setTasks(prevTasks => prevTasks.map(task => {
       if (task.id === id) {
         const updates: Partial<GTDTask> = { status: newStatus };
         if (newPriority) {
@@ -185,23 +158,8 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         
         const updatedTask = { ...task, ...updates };
         
-        // Handle syncing with Planning page if task is moved to/from project status
-        if (newStatus === "project" && task.status !== "project") {
-          console.log("Task moved to projects:", updatedTask);
-          navigate('/planning', { state: { newProject: updatedTask } });
-        } else if (task.status === "project" && newStatus !== "project") {
-          console.log("Project moved to another status:", updatedTask);
-          // Here you would remove from the Planning page
-        }
-        
-        // Handle syncing with Tasks page if task is moved to/from next-action status
-        if (newStatus === "next-action" && task.status !== "next-action") {
-          console.log("Task moved to next actions:", updatedTask);
-          navigate('/tasks', { state: { newTask: updatedTask } });
-        } else if (task.status === "next-action" && newStatus !== "next-action") {
-          console.log("Next action moved to another status:", updatedTask);
-          // Here you would remove from the Tasks page
-        }
+        // Log for debugging
+        console.log(`Task moved (${id}) to ${newStatus}:`, updatedTask);
         
         return updatedTask;
       }

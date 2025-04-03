@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sidebar as ShadcnSidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
 import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,9 +14,14 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigate = useNavigate();
   
   const handleToggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
+  };
+  
+  const handleProfileClick = () => {
+    navigate("/settings");
   };
 
   return (
@@ -24,7 +29,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
       <ShadcnSidebar 
         variant="sidebar" 
         className={cn(
-          "transition-all duration-500 ease-in-out bg-[#1A1F2C] text-white border-r border-[#2A2F3C]", 
+          "transition-all duration-300 ease-in-out bg-[#1A1F2C] text-white border-r border-[#2A2F3C]", 
           isCollapsed ? 'collapsed w-[4rem]' : 'w-[14rem]', 
           "[&_[data-sidebar=content]]:scrollbar-none"
         )} 
@@ -36,7 +41,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
       >
         <SidebarContent className="px-2 py-4 scrollbar-none bg-slate-950">
           <div className={cn(
-            "flex items-center justify-between mb-6 px-2 transition-all duration-500", 
+            "flex items-center justify-between mb-6 px-2 transition-all duration-300", 
             isCollapsed ? "justify-center" : ""
           )}>
             <AnimatePresence initial={false} mode="wait">
@@ -44,10 +49,10 @@ const Sidebar: React.FC<SidebarProps> = () => {
                 <motion.div
                   key="expanded"
                   className="flex items-center justify-between w-full"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.3 }}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
                   <motion.span 
@@ -65,16 +70,16 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   className="cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors p-1"
                   onClick={handleToggleCollapse}
                   initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1.2 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.3 }}
-                  whileHover={{ scale: 1.3 }}
+                  transition={{ duration: 0.2 }}
+                  whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                 >
                   <img 
                     src="/lovable-uploads/a004fbed-90d6-44c1-bbf8-96e82ee8c546.png" 
                     alt="Nexus Logo" 
-                    className="h-8 w-8 object-contain transform scale-120"
+                    className="h-8 w-8 object-contain"
                   />
                 </motion.div>
               )}
@@ -85,9 +90,14 @@ const Sidebar: React.FC<SidebarProps> = () => {
         </SidebarContent>
         
         <SidebarFooter className="border-t border-[#2A2F3C] p-3 bg-slate-950">
-          <div className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3")}>
+          <div 
+            className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3")}
+            onClick={handleProfileClick}
+            style={{ cursor: 'pointer' }}
+          >
             <Avatar className="h-8 w-8 bg-[#FF5722]/20 text-[#FF5722]">
               <AvatarFallback>JD</AvatarFallback>
+              <AvatarImage src="" alt="User Profile" />
             </Avatar>
             
             <AnimatePresence>
@@ -97,7 +107,7 @@ const Sidebar: React.FC<SidebarProps> = () => {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <span className="text-sm font-medium">John Doe</span>
                   <span className="text-xs text-[#0FA0CE]">Pro Plan</span>
