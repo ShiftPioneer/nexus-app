@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -12,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AvatarSelector from "@/components/settings/AvatarSelector";
+import TagInput from "@/components/ui/tag-input";
 
 const Settings = () => {
   const { toast } = useToast();
@@ -22,6 +22,8 @@ const Settings = () => {
     language: "english",
     timezone: "UTC+0",
     avatar: "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png", // Default avatar
+    interests: ["productivity", "technology", "health"],
+    bio: "Passionate about personal development and productivity.",
   });
   
   const [notificationSettings, setNotificationSettings] = useState({
@@ -51,7 +53,7 @@ const Settings = () => {
     });
   };
   
-  const updateProfileData = (field: string, value: string) => {
+  const updateProfileData = (field: string, value: string | string[]) => {
     setProfileData(prev => ({
       ...prev,
       [field]: value
@@ -137,6 +139,29 @@ const Settings = () => {
                       <Label htmlFor="email">Email</Label>
                       <Input id="email" type="email" value={profileData.email} onChange={e => updateProfileData("email", e.target.value)} />
                     </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="bio">Bio</Label>
+                    <Input 
+                      id="bio" 
+                      value={profileData.bio} 
+                      onChange={e => updateProfileData("bio", e.target.value)}
+                      placeholder="Tell us about yourself"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="interests">Interests</Label>
+                    <TagInput
+                      id="interests"
+                      value={profileData.interests}
+                      onChange={(tags) => updateProfileData("interests", tags)}
+                      placeholder="Add interests..."
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Add tags that represent your interests (press Enter or comma to add)
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
