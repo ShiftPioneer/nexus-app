@@ -12,6 +12,10 @@ interface Goal {
   status: "not-started" | "in-progress" | "completed";
   blockingGoals?: string[];
   blockedByGoals?: string[];
+  timeframeAnswers?: {
+    questionIndex: number;
+    answer: string;
+  }[];
 }
 
 interface Project {

@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,14 +12,14 @@ import { format, startOfToday, addDays } from "date-fns";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useGTD, GTDTask, TaskPriority, TaskStatus } from "@/components/gtd/GTDContext"; 
+import { GTDProvider, useGTD, GTDTask, TaskPriority, TaskStatus } from "@/components/gtd/GTDContext"; 
 import TaskForm from "@/components/tasks/TaskForm";
 import TasksList from "@/components/gtd/TasksList";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
-const Tasks = () => {
+const TasksContent = () => {
   const { toast } = useToast();
   const { tasks: allTasks, updateTask, moveTask, addTask } = useGTD();
   const [viewMode, setViewMode] = useState<"kanban" | "list" | "eisenhower">("kanban");
@@ -171,152 +171,161 @@ const Tasks = () => {
   const stats = getTasksStats();
   
   return (
-    <AppLayout>
-      <motion.div 
-        className="space-y-6"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">Tasks</h1>
-            <p className="text-muted-foreground">
-              Manage your daily tasks and priorities
-            </p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {viewMode !== "eisenhower" && (
-              <div className="flex bg-muted rounded-lg p-1">
-                <Button 
-                  variant={viewMode === "kanban" ? "default" : "ghost"} 
-                  size="sm" 
-                  onClick={() => setViewMode("kanban")}
-                  className="gap-1"
-                >
-                  <Grid2X2 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Kanban</span>
-                </Button>
-                <Button 
-                  variant={viewMode === "list" ? "default" : "ghost"} 
-                  size="sm" 
-                  onClick={() => setViewMode("list")}
-                  className="gap-1"
-                >
-                  <ListTodo className="h-4 w-4" />
-                  <span className="hidden sm:inline">List</span>
-                </Button>
-                <Button 
-                  variant={viewMode === "eisenhower" ? "default" : "ghost"} 
-                  size="sm" 
-                  onClick={() => setViewMode("eisenhower")}
-                  className="gap-1"
-                >
-                  <CheckSquare className="h-4 w-4" />
-                  <span className="hidden sm:inline">Eisenhower</span>
-                </Button>
-              </div>
-            )}
-            
-            <Button onClick={handleAddTask} className="gap-1">
-              <PlusCircle className="h-4 w-4" />
-              <span>Add Task</span>
-            </Button>
-          </div>
+    <motion.div 
+      className="space-y-6"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">Tasks</h1>
+          <p className="text-muted-foreground">
+            Manage your daily tasks and priorities
+          </p>
         </div>
         
-        {viewMode === "eisenhower" ? (
-          <EisenhowerMatrix 
-            matrix={getEisenhowerMatrix()} 
-            onTaskClick={handleEditTask}
-            onTaskMove={handleTaskMove}
-            getPriorityColor={getPriorityColor}
-          />
-        ) : (
-          <>
-            <Card>
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardTitle>Today's Progress</CardTitle>
-                  <div className="flex items-center gap-1">
-                    <Badge variant="outline" className="font-normal">
-                      {stats.completed} / {stats.total} tasks
-                    </Badge>
-                  </div>
+        <div className="flex items-center gap-2">
+          {viewMode !== "eisenhower" && (
+            <div className="flex bg-muted rounded-lg p-1">
+              <Button 
+                variant={viewMode === "kanban" ? "default" : "ghost"} 
+                size="sm" 
+                onClick={() => setViewMode("kanban")}
+                className="gap-1"
+              >
+                <Grid2X2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Kanban</span>
+              </Button>
+              <Button 
+                variant={viewMode === "list" ? "default" : "ghost"} 
+                size="sm" 
+                onClick={() => setViewMode("list")}
+                className="gap-1"
+              >
+                <ListTodo className="h-4 w-4" />
+                <span className="hidden sm:inline">List</span>
+              </Button>
+              <Button 
+                variant={viewMode === "eisenhower" ? "default" : "ghost"} 
+                size="sm" 
+                onClick={() => setViewMode("eisenhower")}
+                className="gap-1"
+              >
+                <CheckSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">Eisenhower</span>
+              </Button>
+            </div>
+          )}
+          
+          <Button onClick={handleAddTask} className="gap-1">
+            <PlusCircle className="h-4 w-4" />
+            <span>Add Task</span>
+          </Button>
+        </div>
+      </div>
+      
+      {viewMode === "eisenhower" ? (
+        <EisenhowerMatrix 
+          matrix={getEisenhowerMatrix()} 
+          onTaskClick={handleEditTask}
+          onTaskMove={handleTaskMove}
+          getPriorityColor={getPriorityColor}
+        />
+      ) : (
+        <>
+          <Card>
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardTitle>Today's Progress</CardTitle>
+                <div className="flex items-center gap-1">
+                  <Badge variant="outline" className="font-normal">
+                    {stats.completed} / {stats.total} tasks
+                  </Badge>
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-sm">
-                        {stats.completed === stats.total && stats.total > 0 
-                          ? "Completed!" 
-                          : `${stats.completionPercentage}% Complete`}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {stats.pending} remaining
-                      </span>
-                    </div>
-                    <Progress value={stats.completionPercentage} className="h-2" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-sm">
+                      {stats.completed === stats.total && stats.total > 0 
+                        ? "Completed!" 
+                        : `${stats.completionPercentage}% Complete`}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {stats.pending} remaining
+                    </span>
                   </div>
+                  <Progress value={stats.completionPercentage} className="h-2" />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
 
-            {viewMode === "kanban" && (
-              <KanbanBoard
-                columns={getKanbanColumns()}
-                onTaskClick={handleEditTask}
-                onTaskMove={handleTaskMove}
-                getPriorityColor={getPriorityColor}
-              />
-            )}
-
-            {viewMode === "list" && (
-              <Tabs defaultValue="today">
-                <TabsList>
-                  <TabsTrigger value="today">Today</TabsTrigger>
-                  <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                  <TabsTrigger value="completed">Completed</TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="today" className="mt-4">
-                  <TasksList 
-                    tasks={getTodayTasks()} 
-                    showActions={true}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="upcoming" className="mt-4">
-                  <TasksList 
-                    tasks={getIncompleteTasks().filter(t => t.status !== "today")} 
-                    showActions={true}
-                  />
-                </TabsContent>
-                
-                <TabsContent value="completed" className="mt-4">
-                  <TasksList 
-                    tasks={getCompletedTasks()} 
-                    showActions={false}
-                  />
-                </TabsContent>
-              </Tabs>
-            )}
-          </>
-        )}
-
-        <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
-          <DialogContent className="sm:max-w-[600px]">
-            <TaskForm
-              task={editingTask}
-              onSubmit={handleTaskSubmit}
-              onCancel={() => setShowAddTaskDialog(false)}
+          {viewMode === "kanban" && (
+            <KanbanBoard
+              columns={getKanbanColumns()}
+              onTaskClick={handleEditTask}
+              onTaskMove={handleTaskMove}
+              getPriorityColor={getPriorityColor}
             />
-          </DialogContent>
-        </Dialog>
-      </motion.div>
+          )}
+
+          {viewMode === "list" && (
+            <Tabs defaultValue="today">
+              <TabsList>
+                <TabsTrigger value="today">Today</TabsTrigger>
+                <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+                <TabsTrigger value="completed">Completed</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="today" className="mt-4">
+                <TasksList 
+                  tasks={getTodayTasks()} 
+                  showActions={true}
+                />
+              </TabsContent>
+              
+              <TabsContent value="upcoming" className="mt-4">
+                <TasksList 
+                  tasks={getIncompleteTasks().filter(t => t.status !== "today")} 
+                  showActions={true}
+                />
+              </TabsContent>
+              
+              <TabsContent value="completed" className="mt-4">
+                <TasksList 
+                  tasks={getCompletedTasks()} 
+                  showActions={false}
+                />
+              </TabsContent>
+            </Tabs>
+          )}
+        </>
+      )}
+
+      <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <TaskForm
+            task={editingTask}
+            onSubmit={handleTaskSubmit}
+            onCancel={() => setShowAddTaskDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
+    </motion.div>
+  );
+};
+
+// Wrapper component that provides the GTD context
+const Tasks = () => {
+  return (
+    <AppLayout>
+      <GTDProvider>
+        <TasksContent />
+      </GTDProvider>
     </AppLayout>
   );
 };
