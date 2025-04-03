@@ -61,11 +61,11 @@ const WelcomeSection = () => {
       <Card className="overflow-hidden">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-center">
-            <div className="flex-1 space-y-2">
+            <div className="flex-1 space-y-2 my-[10px] py-[5px]">
               <h1 className="text-3xl font-bold">
                 <span className="text-primary">{getGreeting()}</span>, User
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground py-[10px]">
                 Ready to make today extraordinary? Your life operating system is primed for action.
               </p>
               
@@ -73,11 +73,11 @@ const WelcomeSection = () => {
                 <Button variant="default" className="gap-2">
                   <span>Start Your Day</span>
                 </Button>
-                <Button variant="outline">View Today's Plan</Button>
+                <Button variant="outline" className="text-orange-600 bg-deep-DEFAULT">View Today's Plan</Button>
               </div>
             </div>
             
-            <div className="flex flex-col items-center gap-2 p-4 bg-card rounded-lg shadow-sm border">
+            <div className="flex flex-col items-center gap-2 p-4 bg-card shadow-sm border my-[10px] py-[20px] rounded-xl border-width [5px]">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
                 <span className="text-2xl font-semibold">{formattedTime}</span>
