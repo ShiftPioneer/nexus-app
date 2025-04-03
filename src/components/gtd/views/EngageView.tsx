@@ -37,6 +37,11 @@ const EngageView: React.FC = () => {
     task.status !== "deleted"
   );
   
+  // Fix TypeScript error by using proper type guard
+  const activeNextActionTasks = tasks.filter(task => {
+    return task.status === "next-action" && !["completed", "deleted"].includes(task.status);
+  });
+  
   // Filter tasks by context
   const contexts = Array.from(
     new Set(tasks.filter(t => t.context).map(t => t.context))
@@ -158,20 +163,20 @@ const EngageView: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={stopFocusSession}
-                        className="text-red-500 border-red-500 hover:bg-red-100 hover:text-red-600"
+                        className="text-destructive"
                       >
                         Stop Session
                       </Button>
                       
                       <Button
                         size="sm"
+                        className="bg-green-600 hover:bg-green-700"
                         onClick={() => {
                           const taskToComplete = tasks.find(t => t.title === selectedTask);
                           if (taskToComplete) {
                             handleCompleteTask(taskToComplete.id);
                           }
                         }}
-                        className="bg-green-600 hover:bg-green-700"
                       >
                         <Check className="h-4 w-4 mr-1" />
                         Complete Task
@@ -190,7 +195,7 @@ const EngageView: React.FC = () => {
               
               <TabsContent value="tasks" className="mt-4">
                 <TasksPanel 
-                  tasks={nextActionTasks}
+                  tasks={activeNextActionTasks}
                   onStartFocus={handleStartFocus}
                   onCompleteTask={handleCompleteTask}
                 />
@@ -198,7 +203,7 @@ const EngageView: React.FC = () => {
               
               <TabsContent value="contexts" className="mt-4">
                 <ContextPanel 
-                  tasks={nextActionTasks}
+                  tasks={activeNextActionTasks}
                   contexts={contexts}
                   onStartFocus={handleStartFocus}
                   onCompleteTask={handleCompleteTask}

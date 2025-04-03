@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState, ReactNode, useEffect } from
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
 
+// Define TaskPriority and TaskStatus types with all possible values
 export type TaskPriority = "Very Low" | "Low" | "Medium" | "High" | "Very High";
 export type TaskStatus = "inbox" | "next-action" | "project" | "waiting-for" | "someday" | "reference" | "completed" | "deleted" | "today";
 
@@ -37,6 +38,7 @@ interface GTDContextType {
   moveTask: (id: string, newStatus: TaskStatus, newPriority?: TaskPriority) => void;
   activeView: "capture" | "clarify" | "organize" | "reflect" | "engage";
   setActiveView: (view: "capture" | "clarify" | "organize" | "reflect" | "engage") => void;
+  getTaskById: (id: string) => GTDTask | undefined;
 }
 
 const GTDContext = createContext<GTDContextType | null>(null);
@@ -95,7 +97,6 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // Sync with Tasks page when adding or modifying Next Actions
   useEffect(() => {
-    // This is where you would implement sync with Tasks page
     const nextActionTasks = tasks.filter(task => task.status === "next-action");
     console.log("Tasks to sync with Tasks page:", nextActionTasks);
     // You would sync these with the Tasks page state
@@ -107,6 +108,10 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     console.log("Projects to sync with Planning page:", projectTasks);
     // Here you would sync with the Planning page's state
   }, [tasks]);
+
+  const getTaskById = (id: string): GTDTask | undefined => {
+    return tasks.find(task => task.id === id);
+  };
 
   const addTask = (task: Omit<GTDTask, "id" | "createdAt">) => {
     const newTask: GTDTask = {
@@ -213,6 +218,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       moveTask,
       activeView,
       setActiveView,
+      getTaskById
     }}>
       {children}
     </GTDContext.Provider>

@@ -166,7 +166,9 @@ const Tasks = () => {
     };
     
     tasks.forEach(task => {
+      // Fix type comparison error - we need to use specific types
       if (task.status !== "completed" && task.status !== "deleted") {
+        // Fix priority comparison by checking against string literals
         const isUrgent = task.priority === "High" || task.priority === "Very High";
         const isImportant = task.priority === "High" || task.priority === "Very High" || task.priority === "Medium";
         
@@ -284,7 +286,13 @@ const Tasks = () => {
   // Sort filtered tasks
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     if (sortOption === "priority") {
-      const priorityValues = { "Very High": 4, "High": 3, "Medium": 2, "Low": 1, "Very Low": 0 };
+      const priorityValues: Record<TaskPriority, number> = { 
+        "Very High": 4, 
+        "High": 3, 
+        "Medium": 2, 
+        "Low": 1, 
+        "Very Low": 0 
+      };
       return priorityValues[b.priority] - priorityValues[a.priority];
     } else if (sortOption === "dueDate") {
       if (!a.dueDate) return 1;
@@ -313,6 +321,47 @@ const Tasks = () => {
       case "Very Low": return "bg-gray-400";
     }
   };
+
+  // Setup drag handlers for Eisenhower matrix
+  useEffect(() => {
+    const setupDropzone = (id: string, quadrant: EisenhowerQuadrant) => {
+      const element = document.getElementById(id);
+      if (!element) return;
+      
+      const handleDragOver = (e: DragEvent) => {
+        e.preventDefault();
+      };
+      
+      const handleDrop = (e: DragEvent) => {
+        e.preventDefault();
+        const taskId = e.dataTransfer?.getData('taskId');
+        if (taskId) {
+          handleDragInEisenhower(taskId, quadrant);
+        }
+      };
+      
+      element.addEventListener('dragover', handleDragOver);
+      element.addEventListener('drop', handleDrop);
+      
+      return () => {
+        element.removeEventListener('dragover', handleDragOver);
+        element.removeEventListener('drop', handleDrop);
+      };
+    };
+    
+    if (activeTab === "eisenhower") {
+      const cleanups = [
+        setupDropzone('urgent-important-dropzone', 'urgent-important'),
+        setupDropzone('not-urgent-important-dropzone', 'not-urgent-important'),
+        setupDropzone('urgent-not-important-dropzone', 'urgent-not-important'),
+        setupDropzone('not-urgent-not-important-dropzone', 'not-urgent-not-important')
+      ];
+      
+      return () => {
+        cleanups.forEach(cleanup => cleanup && cleanup());
+      };
+    }
+  }, [activeTab]);
 
   return (
     <AppLayout>
@@ -586,45 +635,6 @@ const Tasks = () => {
                   <div className="mt-4 text-sm text-center text-muted-foreground">
                     <p>Drag and drop tasks between quadrants to reprioritize them.</p>
                   </div>
-                  
-                  {/* Add event listeners for drag and drop */}
-                  {React.useEffect(() => {
-                    const setupDropzone = (id: string, quadrant: EisenhowerQuadrant) => {
-                      const element = document.getElementById(id);
-                      if (!element) return;
-                      
-                      const handleDragOver = (e: DragEvent) => {
-                        e.preventDefault();
-                      };
-                      
-                      const handleDrop = (e: DragEvent) => {
-                        e.preventDefault();
-                        const taskId = e.dataTransfer?.getData('taskId');
-                        if (taskId) {
-                          handleDragInEisenhower(taskId, quadrant);
-                        }
-                      };
-                      
-                      element.addEventListener('dragover', handleDragOver);
-                      element.addEventListener('drop', handleDrop);
-                      
-                      return () => {
-                        element.removeEventListener('dragover', handleDragOver);
-                        element.removeEventListener('drop', handleDrop);
-                      };
-                    };
-                    
-                    const cleanups = [
-                      setupDropzone('urgent-important-dropzone', 'urgent-important'),
-                      setupDropzone('not-urgent-important-dropzone', 'not-urgent-important'),
-                      setupDropzone('urgent-not-important-dropzone', 'urgent-not-important'),
-                      setupDropzone('not-urgent-not-important-dropzone', 'not-urgent-not-important')
-                    ];
-                    
-                    return () => {
-                      cleanups.forEach(cleanup => cleanup && cleanup());
-                    };
-                  }, [])}
                 </CardContent>
               )}
             </Card>
@@ -660,11 +670,11 @@ const Tasks = () => {
                     <h4 className="font-medium mb-2">Priority Breakdown</h4>
                     <div className="space-y-2">
                       {[
-                        { priority: "Very High", label: "Very High" },
-                        { priority: "High", label: "High" },
-                        { priority: "Medium", label: "Medium" },
-                        { priority: "Low", label: "Low" },
-                        { priority: "Very Low", label: "Very Low" }
+                        { priority: "Very High" as const, label: "Very High" },
+                        { priority: "High" as const, label: "High" },
+                        { priority: "Medium" as const, label: "Medium" },
+                        { priority: "Low" as const, label: "Low" },
+                        { priority: "Very Low" as const, label: "Very Low" }
                       ].map(({ priority, label }) => {
                         const count = tasks.filter(t => t.priority === priority && t.status !== "deleted").length;
                         const percentage = tasks.length > 0 ? Math.round((count / tasks.length) * 100) : 0;
@@ -677,7 +687,7 @@ const Tasks = () => {
                             </div>
                             <div className="h-2 bg-secondary/20 rounded-full overflow-hidden">
                               <div 
-                                className={`h-full ${getPriorityColor(priority as TaskPriority)}`}
+                                className={`h-full ${getPriorityColor(priority)}`}
                                 style={{ width: `${percentage}%` }}
                               ></div>
                             </div>
@@ -692,7 +702,7 @@ const Tasks = () => {
                     <div className="space-y-2">
                       {tasks
                         .filter(t => t.status === "completed")
-                        .sort((a, b) => (b.updatedAt?.getTime() || 0) - (a.updatedAt?.getTime() || 0))
+                        .sort((a, b) => ((b.updatedAt?.getTime() || 0) - (a.updatedAt?.getTime() || 0)))
                         .slice(0, 3)
                         .map(task => (
                           <div 

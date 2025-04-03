@@ -1,261 +1,237 @@
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Slider } from "@/components/ui/slider";
+import { CalendarIcon, X, Check, Trash } from "lucide-react";
 import { format } from "date-fns";
-import { CalendarIcon, Star } from "lucide-react";
-import { cn } from "@/lib/utils";
 
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  priority: 'high' | 'medium' | 'low';
-  category: string;
-  dueDate?: Date;
-  importance: number;
-  relatedGoals?: string[];
-  relatedProjects?: string[];
-  status: 'todo' | 'in-progress' | 'completed' | 'overdue';
-  createdAt: Date;
-}
-
-interface TaskDialogProps {
+export interface TaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateTask: (task: Task) => void;
-  editTask?: Task;
+  task: any | null;
+  onAddTask: (task: any) => void;
+  onUpdateTask: (id: string, updates: any) => void;
+  onDeleteTask: (id: string) => void;
 }
-
-const CATEGORIES = [
-  "Work", 
-  "Personal", 
-  "Finance", 
-  "Health", 
-  "Career",
-  "Education",
-  "Family",
-  "Home"
-];
 
 const TaskDialog: React.FC<TaskDialogProps> = ({
   open,
   onOpenChange,
-  onCreateTask,
-  editTask,
+  task,
+  onAddTask,
+  onUpdateTask,
+  onDeleteTask,
 }) => {
-  const [title, setTitle] = useState(editTask?.title || "");
-  const [description, setDescription] = useState(editTask?.description || "");
-  const [priority, setPriority] = useState<Task["priority"]>(editTask?.priority || "medium");
-  const [category, setCategory] = useState(editTask?.category || "Work");
-  const [dueDate, setDueDate] = useState<Date | undefined>(editTask?.dueDate);
-  const [importance, setImportance] = useState(editTask?.importance || 0);
-  const [relatedGoal, setRelatedGoal] = useState<string | undefined>(undefined);
-  const [relatedProject, setRelatedProject] = useState<string | undefined>(undefined);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState<string>("todo");
+  const [priority, setPriority] = useState<string>("Medium");
+  const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
+  const [project, setProject] = useState("");
+  
+  // Reset form when task changes
+  useEffect(() => {
+    if (task) {
+      setTitle(task.title || "");
+      setDescription(task.description || "");
+      setStatus(task.status || "todo");
+      setPriority(task.priority || "Medium");
+      setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
+      setTags(task.tags || []);
+      setProject(task.project || "");
+    } else {
+      // Reset form for new task
+      setTitle("");
+      setDescription("");
+      setStatus("todo");
+      setPriority("Medium");
+      setDueDate(undefined);
+      setTags([]);
+      setProject("");
+    }
+  }, [task]);
 
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setPriority("medium");
-    setCategory("Work");
-    setDueDate(undefined);
-    setImportance(0);
-    setRelatedGoal(undefined);
-    setRelatedProject(undefined);
+  const handleAddTag = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" && tagInput.trim()) {
+      e.preventDefault();
+      if (!tags.includes(tagInput.trim())) {
+        setTags([...tags, tagInput.trim()]);
+      }
+      setTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (tag: string) => {
+    setTags(tags.filter((t) => t !== tag));
   };
 
   const handleSubmit = () => {
-    // Create new task object
-    const newTask: Task = {
-      id: editTask?.id || "",
+    if (!title.trim()) return;
+
+    const taskData = {
       title,
       description,
+      status,
       priority,
-      category,
       dueDate,
-      importance,
-      relatedGoals: relatedGoal ? [relatedGoal] : [],
-      relatedProjects: relatedProject ? [relatedProject] : [],
-      status: "todo",
-      createdAt: new Date(),
+      tags,
+      project: project || undefined,
     };
-    
-    onCreateTask(newTask);
-    resetForm();
+
+    if (task) {
+      onUpdateTask(task.id, taskData);
+    } else {
+      onAddTask(taskData);
+    }
+
+    onOpenChange(false);
+  };
+
+  const handleDelete = () => {
+    if (task) {
+      onDeleteTask(task.id);
+      onOpenChange(false);
+    }
   };
 
   return (
-    <Dialog 
-      open={open} 
-      onOpenChange={(isOpen) => {
-        if (!isOpen) resetForm();
-        onOpenChange(isOpen);
-      }}
-    >
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Create New Task</DialogTitle>
+          <DialogTitle>{task ? "Edit Task" : "New Task"}</DialogTitle>
         </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Task Title</Label>
+        <div className="grid gap-4 py-4">
+          <div>
             <Input
-              id="title"
+              placeholder="Task title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="What needs to be done?"
+              className="mb-2"
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
+          <div>
             <Textarea
-              id="description"
+              placeholder="Description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add more details about this task..."
               rows={3}
             />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select
-                value={priority}
-                onValueChange={(val) => setPriority(val as Task["priority"])}
-              >
+            <div>
+              <Select value={status} onValueChange={setStatus}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select priority" />
+                  <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="today">Today</SelectItem>
+                  <SelectItem value="todo">To Do</SelectItem>
+                  <SelectItem value="in-progress">In Progress</SelectItem>
+                  <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select
-                value={category}
-                onValueChange={setCategory}
-              >
+            <div>
+              <Select value={priority} onValueChange={setPriority}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
+                  <SelectValue placeholder="Priority" />
                 </SelectTrigger>
                 <SelectContent>
-                  {CATEGORIES.map(cat => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                  ))}
+                  <SelectItem value="Very Low">Very Low</SelectItem>
+                  <SelectItem value="Low">Low</SelectItem>
+                  <SelectItem value="Medium">Medium</SelectItem>
+                  <SelectItem value="High">High</SelectItem>
+                  <SelectItem value="Very High">Very High</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
           
-          <div className="space-y-2">
-            <Label>Due Date</Label>
+          <div>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dueDate && "text-muted-foreground"
-                  )}
+                  variant="outline"
+                  className="w-full justify-start text-left"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                  {dueDate ? format(dueDate, "PPP") : "Set due date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0">
                 <Calendar
                   mode="single"
                   selected={dueDate}
                   onSelect={setDueDate}
                   initialFocus
-                  className={cn("p-3 pointer-events-auto")}
                 />
               </PopoverContent>
             </Popover>
           </div>
           
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="importance">Importance (0-100)</Label>
-              <div className="flex items-center gap-1">
-                <Star className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm font-medium">{importance}</span>
-              </div>
-            </div>
-            <Slider
-              id="importance"
-              value={[importance]}
-              min={0}
-              max={100}
-              step={5}
-              onValueChange={(value) => setImportance(value[0])}
+          <div>
+            <Input
+              placeholder="Project"
+              value={project}
+              onChange={(e) => setProject(e.target.value)}
             />
           </div>
           
-          <div className="space-y-2">
-            <Label>Related Items (Optional)</Label>
-            <div className="grid grid-cols-1 gap-2">
-              <Select value={relatedGoal} onValueChange={setRelatedGoal}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Link to a goal" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="goal1">Learn Spanish</SelectItem>
-                  <SelectItem value="goal2">Run 5K</SelectItem>
-                </SelectContent>
-              </Select>
-              
-              <Select value={relatedProject} onValueChange={setRelatedProject}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Link to a project" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="project1">Website Redesign</SelectItem>
-                  <SelectItem value="project2">Marketing Campaign</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Input
+              placeholder="Add tags (press Enter)"
+              value={tagInput}
+              onChange={(e) => setTagInput(e.target.value)}
+              onKeyDown={handleAddTag}
+            />
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2">
+                {tags.map((tag) => (
+                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    {tag}
+                    <X
+                      className="h-3 w-3 cursor-pointer"
+                      onClick={() => handleRemoveTag(tag)}
+                    />
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-        
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={!title.trim()}>
-            Create Task
-          </Button>
+        <DialogFooter className="flex justify-between">
+          <div>
+            {task && (
+              <Button
+                variant="outline"
+                className="text-destructive"
+                onClick={handleDelete}
+              >
+                <Trash className="h-4 w-4 mr-1" />
+                Delete
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSubmit}>
+              <Check className="h-4 w-4 mr-1" />
+              {task ? "Save Changes" : "Create Task"}
+            </Button>
+          </div>
         </DialogFooter>
       </DialogContent>
     </Dialog>

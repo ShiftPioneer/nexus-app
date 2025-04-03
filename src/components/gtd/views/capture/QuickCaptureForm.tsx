@@ -9,6 +9,41 @@ import { useToast } from "@/hooks/use-toast";
 import { Mic, Upload, Plus, X } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 
+// Define interfaces for SpeechRecognition to fix TypeScript errors
+interface SpeechRecognitionEvent extends Event {
+  resultIndex: number;
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+        confidence: number;
+      };
+      isFinal: boolean;
+      length: number;
+    };
+    length: number;
+  };
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onend: (() => void) | null;
+  onstart: (() => void) | null;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition?: new () => SpeechRecognition;
+    webkitSpeechRecognition?: new () => SpeechRecognition;
+  }
+}
+
 const QuickCaptureForm: React.FC = () => {
   const { addTask } = useGTD();
   const { toast } = useToast();
@@ -20,17 +55,20 @@ const QuickCaptureForm: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Speech recognition setup
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   
   const startRecording = () => {
     // Initialize speech recognition if supported
-    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
+    const SpeechRecognitionConstructor = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (SpeechRecognitionConstructor) {
+      recognitionRef.current = new SpeechRecognitionConstructor();
+      const recognition = recognitionRef.current;
       
-      recognitionRef.current.onstart = () => {
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      
+      recognition.onstart = () => {
         setIsRecording(true);
         toast({
           title: "Voice Recording Started",
@@ -38,16 +76,23 @@ const QuickCaptureForm: React.FC = () => {
         });
       };
       
-      recognitionRef.current.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((result: any) => result[0].transcript)
-          .join('');
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
+        let transcript = '';
         
-        setTitle(transcript);
+        // Process results correctly
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            transcript += event.results[i][0].transcript;
+          }
+        }
+        
+        if (transcript) {
+          setTitle(transcript);
+        }
       };
       
-      recognitionRef.current.onerror = (event: any) => {
-        console.error("Speech recognition error", event);
+      recognition.onerror = () => {
+        console.error("Speech recognition error");
         toast({
           title: "Speech Recognition Error",
           description: "There was a problem with voice input.",
@@ -56,11 +101,11 @@ const QuickCaptureForm: React.FC = () => {
         setIsRecording(false);
       };
       
-      recognitionRef.current.onend = () => {
+      recognition.onend = () => {
         setIsRecording(false);
       };
       
-      recognitionRef.current.start();
+      recognition.start();
     } else {
       toast({
         title: "Feature Not Supported",
@@ -154,9 +199,9 @@ const QuickCaptureForm: React.FC = () => {
   };
 
   return (
-    <Card className="border-blue-600/20 bg-slate-800/50">
+    <Card className="bg-card border-primary/20">
       <CardHeader className="pb-3">
-        <CardTitle className="text-2xl font-semibold text-white">Quick Capture</CardTitle>
+        <CardTitle className="text-2xl font-semibold">Quick Capture</CardTitle>
         <CardDescription>Quickly add tasks to your inbox</CardDescription>
       </CardHeader>
       <CardContent>
@@ -166,7 +211,6 @@ const QuickCaptureForm: React.FC = () => {
               placeholder="Task title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="bg-slate-800 border-slate-700 text-white"
             />
           </div>
           
@@ -175,13 +219,13 @@ const QuickCaptureForm: React.FC = () => {
               placeholder="Description (optional)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="h-20 bg-slate-800 border-slate-700 text-white"
+              className="h-20"
             />
           </div>
           
           <div>
             <Select value={priority} onValueChange={(value: any) => setPriority(value)}>
-              <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+              <SelectTrigger>
                 <SelectValue placeholder="Set Priority" />
               </SelectTrigger>
               <SelectContent>
@@ -195,7 +239,7 @@ const QuickCaptureForm: React.FC = () => {
           </div>
           
           {attachment && (
-            <div className="border border-slate-700 rounded-md p-2 flex justify-between items-center bg-slate-800">
+            <div className="border rounded-md p-2 flex justify-between items-center">
               <div className="truncate">
                 {attachment.type.startsWith('image') ? (
                   <div className="flex items-center">
@@ -213,7 +257,7 @@ const QuickCaptureForm: React.FC = () => {
                 variant="ghost" 
                 size="sm" 
                 onClick={removeAttachment} 
-                className="text-red-500"
+                className="text-destructive"
               >
                 <X size={16} />
               </Button>
@@ -233,7 +277,7 @@ const QuickCaptureForm: React.FC = () => {
               type="button"
               variant="outline" 
               onClick={isRecording ? stopRecording : startRecording}
-              className={`${isRecording ? 'bg-red-600 hover:bg-red-700 text-white' : 'bg-slate-700 text-slate-300 hover:bg-slate-600'}`}
+              className={`${isRecording ? 'bg-destructive hover:bg-destructive/90 text-white' : ''}`}
             >
               <Mic className={`h-4 w-4 mr-2 ${isRecording ? 'animate-pulse' : ''}`} />
               {isRecording ? 'Stop Recording' : 'Voice Input'}
@@ -243,13 +287,12 @@ const QuickCaptureForm: React.FC = () => {
               type="button"
               variant="outline"
               onClick={triggerFileInput}
-              className="bg-slate-700 text-slate-300 hover:bg-slate-600"
             >
               <Upload className="h-4 w-4 mr-2" />
               Attach File
             </Button>
             
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+            <Button type="submit" className="bg-primary hover:bg-primary/90">
               <Plus className="h-4 w-4 mr-2" />
               Add Task
             </Button>
