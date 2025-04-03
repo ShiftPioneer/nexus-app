@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
-
 interface Mission {
   id: string;
   title: string;
@@ -17,45 +15,39 @@ interface Mission {
   createdAt: Date;
   lastEditedAt: Date;
 }
-
 const MissionSection = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [missions, setMissions] = useState<Mission[]>(() => {
     const saved = localStorage.getItem('mindset-mission-statements');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: uuidv4(),
-        title: 'Personal Growth',
-        statement: 'To continuously learn, grow, and develop myself in every aspect of life.',
-        createdAt: new Date(),
-        lastEditedAt: new Date()
-      }
-    ];
+    return saved ? JSON.parse(saved) : [{
+      id: uuidv4(),
+      title: 'Personal Growth',
+      statement: 'To continuously learn, grow, and develop myself in every aspect of life.',
+      createdAt: new Date(),
+      lastEditedAt: new Date()
+    }];
   });
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentMission, setCurrentMission] = useState<Mission | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newStatement, setNewStatement] = useState('');
-
   useEffect(() => {
     localStorage.setItem('mindset-mission-statements', JSON.stringify(missions));
   }, [missions]);
-
   const handleAddMission = () => {
     setCurrentMission(null);
     setNewTitle('');
     setNewStatement('');
     setIsDialogOpen(true);
   };
-
   const handleEditMission = (mission: Mission) => {
     setCurrentMission(mission);
     setNewTitle(mission.title);
     setNewStatement(mission.statement);
     setIsDialogOpen(true);
   };
-
   const handleDeleteMission = (id: string) => {
     setMissions(missions.filter(mission => mission.id !== id));
     toast({
@@ -63,7 +55,6 @@ const MissionSection = () => {
       description: "Your mission statement has been removed."
     });
   };
-
   const handleSaveMission = () => {
     if (!newTitle.trim() || !newStatement.trim()) {
       toast({
@@ -73,19 +64,14 @@ const MissionSection = () => {
       });
       return;
     }
-
     if (currentMission) {
       // Edit existing mission
-      setMissions(missions.map(mission => 
-        mission.id === currentMission.id 
-          ? { 
-              ...mission, 
-              title: newTitle, 
-              statement: newStatement, 
-              lastEditedAt: new Date() 
-            } 
-          : mission
-      ));
+      setMissions(missions.map(mission => mission.id === currentMission.id ? {
+        ...mission,
+        title: newTitle,
+        statement: newStatement,
+        lastEditedAt: new Date()
+      } : mission));
       toast({
         title: "Mission Updated",
         description: "Your mission statement has been updated."
@@ -105,12 +91,9 @@ const MissionSection = () => {
         description: "Your new mission statement has been added."
       });
     }
-
     setIsDialogOpen(false);
   };
-
-  return (
-    <>
+  return <>
       <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
@@ -125,30 +108,17 @@ const MissionSection = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
-          {missions.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
+          {missions.length === 0 ? <div className="text-center py-6 text-muted-foreground">
               No mission statements defined yet. Add your first one!
-            </div>
-          ) : (
-            missions.map((mission) => (
-              <Card key={mission.id} className="bg-gradient-to-r from-blue-500/10 to-blue-500/5">
-                <CardHeader>
+            </div> : missions.map(mission => <Card key={mission.id} className="bg-gradient-to-r from-blue-500/10 to-blue-500/5">
+                <CardHeader className="bg-deep-DEFAULT">
                   <div className="flex justify-between">
                     <CardTitle className="text-lg">{mission.title}</CardTitle>
                     <div className="flex space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleEditMission(mission)}
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => handleEditMission(mission)}>
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-destructive"
-                        onClick={() => handleDeleteMission(mission.id)}
-                      >
+                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteMission(mission.id)}>
                         <Trash className="h-4 w-4" />
                       </Button>
                     </div>
@@ -163,9 +133,7 @@ const MissionSection = () => {
                     <span>Last edited: {format(new Date(mission.lastEditedAt), 'MMM d, yyyy')}</span>
                   </div>
                 </CardFooter>
-              </Card>
-            ))
-          )}
+              </Card>)}
         </CardContent>
       </Card>
 
@@ -179,22 +147,11 @@ const MissionSection = () => {
           <div className="grid gap-4 py-4">
             <div>
               <label htmlFor="title" className="text-sm font-medium block mb-1">Mission Title</label>
-              <Input
-                id="title"
-                placeholder="e.g., Personal Growth, Career, Family"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-              />
+              <Input id="title" placeholder="e.g., Personal Growth, Career, Family" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
             </div>
             <div>
               <label htmlFor="statement" className="text-sm font-medium block mb-1">Mission Statement</label>
-              <Textarea
-                id="statement"
-                placeholder="What is your purpose in this area of life?"
-                rows={5}
-                value={newStatement}
-                onChange={(e) => setNewStatement(e.target.value)}
-              />
+              <Textarea id="statement" placeholder="What is your purpose in this area of life?" rows={5} value={newStatement} onChange={e => setNewStatement(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
@@ -203,8 +160,6 @@ const MissionSection = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 export default MissionSection;

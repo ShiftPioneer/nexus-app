@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -9,7 +8,6 @@ import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
-
 interface CoreValue {
   id: string;
   name: string;
@@ -17,52 +15,45 @@ interface CoreValue {
   createdAt: Date;
   lastEditedAt: Date;
 }
-
 const CoreValuesSection = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [values, setValues] = useState<CoreValue[]>(() => {
     const saved = localStorage.getItem('mindset-core-values');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: uuidv4(),
-        name: 'Integrity',
-        description: 'Being honest and having strong moral principles.',
-        createdAt: new Date(),
-        lastEditedAt: new Date()
-      },
-      {
-        id: uuidv4(),
-        name: 'Growth',
-        description: 'Constantly learning and improving oneself.',
-        createdAt: new Date(),
-        lastEditedAt: new Date()
-      }
-    ];
+    return saved ? JSON.parse(saved) : [{
+      id: uuidv4(),
+      name: 'Integrity',
+      description: 'Being honest and having strong moral principles.',
+      createdAt: new Date(),
+      lastEditedAt: new Date()
+    }, {
+      id: uuidv4(),
+      name: 'Growth',
+      description: 'Constantly learning and improving oneself.',
+      createdAt: new Date(),
+      lastEditedAt: new Date()
+    }];
   });
-
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [currentValue, setCurrentValue] = useState<CoreValue | null>(null);
   const [newName, setNewName] = useState('');
   const [newDescription, setNewDescription] = useState('');
-
   useEffect(() => {
     localStorage.setItem('mindset-core-values', JSON.stringify(values));
   }, [values]);
-
   const handleAddValue = () => {
     setCurrentValue(null);
     setNewName('');
     setNewDescription('');
     setIsDialogOpen(true);
   };
-
   const handleEditValue = (value: CoreValue) => {
     setCurrentValue(value);
     setNewName(value.name);
     setNewDescription(value.description);
     setIsDialogOpen(true);
   };
-
   const handleDeleteValue = (id: string) => {
     setValues(values.filter(value => value.id !== id));
     toast({
@@ -70,7 +61,6 @@ const CoreValuesSection = () => {
       description: "Your core value has been removed."
     });
   };
-
   const handleSaveValue = () => {
     if (!newName.trim()) {
       toast({
@@ -80,14 +70,14 @@ const CoreValuesSection = () => {
       });
       return;
     }
-
     if (currentValue) {
       // Edit existing value
-      setValues(values.map(value => 
-        value.id === currentValue.id 
-          ? { ...value, name: newName, description: newDescription, lastEditedAt: new Date() } 
-          : value
-      ));
+      setValues(values.map(value => value.id === currentValue.id ? {
+        ...value,
+        name: newName,
+        description: newDescription,
+        lastEditedAt: new Date()
+      } : value));
       toast({
         title: "Core Value Updated",
         description: "Your core value has been updated."
@@ -107,12 +97,9 @@ const CoreValuesSection = () => {
         description: "Your new core value has been added."
       });
     }
-
     setIsDialogOpen(false);
   };
-
-  return (
-    <>
+  return <>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
@@ -125,31 +112,18 @@ const CoreValuesSection = () => {
           </Button>
         </CardHeader>
         <CardContent>
-          {values.length === 0 ? (
-            <div className="text-center py-6 text-muted-foreground">
+          {values.length === 0 ? <div className="text-center py-6 text-muted-foreground">
               No core values defined yet. Add your first one!
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {values.map(value => (
-                <Card key={value.id} className="overflow-hidden">
-                  <div className="bg-gradient-to-r from-purple-500/10 to-purple-500/5 p-4">
+            </div> : <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {values.map(value => <Card key={value.id} className="overflow-hidden">
+                  <div className="bg-gradient-to-r from-purple-500/10 to-purple-500/5 p-4 bg-deep-dark">
                     <div className="flex justify-between items-start">
                       <h3 className="font-semibold text-lg">{value.name}</h3>
                       <div className="flex space-x-1">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleEditValue(value)}
-                        >
+                        <Button variant="ghost" size="icon" onClick={() => handleEditValue(value)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon"
-                          className="text-destructive"
-                          onClick={() => handleDeleteValue(value.id)}
-                        >
+                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteValue(value.id)}>
                           <Trash className="h-4 w-4" />
                         </Button>
                       </div>
@@ -160,10 +134,8 @@ const CoreValuesSection = () => {
                       <span>Last edited: {format(new Date(value.lastEditedAt), 'MMM d, yyyy')}</span>
                     </div>
                   </div>
-                </Card>
-              ))}
-            </div>
-          )}
+                </Card>)}
+            </div>}
         </CardContent>
       </Card>
 
@@ -177,22 +149,11 @@ const CoreValuesSection = () => {
           <div className="grid gap-4 py-4">
             <div>
               <label htmlFor="name" className="text-sm font-medium block mb-1">Value Name</label>
-              <Input
-                id="name"
-                placeholder="e.g., Integrity, Courage, Growth"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-              />
+              <Input id="name" placeholder="e.g., Integrity, Courage, Growth" value={newName} onChange={e => setNewName(e.target.value)} />
             </div>
             <div>
               <label htmlFor="description" className="text-sm font-medium block mb-1">Description</label>
-              <Textarea
-                id="description"
-                placeholder="What does this value mean to you?"
-                rows={4}
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-              />
+              <Textarea id="description" placeholder="What does this value mean to you?" rows={4} value={newDescription} onChange={e => setNewDescription(e.target.value)} />
             </div>
           </div>
           <DialogFooter>
@@ -204,8 +165,6 @@ const CoreValuesSection = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 export default CoreValuesSection;
