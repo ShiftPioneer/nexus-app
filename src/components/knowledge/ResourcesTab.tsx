@@ -97,7 +97,7 @@ export function ResourcesTab() {
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {resources.map(resource => <Card key={resource.id} className="overflow-hidden bg-accent-dark">
-            <CardContent className="p-6 bg-accent-dark">
+            <CardContent className="p-6 bg-accent-dark py-[24px] px-[10px]">
               <div className="flex items-start gap-3 bg-accent-dark">
                 <div className="mt-1">{getResourceIcon(resource.type)}</div>
                 <div className="flex-1">
@@ -110,7 +110,7 @@ export function ResourcesTab() {
                   
                   <p className="text-sm text-muted-foreground mt-1 text-slate-950">{resource.description}</p>
                   
-                  <a href={resource.link} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-500 hover:underline flex items-center gap-1 mt-3">
+                  <a href={resource.link} target="_blank" rel="noopener noreferrer" className="text-sm text-red-500 hover:underline flex items-center gap-1 mt-3 px-0 text-[10px]">
                     <LinkIcon className="h-3 w-3" />
                     {resource.link.length > 30 ? resource.link.substring(0, 30) + '...' : resource.link}
                   </a>
