@@ -90,7 +90,7 @@ const WelcomeSection = () => {
             <blockquote className="italic text-lg">"{quote.text}"</blockquote>
             <div className="mt-2 flex justify-between items-center">
               <span className="text-sm text-muted-foreground">— {quote.author}</span>
-              <Button variant="ghost" size="sm" onClick={handleNewQuote}>
+              <Button variant="ghost" size="sm" onClick={handleNewQuote} className="text-primary-dark">
                 New Quote
               </Button>
             </div>
