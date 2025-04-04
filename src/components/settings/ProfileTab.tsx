@@ -19,39 +19,58 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user }) => {
   const { toast } = useToast();
 
   // Use safe access to user properties
-  const userDisplayName = user?.displayName || "User";
+  const userDisplayName = user?.displayName || "";
   const userEmail = user?.email || "";
-  const userPhotoURL = user?.photoURL || undefined;
+  const userPhotoURL = user?.photoURL || "";
 
   const [userName, setUserName] = useState(userDisplayName);
   const [email, setEmail] = useState(userEmail);
   const [interests, setInterests] = useState<string[]>(["productivity", "self-improvement"]);
   const [bio, setBio] = useState("Hi there! I'm using Nexus to improve my productivity and reach my goals.");
   const [selectedAvatar, setSelectedAvatar] = useState(userPhotoURL || "");
+  const [isAvatarApplied, setIsAvatarApplied] = useState(false);
 
   // Use effect to update form values when user changes
   useEffect(() => {
-    setUserName(user?.displayName || "User");
-    setEmail(user?.email || "");
-    setSelectedAvatar(user?.photoURL || "");
+    if (user) {
+      setUserName(user.displayName || "");
+      setEmail(user.email || "");
+      setSelectedAvatar(user.photoURL || "");
+      setIsAvatarApplied(false);
+    }
   }, [user]);
 
-  const handleSaveProfile = () => {
-    // In a real app, this would save to a database and update auth profile
-    updateUserProfile({ 
-      displayName: userName,
-      photoURL: selectedAvatar
-    });
-    
-    toast({
-      title: "Profile Updated",
-      description: "Your profile information has been saved",
-      duration: 3000,
-    });
+  const handleSaveProfile = async () => {
+    try {
+      // In a real app, this would save to a database and update auth profile
+      await updateUserProfile({ 
+        displayName: userName,
+        photoURL: selectedAvatar
+      });
+      
+      toast({
+        title: "Profile Updated",
+        description: "Your profile information has been saved",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
   };
 
   const handleAvatarChange = (avatarUrl: string) => {
     setSelectedAvatar(avatarUrl);
+    setIsAvatarApplied(false); // Reset when a new avatar is selected
+  };
+
+  const handleApplyAvatar = () => {
+    // In a real implementation, you might want to save this to the user profile
+    setIsAvatarApplied(true);
+    toast({
+      title: "Avatar Applied",
+      description: "Your avatar has been updated",
+      duration: 3000,
+    });
   };
 
   return (
@@ -86,7 +105,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user }) => {
             <Label htmlFor="bio">Bio</Label>
             <textarea 
               id="bio" 
-              className="w-full min-h-[100px] p-2 rounded-md border border-input bg-background" 
+              className="w-full min-h-[100px] p-2 rounded-md border border-input bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
               value={bio} 
               onChange={(e) => setBio(e.target.value)}
             />
@@ -117,6 +136,8 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user }) => {
           <AvatarSelector 
             currentAvatar={selectedAvatar} 
             onAvatarChange={handleAvatarChange} 
+            onApply={handleApplyAvatar}
+            isApplied={isAvatarApplied}
           />
         </CardContent>
       </Card>

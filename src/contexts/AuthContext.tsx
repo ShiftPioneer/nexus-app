@@ -43,7 +43,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const { toast } = useToast();
 
   useEffect(() => {
-    // Set up auth state listener first
+    // First, set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         setSession(currentSession);
@@ -108,6 +108,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         title: "Error creating account",
         description: error.message,
       });
+      throw error;
     }
   };
 
@@ -130,6 +131,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         title: "Error signing in",
         description: error.message,
       });
+      throw error;
     }
   };
 
@@ -148,6 +150,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         title: "Error signing out",
         description: error.message,
       });
+      throw error;
     }
   };
 
@@ -180,6 +183,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         title: "Error updating profile",
         description: error.message,
       });
+      throw error;
     }
   };
 
@@ -201,10 +205,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         title: "Error signing in with Google",
         description: error.message,
       });
+      throw error;
     }
   };
 
-  const value: AuthContextProps = {
+  // Make sure value doesn't change unnecessarily
+  const value = React.useMemo(() => ({
     user,
     session,
     signUp,
@@ -213,7 +219,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateUserProfile,
     signInWithGoogle,
     loading,
-  };
+  }), [user, session, loading]);
 
   return (
     <AuthContext.Provider value={value}>

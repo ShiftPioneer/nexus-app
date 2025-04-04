@@ -1,12 +1,11 @@
 
 import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { User, Search, Bell, Menu, LogOut } from "lucide-react";
+import { User, Search, Bell, Menu, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
 import ThemeToggle from "../theme/ThemeToggle";
-import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { 
@@ -21,14 +20,24 @@ import {
 interface TopBarProps {
   showMobileMenu?: boolean;
   toggleMobileMenu?: () => void;
+  className?: string;
 }
 
-const TopBar = ({ showMobileMenu, toggleMobileMenu }: TopBarProps) => {
+const TopBar = ({ showMobileMenu, toggleMobileMenu, className }: TopBarProps) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (!user || !user.displayName) return "U";
+    return user.displayName.split(' ')
+      .map(name => name.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
+  };
+
   const handleNotificationClick = () => {
     toast({
       title: "No new notifications",
@@ -51,13 +60,13 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu }: TopBarProps) => {
   };
 
   return (
-    <header className="bg-background border-b border-border h-16 flex items-center px-4 lg:px-6">
+    <header className="bg-background border-b border-border h-16 flex items-center px-4 lg:px-6 w-full">
       {showMobileMenu && (
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={toggleMobileMenu}
-          className="mr-2"
+          className={`mr-2 ${className}`}
         >
           <Menu className="h-5 w-5" />
         </Button>
@@ -89,26 +98,34 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu }: TopBarProps) => {
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarImage src="" alt="User" />
-              <AvatarFallback className="bg-primary/10 text-primary">
-                <User className="h-4 w-4" />
-              </AvatarFallback>
-            </Avatar>
+            <div className="flex items-center gap-2 cursor-pointer">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "User"} />
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  {getUserInitials()}
+                </AvatarFallback>
+              </Avatar>
+              {!isMobile && (
+                <span className="text-sm font-medium max-w-[100px] truncate">
+                  {user?.displayName || "User"}
+                </span>
+              )}
+            </div>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>
-              {user?.email || 'My Account'}
+              <div className="flex flex-col space-y-1">
+                <p className="text-sm font-medium leading-none">{user?.displayName || "User"}</p>
+                <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+              </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onSelect={() => navigate('/settings')}>
-              Profile
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => navigate('/settings')}>
-              Settings
+            <DropdownMenuItem onClick={() => navigate('/settings')}>
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-500" onSelect={handleSignOut}>
+            <DropdownMenuItem className="text-red-500" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               <span>Sign out</span>
             </DropdownMenuItem>

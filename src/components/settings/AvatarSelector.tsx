@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,25 +9,25 @@ import { cn } from "@/lib/utils";
 interface AvatarSelectorProps {
   currentAvatar: string;
   onAvatarChange: (avatarUrl: string) => void;
+  onApply?: () => void;
+  isApplied?: boolean;
 }
 
-const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatarChange }) => {
+const AvatarSelector: React.FC<AvatarSelectorProps> = ({ 
+  currentAvatar, 
+  onAvatarChange,
+  onApply,
+  isApplied = false
+}) => {
   const [selectedAvatar, setSelectedAvatar] = useState<string>(currentAvatar);
+  const [buttonText, setButtonText] = useState("Apply");
 
-  // More modern abstract avatars that represent productivity, focus, discipline and joy
+  useEffect(() => {
+    setButtonText(isApplied ? "Applied ✓" : "Apply");
+  }, [isApplied]);
+
+  // Modern abstract avatars that represent productivity, focus, discipline and joy
   const avatars = [
-    "/avatars/abstract-blue.png",
-    "/avatars/abstract-green.png",
-    "/avatars/abstract-purple.png",
-    "/avatars/abstract-orange.png",
-    "/avatars/geometric-red.png",
-    "/avatars/geometric-blue.png",
-    "/avatars/geometric-green.png",
-    "/avatars/minimal-black.png",
-  ];
-
-  // Placeholder avatars - in a real app these would be actual image paths
-  const placeholderAvatars = [
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234338CA' class='w-6 h-6'%3E%3Cpath fill-rule='evenodd' d='M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z' clip-rule='evenodd' /%3E%3C/svg%3E",
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2322C55E' class='w-6 h-6'%3E%3Cpath fill-rule='evenodd' d='M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm13.36-1.814a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z' clip-rule='evenodd' /%3E%3C/svg%3E",
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EF4444' class='w-6 h-6'%3E%3Cpath fill-rule='evenodd' d='M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm0 8.625a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25zM15.375 12a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0zM7.5 10.875a1.125 1.125 0 100 2.25 1.125 1.125 0 000-2.25z' clip-rule='evenodd' /%3E%3C/svg%3E",
@@ -38,13 +38,26 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000000' class='w-6 h-6'%3E%3Cpath fill-rule='evenodd' d='M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM9 7.5A.75.75 0 009 9h1.5a.75.75 0 000-1.5H9zm-.75 3.75a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5H9a.75.75 0 01-.75-.75zm3-3a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5H12a.75.75 0 01-.75-.75zm.75 3a.75.75 0 000 1.5h1.5a.75.75 0 000-1.5H12zm-3.75 3.75a.75.75 0 01.75-.75h7.5a.75.75 0 010 1.5h-7.5a.75.75 0 01-.75-.75zm9 0a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5h-1.5a.75.75 0 01-.75-.75zm-3.75 3a.75.75 0 01.75-.75h1.5a.75.75 0 010 1.5H12a.75.75 0 01-.75-.75zm-6.75-.75a.75.75 0 000 1.5h7.5a.75.75 0 000-1.5h-7.5z' clip-rule='evenodd' /%3E%3C/svg%3E"
   ];
 
+  // Modern colorful gradients for avatars
+  const gradientAvatars = [
+    "/lovable-uploads/d1ab7fa8-9a34-427d-a656-180d4b56af2c.png", // Using the uploaded image
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23FF5722'/%3E%3Cstop offset='100%25' stop-color='%23FF9800'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='50' fill='url(%23a)'/%3E%3Ctext x='50' y='50' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='40' font-weight='bold' fill='white'%3EJD%3C/text%3E%3C/svg%3E",
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234A00E0'/%3E%3Cstop offset='100%25' stop-color='%238E2DE2'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='50' fill='url(%23a)'/%3E%3Ctext x='50' y='50' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='40' font-weight='bold' fill='white'%3EJD%3C/text%3E%3C/svg%3E",
+    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='a' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%2300B4DB'/%3E%3Cstop offset='100%25' stop-color='%230083B0'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='50' fill='url(%23a)'/%3E%3Ctext x='50' y='50' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='40' font-weight='bold' fill='white'%3EJD%3C/text%3E%3C/svg%3E"
+  ];
+
+  // Combine both types of avatars
+  const allAvatars = [...gradientAvatars, ...avatars];
+
   const handleSelectAvatar = (avatar: string) => {
     setSelectedAvatar(avatar);
     onAvatarChange(avatar);
   };
 
   const handleApply = () => {
-    onAvatarChange(selectedAvatar);
+    if (onApply) {
+      onApply();
+    }
   };
 
   return (
@@ -52,14 +65,14 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
       <div className="flex justify-center">
         <Avatar className="h-24 w-24">
           <AvatarImage src={selectedAvatar} />
-          <AvatarFallback className="text-lg">
+          <AvatarFallback className="text-lg bg-primary text-primary-foreground">
             {currentAvatar ? currentAvatar.charAt(0).toUpperCase() : 'U'}
           </AvatarFallback>
         </Avatar>
       </div>
 
-      <div className="grid grid-cols-4 gap-2">
-        {placeholderAvatars.map((avatar, index) => (
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        {allAvatars.map((avatar, index) => (
           <Card 
             key={index}
             className={cn(
@@ -82,7 +95,16 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
       </div>
 
       <div className="flex justify-end">
-        <Button onClick={handleApply}>Apply</Button>
+        <Button 
+          onClick={handleApply}
+          variant={isApplied ? "outline" : "default"}
+          disabled={isApplied}
+          className={cn(
+            isApplied ? "bg-green-100 text-green-800 hover:bg-green-100" : ""
+          )}
+        >
+          {buttonText}
+        </Button>
       </div>
     </div>
   );

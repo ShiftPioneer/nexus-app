@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileTab from "@/components/settings/ProfileTab";
@@ -13,7 +13,7 @@ const Settings = () => {
   const navigate = useNavigate();
 
   // If user is not authenticated and not loading, redirect to auth page
-  React.useEffect(() => {
+  useEffect(() => {
     if (!loading && !user) {
       navigate("/auth");
     }
@@ -29,9 +29,13 @@ const Settings = () => {
     );
   }
 
+  if (!user) {
+    return null; // Don't render anything while redirecting
+  }
+
   return (
     <AppLayout>
-      <div className="animate-fade-in space-y-6">
+      <div className="animate-fade-in space-y-6 container max-w-4xl mx-auto py-6">
         <h1 className="text-2xl font-bold">Settings</h1>
         
         <Tabs defaultValue="profile" className="w-full">

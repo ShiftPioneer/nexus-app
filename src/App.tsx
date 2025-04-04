@@ -21,18 +21,31 @@ import { HabitProvider } from './contexts/HabitContext';
 import { GoalProvider } from './contexts/GoalContext';
 import { TaskProvider } from './contexts/TaskContext';
 import { KnowledgeProvider } from './contexts/KnowledgeContext';
+import { useEffect, useState } from 'react';
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const [isChecking, setIsChecking] = useState(true);
   
-  if (loading) {
+  useEffect(() => {
+    // Wait for auth to initialize before deciding to redirect
+    if (!loading) {
+      setIsChecking(false);
+    }
+  }, [loading]);
+  
+  if (loading || isChecking) {
     return <div className="flex items-center justify-center h-screen">
       <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF6500]"></div>
     </div>;
   }
   
-  return user ? <>{children}</> : <Navigate to="/auth" />;
+  if (!user) {
+    return <Navigate to="/auth" />;
+  }
+  
+  return <>{children}</>;
 };
 
 function App() {

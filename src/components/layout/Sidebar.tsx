@@ -2,11 +2,20 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sidebar as ShadcnSidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
-import { ChevronLeft, ChevronRight, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import NavigationMenu from "./NavigationMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -15,6 +24,7 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   
   const handleToggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
@@ -23,6 +33,28 @@ const Sidebar: React.FC<SidebarProps> = () => {
   const handleProfileClick = () => {
     navigate("/settings");
   };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate("/auth");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
+  // Get user initials for avatar fallback
+  const getUserInitials = () => {
+    if (!user || !user.displayName) return "U";
+    return user.displayName.split(' ')
+      .map(name => name.charAt(0).toUpperCase())
+      .slice(0, 2)
+      .join('');
+  };
+
+  // Get user display name or default
+  const displayName = user?.displayName || "User";
+  const userInitials = getUserInitials();
 
   return (
     <div className="relative h-screen">
@@ -90,31 +122,52 @@ const Sidebar: React.FC<SidebarProps> = () => {
         </SidebarContent>
         
         <SidebarFooter className="border-t border-[#2A2F3C] p-3 bg-slate-950">
-          <div 
-            className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3")}
-            onClick={handleProfileClick}
-            style={{ cursor: 'pointer' }}
-          >
-            <Avatar className="h-8 w-8 bg-[#FF5722]/20 text-[#FF5722]">
-              <AvatarFallback>JD</AvatarFallback>
-              <AvatarImage src="" alt="User Profile" />
-            </Avatar>
-            
-            <AnimatePresence>
-              {!isCollapsed && (
-                <motion.div 
-                  className="flex flex-col"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.2 }}
-                >
-                  <span className="text-sm font-medium">John Doe</span>
-                  <span className="text-xs text-[#0FA0CE]">Pro Plan</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <div 
+                className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3")}
+                style={{ cursor: 'pointer' }}
+              >
+                <Avatar className="h-8 w-8 bg-[#FF5722]/20 text-[#FF5722]">
+                  <AvatarImage src={user?.photoURL || ""} alt={displayName} />
+                  <AvatarFallback>{userInitials}</AvatarFallback>
+                </Avatar>
+                
+                <AnimatePresence>
+                  {!isCollapsed && (
+                    <motion.div 
+                      className="flex flex-col"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <span className="text-sm font-medium truncate max-w-[120px]">{displayName}</span>
+                      <span className="text-xs text-[#0FA0CE]">Pro Plan</span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none">{displayName}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleProfileClick}>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleSignOut} className="text-red-500">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </SidebarFooter>
       </ShadcnSidebar>
 
