@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,9 +9,11 @@ import TagInput from "@/components/ui/tag-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import AvatarSelector from "@/components/settings/AvatarSelector";
+import { Eye, EyeOff } from "lucide-react";
 
 const Settings = () => {
-  const { user } = useAuth();
+  const { user, updateUserProfile } = useAuth();
   const { toast } = useToast();
 
   // Use safe access to user properties
@@ -32,8 +33,22 @@ const Settings = () => {
   const [appearance, setAppearance] = useState("system");
   const [interests, setInterests] = useState<string[]>(["productivity", "self-improvement"]);
   const [bio, setBio] = useState("Hi there! I'm using Nexus to improve my productivity and reach my goals.");
+  const [selectedAvatar, setSelectedAvatar] = useState(userPhotoURL || "");
+
+  // Use effect to update form values when user changes
+  useEffect(() => {
+    setUserName(user?.displayName || "User");
+    setEmail(user?.email || "");
+    setSelectedAvatar(user?.photoURL || "");
+  }, [user]);
 
   const handleSaveProfile = () => {
+    // In a real app, this would save to a database and update auth profile
+    updateUserProfile({ 
+      displayName: userName,
+      photoURL: selectedAvatar
+    });
+    
     toast({
       title: "Profile Updated",
       description: "Your profile information has been saved",
@@ -60,6 +75,10 @@ const Settings = () => {
       description: `${type} notifications ${notifications[type] ? "disabled" : "enabled"}`,
       duration: 3000,
     });
+  };
+
+  const handleAvatarChange = (avatarUrl: string) => {
+    setSelectedAvatar(avatarUrl);
   };
 
   return (
@@ -133,33 +152,11 @@ const Settings = () => {
               <CardHeader>
                 <CardTitle>Avatar</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-wrap gap-4">
-                  {/* Avatar options would go here */}
-                  <div className="border-2 border-primary rounded-full p-1">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold">
-                      {userDisplayName.charAt(0)}
-                    </div>
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center text-white text-xl font-bold">
-                    {userDisplayName.charAt(0)}
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white text-xl font-bold">
-                    {userDisplayName.charAt(0)}
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-amber-500 to-red-600 flex items-center justify-center text-white text-xl font-bold">
-                    {userDisplayName.charAt(0)}
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white text-xl font-bold">
-                    {userDisplayName.charAt(0)}
-                  </div>
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gray-600 to-gray-900 flex items-center justify-center text-white text-xl font-bold">
-                    {userDisplayName.charAt(0)}
-                  </div>
-                  <Button variant="outline" className="w-16 h-16 rounded-full flex items-center justify-center">
-                    +
-                  </Button>
-                </div>
+              <CardContent>
+                <AvatarSelector 
+                  currentAvatar={selectedAvatar} 
+                  onAvatarChange={handleAvatarChange} 
+                />
               </CardContent>
             </Card>
           </TabsContent>
@@ -186,7 +183,7 @@ const Settings = () => {
                       className="ml-2"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      {showPassword ? "Hide" : "Show"}
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </Button>
                   </div>
                 </div>

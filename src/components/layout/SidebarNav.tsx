@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -43,6 +44,7 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ isCollapsed, onToggleCollapse }
 
   // Use safe access to user properties
   const userDisplayName = user?.displayName || "User";
+  const userFirstName = userDisplayName.split(' ')[0]; // Get first name for compact display
   const userInitial = userDisplayName.charAt(0) || 'U';
   const userPhotoURL = user?.photoURL || undefined;
 
@@ -105,19 +107,15 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ isCollapsed, onToggleCollapse }
               isCollapsed && "justify-center"
             )}
           >
-            {isCollapsed ? (
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={userPhotoURL} />
-                <AvatarFallback>{userInitial}</AvatarFallback>
-              </Avatar>
-            ) : (
-              <>
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={userPhotoURL} />
-                  <AvatarFallback>{userInitial}</AvatarFallback>
-                </Avatar>
-                <span className="ml-3 truncate">{userDisplayName}</span>
-              </>
+            <Avatar className="h-8 w-8 ring-2 ring-primary/20">
+              <AvatarImage src={userPhotoURL} />
+              <AvatarFallback className="bg-primary-600/10 text-primary">{userInitial}</AvatarFallback>
+            </Avatar>
+            {!isCollapsed && (
+              <div className="ml-3 overflow-hidden">
+                <p className="font-medium truncate">{userDisplayName}</p>
+                <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+              </div>
             )}
           </Link>
           

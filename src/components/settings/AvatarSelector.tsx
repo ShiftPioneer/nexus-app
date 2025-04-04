@@ -7,18 +7,23 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
-// Modern avatar options using more stylish designs
+// Modern productivity-focused avatars
 const DEFAULT_AVATARS = [
-  "https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=b6e3f4",
-  "https://api.dicebear.com/7.x/micah/svg?seed=Aneka&backgroundColor=d1d4f9",
-  "https://api.dicebear.com/7.x/micah/svg?seed=Max&backgroundColor=c0aede",
-  "https://api.dicebear.com/7.x/micah/svg?seed=Lily&backgroundColor=ffdfbf",
-  "https://api.dicebear.com/7.x/micah/svg?seed=Sam&backgroundColor=ffd5dc",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Tech&backgroundColor=b6e3f4",
-  "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Felix&backgroundColor=ffdfbf",
-  "https://api.dicebear.com/7.x/thumbs/svg?seed=John&backgroundColor=c0aede",
-  "https://api.dicebear.com/7.x/lorelei/svg?seed=Jane&backgroundColor=d1d4f9",
-  "https://api.dicebear.com/7.x/notionists/svg?seed=Nexus&backgroundColor=ffd5dc",
+  // Gradient abstract shapes
+  "https://api.dicebear.com/7.x/shapes/svg?seed=productivity&backgroundColor=0891b2",
+  "https://api.dicebear.com/7.x/shapes/svg?seed=focus&backgroundColor=0e7490",
+  "https://api.dicebear.com/7.x/shapes/svg?seed=discipline&backgroundColor=155e75",
+  "https://api.dicebear.com/7.x/shapes/svg?seed=joy&backgroundColor=164e63",
+  // Minimalist abstract designs
+  "https://api.dicebear.com/7.x/identicon/svg?seed=focus&backgroundColor=4338ca",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=productivity&backgroundColor=3730a3",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=discipline&backgroundColor=312e81",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=zen&backgroundColor=1e3a8a",
+  // Pixel art style
+  "https://api.dicebear.com/7.x/pixel-art/svg?seed=organized&backgroundColor=059669",
+  "https://api.dicebear.com/7.x/pixel-art/svg?seed=mindful&backgroundColor=047857",
+  "https://api.dicebear.com/7.x/pixel-art/svg?seed=flow&backgroundColor=065f46",
+  "https://api.dicebear.com/7.x/pixel-art/svg?seed=achieve&backgroundColor=064e3b",
 ];
 
 interface AvatarSelectorProps {
@@ -105,7 +110,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
             <RadioGroup
               value={selectedAvatar}
               onValueChange={setSelectedAvatar}
-              className="grid grid-cols-5 gap-3"
+              className="grid grid-cols-4 gap-3"
             >
               {DEFAULT_AVATARS.map((avatar, index) => (
                 <div key={index} className="flex flex-col items-center space-y-1">
