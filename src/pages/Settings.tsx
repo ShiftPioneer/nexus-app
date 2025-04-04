@@ -1,8 +1,9 @@
+
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Settings as SettingsIcon, User, Bell, Shield, Palette, Key, Languages, Bookmark, Send, Globe, CalendarCheck2 } from "lucide-react";
+import { Settings as SettingsIcon, User, Bell, Shield, Palette, Key, Languages, Bookmark, Send, Globe, CalendarCheck2, Eye, EyeOff } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import { useToast } from "@/hooks/use-toast";
@@ -12,16 +13,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AvatarSelector from "@/components/settings/AvatarSelector";
 import TagInput from "@/components/ui/tag-input";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Settings = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
+    name: user?.displayName || "John Doe",
+    email: user?.email || "john.doe@example.com",
     language: "english",
     timezone: "UTC+0",
-    avatar: "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png", // Default avatar
+    avatar: user?.photoURL || "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png",
     interests: ["productivity", "technology", "health"],
     bio: "Passionate about personal development and productivity.",
   });
@@ -45,11 +48,20 @@ const Settings = () => {
     syncTasksToCalendar: true,
     syncEventsToTasks: true
   });
+
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   
   const handleSave = () => {
     toast({
       title: "Settings Saved",
-      description: "Your settings have been saved successfully."
+      description: "Your settings have been saved successfully.",
+      duration: 3000,
     });
   };
   
@@ -88,7 +100,8 @@ const Settings = () => {
   const handleConnectGoogleCalendar = () => {
     toast({
       title: "Google Calendar",
-      description: "Google Calendar integration coming soon!"
+      description: "Google Calendar integration coming soon!",
+      duration: 3000,
     });
   };
   
@@ -133,11 +146,20 @@ const Settings = () => {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="name">Name</Label>
-                      <Input id="name" value={profileData.name} onChange={e => updateProfileData("name", e.target.value)} />
+                      <Input 
+                        id="name" 
+                        value={profileData.name} 
+                        onChange={e => updateProfileData("name", e.target.value)} 
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" value={profileData.email} onChange={e => updateProfileData("email", e.target.value)} />
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        value={profileData.email} 
+                        onChange={e => updateProfileData("email", e.target.value)} 
+                      />
                     </div>
                   </div>
 
@@ -198,17 +220,77 @@ const Settings = () => {
                   
                   <div className="space-y-2">
                     <Label htmlFor="current-password">Current Password</Label>
-                    <Input id="current-password" type="password" />
+                    <div className="relative">
+                      <Input 
+                        id="current-password" 
+                        type={showCurrentPassword ? "text" : "password"}
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                      >
+                        {showCurrentPassword ? (
+                          <EyeOff className="h-4 w-4" />
+                        ) : (
+                          <Eye className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="new-password">New Password</Label>
-                      <Input id="new-password" type="password" />
+                      <div className="relative">
+                        <Input 
+                          id="new-password" 
+                          type={showNewPassword ? "text" : "password"}
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                        >
+                          {showNewPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="confirm-password">Confirm Password</Label>
-                      <Input id="confirm-password" type="password" />
+                      <div className="relative">
+                        <Input 
+                          id="confirm-password" 
+                          type={showConfirmPassword ? "text" : "password"}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        >
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>

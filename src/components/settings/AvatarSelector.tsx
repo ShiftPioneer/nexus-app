@@ -7,17 +7,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
+// Modern avatar options using more stylish designs
 const DEFAULT_AVATARS = [
-  "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png", // Use existing image
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix",
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka",
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Max",
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Lily",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Tech",
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Sam",
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Nexus",
+  "https://api.dicebear.com/7.x/micah/svg?seed=Felix&backgroundColor=b6e3f4",
+  "https://api.dicebear.com/7.x/micah/svg?seed=Aneka&backgroundColor=d1d4f9",
+  "https://api.dicebear.com/7.x/micah/svg?seed=Max&backgroundColor=c0aede",
+  "https://api.dicebear.com/7.x/micah/svg?seed=Lily&backgroundColor=ffdfbf",
+  "https://api.dicebear.com/7.x/micah/svg?seed=Sam&backgroundColor=ffd5dc",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Tech&backgroundColor=b6e3f4",
+  "https://api.dicebear.com/7.x/fun-emoji/svg?seed=Felix&backgroundColor=ffdfbf",
+  "https://api.dicebear.com/7.x/thumbs/svg?seed=John&backgroundColor=c0aede",
+  "https://api.dicebear.com/7.x/lorelei/svg?seed=Jane&backgroundColor=d1d4f9",
+  "https://api.dicebear.com/7.x/notionists/svg?seed=Nexus&backgroundColor=ffd5dc",
 ];
 
 interface AvatarSelectorProps {
@@ -42,6 +43,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
           title: "Invalid file type",
           description: "Please upload an image file",
           variant: "destructive",
+          duration: 3000,
         });
         return;
       }
@@ -52,6 +54,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
           title: "File too large",
           description: "Please upload an image smaller than 3MB",
           variant: "destructive",
+          duration: 3000,
         });
         return;
       }
@@ -69,6 +72,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
     toast({
       title: "Avatar Updated",
       description: "Your avatar has been updated successfully",
+      duration: 3000,
     });
   };
 
