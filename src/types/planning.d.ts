@@ -1,39 +1,21 @@
 
-interface Goal {
+export type TaskStatus = 'todo' | 'in-progress' | 'done' | 'archived';
+
+export interface Task {
   id: string;
   title: string;
-  description: string;
-  category: "wealth" | "health" | "relationships" | "spirituality" | "education" | "career";
-  timeframe: "week" | "month" | "quarter" | "year" | "decade" | "lifetime";
-  progress: number;
-  startDate: Date;
-  endDate: Date;
-  milestones: Milestone[];
-  status: "not-started" | "in-progress" | "completed";
-  blockingGoals?: string[];
-  blockedByGoals?: string[];
-  timeframeAnswers?: {
-    questionIndex: number;
-    answer: string;
-  }[];
+  description?: string;
+  status: TaskStatus;
+  dueDate?: Date;
+  priority: 'low' | 'medium' | 'high';
+  tags?: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-interface Project {
-  id: string;
-  title: string;
-  description: string;
-  category: "wealth" | "health" | "relationships" | "spirituality" | "education" | "career";
-  progress: number;
-  startDate: Date;
-  endDate: Date;
-  status: "not-started" | "in-progress" | "completed";
-  blockingProjects?: string[];
-  blockedByProjects?: string[];
-}
-
-interface Milestone {
-  id: string;
-  title: string;
-  completed: boolean;
-  dueDate: Date;
+export interface GTDTask extends Task {
+  context?: string;
+  project?: string;
+  nextAction?: boolean;
+  timeEstimate?: number; // in minutes
 }

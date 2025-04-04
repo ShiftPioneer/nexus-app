@@ -1,229 +1,258 @@
-import React, { useState, useRef, useEffect } from "react";
+
+import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Mic, MicOff, FileUp, Paperclip } from "lucide-react";
-import { useGTD } from "@/components/gtd/GTDContext";
+import { Mic, PlusCircle, Upload, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Add proper TypeScript declarations for SpeechRecognition
-interface Window {
-  webkitSpeechRecognition: any;
-  SpeechRecognition: any;
+// Define a Speech Recognition interface
+interface SpeechRecognitionInterface extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionError) => void;
 }
 
-const QuickCaptureForm: React.FC = () => {
-  const { addTask } = useGTD();
+interface SpeechRecognitionEvent {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+
+interface SpeechRecognitionError extends Event {
+  error: string;
+  message: string;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+// Check for browser support and get the appropriate constructor
+const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+
+interface QuickCaptureFormProps {
+  onAddTask: (task: any) => void;
+}
+
+const QuickCaptureForm: React.FC<QuickCaptureFormProps> = ({ onAddTask }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [priority, setPriority] = useState("medium");
   const [isRecording, setIsRecording] = useState(false);
-  const [recordingText, setRecordingText] = useState("");
-  const [attachment, setAttachment] = useState<File | null>(null);
-  const { toast } = useToast();
+  const [attachment, setAttachment] = useState<{ name: string; type: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<SpeechRecognitionInterface | null>(null);
+  const { toast } = useToast();
 
-  // Use proper type checking when accessing window.SpeechRecognition
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  const recognition = useRef<any>(null);
-
-  useEffect(() => {
+  const handleStartRecording = () => {
     if (SpeechRecognition) {
-      recognition.current = new SpeechRecognition();
-      recognition.current.continuous = true;
-      recognition.current.interimResults = true;
-      recognition.current.onresult = (event: any) => {
-        let interimTranscript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            setRecordingText(prev => prev + transcript);
-          } else {
-            interimTranscript += transcript;
-          }
+      recognitionRef.current = new SpeechRecognition() as SpeechRecognitionInterface;
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+      
+      recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+        const transcript = Array.from(event.results)
+          .map(result => result[0].transcript)
+          .join('');
+        
+        if (title === "") {
+          setTitle(transcript);
+        } else {
+          setDescription(transcript);
         }
       };
-
-      recognition.current.onstart = () => {
+      
+      recognitionRef.current.onerror = (event: SpeechRecognitionError) => {
+        console.error('Speech recognition error', event.error);
         toast({
-          title: "Voice Recording Started",
-          description: "Speak now to add content to your task",
-          duration: 3000,
+          title: "Error",
+          description: `Speech recognition error: ${event.error}`,
+          variant: "destructive"
         });
-      };
-
-      recognition.current.onend = () => {
         setIsRecording(false);
-        toast({
-          title: "Voice Recording Ended",
-          description: "Your speech has been added to the description",
-          duration: 3000,
-        });
       };
-
-      recognition.current.onerror = (event: any) => {
-        console.error("Speech recognition error:", event.error);
-        setIsRecording(false);
-        toast({
-          title: "Speech Recognition Error",
-          description: `Error: ${event.error}`,
-          variant: "destructive",
-          duration: 3000,
-        });
-      };
-    } else {
-      toast({
-        title: "Speech Recognition Not Supported",
-        description: "Your browser does not support speech recognition. Try Google Chrome.",
-        variant: "destructive",
-        duration: 5000,
-      });
-    }
-
-    return () => {
-      if (recognition.current) {
-        recognition.current.stop();
-      }
-    };
-  }, []);
-
-  const toggleRecording = () => {
-    if (!SpeechRecognition) return;
-
-    if (isRecording) {
-      recognition.current.stop();
-      setDescription(prev => prev + " " + recordingText);
-    } else {
-      setRecordingText("");
-      recognition.current.start();
+      
+      recognitionRef.current.start();
       setIsRecording(true);
+      
+      toast({
+        title: "Recording started",
+        description: "Speak now. Your speech will be transcribed."
+      });
+    } else {
+      toast({
+        title: "Not supported",
+        description: "Speech recognition is not supported in your browser.",
+        variant: "destructive"
+      });
     }
   };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      setAttachment(file);
+  
+  const handleStopRecording = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsRecording(false);
       toast({
-        title: "Attachment Added",
-        description: `${file.name} has been attached to the task`,
-        duration: 3000,
+        title: "Recording stopped",
+        description: "Speech transcription completed."
       });
     }
   };
 
-  const handleFileUpload = () => {
-    fileInputRef.current?.click();
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAttachment({
+        name: file.name,
+        type: file.type
+      });
+      toast({
+        title: "File attached",
+        description: `${file.name} has been attached to this task.`
+      });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     if (!title.trim()) {
       toast({
-        title: "Missing Task Title",
-        description: "Please enter a title for your task",
-        variant: "destructive",
-        duration: 3000,
+        title: "Error",
+        description: "Task title is required",
+        variant: "destructive"
       });
       return;
     }
-
+    
     const newTask = {
-      title: title.trim(),
-      description: description.trim(),
-      priority: "Medium",
-      status: "inbox",
-      attachment: attachment
-        ? {
-            name: attachment.name,
-            type: attachment.type,
-          }
-        : undefined,
+      title,
+      description,
+      priority,
+      status: "inbox" as const,
+      attachment: attachment || undefined
     };
-
-    addTask(newTask);
+    
+    onAddTask(newTask);
+    
+    // Reset form
     setTitle("");
     setDescription("");
+    setPriority("medium");
     setAttachment(null);
-
+    
     toast({
-      title: "Task Added to Inbox",
-      description: "Your task has been added to the inbox",
-      duration: 3000,
+      title: "Task captured",
+      description: "Your task has been added to the inbox."
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
+    <form onSubmit={handleSubmit} className="space-y-4 p-4 bg-card rounded-lg border">
+      <h3 className="text-lg font-medium">Quick Capture</h3>
+      
+      <div className="space-y-2">
         <Label htmlFor="title">Task Title</Label>
         <Input
-          type="text"
           id="title"
-          placeholder="Enter task title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
+          placeholder="What needs to be done?"
+          className="w-full"
         />
       </div>
-      <div>
-        <div className="flex justify-between items-center">
-          <Label htmlFor="description">Task Description</Label>
-          <Button
-            type="button"
-            variant={isRecording ? "destructive" : "outline"}
-            size="sm"
-            onClick={toggleRecording}
-            disabled={!SpeechRecognition}
-            className="gap-1"
-          >
-            {isRecording ? (
-              <>
-                <MicOff className="h-4 w-4" />
-                Stop Recording
-              </>
-            ) : (
-              <>
-                <Mic className="h-4 w-4" />
-                Record Voice
-              </>
-            )}
-          </Button>
-        </div>
+      
+      <div className="space-y-2">
+        <Label htmlFor="description">Description (Optional)</Label>
         <Textarea
           id="description"
-          placeholder="Enter task description"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          className="min-h-[100px]"
+          placeholder="Add more details..."
+          className="w-full min-h-[100px]"
         />
-        {recordingText && (
-          <div className="mt-1 text-sm text-muted-foreground">
-            Recording: {recordingText}
-          </div>
-        )}
       </div>
-      <div>
-        <input
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          onChange={handleFileChange}
-        />
+      
+      <div className="space-y-2">
+        <Label htmlFor="priority">Priority</Label>
+        <Select value={priority} onValueChange={setPriority}>
+          <SelectTrigger className="w-full">
+            <SelectValue placeholder="Select priority" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="low">Low</SelectItem>
+            <SelectItem value="medium">Medium</SelectItem>
+            <SelectItem value="high">High</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {attachment && (
+        <div className="flex items-center justify-between p-2 bg-muted rounded-md">
+          <span className="text-sm truncate">{attachment.name}</span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => setAttachment(null)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+      
+      <div className="flex space-x-2">
+        <Button
+          type="button"
+          variant={isRecording ? "destructive" : "outline"}
+          onClick={isRecording ? handleStopRecording : handleStartRecording}
+        >
+          <Mic className="h-4 w-4 mr-2" />
+          {isRecording ? "Stop Recording" : "Voice Input"}
+        </Button>
+        
         <Button
           type="button"
           variant="outline"
-          onClick={handleFileUpload}
-          className="w-full gap-2"
+          onClick={() => fileInputRef.current?.click()}
         >
-          <Paperclip className="h-4 w-4" />
-          {attachment ? attachment.name : "Attach File"}
+          <Upload className="h-4 w-4 mr-2" />
+          Attach File
+        </Button>
+        
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+        
+        <Button type="submit" className="ml-auto">
+          <PlusCircle className="h-4 w-4 mr-2" />
+          Add Task
         </Button>
       </div>
-      <Button type="submit" className="w-full gap-2">
-        <Plus className="h-4 w-4" />
-        Add Task
-      </Button>
     </form>
   );
 };
