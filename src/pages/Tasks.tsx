@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ListTodo, Calendar, Grid3X3, Menu, Plus, Filter, Search } from "lucide-react";
 import { GTDProvider } from "@/components/gtd/GTDContext";
 import TasksList from "@/components/gtd/TasksList";
+import KanbanBoard from "@/components/tasks/KanbanBoard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
@@ -75,6 +77,38 @@ const Tasks: React.FC = () => {
   const importantNotUrgent = mockTasks.filter(task => task.priority === "High" && task.dueDate && task.dueDate > new Date());
   const urgentNotImportant = mockTasks.filter(task => task.priority !== "High" && task.dueDate && task.dueDate <= new Date());
   const neitherUrgentNorImportant = mockTasks.filter(task => task.priority !== "High" && (!task.dueDate || task.dueDate > new Date()));
+  
+  // Kanban columns
+  const kanbanColumns = {
+    "todo": filteredTasks.filter(task => task.status === "todo"),
+    "in-progress": filteredTasks.filter(task => task.status === "in-progress"),
+    "completed": filteredTasks.filter(task => task.status === "completed")
+  };
+  
+  const handleTaskClick = (task: any) => {
+    toast({
+      title: "Edit Task",
+      description: `Editing task: ${task.title}`,
+      duration: 3000,
+    });
+  };
+  
+  const handleTaskMove = (taskId: string, newStatus: string) => {
+    toast({
+      title: "Move Task",
+      description: `Task moved to ${newStatus}`,
+      duration: 3000,
+    });
+  };
+  
+  const getPriorityColor = (priority: string) => {
+    switch (priority.toLowerCase()) {
+      case "high": return "bg-red-500";
+      case "medium": return "bg-yellow-500";
+      case "low": return "bg-green-500";
+      default: return "bg-blue-500";
+    }
+  };
   
   return (
     <GTDProvider>
@@ -156,7 +190,16 @@ const Tasks: React.FC = () => {
                   <CardDescription>Manage your tasks and to-dos</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <TasksList tasks={filteredTasks} showActions={true} />
+                  {view === "list" ? (
+                    <TasksList tasks={filteredTasks} showActions={true} />
+                  ) : (
+                    <KanbanBoard 
+                      columns={kanbanColumns}
+                      onTaskClick={handleTaskClick}
+                      onTaskMove={handleTaskMove}
+                      getPriorityColor={getPriorityColor}
+                    />
+                  )}
                 </CardContent>
               </Card>
             </TabsContent>

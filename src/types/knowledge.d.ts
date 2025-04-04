@@ -84,11 +84,38 @@ export interface KnowledgeEntry {
 
 export interface KnowledgeContextValue {
   entries: KnowledgeEntry[];
-  addEntry: (entry: KnowledgeEntry) => void;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  activeFilter: KnowledgeCategory | "all";
+  setActiveFilter: (filter: KnowledgeCategory | "all") => void;
+  activeTags: string[];
+  setActiveTags: (tags: string[]) => void;
+  addEntry: (entry: Omit<KnowledgeEntry, "id" | "createdAt" | "updatedAt">) => KnowledgeEntry;
   updateEntry: (id: string, entry: Partial<KnowledgeEntry>) => void;
   deleteEntry: (id: string) => void;
   moveEntry: (id: string, category: KnowledgeCategory) => void;
   getEntriesByCategory: (category: KnowledgeCategory) => KnowledgeEntry[];
   findSimilarEntries: (entry: KnowledgeEntry) => KnowledgeEntry[];
+  checkForDuplicates: (entry: Partial<KnowledgeEntry>) => KnowledgeEntry[];
   searchEntries: (query: string) => KnowledgeEntry[];
+  generateAiSummary: (entry: KnowledgeEntry) => string;
+  linkTaskToEntry: (entryId: string, taskId: string) => void;
+  unlinkTaskFromEntry: (entryId: string, taskId: string) => void;
+  getLinkedTasks: (entryId: string) => any[];
+  getRelatedEntriesForTask: (taskId: string) => KnowledgeEntry[];
+  filterEntries: (category: KnowledgeCategory | "all", tags: string[], query: string) => KnowledgeEntry[];
+  archiveOldEntries: (daysThreshold: number) => void;
+  getEntriesStats: () => {
+    categories: {
+      inboxCount: number;
+      projectsCount: number;
+      areasCount: number;
+      resourcesCount: number;
+      archivesCount: number;
+    };
+    totalEntries: number;
+    withTasks: number;
+    withFiles: number;
+  };
+  isOffline: boolean;
 }

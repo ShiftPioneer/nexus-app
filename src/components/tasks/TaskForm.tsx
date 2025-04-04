@@ -31,7 +31,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("Medium");
-  const [status, setStatus] = useState<TaskStatus>("todo");
+  const [status, setStatus] = useState<TaskStatus>("inbox");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
@@ -45,7 +45,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
       setTitle(task.title || "");
       setDescription(task.description || "");
       setPriority(task.priority || "Medium");
-      setStatus(task.status || "todo");
+      setStatus(task.status || "inbox");
       setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
       setTags(task.tags || []);
       setContext(task.context || "");
@@ -56,7 +56,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
       setTitle("");
       setDescription("");
       setPriority("Medium");
-      setStatus("todo");
+      setStatus("inbox");
       setDueDate(undefined);
       setTags([]);
       setContext("");
@@ -136,7 +136,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
           <label htmlFor="status" className="block text-sm font-medium mb-1">
             Status
           </label>
-          <Select value={status} onValueChange={(val) => setStatus(val as TaskStatus)}>
+          <Select value={status} onValueChange={(val: TaskStatus) => setStatus(val)}>
             <SelectTrigger id="status">
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
@@ -144,12 +144,12 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
               <SelectItem value="inbox">Inbox</SelectItem>
               <SelectItem value="today">Today</SelectItem>
               <SelectItem value="next-action">Next Action</SelectItem>
-              <SelectItem value="todo">To Do</SelectItem>
-              <SelectItem value="in-progress">In Progress</SelectItem>
               <SelectItem value="project">Project</SelectItem>
               <SelectItem value="waiting-for">Waiting For</SelectItem>
               <SelectItem value="someday">Someday</SelectItem>
               <SelectItem value="reference">Reference</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="deleted">Deleted</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -158,7 +158,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel }) => {
           <label htmlFor="priority" className="block text-sm font-medium mb-1">
             Priority
           </label>
-          <Select value={priority} onValueChange={(val) => setPriority(val as TaskPriority)}>
+          <Select value={priority} onValueChange={(val: TaskPriority) => setPriority(val)}>
             <SelectTrigger id="priority">
               <SelectValue placeholder="Select priority" />
             </SelectTrigger>

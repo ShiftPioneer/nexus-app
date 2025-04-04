@@ -11,7 +11,6 @@ import {
   Layers,
   BookOpen,
   Settings,
-  User,
   Brain,
   Dumbbell,
   Zap,
@@ -42,6 +41,11 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ isCollapsed, onToggleCollapse }
     { path: "/focus", label: "Focus", icon: <Zap className="h-5 w-5" /> },
     { path: "/gtd", label: "GTD", icon: <Layers className="h-5 w-5" /> },
   ];
+
+  // Use safe access to user properties
+  const userDisplayName = user?.displayName || "User";
+  const userInitial = userDisplayName.charAt(0) || 'U';
+  const userPhotoURL = user?.photoURL || undefined;
 
   return (
     <div className={cn(
@@ -104,16 +108,16 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ isCollapsed, onToggleCollapse }
           >
             {isCollapsed ? (
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.photoURL || undefined} />
-                <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                <AvatarImage src={userPhotoURL} />
+                <AvatarFallback>{userInitial}</AvatarFallback>
               </Avatar>
             ) : (
               <>
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user?.photoURL || undefined} />
-                  <AvatarFallback>{user?.displayName?.charAt(0) || 'U'}</AvatarFallback>
+                  <AvatarImage src={userPhotoURL} />
+                  <AvatarFallback>{userInitial}</AvatarFallback>
                 </Avatar>
-                <span className="ml-3 truncate">{user?.displayName || "User"}</span>
+                <span className="ml-3 truncate">{userDisplayName}</span>
               </>
             )}
           </Link>
