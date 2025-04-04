@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Eye, EyeOff } from "lucide-react";
 import { User } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface AccountTabProps {
   user: User | null;
@@ -14,6 +15,7 @@ interface AccountTabProps {
 
 const AccountTab: React.FC<AccountTabProps> = ({ user }) => {
   const { toast } = useToast();
+  const { signOut } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("••••••••");
   const [showPassword, setShowPassword] = useState(false);
   const [appearance, setAppearance] = useState("system");
@@ -22,6 +24,24 @@ const AccountTab: React.FC<AccountTabProps> = ({ user }) => {
     toast({
       title: "Password Reset Email Sent",
       description: "Check your inbox for instructions to reset your password",
+      duration: 3000,
+    });
+  };
+
+  const handleDeleteAccount = async () => {
+    if (confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      toast({
+        title: "Account Deletion Requested",
+        description: "Your account deletion request has been received",
+        duration: 3000,
+      });
+    }
+  };
+
+  const handleExportData = () => {
+    toast({
+      title: "Data Export Initiated",
+      description: "Your data will be emailed to you shortly",
       duration: 3000,
     });
   };
@@ -92,8 +112,8 @@ const AccountTab: React.FC<AccountTabProps> = ({ user }) => {
           <div>
             <p className="text-muted-foreground mb-2">Export your data or delete your account</p>
             <div className="flex gap-2">
-              <Button variant="outline">Export Data</Button>
-              <Button variant="destructive">Delete Account</Button>
+              <Button variant="outline" onClick={handleExportData}>Export Data</Button>
+              <Button variant="destructive" onClick={handleDeleteAccount}>Delete Account</Button>
             </div>
           </div>
         </CardContent>

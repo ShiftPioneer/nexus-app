@@ -1,14 +1,33 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileTab from "@/components/settings/ProfileTab";
 import AccountTab from "@/components/settings/AccountTab";
 import NotificationsTab from "@/components/settings/NotificationsTab";
 import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const Settings = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  // If user is not authenticated and not loading, redirect to auth page
+  React.useEffect(() => {
+    if (!loading && !user) {
+      navigate("/auth");
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <AppLayout>
+        <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF6500]"></div>
+        </div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout>

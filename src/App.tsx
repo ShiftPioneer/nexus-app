@@ -17,8 +17,6 @@ import Auth from './pages/Auth';
 import { FocusTimerProvider } from './components/focus/FocusTimerService';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { HabitProvider } from './contexts/HabitContext';
 import { GoalProvider } from './contexts/GoalContext';
 import { TaskProvider } from './contexts/TaskContext';
@@ -38,18 +36,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 function App() {
-  // Ensure token is set in localStorage for backwards compatibility
-  useEffect(() => {
-    const checkAndSetLocalStorage = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        localStorage.setItem('supabase.auth.token', JSON.stringify(data.session));
-      }
-    };
-    
-    checkAndSetLocalStorage();
-  }, []);
-
   return (
     <Router>
       <AuthProvider>

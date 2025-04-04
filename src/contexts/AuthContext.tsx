@@ -1,20 +1,8 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut as firebaseSignOut,
-  onAuthStateChanged,
-  updateProfile,
-  signInWithPopup,
-  GoogleAuthProvider,
-  FacebookAuthProvider,
-  GithubAuthProvider,
-  TwitterAuthProvider,
-  User as FirebaseUser,
-} from "firebase/auth";
-import { auth } from "@/config/firebase";
+import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Session, User as SupabaseUser } from "@supabase/supabase-js";
 
 export interface User {
   uid: string;
@@ -25,14 +13,12 @@ export interface User {
 
 interface AuthContextProps {
   user: User | null;
+  session: Session | null;
   signUp: (email: string, password: string, displayName?: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   updateUserProfile: (updates: { displayName?: string; photoURL?: string }) => Promise<void>;
   signInWithGoogle: () => Promise<void>;
-  signInWithFacebook: () => Promise<void>;
-  signInWithGithub: () => Promise<void>;
-  signInWithTwitter: () => Promise<void>;
   loading: boolean;
 }
 
@@ -52,40 +38,69 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        const user: User = {
-          uid: firebaseUser.uid,
-          email: firebaseUser.email || "",
-          displayName: firebaseUser.displayName || undefined,
-          photoURL: firebaseUser.photoURL || undefined,
+    // Set up auth state listener first
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, currentSession) => {
+        setSession(currentSession);
+        if (currentSession?.user) {
+          const supaUser = currentSession.user;
+          const userData: User = {
+            uid: supaUser.id,
+            email: supaUser.email || "",
+            displayName: supaUser.user_metadata?.full_name || "",
+            photoURL: supaUser.user_metadata?.avatar_url || "",
+          };
+          setUser(userData);
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    // Then check for existing session
+    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+      setSession(currentSession);
+      if (currentSession?.user) {
+        const supaUser = currentSession.user;
+        const userData: User = {
+          uid: supaUser.id,
+          email: supaUser.email || "",
+          displayName: supaUser.user_metadata?.full_name || "",
+          photoURL: supaUser.user_metadata?.avatar_url || "",
         };
-        setUser(user);
-      } else {
-        setUser(null);
+        setUser(userData);
       }
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Update user profile with display name if provided
-      if (displayName && userCredential.user) {
-        await updateProfile(userCredential.user, { displayName });
-      }
-      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: displayName || "",
+          }
+        }
+      });
+
+      if (error) throw error;
+
       toast({
         title: "Success",
-        description: "Account created successfully.",
+        description: "Account created successfully. Please check your email for verification.",
       });
     } catch (error: any) {
       toast({
@@ -98,7 +113,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
       toast({
         title: "Success",
         description: "Signed in successfully.",
@@ -114,7 +135,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     try {
-      await firebaseSignOut(auth);
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
       toast({
         title: "Success",
         description: "Signed out successfully.",
@@ -130,20 +153,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateUserProfile = async (updates: { displayName?: string; photoURL?: string }) => {
     try {
-      if (auth.currentUser) {
-        await updateProfile(auth.currentUser, updates);
+      const { error } = await supabase.auth.updateUser({
+        data: {
+          full_name: updates.displayName,
+          avatar_url: updates.photoURL
+        }
+      });
+
+      if (error) throw error;
+
+      if (user) {
         setUser({
-          ...user!,
-          displayName: auth.currentUser.displayName || user!.displayName,
-          photoURL: auth.currentUser.photoURL || user!.photoURL,
+          ...user,
+          displayName: updates.displayName || user.displayName,
+          photoURL: updates.photoURL || user.photoURL,
         });
-        toast({
-          title: "Profile Updated",
-          description: "Your profile has been updated.",
-        });
-      } else {
-        throw new Error("No user currently signed in.");
       }
+
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated.",
+      });
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -155,12 +185,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signInWithGoogle = async () => {
     try {
-      const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
-      toast({
-        title: "Success",
-        description: "Signed in with Google successfully.",
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
       });
+
+      if (error) throw error;
+      
+      // No toast needed here as we're being redirected
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -170,73 +204,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const signInWithFacebook = async () => {
-    try {
-      const provider = new FacebookAuthProvider();
-      await signInWithPopup(auth, provider);
-      toast({
-        title: "Success",
-        description: "Signed in with Facebook successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error signing in with Facebook",
-        description: error.message,
-      });
-    }
-  };
-
-  const signInWithGithub = async () => {
-    try {
-      const provider = new GithubAuthProvider();
-      await signInWithPopup(auth, provider);
-      toast({
-        title: "Success",
-        description: "Signed in with Github successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error signing in with Github",
-        description: error.message,
-      });
-    }
-  };
-
-  const signInWithTwitter = async () => {
-    try {
-      const provider = new TwitterAuthProvider();
-      await signInWithPopup(auth, provider);
-      toast({
-        title: "Success",
-        description: "Signed in with Twitter successfully.",
-      });
-    } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Error signing in with Twitter",
-        description: error.message,
-      });
-    }
-  };
-
   const value: AuthContextProps = {
     user,
+    session,
     signUp,
     signIn,
     signOut,
     updateUserProfile,
     signInWithGoogle,
-    signInWithFacebook,
-    signInWithGithub,
-    signInWithTwitter,
     loading,
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };
