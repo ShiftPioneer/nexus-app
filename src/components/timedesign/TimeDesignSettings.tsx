@@ -4,26 +4,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import GoogleCalendarSettings from "@/components/settings/GoogleCalendarSettings";
 
 const TimeDesignSettings: React.FC = () => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Google Calendar Integration</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <Label htmlFor="google-calendar" className="font-medium">Connect your Google Calendar to sync activities</Label>
-            <p className="text-sm text-muted-foreground mt-1">
-              Not Connected
-            </p>
-          </div>
-          <Switch id="google-calendar" />
-        </div>
-        
-        <div className="pt-4 border-t">
-          <h3 className="font-medium mb-2">Calendar Settings</h3>
+    <div className="space-y-6">
+      <GoogleCalendarSettings />
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Calendar Settings</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
           <div className="grid gap-4">
             <div className="flex items-center justify-between">
               <Label htmlFor="week-starts">Week Starts On</Label>
@@ -61,10 +53,14 @@ const TimeDesignSettings: React.FC = () => {
               </select>
             </div>
           </div>
-        </div>
-        
-        <div className="pt-4 border-t">
-          <h3 className="font-medium mb-2">Notifications</h3>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>Notifications</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -82,13 +78,13 @@ const TimeDesignSettings: React.FC = () => {
               <Switch id="browser-notifications" />
             </div>
           </div>
-        </div>
-        
-        <div className="flex justify-end pt-4">
-          <Button>Save Settings</Button>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+      
+      <div className="flex justify-end pt-4">
+        <Button>Save Settings</Button>
+      </div>
+    </div>
   );
 };
 

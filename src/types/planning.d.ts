@@ -27,10 +27,12 @@ export interface Goal {
   startDate: Date;
   endDate: Date;
   progress: number; // 0-100
-  status: 'active' | 'completed' | 'abandoned';
+  status: 'active' | 'completed' | 'abandoned' | 'not-started' | 'in-progress';
   priority: 'low' | 'medium' | 'high';
   category?: string;
   relatedProjects?: string[]; // IDs of related projects
+  timeframe?: string;
+  milestones?: Array<{id: string, title: string, completed: boolean}>;
 }
 
 export interface Project {
@@ -40,7 +42,7 @@ export interface Project {
   startDate: Date;
   endDate?: Date;
   progress: number; // 0-100
-  status: 'active' | 'on-hold' | 'completed' | 'cancelled';
+  status: 'active' | 'on-hold' | 'completed' | 'cancelled' | 'not-started' | 'in-progress';
   priority: 'low' | 'medium' | 'high';
   goalId?: string; // ID of the parent goal
   tasks?: string[]; // IDs of tasks related to this project

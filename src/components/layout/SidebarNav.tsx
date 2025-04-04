@@ -108,12 +108,12 @@ const SidebarNav: React.FC<SidebarNavProps> = ({ isCollapsed, onToggleCollapse }
             )}
           >
             <Avatar className="h-8 w-8 ring-2 ring-primary/20">
-              <AvatarImage src={userPhotoURL} />
+              <AvatarImage src={user?.photoURL} />
               <AvatarFallback className="bg-primary-600/10 text-primary">{userInitial}</AvatarFallback>
             </Avatar>
             {!isCollapsed && (
               <div className="ml-3 overflow-hidden">
-                <p className="font-medium truncate">{userDisplayName}</p>
+                <p className="font-medium truncate">{user?.displayName}</p>
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
               </div>
             )}

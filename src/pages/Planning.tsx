@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -9,6 +10,8 @@ import ProjectCreationDialog from "@/components/planning/ProjectCreationDialog";
 import PlanningBoardView from "@/components/planning/PlanningBoardView";
 import PlanningListView from "@/components/planning/PlanningListView";
 import { useToast } from "@/hooks/use-toast";
+import { Goal, Project } from "@/types/planning";
+
 const Planning = () => {
   const {
     toast
@@ -156,4 +159,5 @@ const Planning = () => {
       <ProjectCreationDialog open={showProjectDialog} onOpenChange={setShowProjectDialog} onProjectCreate={handleProjectCreate} initialProject={selectedProject} existingProjects={projects} />
     </AppLayout>;
 };
+
 export default Planning;
