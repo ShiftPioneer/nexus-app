@@ -29,7 +29,7 @@ export interface Tag {
 export type Priority = "high" | "medium" | "low";
 export type ProjectStatus = "not-started" | "in-progress" | "completed" | "on-hold" | "cancelled" | "active";
 export type GoalStatus = "not-started" | "in-progress" | "completed" | "on-hold" | "cancelled";
-export type TaskStatus = "inbox" | "next-action" | "project" | "waiting-for" | "someday" | "reference" | "completed" | "deleted" | "today";
+export type TaskStatus = "inbox" | "next-action" | "project" | "waiting-for" | "someday" | "reference" | "completed" | "deleted" | "today" | "todo" | "in-progress" | "done";
 
 export interface Goal {
   id: string;

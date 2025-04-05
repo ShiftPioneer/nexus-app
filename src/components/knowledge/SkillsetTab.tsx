@@ -1,149 +1,260 @@
+
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Plus } from "lucide-react";
-import { Skillset, SkillsetCategory } from "@/types/knowledge";
-import { cn } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { SkillsetDialog } from "./SkillsetDialog";
+import { Skillset, SkillsetCategory } from "@/types/knowledge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { Plus, MoreVertical, Edit, Trash, Clock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { MasteryChart } from "./MasteryChart";
 import { CategoryChart } from "./CategoryChart";
-const sampleSkillsets: Skillset[] = [{
-  id: "1",
-  name: "JavaScript",
-  description: "Modern JavaScript programming language",
-  category: "Programming",
-  mastery: 75,
-  lastPracticed: new Date("2023-12-15"),
-  resourceCount: 5,
-  color: "#FFDD00"
-}, {
-  id: "2",
-  name: "UI/UX Design",
-  description: "User interface and experience design",
-  category: "Design",
-  mastery: 60,
-  lastPracticed: new Date("2023-12-10"),
-  resourceCount: 8,
-  color: "#FF5733"
-}, {
-  id: "3",
-  name: "Data Science",
-  description: "Statistical analysis and machine learning",
-  category: "Analytics",
-  mastery: 40,
-  lastPracticed: new Date("2023-11-28"),
-  resourceCount: 12,
-  color: "#4285F4"
-}, {
-  id: "4",
-  name: "Public Speaking",
-  description: "Effective communication and presentation skills",
-  category: "Soft Skills",
-  mastery: 80,
-  lastPracticed: new Date("2023-12-05"),
-  resourceCount: 3,
-  color: "#9C27B0"
-}];
+
+const sampleSkillsets: Skillset[] = [
+  {
+    id: "1",
+    name: "React Development",
+    description: "Building applications with React.js and related technologies",
+    category: "Programming" as SkillsetCategory,
+    proficiency: 85,
+    mastery: 85,
+    lastPracticed: new Date(2024, 2, 15),
+    resourceCount: 12,
+    color: "#61DAFB"
+  },
+  {
+    id: "2",
+    name: "UX Design",
+    description: "Creating user-friendly interfaces and experiences",
+    category: "Design" as SkillsetCategory,
+    proficiency: 72,
+    mastery: 72,
+    lastPracticed: new Date(2024, 2, 10),
+    resourceCount: 8,
+    color: "#FF6E6E"
+  },
+  {
+    id: "3",
+    name: "Data Visualization",
+    description: "Creating interactive and informative data visualizations",
+    category: "Analytics" as SkillsetCategory,
+    proficiency: 65,
+    mastery: 65,
+    lastPracticed: new Date(2024, 2, 20),
+    resourceCount: 5,
+    color: "#5E72E4"
+  },
+  {
+    id: "4",
+    name: "Public Speaking",
+    description: "Effectively communicating ideas to audiences",
+    category: "Soft Skills" as SkillsetCategory,
+    proficiency: 78,
+    mastery: 78,
+    lastPracticed: new Date(2024, 2, 5),
+    resourceCount: 3,
+    color: "#FF9F43"
+  }
+];
+
 export function SkillsetTab() {
   const [skillsets, setSkillsets] = useState<Skillset[]>(sampleSkillsets);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [currentSkillset, setCurrentSkillset] = useState<Skillset | null>(null);
-  const handleAddSkillset = (skillset: Skillset) => {
-    if (currentSkillset) {
-      setSkillsets(skillsets.map(s => s.id === skillset.id ? skillset : s));
-    } else {
-      setSkillsets([...skillsets, {
-        ...skillset,
-        id: Date.now().toString()
-      }]);
-    }
-    setDialogOpen(false);
-    setCurrentSkillset(null);
+  const [selectedSkillset, setSelectedSkillset] = useState<Skillset | null>(null);
+  
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    });
   };
+  
   const handleEdit = (skillset: Skillset) => {
-    setCurrentSkillset(skillset);
-    setDialogOpen(true);
+    setSelectedSkillset(skillset);
+    // Open edit dialog (to be implemented)
   };
-  const handleDelete = (id: string) => {
-    setSkillsets(skillsets.filter(s => s.id !== id));
+  
+  const handleDelete = (skillsetId: string) => {
+    setSkillsets(prevSkillsets => prevSkillsets.filter(s => s.id !== skillsetId));
   };
-  const categoryColors: Record<string, string> = {
-    "Programming": "bg-blue-100 text-blue-800",
-    "Design": "bg-indigo-100 text-indigo-800",
-    "Analytics": "bg-violet-100 text-violet-800",
-    "Soft Skills": "bg-purple-100 text-purple-800"
+  
+  const handleTogglePin = (skillsetId: string) => {
+    setSkillsets(prevSkillsets => 
+      prevSkillsets.map(s => 
+        s.id === skillsetId ? { ...s, pinned: !s.pinned } : s
+      )
+    );
   };
-  const getCardBorder = (color: string = "#DDDDDD") => {
-    return `border-t-4 border-t-[${color}]`;
+  
+  const getSkillsetsByCategory = () => {
+    const categories: Record<string, Skillset[]> = {};
+    
+    skillsets.forEach(skillset => {
+      if (!categories[skillset.category]) {
+        categories[skillset.category] = [];
+      }
+      categories[skillset.category].push(skillset);
+    });
+    
+    return categories;
   };
-  return <div className="space-y-6">
+  
+  const categoryGroups = getSkillsetsByCategory();
+  
+  const getCategoryColor = (category: string) => {
+    switch(category) {
+      case "Programming": return "bg-blue-100 text-blue-800";
+      case "Design": return "bg-purple-100 text-purple-800";
+      case "Analytics": return "bg-green-100 text-green-800";
+      case "Soft Skills": return "bg-orange-100 text-orange-800";
+      case "Language": return "bg-pink-100 text-pink-800";
+      default: return "bg-gray-100 text-gray-800";
+    }
+  };
+  
+  return (
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Your Skillsets</h2>
-        <Button onClick={() => {
-        setCurrentSkillset(null);
-        setDialogOpen(true);
-      }} className="gap-1">
-          <Plus size={18} />
-          Add Skillset
+        <Button className="gap-2">
+          <Plus className="h-4 w-4" /> Add Skillset
         </Button>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {skillsets.map(skillset => <Card key={skillset.id} className="bg-blue-800 rounded-25px rounded-2xl">
-            <CardContent className="p-6 bg-blue-800 rounded-2xl py-[24px]">
-              <div className="flex flex-col bg-blue-800">
-                <div className="flex justify-between items-start bg-transparent">
-                  <div className="space-y-1">
-                    <h3 className="text-xl font-bold text-left px-0 text-primary-dark">{skillset.name}</h3>
-                    <p className="text-muted-foreground text-sm font-normal text-cyan-500">{skillset.description}</p>
-                  </div>
-                  <span className="bg-slate-950 text-lime-500 font-normal pd-5px px-[5px] py-[5px] rounded-xl">
-                    {skillset.category}
-                  </span>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Skillset Overview</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <h3 className="text-sm font-medium mb-4">Skill Mastery</h3>
+                  <MasteryChart skillsets={skillsets} />
                 </div>
                 
-                <div className="mt-6 space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-lime-500 font-bold">Mastery</span>
-                    <span className="text-sm text-lime-500 font-bold py-0 my-[10px]">{skillset.mastery}%</span>
-                  </div>
-                  <Progress value={skillset.mastery} className="h-2" />
-                </div>
-                
-                <div className="flex justify-between items-center mt-6 text-sm text-muted-foreground">
-                  <span className="text-zinc-200">Resources: {skillset.resourceCount}</span>
-                  <span className="text-zinc-200">Last practiced: {skillset.lastPracticed.toISOString().split('T')[0]}</span>
-                </div>
-                
-                <div className="flex justify-end gap-2 mt-4 bg-blue-800">
-                  <Button size="icon" variant="outline" onClick={() => handleEdit(skillset)} className="bg-lime-500 hover:bg-lime-400 font-normal text-slate-950 rounded">
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button size="icon" variant="outline" onClick={() => handleDelete(skillset.id)} className="text-destructive hover:text-destructive">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                <div>
+                  <h3 className="text-sm font-medium mb-4">Category Distribution</h3>
+                  <CategoryChart skillsets={skillsets} />
                 </div>
               </div>
             </CardContent>
-          </Card>)}
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+          </Card>
+        </div>
+        
         <Card>
-          <CardContent className="p-6">
-            <h3 className="font-bold text-xl mb-4">Mastery Overview</h3>
-            <MasteryChart skillsets={skillsets} />
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">Quick Stats</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Total Skillsets</p>
+                <p className="text-2xl font-bold">{skillsets.length}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Categories</p>
+                <p className="text-2xl font-bold">{Object.keys(categoryGroups).length}</p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Top Skillset</p>
+                <p className="text-lg font-medium">
+                  {skillsets.sort((a, b) => b.mastery - a.mastery)[0]?.name}
+                </p>
+              </div>
+              
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Latest Practice</p>
+                <p className="text-lg font-medium">
+                  {formatDate(skillsets.sort((a, b) => 
+                    new Date(b.lastPracticed || 0).getTime() - 
+                    new Date(a.lastPracticed || 0).getTime()
+                  )[0]?.lastPracticed || new Date())}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
-        <Card>
-          <CardContent className="p-6">
-            <h3 className="font-bold text-xl mb-4">Skillsets by Category</h3>
-            <CategoryChart skillsets={skillsets} />
-          </CardContent>
-        </Card>
       </div>
       
-      <SkillsetDialog open={dialogOpen} onOpenChange={setDialogOpen} onSave={handleAddSkillset} skillset={currentSkillset} />
-    </div>;
+      {Object.entries(categoryGroups).map(([category, skills]) => (
+        <div key={category} className="space-y-4">
+          <div className="flex items-center gap-2">
+            <h3 className="text-xl font-semibold">{category}</h3>
+            <Badge className={getCategoryColor(category)}>{skills.length}</Badge>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {skills.map(skill => (
+              <Card key={skill.id} className="hover:shadow-md transition-all">
+                <CardContent className="p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <h4 className="font-semibold text-base">{skill.name}</h4>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleEdit(skill)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleTogglePin(skill.id)}>
+                          {skill.pinned ? (
+                            <>
+                              <span className="text-primary mr-2">★</span>
+                              Unpin
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-muted-foreground mr-2">☆</span>
+                              Pin
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDelete(skill.id)} className="text-destructive">
+                          <Trash className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  
+                  {skill.description && (
+                    <p className="text-sm text-muted-foreground">{skill.description}</p>
+                  )}
+                  
+                  <div className="space-y-1">
+                    <div className="flex justify-between items-center text-sm">
+                      <span>Mastery</span>
+                      <span className="font-medium">{skill.mastery}%</span>
+                    </div>
+                    <Progress value={skill.mastery} className="h-2" style={{ backgroundColor: `${skill.color}20` }}>
+                      <div 
+                        className="h-full rounded-full transition-all" 
+                        style={{ width: `${skill.mastery}%`, backgroundColor: skill.color }} 
+                      />
+                    </Progress>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-xs text-muted-foreground">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {formatDate(skill.lastPracticed || new Date())}
+                    </div>
+                    <div>{skill.resourceCount} resources</div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }

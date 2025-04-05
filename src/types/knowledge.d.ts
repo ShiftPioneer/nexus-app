@@ -26,7 +26,7 @@ export interface Tag {
   color?: string;
 }
 
-// Adding missing types for Knowledge components
+// Book types
 export interface Book {
   id: string;
   title: string;
@@ -43,18 +43,18 @@ export interface Book {
   pinned?: boolean;
   relatedSkillsets?: string[];
   summary?: string;
-  keyLessons?: string[];
+  keyLessons?: string;
 }
 
-export type ReadingStatus = "to-read" | "reading" | "completed" | "abandoned" | "Not Yet Read";
+export type ReadingStatus = "Not Yet Read" | "Reading Now" | "Finished" | "abandoned";
 
-export type KnowledgeCategory = "note" | "concept" | "idea" | "question" | "insight" | "summary";
+export type KnowledgeCategory = "note" | "concept" | "idea" | "question" | "insight" | "summary" | "inbox" | "projects" | "areas" | "resources" | "archives";
 
 export interface KnowledgeEntry {
   id: string;
   title: string;
   content: string;
-  category: KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives";
+  category: KnowledgeCategory;
   tags: string[];
   createdAt: Date;
   updatedAt?: Date;
@@ -98,8 +98,8 @@ export interface KnowledgeContextValue {
   // State management
   searchQuery?: string;
   setSearchQuery?: (query: string) => void;
-  activeFilter?: "all" | KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives";
-  setActiveFilter?: (filter: "all" | KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives") => void;
+  activeFilter?: "all" | KnowledgeCategory;
+  setActiveFilter?: (filter: "all" | KnowledgeCategory) => void;
   activeTags?: string[];
   setActiveTags?: (tags: string[]) => void;
   
@@ -107,8 +107,8 @@ export interface KnowledgeContextValue {
   addEntry: (entry: Omit<KnowledgeEntry, "id">) => string;
   updateEntry: (id: string, entry: Partial<KnowledgeEntry>) => void;
   deleteEntry: (id: string) => void;
-  moveEntry?: (id: string, category: KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives") => void;
-  getEntriesByCategory?: (category: KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives") => KnowledgeEntry[];
+  moveEntry?: (id: string, category: KnowledgeCategory) => void;
+  getEntriesByCategory?: (category: KnowledgeCategory) => KnowledgeEntry[];
   findSimilarEntries?: (entry: KnowledgeEntry) => KnowledgeEntry[];
   checkForDuplicates?: (entry: Partial<KnowledgeEntry>) => KnowledgeEntry[];
   searchEntries?: (query: string) => KnowledgeEntry[];
@@ -141,7 +141,7 @@ export interface KnowledgeContextValue {
   getRelatedEntriesForTask?: (taskId: string) => KnowledgeEntry[];
   
   // Filtering and organization
-  filterEntries?: (category: "all" | KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives", tags: string[], query: string) => KnowledgeEntry[];
+  filterEntries?: (category: "all" | KnowledgeCategory, tags: string[], query: string) => KnowledgeEntry[];
   archiveOldEntries?: (daysThreshold: number) => void;
   
   // Analytics

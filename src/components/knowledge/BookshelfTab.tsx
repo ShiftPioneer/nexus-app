@@ -1,48 +1,59 @@
+
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Book, ReadingStatus } from "@/types/knowledge";
 import { LibraryBigIcon, BookOpen, Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookDialog } from "./BookDialog";
 import { BookCard } from "./BookCard";
+import { Book, ReadingStatus } from "@/types/knowledge";
+
+// Sample books data with corrected types
 const sampleBooks: Book[] = [{
   id: "1",
   title: "Atomic Habits",
   author: "James Clear",
-  readingStatus: "Reading Now",
+  readingStatus: "Reading Now" as ReadingStatus,
   rating: 5,
   coverImage: "/sample-covers/atomic-habits.jpg",
   description: "Tiny changes, remarkable results",
   relatedSkillsets: ["Self-Improvement"],
   summary: "A practical guide about how to build good habits and break bad ones.",
-  keyLessons: "Small changes compound over time. Focus on system over goals."
+  keyLessons: "Small changes compound over time. Focus on system over goals.",
+  dateAdded: new Date(),
+  tags: ["habits", "self-improvement"]
 }, {
   id: "2",
   title: "Design Patterns",
   author: "Erich Gamma et al.",
-  readingStatus: "Not Yet Read",
+  readingStatus: "Not Yet Read" as ReadingStatus,
   rating: 0,
   coverImage: "/sample-covers/design-patterns.jpg",
   description: "Elements of Reusable Object-Oriented Software",
   relatedSkillsets: ["Programming", "Design"],
   summary: "",
-  keyLessons: ""
+  keyLessons: "",
+  dateAdded: new Date(),
+  tags: ["programming", "design"]
 }, {
   id: "3",
   title: "Thinking, Fast and Slow",
   author: "Daniel Kahneman",
-  readingStatus: "Finished",
+  readingStatus: "Finished" as ReadingStatus,
   rating: 4,
   coverImage: "/sample-covers/thinking-fast-slow.jpg",
   description: "How the mind works and the two systems that drive the way we think",
   relatedSkillsets: ["Psychology", "Decision Making"],
   summary: "Explores the two systems that drive how we think and make choices.",
-  keyLessons: "Our brains use two systems: fast, intuitive thinking and slow, rational thinking."
+  keyLessons: "Our brains use two systems: fast, intuitive thinking and slow, rational thinking.",
+  dateAdded: new Date(),
+  tags: ["psychology", "decision-making"]
 }];
+
 interface BookshelfState {
   [key: string]: Book[];
 }
+
 export function BookshelfTab() {
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -55,10 +66,13 @@ export function BookshelfTab() {
     "Not Yet Read": [],
     "Finished": []
   };
+  
   sampleBooks.forEach(book => {
     initialState[book.readingStatus].push(book);
   });
+  
   const [booksByStatus, setBooksByStatus] = useState<BookshelfState>(initialState);
+  
   const handleAddBook = (book: Book) => {
     if (currentBook) {
       // Remove the book from its previous status (if it changed)
@@ -85,23 +99,28 @@ export function BookshelfTab() {
     setCurrentBook(null);
     setCoverImage(null);
   };
+  
   const handleEdit = (book: Book) => {
     setCurrentBook(book);
     setCoverImage(book.coverImage || null);
     setDialogOpen(true);
   };
+  
   const handleDelete = (book: Book) => {
     setBooksByStatus({
       ...booksByStatus,
       [book.readingStatus]: booksByStatus[book.readingStatus].filter(b => b.id !== book.id)
     });
   };
+  
   const handleDragStart = (event: React.DragEvent, book: Book) => {
     event.dataTransfer.setData('book', JSON.stringify(book));
   };
+  
   const handleDragOver = (event: React.DragEvent) => {
     event.preventDefault();
   };
+  
   const handleDrop = (event: React.DragEvent, status: ReadingStatus) => {
     event.preventDefault();
     const bookData = event.dataTransfer.getData('book');
@@ -127,7 +146,9 @@ export function BookshelfTab() {
 
   // Calculate all books across all statuses
   const allBooks = Object.values(booksByStatus).flat();
-  return <div className="space-y-6 py-[20px] px-[20px]">
+  
+  return (
+    <div className="space-y-6 py-[20px] px-[20px]">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">Your Bookshelf</h2>
         <div className="flex items-center gap-4 w-full sm:w-auto">
@@ -151,8 +172,15 @@ export function BookshelfTab() {
         </div>
       </div>
       
-      {viewMode === "kanban" ? <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {Object.entries(booksByStatus).map(([status, books]) => <Card key={status} className="overflow-hidden" onDragOver={handleDragOver} onDrop={e => handleDrop(e, status as ReadingStatus)}>
+      {viewMode === "kanban" ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Object.entries(booksByStatus).map(([status, books]) => (
+            <Card 
+              key={status} 
+              className="overflow-hidden" 
+              onDragOver={handleDragOver} 
+              onDrop={e => handleDrop(e, status as ReadingStatus)}
+            >
               <CardContent className="p-4 bg-orange-50 py-[26px] px-[26px]">
                 <div className="flex items-center gap-2 mb-4">
                   <h3 className="font-bold text-lg text-secondary-light">{status}</h3>
@@ -162,17 +190,24 @@ export function BookshelfTab() {
                 </div>
                 
                 <div className="space-y-4 min-h-[150px]">
-                  {books.map(book => <div key={book.id} draggable onDragStart={e => handleDragStart(e, book)} className="cursor-move">
+                  {books.map(book => (
+                    <div key={book.id} draggable onDragStart={e => handleDragStart(e, book)} className="cursor-move">
                       <BookCard book={book} onEdit={handleEdit} onDelete={handleDelete} />
-                    </div>)}
+                    </div>
+                  ))}
                   
-                  {books.length === 0 && <div className="border border-dashed rounded-md p-4 text-center text-muted-foreground">
+                  {books.length === 0 && (
+                    <div className="border border-dashed rounded-md p-4 text-center text-muted-foreground">
                       No books in this category
-                    </div>}
+                    </div>
+                  )}
                 </div>
               </CardContent>
-            </Card>)}
-        </div> : <Tabs defaultValue="all" className="w-full">
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Tabs defaultValue="all" className="w-full">
           <TabsList className="w-full md:w-auto">
             <TabsTrigger value="all">All Books</TabsTrigger>
             <TabsTrigger value="reading">Reading Now</TabsTrigger>
@@ -182,37 +217,70 @@ export function BookshelfTab() {
           
           <TabsContent value="all" className="mt-4">
             <div className="space-y-4">
-              {allBooks.length > 0 ? allBooks.map(book => <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />) : <div className="text-center py-8 border border-dashed rounded-lg">
+              {allBooks.length > 0 ? (
+                allBooks.map(book => (
+                  <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />
+                ))
+              ) : (
+                <div className="text-center py-8 border border-dashed rounded-lg">
                   <p className="text-muted-foreground">No books added yet</p>
-                </div>}
+                </div>
+              )}
             </div>
           </TabsContent>
           
           <TabsContent value="reading" className="mt-4">
             <div className="space-y-4">
-              {booksByStatus["Reading Now"].length > 0 ? booksByStatus["Reading Now"].map(book => <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />) : <div className="text-center py-8 border border-dashed rounded-lg">
+              {booksByStatus["Reading Now"].length > 0 ? (
+                booksByStatus["Reading Now"].map(book => (
+                  <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />
+                ))
+              ) : (
+                <div className="text-center py-8 border border-dashed rounded-lg">
                   <p className="text-muted-foreground">No books currently being read</p>
-                </div>}
+                </div>
+              )}
             </div>
           </TabsContent>
           
           <TabsContent value="toread" className="mt-4">
             <div className="space-y-4">
-              {booksByStatus["Not Yet Read"].length > 0 ? booksByStatus["Not Yet Read"].map(book => <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />) : <div className="text-center py-8 border border-dashed rounded-lg">
+              {booksByStatus["Not Yet Read"].length > 0 ? (
+                booksByStatus["Not Yet Read"].map(book => (
+                  <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />
+                ))
+              ) : (
+                <div className="text-center py-8 border border-dashed rounded-lg">
                   <p className="text-muted-foreground">Your reading list is empty</p>
-                </div>}
+                </div>
+              )}
             </div>
           </TabsContent>
           
           <TabsContent value="finished" className="mt-4">
             <div className="space-y-4">
-              {booksByStatus["Finished"].length > 0 ? booksByStatus["Finished"].map(book => <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />) : <div className="text-center py-8 border border-dashed rounded-lg">
+              {booksByStatus["Finished"].length > 0 ? (
+                booksByStatus["Finished"].map(book => (
+                  <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />
+                ))
+              ) : (
+                <div className="text-center py-8 border border-dashed rounded-lg">
                   <p className="text-muted-foreground">No finished books yet</p>
-                </div>}
+                </div>
+              )}
             </div>
           </TabsContent>
-        </Tabs>}
+        </Tabs>
+      )}
       
-      <BookDialog open={dialogOpen} onOpenChange={setDialogOpen} onSave={handleAddBook} book={currentBook} coverImage={coverImage} onCoverImageChange={setCoverImage} />
-    </div>;
+      <BookDialog 
+        open={dialogOpen} 
+        onOpenChange={setDialogOpen} 
+        onSave={handleAddBook} 
+        book={currentBook} 
+        coverImage={coverImage} 
+        onCoverImageChange={setCoverImage} 
+      />
+    </div>
+  );
 }

@@ -24,10 +24,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Note, Resource, Book, Skillset } from "@/types/knowledge";
+import { Note, Resource } from "@/types/knowledge";
 import { useKnowledge } from "@/contexts/KnowledgeContext";
-import BookshelfTab from "@/components/knowledge/BookshelfTab";
-import SkillsetTab from "@/components/knowledge/SkillsetTab";
+import { BookshelfTab } from "@/components/knowledge/BookshelfTab";
+import { SkillsetTab } from "@/components/knowledge/SkillsetTab";
 import ResourcesTab from "@/components/knowledge/ResourcesTab";
 import SecondBrainSystem from "@/components/knowledge/SecondBrainSystem";
 
@@ -54,8 +54,8 @@ const Knowledge: React.FC = () => {
   const allTags = Array.from(new Set([
     ...notes.flatMap(note => note.tags),
     ...resources.flatMap(resource => resource.tags),
-    ...books.flatMap(book => book.tags),
-    ...skillsets.flatMap(skillset => skillset.name)
+    ...books.flatMap(book => book.relatedSkillsets || []),
+    ...skillsets.map(skillset => skillset.name)
   ]));
   
   const handleAddNewItem = () => {
@@ -249,28 +249,15 @@ const Knowledge: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="resources" className="mt-6">
-            <ResourcesTab 
-              resources={filteredResources} 
-              searchQuery={searchQuery} 
-              filterTag={filterTag}
-              onTogglePin={togglePinResource}
-            />
+            <ResourcesTab />
           </TabsContent>
           
           <TabsContent value="books" className="mt-6">
-            <BookshelfTab 
-              searchQuery={searchQuery} 
-              filterTag={filterTag}
-              onTogglePin={togglePinBook}
-            />
+            <BookshelfTab />
           </TabsContent>
           
           <TabsContent value="skillsets" className="mt-6">
-            <SkillsetTab 
-              searchQuery={searchQuery} 
-              filterTag={filterTag}
-              onTogglePin={togglePinSkillset}
-            />
+            <SkillsetTab />
           </TabsContent>
           
           <TabsContent value="secondbrain" className="mt-6">
@@ -289,7 +276,7 @@ const Knowledge: React.FC = () => {
                     <Badge variant="secondary">
                       {notes.filter(note => note.tags.includes(tag)).length + 
                        resources.filter(resource => resource.tags.includes(tag)).length +
-                       books.filter(book => book.tags.includes(tag)).length +
+                       books.filter(book => (book.relatedSkillsets || []).includes(tag)).length +
                        skillsets.filter(skillset => skillset.name === tag).length}
                     </Badge>
                   </CardContent>
