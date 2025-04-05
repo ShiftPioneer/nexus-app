@@ -1,224 +1,225 @@
-
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useContext } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { PlusCircle, X, UploadCloud } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import TagInput from "@/components/ui/tag-input";
 import { Label } from "@/components/ui/label";
-import { Mic, MicOff, Paperclip, Plus, BookOpen, FileUp } from "lucide-react";
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select";
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogFooter 
+} from "@/components/ui/dialog";
+import { KnowledgeCategory, KnowledgeEntry } from "@/types/knowledge";
+import { KnowledgeContext } from "@/contexts/KnowledgeContext";
 import { useToast } from "@/hooks/use-toast";
-import { KnowledgeEntry } from "@/types/knowledge";
+
+const categoryOptions: KnowledgeCategory[] = ["note", "concept", "idea", "question", "insight", "summary", "inbox", "projects", "areas", "resources", "archives"];
 
 interface KnowledgeInboxProps {
-  onAddEntry: (entry: KnowledgeEntry) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
-const KnowledgeInbox: React.FC<KnowledgeInboxProps> = ({ onAddEntry }) => {
+export function KnowledgeInbox({ open, onOpenChange }: KnowledgeInboxProps) {
+  const { addEntry } = useContext(KnowledgeContext);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordedText, setRecordedText] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [url, setUrl] = useState("");
-
+  const [category, setCategory] = useState<KnowledgeCategory>("inbox");
+  const [tags, setTags] = useState("");
+  const [attachment, setAttachment] = useState<{ name: string; url: string; type: string } | null>(null);
   const { toast } = useToast();
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-  const handleFileUpload = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
+  const handleSave = () => {
+    if (!title || !content) {
       toast({
-        title: "File Selected",
-        description: `${selectedFile.name} has been added to your entry`,
-        duration: 3000,
-      });
-    }
-  };
-
-  const toggleRecording = () => {
-    // This would normally use the Web Speech API
-    setIsRecording(!isRecording);
-
-    if (isRecording) {
-      // Stop recording
-      setContent(prev => prev + " " + recordedText);
-      setRecordedText("");
-      toast({
-        title: "Recording Stopped",
-        description: "Your speech has been added to the content",
-        duration: 3000,
-      });
-    } else {
-      // Start recording
-      toast({
-        title: "Recording Started",
-        description: "Speak now to add content to your entry",
-        duration: 3000,
-      });
-      
-      // Simulating a recording
-      setTimeout(() => {
-        setRecordedText("This is simulated voice recording content.");
-      }, 2000);
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!title.trim()) {
-      toast({
-        title: "Missing Information",
-        description: "Please enter a title for your entry",
+        title: "Missing fields",
+        description: "Please fill in all required fields.",
         variant: "destructive",
-        duration: 3000,
       });
       return;
     }
 
-    const newEntry: KnowledgeEntry = {
-      id: Date.now().toString(),
+    const newEntry: Omit<KnowledgeEntry, "id"> = {
       title,
       content,
-      tags,
+      category,
+      tags: tags.split(",").map(tag => tag.trim()),
       createdAt: new Date(),
-      updatedAt: new Date(),
-      category: "inbox", // Always start in inbox
-      url: url || undefined,
-      fileAttachment: file ? {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        url: URL.createObjectURL(file)
-      } : undefined
+      pinned: false,
+      fileAttachment: attachment
     };
 
-    onAddEntry(newEntry);
-    
-    // Reset form
+    addEntry(newEntry);
+    toast({
+      title: "Entry added",
+      description: `Successfully added entry "${title}" to ${category}.`,
+    });
+    onOpenChange(false);
+    clearForm();
+  };
+
+  const clearForm = () => {
     setTitle("");
     setContent("");
-    setTags([]);
-    setFile(null);
-    setUrl("");
+    setCategory("inbox");
+    setTags("");
+    setAttachment(null);
+  };
 
-    toast({
-      title: "Entry Captured",
-      description: "Your knowledge has been added to the inbox",
-      duration: 3000,
-    });
+  const handleRemoveAttachment = () => {
+    setAttachment(null);
+  };
+
+  // Remove the 'size' property when attaching files
+  const handleAttachFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setAttachment({
+        name: file.name,
+        url: URL.createObjectURL(file),
+        type: file.type
+      });
+    }
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <BookOpen className="h-5 w-5 text-primary" />
-          Capture Knowledge
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Knowledge Entry</DialogTitle>
+          <DialogDescription>Enter the details for your new knowledge entry.</DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-4 py-4">
+          <div className="grid gap-2">
             <Label htmlFor="title">Title</Label>
             <Input
+              type="text"
               id="title"
-              placeholder="Enter a title for your knowledge entry"
               value={title}
-              onChange={e => setTitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
             />
           </div>
 
-          <div className="space-y-2">
-            <div className="flex justify-between items-center">
-              <Label htmlFor="content">Content</Label>
-              <Button
-                type="button"
-                size="sm"
-                variant={isRecording ? "destructive" : "outline"}
-                onClick={toggleRecording}
-                className="gap-1"
-              >
-                {isRecording ? (
-                  <>
-                    <MicOff className="h-4 w-4" />
-                    Stop Recording
-                  </>
-                ) : (
-                  <>
-                    <Mic className="h-4 w-4" />
-                    Record Voice
-                  </>
-                )}
-              </Button>
-            </div>
+          <div className="grid gap-2">
+            <Label htmlFor="content">Content</Label>
             <Textarea
               id="content"
-              placeholder="Write your knowledge entry here"
               value={content}
-              onChange={e => setContent(e.target.value)}
-              className="min-h-[150px]"
+              onChange={(e) => setContent(e.target.value)}
+              className="min-h-[100px]"
             />
-            {recordedText && (
-              <div className="text-sm mt-1 text-muted-foreground">
-                <p>Recording: {recordedText}</p>
-              </div>
-            )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="tags">Tags</Label>
-            <TagInput
+          <div className="grid gap-2">
+            <Label htmlFor="category">Category</Label>
+            <Select onValueChange={(value) => setCategory(value as KnowledgeCategory)} defaultValue={category}>
+              <SelectTrigger id="category">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categoryOptions.map((cat) => (
+                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="tags">Tags (comma separated)</Label>
+            <Input
+              type="text"
               id="tags"
               value={tags}
-              onChange={setTags}
-              placeholder="Add tags..."
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="url">Web URL (optional)</Label>
-            <Input
-              id="url"
-              placeholder="https://example.com/article"
-              value={url}
-              onChange={e => setUrl(e.target.value)}
+              onChange={(e) => setTags(e.target.value)}
             />
           </div>
 
           <div>
-            <input 
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              onChange={handleFileChange}
-            />
-            <Button 
-              type="button"
-              variant="outline"
-              onClick={handleFileUpload}
-              className="w-full gap-2"
-            >
-              <Paperclip className="h-4 w-4" />
-              {file ? file.name : "Attach File"}
-            </Button>
+            <Label htmlFor="attachment">Attachment</Label>
+            {attachment ? (
+              <div className="flex items-center justify-between rounded-md border p-2">
+                <span>{attachment.name}</span>
+                <Button type="button" variant="ghost" onClick={handleRemoveAttachment}>
+                  <X className="h-4 w-4" />
+                  Remove
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Input
+                  type="file"
+                  id="attachment"
+                  className="hidden"
+                  onChange={handleAttachFile}
+                />
+                <Label htmlFor="attachment" className="cursor-pointer flex items-center">
+                  <UploadCloud className="mr-2 h-4 w-4" />
+                  Attach File
+                </Label>
+              </div>
+            )}
           </div>
+        </div>
 
-          <Button type="submit" className="w-full gap-2">
-            <Plus className="h-4 w-4" />
-            Capture Entry
+        <DialogFooter>
+          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
+            Cancel
           </Button>
-        </form>
-      </CardContent>
-    </Card>
+          <Button type="submit" onClick={handleSave}>
+            Save
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
-};
+}
 
-export default KnowledgeInbox;
+interface DialogDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
+
+const DialogDescription = React.forwardRef<HTMLParagraphElement, DialogDescriptionProps>(
+  ({ className, ...props }, ref) => (
+    <p
+      ref={ref}
+      className={cn(
+        "text-sm text-muted-foreground",
+        className
+      )}
+      {...props}
+    />
+  )
+);
+DialogDescription.displayName = "DialogDescription";
+
+function cn(...inputs: any[]) {
+  let className = "";
+  for (let i = 0; i < inputs.length; i++) {
+    const input = inputs[i];
+    if (input) {
+      if (typeof input === "string") {
+        className += input + " ";
+      } else if (typeof input === "object") {
+        if (Array.isArray(input)) {
+          className += cn(...input) + " ";
+        } else {
+          for (const key in input) {
+            if (input.hasOwnProperty(key) && input[key]) {
+              className += key + " ";
+            }
+          }
+        }
+      }
+    }
+  }
+  return className.trim();
+}

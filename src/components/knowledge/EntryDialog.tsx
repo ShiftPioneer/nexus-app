@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useKnowledge } from "@/contexts/KnowledgeContext";
 import { KnowledgeEntry, KnowledgeCategory } from "@/types/knowledge";
@@ -58,7 +57,8 @@ const EntryDialog: React.FC<EntryDialogProps> = ({ entry, isOpen, onClose }) => 
   const [url, setUrl] = useState("");
   const [activeTab, setActiveTab] = useState("content");
   const [isEditing, setIsEditing] = useState(false);
-  
+  const [fileAttachment, setFileAttachment] = useState<any>(null);
+
   const { updateEntry, generateAiSummary, getLinkedTasks, unlinkTaskFromEntry } = useKnowledge();
   const { tasks } = useTasks();
   const { toast } = useToast();
@@ -113,6 +113,17 @@ const EntryDialog: React.FC<EntryDialogProps> = ({ entry, isOpen, onClose }) => 
     unlinkTaskFromEntry(entry.id, taskId);
   };
   
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setFileAttachment({
+        name: file.name,
+        type: file.type,
+        url: URL.createObjectURL(file)
+      });
+    }
+  };
+
   const getCategoryIcon = (catValue: KnowledgeCategory) => {
     switch (catValue) {
       case "inbox": return <Inbox className="h-4 w-4" />;

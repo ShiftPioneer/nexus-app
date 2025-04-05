@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -50,7 +49,6 @@ const Knowledge: React.FC = () => {
     togglePinSkillset
   } = useKnowledge();
   
-  // All unique tags from notes, resources, books, and skillsets
   const allTags = Array.from(new Set([
     ...notes.flatMap(note => note.tags),
     ...resources.flatMap(resource => resource.tags),
@@ -68,7 +66,6 @@ const Knowledge: React.FC = () => {
     });
   };
   
-  // Filter and sort functions
   const filteredNotes = notes
     .filter(note => {
       const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -77,10 +74,8 @@ const Knowledge: React.FC = () => {
       return matchesSearch && matchesTag;
     })
     .sort((a, b) => {
-      // First sort by pinned status
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
-      // Then by last updated date
       return new Date(b.lastUpdated).getTime() - new Date(a.lastUpdated).getTime();
     });
   
@@ -92,10 +87,8 @@ const Knowledge: React.FC = () => {
       return matchesSearch && matchesTag;
     })
     .sort((a, b) => {
-      // First sort by pinned status
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
-      // Then by date added
       return new Date(b.dateAdded).getTime() - new Date(a.dateAdded).getTime();
     });
   

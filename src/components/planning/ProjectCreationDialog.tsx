@@ -1,296 +1,252 @@
-
-import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React, { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+// Use react-day-picker instead of the non-existent datepicker
+import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { DatePicker } from "@/components/ui/datepicker";
-import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { Project, Priority, ProjectStatus } from "@/types/planning";
-import { v4 as uuidv4 } from "uuid";
 
 interface ProjectCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onProjectCreate: (project: Project) => void;
-  existingProjects: Project[];
-  existingProject?: Project | null;
+  onSave: (project: Project) => void;
+  project?: Project;
 }
 
-const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
-  open,
-  onOpenChange,
-  onProjectCreate,
-  existingProjects,
-  existingProject
-}) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<Priority>("medium");
-  const [status, setStatus] = useState<ProjectStatus>("not-started");
-  const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
-  const [category, setCategory] = useState<string>("");
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [parentProject, setParentProject] = useState<string>("");
-  const [isSubproject, setIsSubproject] = useState(false);
-  const [availableParentProjects, setAvailableParentProjects] = useState<Project[]>([]);
-  
-  useEffect(() => {
-    // If we have an existing project, populate the form
-    if (existingProject) {
-      setTitle(existingProject.title);
-      setDescription(existingProject.description);
-      setPriority(existingProject.priority);
-      setStatus(existingProject.status);
-      setDueDate(existingProject.dueDate);
-      setCategory(existingProject.category || "");
-      setStartDate(existingProject.startDate);
-      
-      if (existingProject.parentProjectId) {
-        setIsSubproject(true);
-        setParentProject(existingProject.parentProjectId);
-      } else {
-        setIsSubproject(false);
-        setParentProject("");
-      }
-    } else {
-      // Reset form for new project
-      setTitle("");
-      setDescription("");
-      setPriority("medium");
-      setStatus("not-started");
-      setDueDate(undefined);
-      setCategory("");
-      setStartDate(new Date());
-      setIsSubproject(false);
-      setParentProject("");
-    }
-    
-    // Filter out potential parent projects
-    // We don't want to allow a project to be its own parent or to create circular references
-    const filtered = existingProject
-      ? existingProjects.filter(p => p.id !== existingProject.id && !isDescendant(p, existingProject.id))
-      : existingProjects;
-    
-    setAvailableParentProjects(filtered);
-  }, [existingProject, existingProjects, open]);
-  
-  // Helper function to check if a project is a descendant of another project
-  const isDescendant = (project: Project, targetId: string): boolean => {
-    if (!project.subProjects) return false;
-    
-    return project.subProjects.some(
-      subProject => subProject.id === targetId || isDescendant(subProject, targetId)
-    );
-  };
-  
-  const handleSubmit = () => {
-    const newProject: Project = {
-      id: existingProject?.id || uuidv4(),
-      title,
-      description,
-      priority,
-      status,
-      dueDate,
-      startDate,
-      category,
-      tasks: existingProject?.tasks || [],
-      subProjects: existingProject?.subProjects || [],
-      progress: existingProject?.progress || 0,
-      parentProjectId: isSubproject ? parentProject : undefined
-    };
-    
-    onProjectCreate(newProject);
-    onOpenChange(false);
-  };
-  
-  const projectsByCategory: Record<string, Project[]> = {};
-  availableParentProjects.forEach(project => {
-    const category = project.category || "Uncategorized";
-    if (!projectsByCategory[category]) {
-      projectsByCategory[category] = [];
-    }
-    projectsByCategory[category].push(project);
+const projectFormSchema = z.object({
+  title: z.string().min(2, {
+    message: "Project title must be at least 2 characters.",
+  }),
+  description: z.string().optional(),
+  status: z.enum(["not-started", "in-progress", "completed", "on-hold", "cancelled"]),
+  dueDate: z.date().optional(),
+  startDate: z.date(),
+  category: z.string(),
+  priority: z.enum(["high", "medium", "low"]),
+});
+
+type ProjectFormValues = z.infer<typeof projectFormSchema>;
+
+export function ProjectCreationDialog({ open, onOpenChange, onSave, project }: ProjectCreationDialogProps) {
+  const form = useForm<ProjectFormValues>({
+    resolver: zodResolver(projectFormSchema),
+    defaultValues: {
+      title: project?.title || "",
+      description: project?.description || "",
+      status: project?.status || "not-started",
+      dueDate: project?.dueDate,
+      startDate: project?.startDate || new Date(),
+      category: project?.category || "",
+      priority: project?.priority || "medium",
+    },
   });
-  
+
+  function onSubmit(values: ProjectFormValues) {
+    const newProject: Project = {
+      ...values,
+      id: project?.id || Date.now().toString(),
+      tasks: project?.tasks || [],
+      subProjects: project?.subProjects || [],
+      progress: project?.progress || 0,
+      pinned: project?.pinned || false,
+    };
+    onSave(newProject);
+    onOpenChange(false);
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px]">
+      <DialogContent>
         <DialogHeader>
-          <DialogTitle>{existingProject ? "Edit Project" : "Create New Project"}</DialogTitle>
-          <DialogDescription>
-            {existingProject 
-              ? "Edit your project details below" 
-              : "Enter the details for your new project"}
-          </DialogDescription>
+          <DialogTitle>{project ? "Edit Project" : "Create New Project"}</DialogTitle>
         </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div>
-            <Label htmlFor="title">Project Title</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter project title"
-              className="mt-1"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your project"
-              className="mt-1 h-32"
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="category">Category</Label>
-              <Input
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="Enter category"
-                className="mt-1"
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="priority">Priority</Label>
-              <Select value={priority} onValueChange={(value) => setPriority(value as Priority)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="status">Status</Label>
-              <Select value={status} onValueChange={(value) => setStatus(value as ProjectStatus)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="not-started">Not Started</SelectItem>
-                  <SelectItem value="in-progress">In Progress</SelectItem>
-                  <SelectItem value="on-hold">On Hold</SelectItem>
-                  <SelectItem value="completed">Completed</SelectItem>
-                  <SelectItem value="cancelled">Cancelled</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div>
-              <Label htmlFor="subproject">Is this a sub-project?</Label>
-              <div className="flex items-center space-x-2 mt-1">
-                <Button 
-                  type="button" 
-                  variant={isSubproject ? "default" : "outline"} 
-                  className="w-1/2"
-                  onClick={() => setIsSubproject(true)}
-                >
-                  Yes
-                </Button>
-                <Button 
-                  type="button" 
-                  variant={!isSubproject ? "default" : "outline"} 
-                  className="w-1/2"
-                  onClick={() => setIsSubproject(false)}
-                >
-                  No
-                </Button>
-              </div>
-            </div>
-          </div>
-          
-          {isSubproject && (
-            <div>
-              <Label htmlFor="parentProject">Parent Project</Label>
-              <Select 
-                value={parentProject} 
-                onValueChange={setParentProject}
-                disabled={availableParentProjects.length === 0}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Select parent project" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(projectsByCategory).map(([category, projects]) => (
-                    <React.Fragment key={category}>
-                      <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
-                        {category}
-                      </div>
-                      {projects.map(project => (
-                        <SelectItem key={project.id} value={project.id}>
-                          {project.title}
-                        </SelectItem>
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </SelectContent>
-              </Select>
-              {availableParentProjects.length === 0 && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  No available parent projects.
-                </p>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Project Title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               )}
-            </div>
-          )}
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="startDate">Start Date</Label>
-              <DatePicker
-                id="startDate"
-                date={startDate}
-                setDate={setStartDate}
-                className="mt-1"
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Project Description" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="not-started">Not Started</SelectItem>
+                      <SelectItem value="in-progress">In Progress</SelectItem>
+                      <SelectItem value="completed">Completed</SelectItem>
+                      <SelectItem value="on-hold">On Hold</SelectItem>
+                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="flex space-x-2">
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Start Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date > new Date()
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="dueDate"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>Due Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date < form.getValues("startDate")
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
             </div>
-            
-            <div>
-              <Label htmlFor="dueDate">Due Date (optional)</Label>
-              <DatePicker
-                id="dueDate"
-                date={dueDate}
-                setDate={setDueDate}
-                className="mt-1"
-              />
-            </div>
-          </div>
-        </div>
-        
-        <DialogFooter>
-          <Button 
-            variant="outline" 
-            onClick={() => onOpenChange(false)}
-          >
-            Cancel
-          </Button>
-          <Button 
-            onClick={handleSubmit}
-            disabled={!title.trim()}
-            className="bg-[#FF6500] hover:bg-[#E55A00]"
-          >
-            {existingProject ? "Update Project" : "Create Project"}
-          </Button>
-        </DialogFooter>
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Category" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="priority"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Priority</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a priority" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="low">Low</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <DialogFooter>
+              <Button type="submit">{project ? "Update" : "Create"}</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
-};
-
-export default ProjectCreationDialog;
+}

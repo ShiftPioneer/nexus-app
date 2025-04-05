@@ -284,3 +284,6 @@ export function BookshelfTab() {
     </div>
   );
 }
+
+// Export default as well for backward compatibility
+export default BookshelfTab;

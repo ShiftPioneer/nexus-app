@@ -64,7 +64,7 @@ export interface Project {
   status: ProjectStatus;
   dueDate?: Date;
   startDate: Date;
-  category?: string;
+  category: string;
   priority: Priority;
   tasks?: string[];
   subProjects?: Project[];
