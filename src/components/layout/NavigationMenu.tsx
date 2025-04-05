@@ -1,10 +1,11 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { 
   LayoutDashboard, CheckCircle, BookOpen, 
   Calendar, Target, LayoutGrid, Settings, 
-  ArrowLeft, FileText
+  ArrowLeft, FileText, Brain, Zap, Repeat, LineChart, TimerReset
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -24,9 +25,19 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
       icon: LayoutDashboard
     },
     {
+      title: "GTD",
+      path: "/gtd",
+      icon: CheckCircle
+    },
+    {
       title: "Tasks",
       path: "/tasks",
       icon: CheckCircle
+    },
+    {
+      title: "Time Design",
+      path: "/time-design",
+      icon: TimerReset
     },
     {
       title: "Goals",
@@ -34,9 +45,24 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
       icon: Target
     },
     {
-      title: "Projects",
-      path: "/projects",
-      icon: LayoutGrid
+      title: "Habits",
+      path: "/habits",
+      icon: Repeat
+    },
+    {
+      title: "Focus",
+      path: "/focus",
+      icon: Zap
+    },
+    {
+      title: "Mindset",
+      path: "/mindset",
+      icon: Brain
+    },
+    {
+      title: "Knowledge",
+      path: "/knowledge",
+      icon: FileText
     },
     {
       title: "Journal",
@@ -44,14 +70,14 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
       icon: BookOpen
     },
     {
-      title: "Resources",
-      path: "/knowledge",
-      icon: FileText
+      title: "Energy",
+      path: "/energy",
+      icon: Calendar
     },
     {
-      title: "Calendar",
-      path: "/time-design",
-      icon: Calendar
+      title: "Stats",
+      path: "/stats",
+      icon: LineChart
     },
     {
       title: "Settings",

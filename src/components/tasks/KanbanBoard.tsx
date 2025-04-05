@@ -43,10 +43,10 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 w-full pb-4 overflow-x-auto">
+      <div className="flex flex-nowrap overflow-x-auto pb-4 gap-4 w-full">
         {Object.keys(columns).map((status) => (
-          <div key={status} className="flex flex-col h-full min-w-[250px]">
-            <Card className="flex-1">
+          <div key={status} className="flex-shrink-0 w-[300px] md:w-[350px]">
+            <Card className="h-full">
               <CardHeader className="p-3">
                 <CardTitle className="text-base flex items-center justify-between">
                   <span>{statusLabels[status]}</span>
@@ -61,7 +61,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({
                   <CardContent
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`flex-1 p-2 min-h-[400px] ${
+                    className={`p-2 min-h-[400px] ${
                       snapshot.isDraggingOver ? "bg-accent/20" : "bg-accent/5"
                     } rounded-md space-y-2`}
                   >

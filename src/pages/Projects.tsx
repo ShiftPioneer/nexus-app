@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import AppLayout from "@/components/layout/AppLayout";
 import { useProjects } from "@/contexts/ProjectContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -37,73 +36,71 @@ const Projects = () => {
   };
 
   return (
-    <AppLayout>
-      <div className="container px-4 py-6 mx-auto animate-fade-in">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold mb-1">Projects</h1>
-            <p className="text-muted-foreground">
-              Manage and track your projects
-            </p>
-          </div>
-
-          <div className="flex items-center mt-4 md:mt-0 gap-4">
-            <Tabs 
-              value={viewMode} 
-              onValueChange={(value) => setViewMode(value as "list" | "board")}
-              className="mr-2"
-            >
-              <TabsList>
-                <TabsTrigger value="list">List</TabsTrigger>
-                <TabsTrigger value="board">Board</TabsTrigger>
-              </TabsList>
-            </Tabs>
-
-            <Button onClick={handleOpenDialog} className="bg-[#FF6500] hover:bg-[#E55A00]">
-              <Plus className="mr-2 h-4 w-4" /> New Project
-            </Button>
-          </div>
+    <div className="animate-fade-in w-full">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div>
+          <h2 className="text-xl font-bold mb-1">Projects</h2>
+          <p className="text-muted-foreground">
+            Manage and track your projects
+          </p>
         </div>
 
-        {projects.length === 0 ? (
-          <Card className="border-dashed">
-            <CardHeader>
-              <CardTitle>No projects yet</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center py-6">
-              <p className="mb-4 text-muted-foreground">
-                Start by creating your first project
-              </p>
-              <Button onClick={handleOpenDialog} className="bg-[#FF6500] hover:bg-[#E55A00]">
-                <Plus className="mr-2 h-4 w-4" /> Create a Project
-              </Button>
-            </CardContent>
-          </Card>
-        ) : viewMode === "list" ? (
-          <PlanningListView 
-            projects={projects} 
-            contentType="projects"
-            onEditItem={handleEditProject}
-          />
-        ) : (
-          <PlanningBoardView 
-            projects={projects} 
-            contentType="projects"
-            onEditItem={handleEditProject}
-          />
-        )}
+        <div className="flex items-center mt-4 md:mt-0 gap-4">
+          <Tabs 
+            value={viewMode} 
+            onValueChange={(value) => setViewMode(value as "list" | "board")}
+            className="mr-2"
+          >
+            <TabsList>
+              <TabsTrigger value="list">List</TabsTrigger>
+              <TabsTrigger value="board">Board</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        {isDialogOpen && (
-          <ProjectCreationDialog
-            open={isDialogOpen}
-            onOpenChange={setIsDialogOpen}
-            onProjectCreate={handleCreateProject}
-            existingProjects={projects}
-            existingProject={editingProject}
-          />
-        )}
+          <Button onClick={handleOpenDialog} className="bg-[#FF6500] hover:bg-[#E55A00]">
+            <Plus className="mr-2 h-4 w-4" /> New Project
+          </Button>
+        </div>
       </div>
-    </AppLayout>
+
+      {projects.length === 0 ? (
+        <Card className="border-dashed">
+          <CardHeader>
+            <CardTitle>No projects yet</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center py-6">
+            <p className="mb-4 text-muted-foreground">
+              Start by creating your first project
+            </p>
+            <Button onClick={handleOpenDialog} className="bg-[#FF6500] hover:bg-[#E55A00]">
+              <Plus className="mr-2 h-4 w-4" /> Create a Project
+            </Button>
+          </CardContent>
+        </Card>
+      ) : viewMode === "list" ? (
+        <PlanningListView 
+          projects={projects} 
+          contentType="projects"
+          onEditItem={handleEditProject}
+        />
+      ) : (
+        <PlanningBoardView 
+          projects={projects} 
+          contentType="projects"
+          onEditItem={handleEditProject}
+        />
+      )}
+
+      {isDialogOpen && (
+        <ProjectCreationDialog
+          open={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+          onProjectCreate={handleCreateProject}
+          existingProjects={projects}
+          existingProject={editingProject}
+        />
+      )}
+    </div>
   );
 };
 

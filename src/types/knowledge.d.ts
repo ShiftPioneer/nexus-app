@@ -33,29 +33,41 @@ export interface Book {
   author: string;
   coverImage?: string;
   pages?: number;
-  status: ReadingStatus;
+  readingStatus: ReadingStatus;
   notes?: string;
-  rating?: number;
+  description?: string;
+  rating: number;
   dateAdded: Date;
   dateCompleted?: Date;
   tags: string[];
   pinned?: boolean;
+  relatedSkillsets?: string[];
+  summary?: string;
+  keyLessons?: string[];
 }
 
-export type ReadingStatus = "to-read" | "reading" | "completed" | "abandoned";
+export type ReadingStatus = "to-read" | "reading" | "completed" | "abandoned" | "Not Yet Read";
+
+export type KnowledgeCategory = "note" | "concept" | "idea" | "question" | "insight" | "summary";
 
 export interface KnowledgeEntry {
   id: string;
   title: string;
   content: string;
-  category: KnowledgeCategory;
+  category: KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives";
   tags: string[];
-  dateAdded: Date;
-  lastUpdated?: Date;
+  createdAt: Date;
+  updatedAt?: Date;
   pinned?: boolean;
+  url?: string;
+  linkedTaskIds?: string[];
+  fileAttachment?: {
+    name: string;
+    url: string;
+    type: string;
+  };
+  aiSummary?: string;
 }
-
-export type KnowledgeCategory = "note" | "concept" | "idea" | "question" | "insight" | "summary";
 
 export interface Skillset {
   id: string;
@@ -67,37 +79,92 @@ export interface Skillset {
   lastPracticed?: Date;
   goalLevel?: number;
   pinned?: boolean;
+  mastery?: number;
+  color?: string;
+  resourceCount?: number;
 }
 
-export type SkillsetCategory = "technical" | "creative" | "soft" | "language" | "business" | "other";
+export type SkillsetCategory = "technical" | "creative" | "soft" | "language" | "business" | "other" | 
+  "Programming" | "Design" | "Analytics" | "Soft Skills" | "Language" | "Music" | "Sport" | "Art" | "Business" | "Religion" | "Other";
 
 export interface KnowledgeContextValue {
+  entries: KnowledgeEntry[];
   notes: Note[];
   resources: Resource[];
   books: Book[];
-  entries: KnowledgeEntry[];
   skillsets: Skillset[];
   tags: Tag[];
-  addNote: (note: Omit<Note, 'id'>) => string;
-  updateNote: (id: string, note: Partial<Note>) => void;
-  deleteNote: (id: string) => void;
+  
+  // State management
+  searchQuery?: string;
+  setSearchQuery?: (query: string) => void;
+  activeFilter?: "all" | KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives";
+  setActiveFilter?: (filter: "all" | KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives") => void;
+  activeTags?: string[];
+  setActiveTags?: (tags: string[]) => void;
+  
+  // Entry operations
+  addEntry: (entry: Omit<KnowledgeEntry, "id">) => string;
+  updateEntry: (id: string, entry: Partial<KnowledgeEntry>) => void;
+  deleteEntry: (id: string) => void;
+  moveEntry?: (id: string, category: KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives") => void;
+  getEntriesByCategory?: (category: KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives") => KnowledgeEntry[];
+  findSimilarEntries?: (entry: KnowledgeEntry) => KnowledgeEntry[];
+  checkForDuplicates?: (entry: Partial<KnowledgeEntry>) => KnowledgeEntry[];
+  searchEntries?: (query: string) => KnowledgeEntry[];
+  generateAiSummary?: (entry: KnowledgeEntry) => string;
+  
+  // Resource operations
   addResource: (resource: Omit<Resource, 'id'>) => string;
   updateResource: (id: string, resource: Partial<Resource>) => void;
   deleteResource: (id: string) => void;
+  
+  // Book operations
   addBook: (book: Omit<Book, 'id'>) => string;
   updateBook: (id: string, book: Partial<Book>) => void;
   deleteBook: (id: string) => void;
-  addEntry: (entry: Omit<KnowledgeEntry, 'id'>) => string;
-  updateEntry: (id: string, entry: Partial<KnowledgeEntry>) => void;
-  deleteEntry: (id: string) => void;
+  
+  // Skillset operations
   addSkillset: (skillset: Omit<Skillset, 'id'>) => string;
   updateSkillset: (id: string, skillset: Partial<Skillset>) => void;
   deleteSkillset: (id: string) => void;
-  addTag: (tag: Omit<Tag, 'id'>) => string;
-  deleteTag: (id: string) => void;
+  
+  // Note operations
+  addNote: (note: Omit<Note, 'id'>) => string;
+  updateNote: (id: string, note: Partial<Note>) => void;
+  deleteNote: (id: string) => void;
+  
+  // Task linking
+  linkTaskToEntry?: (entryId: string, taskId: string) => void;
+  unlinkTaskFromEntry?: (entryId: string, taskId: string) => void;
+  getLinkedTasks?: (entryId: string) => any[];
+  getRelatedEntriesForTask?: (taskId: string) => KnowledgeEntry[];
+  
+  // Filtering and organization
+  filterEntries?: (category: "all" | KnowledgeCategory | "inbox" | "projects" | "areas" | "resources" | "archives", tags: string[], query: string) => KnowledgeEntry[];
+  archiveOldEntries?: (daysThreshold: number) => void;
+  
+  // Analytics
+  getEntriesStats?: () => {
+    categories: {
+      inboxCount: number;
+      projectsCount: number;
+      areasCount: number;
+      resourcesCount: number;
+      archivesCount: number;
+    };
+    totalEntries: number;
+    withTasks: number;
+    withFiles: number;
+  };
+  
+  // Pinning functionality
   togglePinNote: (id: string) => void;
   togglePinResource: (id: string) => void;
   togglePinBook: (id: string) => void;
-  togglePinEntry: (id: string) => void;
+  togglePinEntry?: (id: string) => void;
   togglePinSkillset: (id: string) => void;
+  
+  // Offline status
+  isOffline?: boolean;
 }

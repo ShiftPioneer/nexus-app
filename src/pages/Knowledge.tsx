@@ -16,136 +16,56 @@ import {
   PinOff,
   ExternalLink,
   Clock,
-  Check
+  Check,
+  Brain,
+  Bookmark
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Note, Resource } from "@/types/knowledge";
+import { Note, Resource, Book, Skillset } from "@/types/knowledge";
+import { useKnowledge } from "@/contexts/KnowledgeContext";
+import BookshelfTab from "@/components/knowledge/BookshelfTab";
+import SkillsetTab from "@/components/knowledge/SkillsetTab";
+import ResourcesTab from "@/components/knowledge/ResourcesTab";
+import SecondBrainSystem from "@/components/knowledge/SecondBrainSystem";
 
 const Knowledge: React.FC = () => {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<string>("notes");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterTag, setFilterTag] = useState<string>("all");
+  const { 
+    notes, 
+    resources, 
+    books, 
+    skillsets,
+    addNote, 
+    updateNote, 
+    deleteNote,
+    togglePinNote,
+    togglePinResource,
+    togglePinBook,
+    togglePinSkillset
+  } = useKnowledge();
   
-  // Mock data
-  const [notes, setNotes] = useState<Note[]>([
-    {
-      id: "1",
-      title: "Project Management Framework",
-      content: "Key steps for managing complex projects include: 1. Define clear objectives 2. Create a detailed timeline 3. Assign specific responsibilities 4. Establish communication channels 5. Set up regular progress reviews",
-      tags: ["work", "productivity"],
-      lastUpdated: new Date(2023, 5, 15),
-      pinned: true
-    },
-    {
-      id: "2",
-      title: "Book Notes: Atomic Habits",
-      content: "Core concept: Small 1% improvements compound over time. Four laws of behavior change: 1. Make it obvious 2. Make it attractive 3. Make it easy 4. Make it satisfying",
-      tags: ["books", "self-improvement"],
-      lastUpdated: new Date(2023, 6, 20)
-    },
-    {
-      id: "3",
-      title: "Weekly reflection template",
-      content: "1. What went well this week? 2. What challenges did I face? 3. What did I learn? 4. What am I grateful for? 5. What will I focus on next week?",
-      tags: ["reflection", "productivity"],
-      lastUpdated: new Date(2023, 7, 1)
-    }
-  ]);
-  
-  const [resources, setResources] = useState<Resource[]>([
-    {
-      id: "1",
-      title: "How to Build a Second Brain",
-      url: "https://fortelabs.com/blog/basboverview/",
-      type: "article",
-      notes: "Comprehensive framework for organizing digital information and personal knowledge",
-      tags: ["productivity", "knowledge-management"],
-      dateAdded: new Date(2023, 4, 10),
-      pinned: true,
-      completed: true
-    },
-    {
-      id: "2",
-      title: "Deep Work",
-      type: "book",
-      notes: "By Cal Newport - about focusing without distraction on cognitively demanding tasks",
-      tags: ["books", "productivity"],
-      dateAdded: new Date(2023, 5, 5),
-      completed: false
-    },
-    {
-      id: "3",
-      title: "Learning How to Learn",
-      url: "https://www.coursera.org/learn/learning-how-to-learn",
-      type: "course",
-      notes: "Coursera course on effective learning techniques based on neuroscience",
-      tags: ["learning", "education"],
-      dateAdded: new Date(2023, 6, 15),
-      completed: false
-    }
-  ]);
-  
-  // All unique tags from both notes and resources
+  // All unique tags from notes, resources, books, and skillsets
   const allTags = Array.from(new Set([
     ...notes.flatMap(note => note.tags),
-    ...resources.flatMap(resource => resource.tags)
+    ...resources.flatMap(resource => resource.tags),
+    ...books.flatMap(book => book.tags),
+    ...skillsets.flatMap(skillset => skillset.name)
   ]));
   
   const handleAddNewItem = () => {
     toast({
-      title: `Create new ${activeTab === "notes" ? "note" : "resource"}`,
+      title: `Create new ${activeTab === "notes" ? "note" : 
+        activeTab === "resources" ? "resource" : 
+        activeTab === "books" ? "book" : "skillset"}`,
       description: "Creation dialog coming soon",
       duration: 3000,
     });
-  };
-  
-  const handleTogglePin = (id: string, type: "note" | "resource") => {
-    if (type === "note") {
-      setNotes(prev => prev.map(note => 
-        note.id === id ? { ...note, pinned: !note.pinned } : note
-      ));
-      
-      const note = notes.find(n => n.id === id);
-      if (note) {
-        toast({
-          title: note.pinned ? "Note unpinned" : "Note pinned",
-          description: `"${note.title}" has been ${note.pinned ? "removed from" : "added to"} your pinned items`,
-          duration: 2000,
-        });
-      }
-    } else {
-      setResources(prev => prev.map(resource => 
-        resource.id === id ? { ...resource, pinned: !resource.pinned } : resource
-      ));
-      
-      const resource = resources.find(r => r.id === id);
-      if (resource) {
-        toast({
-          title: resource.pinned ? "Resource unpinned" : "Resource pinned",
-          description: `"${resource.title}" has been ${resource.pinned ? "removed from" : "added to"} your pinned items`,
-          duration: 2000,
-        });
-      }
-    }
-  };
-  
-  const handleToggleCompleted = (id: string) => {
-    setResources(prev => prev.map(resource => 
-      resource.id === id ? { ...resource, completed: !resource.completed } : resource
-    ));
-    
-    const resource = resources.find(r => r.id === id);
-    if (resource) {
-      toast({
-        title: resource.completed ? "Resource marked as not completed" : "Resource marked as completed",
-        description: `"${resource.title}" has been updated`,
-        duration: 2000,
-      });
-    }
   };
   
   // Filter and sort functions
@@ -195,11 +115,17 @@ const Knowledge: React.FC = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-2xl font-bold">Knowledge Base</h1>
-            <p className="text-muted-foreground">Organize your notes and resources</p>
+            <p className="text-muted-foreground">Organize your notes, resources, books, and skillsets</p>
           </div>
           <Button onClick={handleAddNewItem} className="gap-2">
             <Plus className="h-4 w-4" />
-            Add {activeTab === "notes" ? "Note" : "Resource"}
+            Add {
+              activeTab === "notes" ? "Note" : 
+              activeTab === "resources" ? "Resource" : 
+              activeTab === "books" ? "Book" : 
+              activeTab === "skillsets" ? "Skillset" : 
+              activeTab === "secondbrain" ? "Entry" : ""
+            }
           </Button>
         </div>
         
@@ -211,8 +137,20 @@ const Knowledge: React.FC = () => {
                 Notes
               </TabsTrigger>
               <TabsTrigger value="resources" className="gap-2">
-                <BookOpen className="h-4 w-4" />
+                <LinkIcon className="h-4 w-4" />
                 Resources
+              </TabsTrigger>
+              <TabsTrigger value="books" className="gap-2">
+                <BookOpen className="h-4 w-4" />
+                Books
+              </TabsTrigger>
+              <TabsTrigger value="skillsets" className="gap-2">
+                <Brain className="h-4 w-4" />
+                Skillsets
+              </TabsTrigger>
+              <TabsTrigger value="secondbrain" className="gap-2">
+                <Bookmark className="h-4 w-4" />
+                Second Brain
               </TabsTrigger>
               <TabsTrigger value="tags" className="gap-2">
                 <Tag className="h-4 w-4" />
@@ -275,7 +213,7 @@ const Knowledge: React.FC = () => {
                           variant="ghost" 
                           size="sm"
                           className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => handleTogglePin(note.id, "note")}
+                          onClick={() => togglePinNote(note.id)}
                         >
                           {note.pinned ? (
                             <Pin className="h-4 w-4 text-primary" fill="currentColor" />
@@ -311,93 +249,32 @@ const Knowledge: React.FC = () => {
           </TabsContent>
           
           <TabsContent value="resources" className="mt-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredResources.length === 0 ? (
-                <div className="col-span-full text-center p-12 border-2 border-dashed rounded-lg">
-                  <h3 className="text-xl font-medium mb-2">No resources found</h3>
-                  <p className="text-muted-foreground mb-6">
-                    {searchQuery || filterTag !== "all" 
-                      ? "Try adjusting your search or filters" 
-                      : "Create your first resource to get started"}
-                  </p>
-                  {!searchQuery && filterTag === "all" && (
-                    <Button onClick={handleAddNewItem}>
-                      <Plus className="mr-2 h-4 w-4" /> Add Your First Resource
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                filteredResources.map(resource => (
-                  <Card key={resource.id} className="group hover:shadow-md transition-all">
-                    <CardHeader className="pb-2">
-                      <div className="flex justify-between items-start">
-                        <CardTitle className="flex-1 flex items-center gap-2">
-                          {getResourceIcon(resource.type)}
-                          <span className={resource.completed ? "line-through opacity-70" : ""}>
-                            {resource.title}
-                          </span>
-                        </CardTitle>
-                        <div className="flex">
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => handleToggleCompleted(resource.id)}
-                          >
-                            <Check className={`h-4 w-4 ${resource.completed ? "text-green-500" : "text-muted-foreground"}`} />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => handleTogglePin(resource.id, "resource")}
-                          >
-                            {resource.pinned ? (
-                              <Pin className="h-4 w-4 text-primary" fill="currentColor" />
-                            ) : (
-                              <PinOff className="h-4 w-4 text-muted-foreground" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                      <CardDescription className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs capitalize">
-                          {resource.type}
-                        </Badge>
-                        {resource.pinned && (
-                          <Badge variant="outline" className="bg-primary/10 text-primary text-xs">
-                            <Pin className="h-3 w-3 mr-1" /> Pinned
-                          </Badge>
-                        )}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      {resource.notes && (
-                        <p className="text-sm line-clamp-2 mb-3">{resource.notes}</p>
-                      )}
-                      {resource.url && (
-                        <a 
-                          href={resource.url} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm text-blue-500 hover:underline flex items-center gap-1 mb-3"
-                        >
-                          <ExternalLink className="h-3 w-3" />
-                          Open resource
-                        </a>
-                      )}
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {resource.tags.map(tag => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
+            <ResourcesTab 
+              resources={filteredResources} 
+              searchQuery={searchQuery} 
+              filterTag={filterTag}
+              onTogglePin={togglePinResource}
+            />
+          </TabsContent>
+          
+          <TabsContent value="books" className="mt-6">
+            <BookshelfTab 
+              searchQuery={searchQuery} 
+              filterTag={filterTag}
+              onTogglePin={togglePinBook}
+            />
+          </TabsContent>
+          
+          <TabsContent value="skillsets" className="mt-6">
+            <SkillsetTab 
+              searchQuery={searchQuery} 
+              filterTag={filterTag}
+              onTogglePin={togglePinSkillset}
+            />
+          </TabsContent>
+          
+          <TabsContent value="secondbrain" className="mt-6">
+            <SecondBrainSystem />
           </TabsContent>
           
           <TabsContent value="tags" className="mt-6">
@@ -411,7 +288,9 @@ const Knowledge: React.FC = () => {
                     </div>
                     <Badge variant="secondary">
                       {notes.filter(note => note.tags.includes(tag)).length + 
-                       resources.filter(resource => resource.tags.includes(tag)).length}
+                       resources.filter(resource => resource.tags.includes(tag)).length +
+                       books.filter(book => book.tags.includes(tag)).length +
+                       skillsets.filter(skillset => skillset.name === tag).length}
                     </Badge>
                   </CardContent>
                 </Card>

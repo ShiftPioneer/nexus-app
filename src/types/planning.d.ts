@@ -1,3 +1,4 @@
+
 export interface Note {
   id: string;
   title: string;
@@ -26,8 +27,9 @@ export interface Tag {
 }
 
 export type Priority = "high" | "medium" | "low";
-export type ProjectStatus = "not-started" | "in-progress" | "completed" | "on-hold" | "cancelled";
+export type ProjectStatus = "not-started" | "in-progress" | "completed" | "on-hold" | "cancelled" | "active";
 export type GoalStatus = "not-started" | "in-progress" | "completed" | "on-hold" | "cancelled";
+export type TaskStatus = "inbox" | "next-action" | "project" | "waiting-for" | "someday" | "reference" | "completed" | "deleted" | "today";
 
 export interface Goal {
   id: string;
@@ -41,12 +43,18 @@ export interface Goal {
   progress: number;
   milestones: Milestone[];
   pinned?: boolean;
+  subGoals?: Goal[];
+  parentGoalId?: string;
+  endDate?: Date;
+  blockingGoals?: string[];
+  blockedByGoals?: string[];
 }
 
 export interface Milestone {
   id: string;
   title: string;
   completed: boolean;
+  dueDate?: Date;
 }
 
 export interface Project {
@@ -56,10 +64,33 @@ export interface Project {
   status: ProjectStatus;
   dueDate?: Date;
   startDate: Date;
-  category?: string; // Adding the category property
+  category?: string;
   priority: Priority;
   tasks?: string[];
   subProjects?: Project[];
   progress?: number;
   pinned?: boolean;
+  endDate?: Date;
+  parentProjectId?: string;
+}
+
+export interface GTDTask {
+  id: string;
+  title: string;
+  description?: string;
+  priority: "Very Low" | "Low" | "Medium" | "High" | "Very High";
+  status: TaskStatus;
+  dueDate?: Date;
+  createdAt: Date;
+  tags?: string[];
+  context?: string;
+  project?: string;
+  timeEstimate?: number;
+  delegatedTo?: string;
+  attachment?: {
+    name: string;
+    type: string;
+    url?: string;
+    file?: File;
+  };
 }

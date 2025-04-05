@@ -1,145 +1,152 @@
-import React from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { User, Search, Bell, Menu, LogOut, Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useToast } from "@/hooks/use-toast";
-import ThemeToggle from "../theme/ThemeToggle";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
+
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Bell, Search, Sun, Moon, User, X, 
+  Menu as MenuIcon, Check, ArrowLeft
+} from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
+import ThemeToggle from '@/components/theme/ThemeToggle';
 
 interface TopBarProps {
-  showMobileMenu?: boolean;
-  toggleMobileMenu?: () => void;
-  className?: string;
+  toggleSidebar?: () => void;
 }
 
-const TopBar = ({ showMobileMenu, toggleMobileMenu, className }: TopBarProps) => {
-  const isMobile = useIsMobile();
-  const { toast } = useToast();
-  const navigate = useNavigate();
-  const { user, signOut } = useAuth();
-  
-  const getUserInitials = () => {
-    if (!user || !user.displayName) return "U";
-    return user.displayName.split(' ')
-      .map(name => name.charAt(0).toUpperCase())
-      .slice(0, 2)
-      .join('');
+const TopBar: React.FC<TopBarProps> = ({ toggleSidebar }) => {
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const { user } = useAuth();
+
+  const handleSearchClick = () => {
+    setShowSearch(true);
   };
 
-  const handleNotificationClick = () => {
-    toast({
-      title: "No new notifications",
-      description: "You're all caught up!",
-    });
+  const handleCloseSearch = () => {
+    setShowSearch(false);
+    setSearchQuery('');
   };
 
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      navigate("/auth");
-    } catch (error) {
-      console.error("Error signing out:", error);
-      toast({
-        title: "Error",
-        description: "Failed to sign out",
-        variant: "destructive",
-      });
-    }
+  const handleBack = () => {
+    window.history.back();
   };
 
   return (
-    <header className="bg-background border-b border-border h-16 flex items-center px-4 lg:px-6 w-full">
-      <div className="flex items-center gap-3">
-        {showMobileMenu && (
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={toggleMobileMenu}
-            className={`${className}`}
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
-        )}
-        
+    <header className="h-14 border-b px-4 flex items-center justify-between bg-background/95 backdrop-blur supports-backdrop-blur:bg-background/60">
+      <div className="flex items-center">
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => window.history.back()}
+          className="md:hidden mr-2" 
+          onClick={toggleSidebar}
+        >
+          <MenuIcon className="h-5 w-5" />
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="icon"
           className="mr-2"
+          onClick={handleBack}
         >
           <ArrowLeft className="h-5 w-5" />
         </Button>
+        
+        <AnimatePresence mode="wait">
+          {showSearch ? (
+            <motion.div 
+              className="relative w-full md:w-[300px]"
+              initial={{ width: 40, opacity: 0 }}
+              animate={{ width: "100%", opacity: 1 }}
+              exit={{ width: 40, opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Input
+                type="text"
+                placeholder="Search..."
+                className="w-full pr-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                autoFocus
+              />
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="absolute right-0 top-0 hover:bg-transparent"
+                onClick={handleCloseSearch}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </motion.div>
+          ) : (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleSearchClick}
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
       
-      <div className="hidden sm:flex mx-4 flex-1 max-w-md relative">
-        <div className="relative w-full">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="search"
-            placeholder="Search..."
-            className="w-full rounded-full bg-muted/40 pl-10 pr-4 py-2 text-sm border border-border focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
-          />
-        </div>
-      </div>
-
-      <div className="ml-auto flex items-center gap-4">
-        {!isMobile && <ThemeToggle />}
-
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="relative"
-          onClick={handleNotificationClick}
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-primary"></span>
-        </Button>
+      <div className="flex items-center space-x-2">
+        <ThemeToggle />
         
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.photoURL || ""} alt={user?.displayName || "User"} />
-                <AvatarFallback className="bg-primary/10 text-primary">
-                  {getUserInitials()}
-                </AvatarFallback>
-              </Avatar>
-              {!isMobile && (
-                <span className="text-sm font-medium max-w-[100px] truncate">
-                  {user?.displayName || "User"}
-                </span>
-              )}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon" className="relative">
+              <Bell className="h-5 w-5" />
+              <span className="absolute -top-1 -right-1 bg-[#FF6500] text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full">3</span>
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-80 p-0">
+            <div className="p-4 border-b">
+              <h3 className="font-medium">Notifications</h3>
             </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">{user?.displayName || "User"}</p>
-                <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate('/settings')}>
-              <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-500" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sign out</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <div className="max-h-[300px] overflow-y-auto py-2">
+              {[1, 2, 3].map((_, i) => (
+                <div key={i} className="px-4 py-2 hover:bg-muted/50 transition-colors cursor-pointer">
+                  <div className="flex items-start gap-3">
+                    <div className="rounded-full bg-[#FF6500]/10 text-[#FF6500] p-2">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-medium">Task Completed</h4>
+                      <p className="text-xs text-muted-foreground">You completed the task "Finish project proposal"</p>
+                      <p className="text-xs text-muted-foreground mt-1">2 hours ago</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-2 border-t">
+              <Button variant="ghost" size="sm" className="w-full text-xs">
+                View all notifications
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+        
+        <Avatar className="h-8 w-8 ring-2 ring-primary/20">
+          <AvatarImage src={user?.photoURL || ""} />
+          <AvatarFallback className="bg-primary-600/10 text-primary">
+            {user?.displayName?.charAt(0) || "U"}
+          </AvatarFallback>
+        </Avatar>
       </div>
     </header>
   );
