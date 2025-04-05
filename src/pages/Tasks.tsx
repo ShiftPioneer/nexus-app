@@ -1,25 +1,22 @@
-
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ListTodo, Calendar, Grid3X3, Menu, Plus, Filter, Search, Pin, PinOff } from "lucide-react";
+import { ListTodo, Grid3X3, Menu, Plus, Filter, Search, Pin, PinOff } from "lucide-react";
 import { GTDProvider } from "@/components/gtd/GTDContext";
 import TasksList from "@/components/gtd/TasksList";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { useNavigate } from "react-router-dom";
 
 const Tasks: React.FC = () => {
   const [view, setView] = useState<string>("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterPriority, setFilterPriority] = useState("all");
+  const [filterStatus, setFilterStatus] = useState("all");
   const { toast } = useToast();
-  const navigate = useNavigate();
   
   // Mock tasks data
   const [mockTasks, setMockTasks] = useState([
@@ -96,21 +93,21 @@ const Tasks: React.FC = () => {
     }
   };
   
-  const sortedTasks = [...mockTasks].sort((a, b) => {
-    // First sort by pinned status
-    if (a.pinned && !b.pinned) return -1;
-    if (!a.pinned && b.pinned) return 1;
-    // Then by priority
-    return 0;
-  });
-  
-  const filteredTasks = sortedTasks.filter(task => {
+  const filteredTasks = mockTasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
     
     const matchesPriority = filterPriority === "all" || task.priority.toLowerCase() === filterPriority.toLowerCase();
     
-    return matchesSearch && matchesPriority;
+    const matchesStatus = filterStatus === "all" || task.status === filterStatus;
+    
+    return matchesSearch && matchesPriority && matchesStatus;
+  }).sort((a, b) => {
+    // First sort by pinned status
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    // Then by priority
+    return 0;
   });
   
   // Eisenhower Matrix categorization
@@ -174,9 +171,9 @@ const Tasks: React.FC = () => {
                   <ListTodo className="h-4 w-4" />
                   To-dos
                 </TabsTrigger>
-                <TabsTrigger value="calendar" className="gap-2">
-                  <Calendar className="h-4 w-4" />
-                  Calendar
+                <TabsTrigger value="kanban" className="gap-2">
+                  <Menu className="h-4 w-4" />
+                  Kanban
                 </TabsTrigger>
                 <TabsTrigger value="eisenhower" className="gap-2">
                   <Grid3X3 className="h-4 w-4" />
@@ -202,7 +199,7 @@ const Tasks: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex items-center gap-4 mt-4">
+            <div className="flex flex-col md:flex-row items-start md:items-center gap-4 mt-4">
               <div className="relative flex-1">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -212,20 +209,37 @@ const Tasks: React.FC = () => {
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <Select value={filterPriority} onValueChange={setFilterPriority}>
-                <SelectTrigger className="w-[180px]">
-                  <div className="flex items-center gap-2">
-                    <Filter className="h-4 w-4" />
-                    <SelectValue placeholder="Filter by priority" />
-                  </div>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Priorities</SelectItem>
-                  <SelectItem value="high">High Priority</SelectItem>
-                  <SelectItem value="medium">Medium Priority</SelectItem>
-                  <SelectItem value="low">Low Priority</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-2 w-full md:w-auto">
+                <Select value={filterPriority} onValueChange={setFilterPriority}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4" />
+                      <SelectValue placeholder="Filter by priority" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priorities</SelectItem>
+                    <SelectItem value="high">High Priority</SelectItem>
+                    <SelectItem value="medium">Medium Priority</SelectItem>
+                    <SelectItem value="low">Low Priority</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-full md:w-[180px]">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4" />
+                      <SelectValue placeholder="Filter by status" />
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="todo">To Do</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
             
             <TabsContent value="todos" className="mt-6">
@@ -268,7 +282,7 @@ const Tasks: React.FC = () => {
                               ))}
                               {task.dueDate && (
                                 <span className="px-2 py-0.5 bg-secondary/20 text-xs rounded-full flex items-center">
-                                  <Calendar className="h-3 w-3 mr-1" />
+                                  <ListTodo className="h-3 w-3 mr-1" />
                                   {task.dueDate.toLocaleDateString()}
                                 </span>
                               )}
@@ -303,16 +317,19 @@ const Tasks: React.FC = () => {
               </Card>
             </TabsContent>
             
-            <TabsContent value="calendar" className="mt-6">
+            <TabsContent value="kanban" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Calendar View</CardTitle>
-                  <CardDescription>View your tasks by date</CardDescription>
+                  <CardTitle>Kanban Board</CardTitle>
+                  <CardDescription>Visualize your workflow</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="p-6 text-center text-muted-foreground">
-                    Calendar view coming soon
-                  </div>
+                  <KanbanBoard 
+                    columns={kanbanColumns}
+                    onTaskClick={handleTaskClick}
+                    onTaskMove={handleTaskMove}
+                    getPriorityColor={getPriorityColor}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -320,22 +337,6 @@ const Tasks: React.FC = () => {
             <TabsContent value="eisenhower" className="mt-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-medium">Eisenhower Matrix</h2>
-                <div className="flex gap-2">
-                  <Button 
-                    variant={view === "list" ? "default" : "outline"} 
-                    size="sm" 
-                    onClick={() => setView("list")}
-                  >
-                    <ListTodo className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant={view === "kanban" ? "default" : "outline"} 
-                    size="sm" 
-                    onClick={() => setView("kanban")}
-                  >
-                    <Menu className="h-4 w-4" />
-                  </Button>
-                </div>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

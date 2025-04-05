@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
 import { CheckCircle2, Circle, Target, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Goal } from "@/types/planning";
 
 interface GoalsListProps {
   goals: Goal[];

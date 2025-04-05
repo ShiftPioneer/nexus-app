@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Project } from "@/types/planning";
 
 const Projects = () => {
-  const { projects } = useProjects();
+  const { projects, addProject, updateProject } = useProjects();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "board">("list");
@@ -25,6 +25,15 @@ const Projects = () => {
   const handleEditProject = (project: Project) => {
     setEditingProject(project);
     setIsDialogOpen(true);
+  };
+
+  const handleCreateProject = (project: Project) => {
+    if (editingProject) {
+      updateProject(project.id, project);
+    } else {
+      addProject(project);
+    }
+    setIsDialogOpen(false);
   };
 
   return (
@@ -88,6 +97,8 @@ const Projects = () => {
           <ProjectCreationDialog
             open={isDialogOpen}
             onOpenChange={setIsDialogOpen}
+            onProjectCreate={handleCreateProject}
+            existingProjects={projects}
             existingProject={editingProject}
           />
         )}

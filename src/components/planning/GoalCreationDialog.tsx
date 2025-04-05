@@ -28,6 +28,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Goal, Milestone } from "@/types/planning";
 
 interface GoalCreationDialogProps {
   open: boolean;

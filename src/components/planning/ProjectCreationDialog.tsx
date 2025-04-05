@@ -28,13 +28,14 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Project } from "@/types/planning";
 
 interface ProjectCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onProjectCreate: (project: Project) => void;
+  onProjectCreate?: (project: Project) => void;
   existingProjects: Project[];
-  initialProject?: Project | null;
+  existingProject?: Project | null;
 }
 
 const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({

@@ -3,68 +3,29 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Plus, CheckCircle2, Circle, CheckSquare } from "lucide-react";
+import { Plus, CheckCircle2, CheckSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface Task {
-  id: string;
-  title: string;
-  completed: boolean;
-  priority: "high" | "medium" | "low";
-  dueTime?: string;
-}
+import { useTasks } from "@/contexts/TaskContext";
 
 const TasksSection = () => {
-  const [tasks, setTasks] = useState<Task[]>([
-    { 
-      id: "1", 
-      title: "Complete quarterly goal planning", 
-      completed: false, 
-      priority: "high",
-      dueTime: "11:00 AM" 
-    },
-    { 
-      id: "2", 
-      title: "Review habit tracking data", 
-      completed: false, 
-      priority: "medium",
-      dueTime: "2:30 PM" 
-    },
-    { 
-      id: "3", 
-      title: "Journal entry for the day", 
-      completed: false, 
-      priority: "medium" 
-    },
-    { 
-      id: "4", 
-      title: "30 minutes meditation session", 
-      completed: true, 
-      priority: "high" 
-    },
-    { 
-      id: "5", 
-      title: "Update progress on fitness goal", 
-      completed: true, 
-      priority: "low" 
-    },
-  ]);
-  
+  const { tasks, getTodaysTasks, getCompletionRate, completeTask } = useTasks();
   const { toast } = useToast();
   
-  const toggleTask = (id: string) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, completed: !task.completed } : task
-    ));
+  const todaysTasks = getTodaysTasks();
+  const pendingTasks = todaysTasks.filter(task => !task.completed);
+  const completedTasks = todaysTasks.filter(task => task.completed);
+
+  const completionRate = Math.round(getCompletionRate() * 100);
+  
+  const handleToggleTask = (id: string) => {
+    completeTask(id);
     
     const task = tasks.find(t => t.id === id);
-    if (task) {
-      if (!task.completed) {
-        toast({
-          title: "Task Completed",
-          description: `You've completed "${task.title}"!`,
-        });
-      }
+    if (task && !task.completed) {
+      toast({
+        title: "Task Completed",
+        description: `You've completed "${task.title}"!`,
+      });
     }
   };
   
@@ -73,13 +34,6 @@ const TasksSection = () => {
       description: "Task creation coming soon!",
     });
   };
-  
-  const pendingTasks = tasks.filter(task => !task.completed);
-  const completedTasks = tasks.filter(task => task.completed);
-
-  const completionRate = tasks.length > 0 
-    ? Math.round((completedTasks.length / tasks.length) * 100) 
-    : 0;
 
   return (
     <section className="mb-6">
@@ -94,7 +48,7 @@ const TasksSection = () => {
               <div className="bg-[#101020] rounded-lg px-3 py-2 flex items-center gap-2 text-white">
                 <CheckSquare className="h-5 w-5 text-blue-400" />
                 <div>
-                  <div className="font-bold">{completedTasks.length}/{tasks.length}</div>
+                  <div className="font-bold">{completedTasks.length}/{todaysTasks.length}</div>
                   <div className="text-xs text-slate-400">{completionRate}% completion rate</div>
                 </div>
               </div>
@@ -128,7 +82,7 @@ const TasksSection = () => {
                     <Checkbox 
                       id={`task-${task.id}`} 
                       checked={task.completed}
-                      onCheckedChange={() => toggleTask(task.id)}
+                      onCheckedChange={() => handleToggleTask(task.id)}
                       className={`h-5 w-5 ${
                         task.priority === 'high' ? 'data-[state=checked]:bg-warning data-[state=checked]:border-warning' :
                         task.priority === 'medium' ? 'data-[state=checked]:bg-primary data-[state=checked]:border-primary' :
@@ -163,7 +117,7 @@ const TasksSection = () => {
                       <Checkbox 
                         id={`task-${task.id}`} 
                         checked={task.completed}
-                        onCheckedChange={() => toggleTask(task.id)}
+                        onCheckedChange={() => handleToggleTask(task.id)}
                         className="h-5 w-5 data-[state=checked]:bg-success data-[state=checked]:border-success"
                       />
                       <label 
