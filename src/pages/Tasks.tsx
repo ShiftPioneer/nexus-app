@@ -4,56 +4,74 @@ import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ListTodo, Calendar, Grid3X3, Menu, Plus, Filter, Search } from "lucide-react";
+import { ListTodo, Calendar, Grid3X3, Menu, Plus, Filter, Search, Pin, PinOff } from "lucide-react";
 import { GTDProvider } from "@/components/gtd/GTDContext";
 import TasksList from "@/components/gtd/TasksList";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useNavigate } from "react-router-dom";
 
 const Tasks: React.FC = () => {
   const [view, setView] = useState<string>("list");
   const [searchQuery, setSearchQuery] = useState("");
   const [filterPriority, setFilterPriority] = useState("all");
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   // Mock tasks data
-  const mockTasks = [
+  const [mockTasks, setMockTasks] = useState([
     {
       id: "1",
       title: "Complete project proposal",
       description: "Finish the draft and send for review",
-      priority: "High",
+      priority: "high",
       dueDate: new Date(Date.now() + 86400000), // Tomorrow
       tags: ["work", "important"],
       context: "office",
       timeEstimate: 60,
-      status: "active"
+      status: "todo",
+      pinned: true
     },
     {
       id: "2",
       title: "Schedule dentist appointment",
       description: "Call Dr. Smith's office",
-      priority: "Medium",
+      priority: "medium",
       dueDate: new Date(Date.now() + 172800000), // Day after tomorrow
       tags: ["health", "personal"],
       context: "phone",
       timeEstimate: 15,
-      status: "active"
+      status: "todo",
+      pinned: false
     },
     {
       id: "3",
       title: "Buy groceries",
       description: "Get items for the week",
-      priority: "Low",
+      priority: "low",
       dueDate: new Date(),
       tags: ["personal", "shopping"],
       context: "errands",
       timeEstimate: 45,
-      status: "active"
+      status: "in-progress",
+      pinned: false
+    },
+    {
+      id: "4",
+      title: "Review code changes",
+      description: "Check latest PR from team",
+      priority: "high",
+      dueDate: new Date(),
+      tags: ["work", "tech"],
+      context: "computer",
+      timeEstimate: 30,
+      status: "completed",
+      pinned: false
     }
-  ];
+  ]);
   
   const handleAddTask = () => {
     toast({
@@ -62,8 +80,31 @@ const Tasks: React.FC = () => {
       duration: 3000,
     });
   };
+
+  const handleTogglePin = (id: string) => {
+    setMockTasks(prevTasks => prevTasks.map(task => 
+      task.id === id ? { ...task, pinned: !task.pinned } : task
+    ));
+    
+    const task = mockTasks.find(t => t.id === id);
+    if (task) {
+      toast({
+        title: task.pinned ? "Task Unpinned" : "Task Pinned",
+        description: `"${task.title}" has been ${task.pinned ? "unpinned" : "pinned"}`,
+        duration: 2000,
+      });
+    }
+  };
   
-  const filteredTasks = mockTasks.filter(task => {
+  const sortedTasks = [...mockTasks].sort((a, b) => {
+    // First sort by pinned status
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    // Then by priority
+    return 0;
+  });
+  
+  const filteredTasks = sortedTasks.filter(task => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (task.description && task.description.toLowerCase().includes(searchQuery.toLowerCase()));
     
@@ -73,10 +114,10 @@ const Tasks: React.FC = () => {
   });
   
   // Eisenhower Matrix categorization
-  const urgentImportant = mockTasks.filter(task => task.priority === "High" && task.dueDate && task.dueDate <= new Date());
-  const importantNotUrgent = mockTasks.filter(task => task.priority === "High" && task.dueDate && task.dueDate > new Date());
-  const urgentNotImportant = mockTasks.filter(task => task.priority !== "High" && task.dueDate && task.dueDate <= new Date());
-  const neitherUrgentNorImportant = mockTasks.filter(task => task.priority !== "High" && (!task.dueDate || task.dueDate > new Date()));
+  const urgentImportant = mockTasks.filter(task => task.priority === "high" && task.dueDate && task.dueDate <= new Date());
+  const importantNotUrgent = mockTasks.filter(task => task.priority === "high" && task.dueDate && task.dueDate > new Date());
+  const urgentNotImportant = mockTasks.filter(task => task.priority !== "high" && task.dueDate && task.dueDate <= new Date());
+  const neitherUrgentNorImportant = mockTasks.filter(task => task.priority !== "high" && (!task.dueDate || task.dueDate > new Date()));
   
   // Kanban columns
   const kanbanColumns = {
@@ -94,10 +135,14 @@ const Tasks: React.FC = () => {
   };
   
   const handleTaskMove = (taskId: string, newStatus: string) => {
+    setMockTasks(prevTasks => prevTasks.map(task => 
+      task.id === taskId ? { ...task, status: newStatus } : task
+    ));
+    
     toast({
-      title: "Move Task",
-      description: `Task moved to ${newStatus}`,
-      duration: 3000,
+      title: "Task Moved",
+      description: `Task moved to ${newStatus.replace(/-/g, " ")}`,
+      duration: 2000,
     });
   };
   
@@ -191,7 +236,61 @@ const Tasks: React.FC = () => {
                 </CardHeader>
                 <CardContent>
                   {view === "list" ? (
-                    <TasksList tasks={filteredTasks} showActions={true} />
+                    <div className="space-y-4">
+                      {filteredTasks.map(task => (
+                        <div key={task.id} className="flex items-start gap-2 p-3 border rounded-md hover:bg-accent/5 transition-colors">
+                          <div className={`h-3 w-3 rounded-full mt-1.5 ${getPriorityColor(task.priority)}`} />
+                          
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-base font-medium">{task.title}</h4>
+                              <div className="flex gap-2">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => handleTogglePin(task.id)}
+                                >
+                                  {task.pinned ? (
+                                    <Pin className="h-4 w-4 text-primary" fill="currentColor" />
+                                  ) : (
+                                    <PinOff className="h-4 w-4 text-muted-foreground" />
+                                  )}
+                                </Button>
+                              </div>
+                            </div>
+                            {task.description && <p className="text-sm text-muted-foreground mt-1">{task.description}</p>}
+                            
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {task.tags?.map(tag => (
+                                <span key={tag} className="px-2 py-0.5 bg-accent/20 text-xs rounded-full">
+                                  {tag}
+                                </span>
+                              ))}
+                              {task.dueDate && (
+                                <span className="px-2 py-0.5 bg-secondary/20 text-xs rounded-full flex items-center">
+                                  <Calendar className="h-3 w-3 mr-1" />
+                                  {task.dueDate.toLocaleDateString()}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="space-x-2">
+                            <Button size="sm" variant="outline" className="h-8" onClick={() => handleTaskClick(task)}>
+                              Edit
+                            </Button>
+                            <Button 
+                              size="sm" 
+                              variant={task.status === "completed" ? "outline" : "default"} 
+                              className="h-8"
+                              onClick={() => handleTaskMove(task.id, task.status === "completed" ? "todo" : "completed")}
+                            >
+                              {task.status === "completed" ? "Reopen" : "Complete"}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <KanbanBoard 
                       columns={kanbanColumns}

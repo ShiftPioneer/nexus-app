@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileTab from "@/components/settings/ProfileTab";
 import AccountTab from "@/components/settings/AccountTab";
 import NotificationsTab from "@/components/settings/NotificationsTab";
+import CalendarTab from "@/components/settings/CalendarTab";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -39,10 +40,11 @@ const Settings = () => {
         <h1 className="text-2xl font-bold">Settings</h1>
         
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full md:w-auto grid-cols-3 md:inline-flex">
+          <TabsList className="grid w-full md:w-auto grid-cols-4 md:inline-flex">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="integrations">Integrations</TabsTrigger>
           </TabsList>
 
           {/* Profile Settings */}
@@ -58,6 +60,11 @@ const Settings = () => {
           {/* Notification Settings */}
           <TabsContent value="notifications" className="space-y-4 mt-4">
             <NotificationsTab />
+          </TabsContent>
+          
+          {/* Integrations Settings */}
+          <TabsContent value="integrations" className="space-y-4 mt-4">
+            <CalendarTab />
           </TabsContent>
         </Tabs>
       </div>

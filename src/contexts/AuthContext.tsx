@@ -22,7 +22,7 @@ interface AuthContextProps {
   loading: boolean;
 }
 
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
+const AuthContext = createContext<AuthContextProps | null>(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -52,7 +52,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData: User = {
             uid: supaUser.id,
             email: supaUser.email || "",
-            displayName: supaUser.user_metadata?.full_name || "",
+            displayName: supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || "",
             photoURL: supaUser.user_metadata?.avatar_url || "",
           };
           setUser(userData);
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const userData: User = {
           uid: supaUser.id,
           email: supaUser.email || "",
-          displayName: supaUser.user_metadata?.full_name || "",
+          displayName: supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || "",
           photoURL: supaUser.user_metadata?.avatar_url || "",
         };
         setUser(userData);

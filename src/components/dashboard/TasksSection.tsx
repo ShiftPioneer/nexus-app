@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Plus, CheckCircle2, Circle } from "lucide-react";
+import { Plus, CheckCircle2, Circle, CheckSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface Task {
@@ -77,6 +77,10 @@ const TasksSection = () => {
   const pendingTasks = tasks.filter(task => !task.completed);
   const completedTasks = tasks.filter(task => task.completed);
 
+  const completionRate = tasks.length > 0 
+    ? Math.round((completedTasks.length / tasks.length) * 100) 
+    : 0;
+
   return (
     <section className="mb-6">
       <Card>
@@ -86,10 +90,19 @@ const TasksSection = () => {
               <CardTitle>Today's Focus</CardTitle>
               <CardDescription>Tasks to complete today</CardDescription>
             </div>
-            <Button onClick={addNewTask} size="sm" className="gap-1">
-              <Plus className="h-4 w-4" />
-              <span>New Task</span>
-            </Button>
+            <div className="flex items-center gap-3">
+              <div className="bg-[#101020] rounded-lg px-3 py-2 flex items-center gap-2 text-white">
+                <CheckSquare className="h-5 w-5 text-blue-400" />
+                <div>
+                  <div className="font-bold">{completedTasks.length}/{tasks.length}</div>
+                  <div className="text-xs text-slate-400">{completionRate}% completion rate</div>
+                </div>
+              </div>
+              <Button onClick={addNewTask} size="sm" className="gap-1">
+                <Plus className="h-4 w-4" />
+                <span>New Task</span>
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

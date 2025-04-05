@@ -3,10 +3,9 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { 
-  LayoutDashboard, CheckCircle, Clock, Zap, 
-  BookOpen, Brain, LayoutGrid, Settings, 
-  Calendar, BarChartHorizontal, Target, RefreshCcw,
-  CheckSquare
+  LayoutDashboard, CheckCircle, BookOpen, 
+  Calendar, Target, LayoutGrid, Settings, 
+  ArrowLeft, FileText
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -24,62 +23,37 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
       title: "Dashboard",
       path: "/",
       icon: LayoutDashboard
-    }, 
-    {
-      title: "GTD",
-      path: "/gtd",
-      icon: CheckSquare
     },
     {
       title: "Tasks",
       path: "/tasks",
       icon: CheckCircle
-    }, 
-    {
-      title: "Habits",
-      path: "/habits",
-      icon: RefreshCcw
-    }, 
+    },
     {
       title: "Goals",
       path: "/planning",
       icon: Target
-    }, 
-    {
-      title: "Focus",
-      path: "/focus",
-      icon: Brain
-    }, 
-    {
-      title: "Mindset",
-      path: "/mindset",
-      icon: Zap
     },
     {
-      title: "Time Design",
-      path: "/time-design",
-      icon: Clock
-    }, 
+      title: "Projects",
+      path: "/projects",
+      icon: LayoutGrid
+    },
     {
       title: "Journal",
       path: "/journal",
       icon: BookOpen
-    }, 
+    },
     {
-      title: "Knowledge",
+      title: "Resources",
       path: "/knowledge",
-      icon: LayoutGrid
-    }, 
+      icon: FileText
+    },
     {
-      title: "Energy",
-      path: "/energy",
-      icon: Zap
-    }, 
-    {
-      title: "Stats",
-      path: "/stats",
-      icon: BarChartHorizontal
-    }, 
+      title: "Calendar",
+      path: "/time-design",
+      icon: Calendar
+    },
     {
       title: "Settings",
       path: "/settings",
@@ -87,8 +61,33 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) 
     }
   ];
   
+  const goBack = () => {
+    window.history.back();
+  };
+  
   return (
     <SidebarMenu className="space-y-1 scrollbar-none">
+      <SidebarMenuItem>
+        <SidebarMenuButton 
+          className={cn(
+            "hover:bg-[#2A2F3C] transition-all duration-300 text-[#B0B5BD]",
+            isCollapsed ? "justify-center" : "px-2"
+          )}
+          onClick={goBack}
+        >
+          <motion.div 
+            className="w-full flex items-center gap-3" 
+            whileHover={{ scale: 1.05 }} 
+            whileTap={{ scale: 0.95 }}
+          >
+            <ArrowLeft className="h-5 w-5 text-[#B0B5BD]" />
+            {!isCollapsed && <span className="text-sm font-medium">Back</span>}
+          </motion.div>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+      
+      <div className="border-b border-[#2A2F3C] my-2"></div>
+      
       {menuItems.map(item => (
         <SidebarMenuItem key={item.path}>
           <SidebarMenuButton 
