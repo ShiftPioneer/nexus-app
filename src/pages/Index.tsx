@@ -23,7 +23,6 @@ const Dashboard = () => {
           </div>
           <div className="space-y-6">
             <GoalsProgressCard />
-            <JournalSection />
           </div>
         </div>
         
@@ -31,8 +30,9 @@ const Dashboard = () => {
           <div className="lg:col-span-2">
             <GoalSection />
           </div>
-          <div>
+          <div className="space-y-6">
             <HabitsSection />
+            <JournalSection />
           </div>
         </div>
       </div>

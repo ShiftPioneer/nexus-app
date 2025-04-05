@@ -19,14 +19,14 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
 }) => {
   const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar);
   
-  // Sample avatar options
+  // Sample avatar options with absolute URLs
   const avatarOptions = [
-    '/assets/avatars/avatar-1.png',
-    '/assets/avatars/avatar-2.png',
-    '/assets/avatars/avatar-3.png',
-    '/assets/avatars/avatar-4.png',
-    '/assets/avatars/avatar-5.png',
-    '/assets/avatars/avatar-6.png',
+    'https://ui-avatars.com/api/?name=Avatar+1&background=0D8ABC&color=fff',
+    'https://ui-avatars.com/api/?name=Avatar+2&background=FFB900&color=fff',
+    'https://ui-avatars.com/api/?name=Avatar+3&background=00B4FF&color=fff',
+    'https://ui-avatars.com/api/?name=Avatar+4&background=107C10&color=fff',
+    'https://ui-avatars.com/api/?name=Avatar+5&background=EB144C&color=fff',
+    'https://ui-avatars.com/api/?name=Avatar+6&background=7552CC&color=fff',
   ];
 
   const handleAvatarSelect = (avatar: string) => {
@@ -39,7 +39,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
       <div className="flex justify-center">
         <Avatar className="w-24 h-24 border-4 border-primary/20">
           <AvatarImage src={selectedAvatar} alt="Selected avatar" />
-          <AvatarFallback>Avatar</AvatarFallback>
+          <AvatarFallback>AV</AvatarFallback>
         </Avatar>
       </div>
       

@@ -1,41 +1,29 @@
-
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { v4 as uuidv4 } from 'uuid';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Project } from "@/types/planning";
+import { format } from "date-fns";
+import { Project, ProjectStatus, Priority } from "@/types/planning";
 
 interface ProjectCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onProjectCreate?: (project: Project) => void;
+  onProjectCreate: (project: Project) => void;
   existingProjects: Project[];
-  existingProject?: Project | null;
+  existingProject: Project | null;
 }
 
 const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
@@ -43,232 +31,202 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
   onOpenChange,
   onProjectCreate,
   existingProjects,
-  initialProject = null
+  existingProject
 }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Project["category"]>("career");
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
-  const [blockingProjects, setBlockingProjects] = useState<string[]>([]);
-  const [blockedByProjects, setBlockedByProjects] = useState<string[]>([]);
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    status: "not-started" as ProjectStatus,
+    priority: "medium" as Priority,
+    dueDate: undefined as Date | undefined,
+    startDate: new Date(),
+    category: "work"
+  });
 
-  // If an initial project is provided, populate the form with its values
   useEffect(() => {
-    if (initialProject) {
-      setTitle(initialProject.title);
-      setDescription(initialProject.description);
-      setCategory(initialProject.category);
-      setStartDate(initialProject.startDate);
-      setEndDate(initialProject.endDate);
-      setBlockingProjects(initialProject.blockingProjects || []);
-      setBlockedByProjects(initialProject.blockedByProjects || []);
+    if (existingProject) {
+      setForm({
+        title: existingProject.title,
+        description: existingProject.description,
+        status: existingProject.status,
+        priority: existingProject.priority,
+        dueDate: existingProject.dueDate,
+        startDate: existingProject.startDate,
+        category: existingProject.category || "work"
+      });
     } else {
-      resetForm();
+      setForm({
+        title: "",
+        description: "",
+        status: "not-started" as ProjectStatus,
+        priority: "medium" as Priority,
+        dueDate: undefined,
+        startDate: new Date(),
+        category: "work"
+      });
     }
-  }, [initialProject]);
+  }, [existingProject, open]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
+    setForm({ ...form, [name]: value });
+  };
+
+  const handleDateChange = (date: Date | undefined) => {
+    setForm({ ...form, dueDate: date });
+  };
 
   const handleSubmit = () => {
-    const newProject: Project = {
-      id: initialProject?.id || "",
-      title,
-      description,
-      category,
-      progress: initialProject?.progress || 0,
-      startDate,
-      endDate,
-      status: initialProject?.status || "not-started",
-      blockingProjects,
-      blockedByProjects
+    if (!form.title || !form.description) {
+      alert("Please fill in all fields.");
+      return;
+    }
+
+    const project: Project = {
+      id: existingProject?.id || uuidv4(),
+      title: form.title,
+      description: form.description,
+      status: form.status,
+      priority: form.priority,
+      dueDate: form.dueDate,
+      startDate: form.startDate || new Date(),
+      category: form.category,
+      tasks: existingProject?.tasks || [],
+      subProjects: existingProject?.subProjects || [],
+      progress: existingProject?.progress || 0,
+      pinned: existingProject?.pinned || false
     };
-    
-    onProjectCreate(newProject);
-    resetForm();
+
+    onProjectCreate(project);
+    onOpenChange(false);
   };
 
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setCategory("career");
-    setStartDate(new Date());
-    setEndDate(new Date());
-    setBlockingProjects([]);
-    setBlockedByProjects([]);
-  };
+  const initialData = existingProject
+    ? {
+        title: existingProject.title,
+        description: existingProject.description,
+        status: existingProject.status,
+        priority: existingProject.priority,
+        dueDate: existingProject.dueDate,
+        startDate: existingProject.startDate,
+        category: existingProject.category || "work"
+      }
+    : {
+        title: "",
+        description: "",
+        status: "not-started" as ProjectStatus,
+        priority: "medium" as Priority,
+        dueDate: undefined,
+        startDate: new Date(),
+        category: "work"
+      };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) resetForm();
-      onOpenChange(isOpen);
-    }}>
-      <DialogContent className="sm:max-w-[550px]">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{initialProject ? 'Edit Project' : 'Create New Project'}</DialogTitle>
+          <DialogTitle>{existingProject ? "Edit Project" : "Create New Project"}</DialogTitle>
+          <DialogDescription>
+            {existingProject ? "Edit the project details" : "Enter the details for your new project"}
+          </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Project Title</Label>
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="title" className="text-right">
+              Title
+            </Label>
             <Input
+              type="text"
               id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter your project title"
+              name="title"
+              value={form.title}
+              onChange={handleInputChange}
+              className="col-span-3"
             />
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your project"
-              rows={3}
-            />
+          <div className="grid grid-cols-4 items-start gap-4">
+            <Label htmlFor="description" className="text-right mt-2">
+              Description
+            </Label>
+            <div className="col-span-3">
+              <Input
+                id="description"
+                name="description"
+                value={form.description}
+                onChange={handleInputChange}
+                className="w-full"
+              />
+            </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Select
-              value={category}
-              onValueChange={(val) => setCategory(val as Project["category"])}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select category" />
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="status" className="text-right">
+              Status
+            </Label>
+            <Select value={form.status} onValueChange={(value) => handleSelectChange("status", value)}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="career">Career</SelectItem>
-                <SelectItem value="education">Education</SelectItem>
-                <SelectItem value="wealth">Wealth</SelectItem>
-                <SelectItem value="health">Health</SelectItem>
-                <SelectItem value="relationships">Relationships</SelectItem>
-                <SelectItem value="spirituality">Spirituality</SelectItem>
+                <SelectItem value="not-started">Not Started</SelectItem>
+                <SelectItem value="in-progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="on-hold">On Hold</SelectItem>
+                <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Start Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !startDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={(date) => date && setStartDate(date)}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>End Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !endDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={(date) => date && setEndDate(date)}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="priority" className="text-right">
+              Priority
+            </Label>
+            <Select value={form.priority} onValueChange={(value) => handleSelectChange("priority", value)}>
+              <SelectTrigger className="col-span-3">
+                <SelectValue placeholder="Select priority" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="low">Low</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-
-          {existingProjects.length > 0 && (
-            <>
-              <div className="space-y-2">
-                <Label>Blocking</Label>
-                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {existingProjects
-                    .filter(project => initialProject ? project.id !== initialProject.id : true)
-                    .map(project => (
-                    <div key={`blocking-${project.id}`} className="flex items-center space-x-2 mb-2">
-                      <Checkbox 
-                        id={`blocking-${project.id}`}
-                        checked={blockingProjects.includes(project.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setBlockingProjects([...blockingProjects, project.id]);
-                          } else {
-                            setBlockingProjects(blockingProjects.filter(id => id !== project.id));
-                          }
-                        }}
-                      />
-                      <label htmlFor={`blocking-${project.id}`} className="text-sm">{project.title}</label>
-                    </div>
-                  ))}
-                  {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).length === 0 && 
-                    <p className="text-sm text-muted-foreground">No existing projects to select</p>
-                  }
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Blocked By</Label>
-                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {existingProjects
-                    .filter(project => initialProject ? project.id !== initialProject.id : true)
-                    .map(project => (
-                    <div key={`blockedby-${project.id}`} className="flex items-center space-x-2 mb-2">
-                      <Checkbox 
-                        id={`blockedby-${project.id}`}
-                        checked={blockedByProjects.includes(project.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setBlockedByProjects([...blockedByProjects, project.id]);
-                          } else {
-                            setBlockedByProjects(blockedByProjects.filter(id => id !== project.id));
-                          }
-                        }}
-                      />
-                      <label htmlFor={`blockedby-${project.id}`} className="text-sm">{project.title}</label>
-                    </div>
-                  ))}
-                  {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).length === 0 && 
-                    <p className="text-sm text-muted-foreground">No existing projects to select</p>
-                  }
-                </div>
-              </div>
-            </>
-          )}
+          <div className="grid grid-cols-4 items-center gap-4">
+            <Label htmlFor="dueDate" className="text-right">
+              Due Date
+            </Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "col-span-3 pl-3 text-left font-normal",
+                    !form.dueDate && "text-muted-foreground"
+                  )}
+                >
+                  {form.dueDate ? format(form.dueDate, "PPP") : <span>Pick a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="center" side="bottom">
+                <Calendar
+                  mode="single"
+                  selected={form.dueDate}
+                  onSelect={handleDateChange}
+                  disabled={(date) => date < new Date()}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
-        
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSubmit} disabled={!title.trim()}>
-            {initialProject ? 'Update Project' : 'Create Project'}
+          <Button type="submit" onClick={handleSubmit}>
+            {existingProject ? "Update Project" : "Create Project"}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { User, Search, Bell, Menu, LogOut, Settings } from "lucide-react";
@@ -29,7 +28,6 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu, className }: TopBarProps) =>
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   
-  // Get user initials for avatar fallback
   const getUserInitials = () => {
     if (!user || !user.displayName) return "U";
     return user.displayName.split(' ')
@@ -61,16 +59,27 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu, className }: TopBarProps) =>
 
   return (
     <header className="bg-background border-b border-border h-16 flex items-center px-4 lg:px-6 w-full">
-      {showMobileMenu && (
+      <div className="flex items-center gap-3">
+        {showMobileMenu && (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={toggleMobileMenu}
+            className={`${className}`}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
+        )}
+        
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={toggleMobileMenu}
-          className={`mr-2 ${className}`}
+          onClick={() => window.history.back()}
+          className="mr-2"
         >
-          <Menu className="h-5 w-5" />
+          <ArrowLeft className="h-5 w-5" />
         </Button>
-      )}
+      </div>
       
       <div className="hidden sm:flex mx-4 flex-1 max-w-md relative">
         <div className="relative w-full">
