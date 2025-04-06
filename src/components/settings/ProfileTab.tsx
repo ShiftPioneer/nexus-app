@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +29,11 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user }) => {
   const [bio, setBio] = useState("Hi there! I'm using Nexus to improve my productivity and reach my goals.");
   const [selectedAvatar, setSelectedAvatar] = useState(userPhotoURL || "");
   const [isAvatarApplied, setIsAvatarApplied] = useState(false);
+  
+  // Password change state
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   // Use effect to update form values when user changes
   useEffect(() => {
@@ -71,6 +76,29 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user }) => {
       description: "Your avatar has been updated",
       duration: 3000,
     });
+  };
+  
+  const handlePasswordChange = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please ensure your new password and confirmation match.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // In a real app, this would call an API to update the password
+    toast({
+      title: "Password updated",
+      description: "Your password has been changed successfully."
+    });
+    
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
   };
 
   return (
@@ -128,7 +156,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user }) => {
         </CardContent>
       </Card>
       
-      <Card>
+      <Card className="mt-6">
         <CardHeader>
           <CardTitle>Avatar</CardTitle>
         </CardHeader>
@@ -139,6 +167,53 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ user }) => {
             onApply={handleApplyAvatar}
             isApplied={isAvatarApplied}
           />
+        </CardContent>
+      </Card>
+      
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Change Password</CardTitle>
+          <CardDescription>
+            Update your password to maintain account security
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handlePasswordChange} className="space-y-4">
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="current-password">Current Password</Label>
+              <Input 
+                id="current-password" 
+                type="password" 
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="new-password">New Password</Label>
+              <Input 
+                id="new-password" 
+                type="password" 
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </div>
+            
+            <div className="grid w-full items-center gap-2">
+              <Label htmlFor="confirm-password">Confirm New Password</Label>
+              <Input 
+                id="confirm-password" 
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+            
+            <Button type="submit">Update Password</Button>
+          </form>
         </CardContent>
       </Card>
     </>

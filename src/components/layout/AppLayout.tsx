@@ -11,10 +11,10 @@ interface AppLayoutProps {
 const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen bg-background">
+      <div className="flex min-h-screen bg-[#101114]">
         <Sidebar />
         <main className={cn(
-          "flex-1 ml-[80px] lg:ml-[256px] transition-all duration-300 overflow-auto"
+          "flex-1 ml-[64px] lg:ml-[205px] transition-all duration-300 overflow-auto p-6"
         )}>
           {children}
         </main>

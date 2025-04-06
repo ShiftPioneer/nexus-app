@@ -6,10 +6,20 @@ import { Button } from "@/components/ui/button";
 import { Plus, CheckCircle2, CheckSquare } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTasks } from "@/contexts/TaskContext";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DatePicker } from "@/components/ui/date-picker";
 
 const TasksSection = () => {
-  const { tasks, getTodaysTasks, getCompletionRate, completeTask } = useTasks();
+  const { tasks, getTodaysTasks, getCompletionRate, completeTask, addTask } = useTasks();
   const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [taskTitle, setTaskTitle] = useState("");
+  const [taskPriority, setTaskPriority] = useState<"high" | "medium" | "low">("medium");
+  const [taskDate, setTaskDate] = useState<Date | undefined>(new Date());
+  const [taskTime, setTaskTime] = useState("");
   
   const todaysTasks = getTodaysTasks();
   const pendingTasks = todaysTasks.filter(task => !task.completed);
@@ -29,10 +39,42 @@ const TasksSection = () => {
     }
   };
   
-  const addNewTask = () => {
+  const handleAddTask = () => {
+    setIsDialogOpen(true);
+  };
+  
+  const handleCreateTask = () => {
+    if (!taskTitle.trim()) {
+      toast({
+        title: "Task title required",
+        description: "Please enter a title for your task",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const newTask = {
+      id: `task-${Date.now()}`,
+      title: taskTitle,
+      priority: taskPriority,
+      completed: false,
+      dueDate: taskDate,
+      dueTime: taskTime
+    };
+    
+    addTask(newTask);
+    
     toast({
-      description: "Task creation coming soon!",
+      title: "Task Created",
+      description: "Your new task has been added",
     });
+    
+    // Reset form
+    setTaskTitle("");
+    setTaskPriority("medium");
+    setTaskDate(new Date());
+    setTaskTime("");
+    setIsDialogOpen(false);
   };
 
   return (
@@ -52,7 +94,7 @@ const TasksSection = () => {
                   <div className="text-xs text-slate-400">{completionRate}% completion rate</div>
                 </div>
               </div>
-              <Button onClick={addNewTask} size="sm" className="gap-1">
+              <Button onClick={handleAddTask} size="sm" className="gap-1">
                 <Plus className="h-4 w-4" />
                 <span>New Task</span>
               </Button>
@@ -134,6 +176,73 @@ const TasksSection = () => {
           </div>
         </CardContent>
       </Card>
+      
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Task</DialogTitle>
+            <DialogDescription>
+              Create a new task to add to your todo list
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="task-title">Task Title</Label>
+              <Input
+                id="task-title"
+                placeholder="What do you need to do?"
+                value={taskTitle}
+                onChange={(e) => setTaskTitle(e.target.value)}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="task-priority">Priority</Label>
+              <Select
+                value={taskPriority}
+                onValueChange={(value) => setTaskPriority(value as "high" | "medium" | "low")}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label>Due Date</Label>
+              <DatePicker
+                date={taskDate}
+                setDate={setTaskDate}
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="task-time">Due Time (optional)</Label>
+              <Input
+                id="task-time"
+                type="time"
+                value={taskTime}
+                onChange={(e) => setTaskTime(e.target.value)}
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleCreateTask}>
+              Create Task
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

@@ -94,6 +94,7 @@ export interface Skillset {
   color?: string; // For backward compatibility
   pinned?: boolean; // For backward compatibility
   learningResources?: string[]; // For backward compatibility
+  tags?: string[]; // For backward compatibility
 }
 
 export interface Resource {

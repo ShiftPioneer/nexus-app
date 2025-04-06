@@ -11,8 +11,8 @@ const Sidebar: React.FC = () => {
 
   return (
     <motion.aside
-      initial={{ width: isCollapsed ? 80 : 256 }}
-      animate={{ width: isCollapsed ? 80 : 256 }}
+      initial={{ width: isCollapsed ? 64 : 205 }} // Reduced by 20%
+      animate={{ width: isCollapsed ? 64 : 205 }} // Reduced by 20%
       transition={{ duration: 0.3, ease: "easeInOut" }}
       className={cn(
         "fixed left-0 z-20 flex h-screen flex-col border-r border-[#2A2F3C] bg-[#181A22] transition-all duration-300",

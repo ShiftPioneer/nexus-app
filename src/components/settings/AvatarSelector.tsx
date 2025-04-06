@@ -22,20 +22,20 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
   const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar);
   const [customAvatarUrl, setCustomAvatarUrl] = useState('');
   
-  // Modern avatars with positive themes
+  // Positive and productivity-focused avatars
   const avatarOptions = [
-    'https://api.dicebear.com/7.x/bottts/svg?seed=productivity&backgroundColor=ffb703',
     'https://api.dicebear.com/7.x/bottts/svg?seed=brain&backgroundColor=8338ec',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=focus&backgroundColor=118ab2',
     'https://api.dicebear.com/7.x/bottts/svg?seed=energy&backgroundColor=fb5607',
-    'https://api.dicebear.com/7.x/bottts/svg?seed=intellect&backgroundColor=3a86ff',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=productivity&backgroundColor=ffb703',
     'https://api.dicebear.com/7.x/bottts/svg?seed=growth&backgroundColor=06d6a0',
     'https://api.dicebear.com/7.x/bottts/svg?seed=hope&backgroundColor=ef476f',
-    'https://api.dicebear.com/7.x/bottts/svg?seed=focus&backgroundColor=118ab2',
-    'https://api.dicebear.com/7.x/bottts/svg?seed=creativity&backgroundColor=ff006e',
-    'https://api.dicebear.com/7.x/identicon/svg?seed=intelligence&backgroundColor=43aa8b',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=intelligence&backgroundColor=43aa8b',
     'https://api.dicebear.com/7.x/identicon/svg?seed=success&backgroundColor=f94144',
-    'https://api.dicebear.com/7.x/shapes/svg?seed=motivation&backgroundColor=277da1',
-    'https://api.dicebear.com/7.x/shapes/svg?seed=productivity&backgroundColor=f8961e',
+    'https://api.dicebear.com/7.x/micah/svg?seed=motivation&backgroundColor=277da1',
+    'https://api.dicebear.com/7.x/micah/svg?seed=success&backgroundColor=f8961e',
+    'https://api.dicebear.com/7.x/lorelei/svg?seed=productivity&backgroundColor=ffb703',
+    'https://api.dicebear.com/7.x/notionists/svg?seed=creativity&backgroundColor=ff006e',
   ];
 
   const handleAvatarSelect = (avatar: string) => {
@@ -99,8 +99,8 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
       </div>
       
       <div className="pt-4">
-        <Label htmlFor="custom-avatar">Upload your own image</Label>
-        <div className="flex mt-2">
+        <Label htmlFor="avatar-upload">Upload your own image</Label>
+        <div className="flex gap-2 mt-2">
           <Input 
             id="avatar-upload" 
             type="file" 
@@ -108,6 +108,10 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
             onChange={handleFileUpload}
             className="flex-1"
           />
+          <Button variant="outline" onClick={() => document.getElementById('avatar-upload')?.click()}>
+            <Upload className="h-4 w-4 mr-2" />
+            Browse
+          </Button>
         </div>
       </div>
       
