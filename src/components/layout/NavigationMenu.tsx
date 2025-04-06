@@ -1,7 +1,12 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
+import { 
+  SidebarMenu, 
+  SidebarMenuItem, 
+  SidebarMenuButton,
+  useSidebar 
+} from "@/components/ui/sidebar";
 import { 
   LayoutDashboard, 
   CheckCircle, 

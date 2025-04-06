@@ -110,7 +110,7 @@ export function SecondBrainSystem() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
-              {allTags.map(tag => (
+              {allTags.map((tag) => (
                 <DropdownMenuCheckboxItem
                   key={tag}
                   checked={selectedTags.includes(tag)}
