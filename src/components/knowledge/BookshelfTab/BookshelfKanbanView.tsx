@@ -1,24 +1,22 @@
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { BookCard } from "../BookCard";
 import { Book, ReadingStatus } from "@/types/knowledge";
-import { BookshelfState } from "./BookshelfTab";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookCard } from "@/components/knowledge/BookCard";
 
-interface BookshelfKanbanViewProps {
-  booksByStatus: BookshelfState;
-  setBooksByStatus: React.Dispatch<React.SetStateAction<BookshelfState>>;
+export interface BookshelfKanbanViewProps {
+  booksByStatus: Record<string, Book[]>;
+  setBooksByStatus: React.Dispatch<React.SetStateAction<Record<string, Book[]>>>;
   onEdit: (book: Book) => void;
   onDelete: (book: Book) => void;
 }
 
 export function BookshelfKanbanView({ 
   booksByStatus, 
-  setBooksByStatus,
-  onEdit,
-  onDelete
+  setBooksByStatus, 
+  onEdit, 
+  onDelete 
 }: BookshelfKanbanViewProps) {
-  
   const handleDragStart = (event: React.DragEvent, book: Book) => {
     event.dataTransfer.setData('book', JSON.stringify(book));
   };
@@ -49,7 +47,7 @@ export function BookshelfKanbanView({
       console.error('Error parsing dragged book data', e);
     }
   };
-  
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {Object.entries(booksByStatus).map(([status, books]) => (
@@ -59,15 +57,16 @@ export function BookshelfKanbanView({
           onDragOver={handleDragOver} 
           onDrop={e => handleDrop(e, status as ReadingStatus)}
         >
-          <CardContent className="p-4 bg-orange-50 py-[26px] px-[26px]">
-            <div className="flex items-center gap-2 mb-4">
-              <h3 className="font-bold text-lg text-secondary-light">{status}</h3>
-              <span className="bg-orange-100 rounded-full px-2 py-0.5 text-xs text-orange-800">
+          <CardHeader className="bg-muted/50 p-4">
+            <CardTitle className="text-lg flex items-center justify-between">
+              {status}
+              <span className="bg-primary/10 text-primary text-xs rounded-full px-2 py-1">
                 {books.length}
               </span>
-            </div>
-            
-            <div className="space-y-4 min-h-[150px]">
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4">
+            <div className="space-y-4 min-h-[200px]">
               {books.map(book => (
                 <div key={book.id} draggable onDragStart={e => handleDragStart(e, book)} className="cursor-move">
                   <BookCard book={book} onEdit={onEdit} onDelete={onDelete} />

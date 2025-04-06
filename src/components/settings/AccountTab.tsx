@@ -1,166 +1,115 @@
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, EyeOff, AlertTriangle } from "lucide-react";
-import { User } from "@/contexts/AuthContext";
-import { useAuth } from "@/contexts/AuthContext";
-import { 
-  Dialog,
-  DialogContent, 
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
 
-interface AccountTabProps {
-  user: User | null;
-}
-
-const AccountTab: React.FC<AccountTabProps> = ({ user }) => {
+export default function AccountTab({ user }: { user: any }) {
   const { toast } = useToast();
-  const { signOut } = useAuth();
-  const [currentPassword, setCurrentPassword] = useState("••••••••");
-  const [showPassword, setShowPassword] = useState(false);
-  const [appearance, setAppearance] = useState("system");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-
-  const handleChangePassword = () => {
-    toast({
-      title: "Password Reset Email Sent",
-      description: "Check your inbox for instructions to reset your password",
-      duration: 3000,
-    });
-  };
-
-  const handleDeleteAccount = async () => {
-    setShowDeleteConfirm(true);
-  };
-
-  const confirmDeleteAccount = async () => {
-    setShowDeleteConfirm(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  
+  const handlePasswordChange = (e: React.FormEvent) => {
+    e.preventDefault();
     
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Passwords don't match",
+        description: "Please ensure your new password and confirmation match.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    // In a real app, this would call an API to update the password
     toast({
-      title: "Account Deletion Requested",
-      description: "Your account deletion request has been received",
-      duration: 3000,
+      title: "Password updated",
+      description: "Your password has been changed successfully."
     });
     
-    // In a real implementation, you would call the appropriate API here
-    setTimeout(() => {
-      signOut().catch(console.error);
-    }, 2000);
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
   };
-
-  const handleExportData = () => {
-    toast({
-      title: "Data Export Initiated",
-      description: "Your data will be emailed to you shortly",
-      duration: 3000,
-    });
-  };
-
+  
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Password</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-2">
+    <Card>
+      <CardHeader>
+        <CardTitle>Account Security</CardTitle>
+        <CardDescription>
+          Manage your account security settings
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <form onSubmit={handlePasswordChange} className="space-y-4">
+          <div className="grid w-full items-center gap-2">
             <Label htmlFor="current-password">Current Password</Label>
-            <div className="flex">
-              <Input 
-                id="current-password"
-                type={showPassword ? "text" : "password"}
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="flex-1"
-              />
-              <Button 
-                variant="outline" 
-                className="ml-2"
-                onClick={() => setShowPassword(!showPassword)}
-                title={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </Button>
-            </div>
+            <Input 
+              id="current-password" 
+              type="password" 
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+            />
           </div>
-          <Button onClick={handleChangePassword}>Change Password</Button>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-3 gap-2">
-            <Button 
-              variant={appearance === "light" ? "default" : "outline"}
-              onClick={() => setAppearance("light")}
-            >
-              Light
-            </Button>
-            <Button 
-              variant={appearance === "dark" ? "default" : "outline"}
-              onClick={() => setAppearance("dark")}
-            >
-              Dark
-            </Button>
-            <Button 
-              variant={appearance === "system" ? "default" : "outline"}
-              onClick={() => setAppearance("system")}
-            >
-              System
-            </Button>
+          
+          <div className="grid w-full items-center gap-2">
+            <Label htmlFor="new-password">New Password</Label>
+            <Input 
+              id="new-password" 
+              type="password" 
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
           </div>
-        </CardContent>
-      </Card>
-      
-      <Card>
-        <CardHeader>
-          <CardTitle>Data Management</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+          
+          <div className="grid w-full items-center gap-2">
+            <Label htmlFor="confirm-password">Confirm New Password</Label>
+            <Input 
+              id="confirm-password" 
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+          </div>
+          
+          <Button type="submit">Update Password</Button>
+        </form>
+        
+        <div className="space-y-4">
           <div>
-            <p className="text-muted-foreground mb-2">Export your data or delete your account</p>
-            <div className="flex flex-wrap gap-2">
-              <Button variant="outline" onClick={handleExportData}>Export Data</Button>
-              <Button variant="destructive" onClick={handleDeleteAccount}>Delete Account</Button>
+            <h3 className="text-lg font-medium">Two-Factor Authentication</h3>
+            <p className="text-sm text-muted-foreground mb-2">
+              Add an extra layer of security to your account
+            </p>
+            <Button variant="outline">Enable Two-Factor</Button>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-medium">Sessions</h3>
+            <p className="text-sm text-muted-foreground mb-2">
+              Manage your active sessions across devices
+            </p>
+            <Button variant="outline">Manage Sessions</Button>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-medium">Account Data</h3>
+            <p className="text-sm text-muted-foreground mb-2">
+              Download or delete your account data
+            </p>
+            <div className="flex gap-2">
+              <Button variant="outline">Download Data</Button>
+              <Button variant="destructive">Delete Account</Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-destructive" />
-              Delete Account
-            </DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="flex flex-col sm:flex-row gap-2 sm:justify-between">
-            <Button variant="outline" onClick={() => setShowDeleteConfirm(false)}>
-              Cancel
-            </Button>
-            <Button variant="destructive" onClick={confirmDeleteAccount}>
-              Yes, Delete My Account
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+        </div>
+      </CardContent>
+    </Card>
   );
-};
-
-export default AccountTab;
+}

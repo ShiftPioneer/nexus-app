@@ -1,31 +1,43 @@
+
 import React, { useState } from "react";
 import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { FileText, LinkIcon, BookOpen, Brain, Bookmark, Tag, Search, Filter } from "lucide-react";
+import { FileText, LinkIcon, BookOpen, Brain, Tag, Search, Filter } from "lucide-react";
 import { useKnowledge } from "@/contexts/KnowledgeContext";
+
 interface KnowledgeHeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
 }
+
 export function KnowledgeHeader({
   activeTab,
   setActiveTab
 }: KnowledgeHeaderProps) {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [filterTag, setFilterTag] = useState<string>("all");
+  
   const {
     notes,
     resources,
     books,
     skillsets
   } = useKnowledge();
-  const allTags = Array.from(new Set([...notes.flatMap(note => note.tags), ...resources.flatMap(resource => resource.tags), ...books.flatMap(book => book.relatedSkillsets || []), ...skillsets.map(skillset => skillset.name)]));
-  return <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+  
+  const allTags = Array.from(new Set([
+    ...notes.flatMap(note => note.tags), 
+    ...resources.flatMap(resource => resource.tags), 
+    ...books.flatMap(book => book.tags || []), 
+    ...skillsets.flatMap(skillset => skillset.tags || [])
+  ]));
+  
+  return (
+    <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
       <TabsList className="mb-4 md:mb-0">
-        <TabsTrigger value="notes" className="gap-2">
-          <FileText className="h-4 w-4" />
-          Notes
+        <TabsTrigger value="skillsets" className="gap-2">
+          <Brain className="h-4 w-4" />
+          Skillsets
         </TabsTrigger>
         <TabsTrigger value="resources" className="gap-2">
           <LinkIcon className="h-4 w-4" />
@@ -35,11 +47,10 @@ export function KnowledgeHeader({
           <BookOpen className="h-4 w-4" />
           Books
         </TabsTrigger>
-        <TabsTrigger value="skillsets" className="gap-2">
-          <Brain className="h-4 w-4" />
-          Skillsets
+        <TabsTrigger value="notes" className="gap-2">
+          <FileText className="h-4 w-4" />
+          Notes
         </TabsTrigger>
-        
         <TabsTrigger value="tags" className="gap-2">
           <Tag className="h-4 w-4" />
           Tags
@@ -60,11 +71,14 @@ export function KnowledgeHeader({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Tags</SelectItem>
-            {allTags.map(tag => <SelectItem key={tag} value={tag}>
+            {allTags.map(tag => (
+              <SelectItem key={tag} value={tag}>
                 {tag}
-              </SelectItem>)}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
-    </div>;
+    </div>
+  );
 }

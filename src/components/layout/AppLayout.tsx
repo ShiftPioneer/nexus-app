@@ -22,11 +22,9 @@ export default function AppLayout({ children }: AppLayoutProps) {
     <SidebarProvider>
       <div className="min-h-screen bg-background flex w-full">
         <Sidebar />
-        <div className="flex-1 flex flex-col ml-0 md:ml-64 relative">
-          <TopBar 
-            toggleSidebar={toggleMobileMenu}
-          />
-          <main className="flex-1 pt-16">
+        <div className="flex-1 flex flex-col ml-0 md:ml-[80px] lg:ml-[256px] transition-all duration-300 w-full">
+          <TopBar toggleSidebar={toggleMobileMenu} />
+          <main className="flex-1 p-4">
             {children}
           </main>
         </div>

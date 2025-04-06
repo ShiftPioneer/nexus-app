@@ -1,62 +1,27 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import { Book, KnowledgeCategory, KnowledgeEntry, ReadingStatus, Resource, Skillset, Tag } from '@/types/knowledge';
+import { Book, KnowledgeCategory, KnowledgeEntry, Note, ReadingStatus, Resource, Skillset, Tag } from '@/types/knowledge';
 import { useToast } from '@/hooks/use-toast';
 
-interface KnowledgeContextValue {
-  notes: KnowledgeEntry[];
-  resources: Resource[];
-  books: Book[];
-  skillsets: Skillset[];
-  tags: Tag[];
-  searchQuery: string;
-  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
-  activeFilter: 'all' | KnowledgeCategory;
-  setActiveFilter: React.Dispatch<React.SetStateAction<'all' | KnowledgeCategory>>;
-  addNote: (note: Omit<KnowledgeEntry, 'id' | 'dateCreated' | 'dateUpdated'>) => void;
-  updateNote: (id: string, note: Partial<KnowledgeEntry>) => void;
-  deleteNote: (id: string) => void;
-  addResource: (resource: Omit<Resource, 'id' | 'dateAdded'>) => void;
-  updateResource: (id: string, resource: Partial<Resource>) => void;
-  deleteResource: (id: string) => void;
-  addBook: (book: Omit<Book, 'id' | 'dateAdded'>) => void;
-  updateBook: (id: string, book: Partial<Book>) => void;
-  deleteBook: (id: string) => void;
-  addSkillset: (skillset: Omit<Skillset, 'id'>) => void;
-  updateSkillset: (id: string, skillset: Partial<Skillset>) => void;
-  deleteSkillset: (id: string) => void;
-  addTag: (tag: Omit<Tag, 'id'>) => void;
-  updateTag: (id: string, tag: Partial<Tag>) => void;
-  deleteTag: (id: string) => void;
-  isOffline: boolean;
-  entries: KnowledgeEntry[];
-}
-
-const KnowledgeContext = createContext<KnowledgeContextValue | undefined>(undefined);
+const KnowledgeContext = createContext<any>(undefined);
 
 export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [notes, setNotes] = useState<KnowledgeEntry[]>([
+  const [notes, setNotes] = useState<Note[]>([
     {
       id: '1',
       title: 'Getting Started with React',
       content: 'React is a JavaScript library for building user interfaces...',
-      category: 'note',
       tags: ['react', 'javascript', 'frontend'],
-      dateCreated: new Date(2023, 0, 15),
-      dateUpdated: new Date(2023, 0, 15),
-      pinned: true,
-      attachments: []
+      lastUpdated: new Date(2023, 0, 15),
+      pinned: true
     },
     {
       id: '2',
       title: 'CSS Grid Layout',
       content: 'CSS Grid Layout is a two-dimensional layout system...',
-      category: 'note',
       tags: ['css', 'frontend', 'layout'],
-      dateCreated: new Date(2023, 1, 10),
-      dateUpdated: new Date(2023, 1, 20),
-      pinned: false,
-      attachments: []
+      lastUpdated: new Date(2023, 1, 20),
+      pinned: false
     }
   ]);
   
@@ -90,25 +55,27 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       id: '1',
       title: 'Clean Code',
       author: 'Robert C. Martin',
-      coverUrl: 'https://example.com/clean-code.jpg',
+      coverImage: 'https://example.com/clean-code.jpg',
       readingStatus: 'In Progress' as ReadingStatus,
       dateAdded: new Date(2023, 0, 20),
       currentPage: 150,
       totalPages: 464,
       genre: 'Programming',
       tags: ['coding', 'best-practices'],
-      notes: 'Great book about writing maintainable code'
+      notes: 'Great book about writing maintainable code',
+      rating: 4
     },
     {
       id: '2',
       title: 'Design Patterns',
       author: 'Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides',
-      coverUrl: 'https://example.com/design-patterns.jpg',
+      coverImage: 'https://example.com/design-patterns.jpg',
       readingStatus: 'Not Started' as ReadingStatus,
       dateAdded: new Date(2023, 2, 15),
       genre: 'Programming',
       tags: ['coding', 'architecture'],
-      notes: ''
+      notes: '',
+      rating: 0
     }
   ]);
   
@@ -117,28 +84,25 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       id: '1',
       name: 'Front-end Development',
       description: 'Building user interfaces with HTML, CSS, and JavaScript',
-      skills: [
-        { id: '1', name: 'HTML5', proficiency: 90 },
-        { id: '2', name: 'CSS3', proficiency: 85 },
-        { id: '3', name: 'JavaScript', proficiency: 80 },
-        { id: '4', name: 'React', proficiency: 75 }
-      ],
-      category: 'Technical',
+      category: 'technical' as SkillsetCategory,
+      proficiency: 85,
       learningResources: ['1', '2'],
-      tags: ['web', 'frontend']
+      tags: ['web', 'frontend'],
+      lastPracticed: new Date(),
+      mastery: 85,
+      resourceCount: 5
     },
     {
       id: '2',
       name: 'UI/UX Design',
       description: 'Designing user interfaces and experiences',
-      skills: [
-        { id: '1', name: 'Figma', proficiency: 70 },
-        { id: '2', name: 'User Research', proficiency: 65 },
-        { id: '3', name: 'Wireframing', proficiency: 75 }
-      ],
-      category: 'Design',
+      category: 'creative' as SkillsetCategory,
+      proficiency: 70,
       learningResources: [],
-      tags: ['design', 'ui', 'ux']
+      tags: ['design', 'ui', 'ux'],
+      lastPracticed: new Date(),
+      mastery: 70,
+      resourceCount: 3
     }
   ]);
   
@@ -199,18 +163,18 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   }, [toast]);
   
   // Notes CRUD
-  const addNote = (note: Omit<KnowledgeEntry, 'id' | 'dateCreated' | 'dateUpdated'>) => {
-    const newNote: KnowledgeEntry = {
+  const addNote = (note: Omit<Note, 'id'>) => {
+    const newNote: Note = {
       ...note,
       id: Date.now().toString(),
-      dateCreated: new Date(),
-      dateUpdated: new Date(),
+      lastUpdated: new Date(),
     };
     setNotes([...notes, newNote]);
+    return newNote.id;
   };
   
-  const updateNote = (id: string, note: Partial<KnowledgeEntry>) => {
-    setNotes(notes.map(n => n.id === id ? { ...n, ...note, dateUpdated: new Date() } : n));
+  const updateNote = (id: string, note: Partial<Note>) => {
+    setNotes(notes.map(n => n.id === id ? { ...n, ...note, lastUpdated: new Date() } : n));
   };
   
   const deleteNote = (id: string) => {
@@ -225,6 +189,7 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       dateAdded: new Date(),
     };
     setResources([...resources, newResource]);
+    return newResource.id;
   };
   
   const updateResource = (id: string, resource: Partial<Resource>) => {
@@ -243,6 +208,7 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       dateAdded: new Date(),
     };
     setBooks([...books, newBook]);
+    return newBook.id;
   };
   
   const updateBook = (id: string, book: Partial<Book>) => {
@@ -260,6 +226,7 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       id: Date.now().toString(),
     };
     setSkillsets([...skillsets, newSkillset]);
+    return newSkillset.id;
   };
   
   const updateSkillset = (id: string, skillset: Partial<Skillset>) => {
@@ -277,6 +244,7 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       id: Date.now().toString(),
     };
     setTags([...tags, newTag]);
+    return newTag.id;
   };
   
   const updateTag = (id: string, tag: Partial<Tag>) => {
@@ -287,24 +255,65 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setTags(tags.filter(t => t.id !== id));
   };
 
-  // Combined entries for SecondBrainSystem
+  // Pinning functionality
+  const togglePinNote = (id: string) => {
+    setNotes(notes =>
+      notes.map(note =>
+        note.id === id ? { ...note, pinned: !note.pinned } : note
+      )
+    );
+  };
+
+  const togglePinResource = (id: string) => {
+    setResources(resources =>
+      resources.map(resource =>
+        resource.id === id ? { ...resource, pinned: !resource.pinned } : resource
+      )
+    );
+  };
+
+  const togglePinBook = (id: string) => {
+    setBooks(books =>
+      books.map(book =>
+        book.id === id ? { ...book, pinned: !book.pinned } : book
+      )
+    );
+  };
+
+  const togglePinSkillset = (id: string) => {
+    setSkillsets(skillsets =>
+      skillsets.map(skillset =>
+        skillset.id === id ? { ...skillset, pinned: !skillset.pinned } : skillset
+      )
+    );
+  };
+  
+  // Create knowledge entries for the second brain system
   const entries: KnowledgeEntry[] = [
-    ...notes,
+    ...notes.map(note => ({
+      id: note.id,
+      title: note.title,
+      content: note.content,
+      category: 'note' as KnowledgeCategory,
+      tags: note.tags,
+      createdAt: note.lastUpdated,
+      updatedAt: note.lastUpdated,
+      pinned: note.pinned
+    })),
     ...resources.map(resource => ({
       id: resource.id,
       title: resource.title,
       content: resource.notes || "",
       category: 'resource' as KnowledgeCategory,
       tags: resource.tags,
-      dateCreated: resource.dateAdded,
-      dateUpdated: resource.dateAdded,
+      createdAt: resource.dateAdded,
+      updatedAt: resource.dateAdded,
       pinned: resource.pinned || false,
-      attachments: [],
       url: resource.url
     }))
   ];
   
-  const value: KnowledgeContextValue = {
+  const value = {
     notes,
     resources,
     books,
@@ -330,7 +339,11 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     updateTag,
     deleteTag,
     isOffline,
-    entries
+    entries,
+    togglePinNote,
+    togglePinResource,
+    togglePinBook,
+    togglePinSkillset
   };
   
   return (

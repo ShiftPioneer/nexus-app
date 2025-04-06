@@ -4,6 +4,7 @@ import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import ProfileTab from "@/components/settings/ProfileTab";
 import AccountTab from "@/components/settings/AccountTab";
+import AppearanceTab from "@/components/settings/AppearanceTab";
 import NotificationsTab from "@/components/settings/NotificationsTab";
 import CalendarTab from "@/components/settings/CalendarTab";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,7 +43,7 @@ const Settings = () => {
         <Tabs defaultValue="profile" className="w-full">
           <TabsList className="grid w-full md:w-auto grid-cols-4 md:inline-flex">
             <TabsTrigger value="profile">Profile</TabsTrigger>
-            <TabsTrigger value="account">Account</TabsTrigger>
+            <TabsTrigger value="appearance">Appearance</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
             <TabsTrigger value="integrations">Integrations</TabsTrigger>
           </TabsList>
@@ -50,11 +51,12 @@ const Settings = () => {
           {/* Profile Settings */}
           <TabsContent value="profile" className="space-y-4 mt-4">
             <ProfileTab user={user} />
+            <AccountTab user={user} />
           </TabsContent>
 
-          {/* Account Settings */}
-          <TabsContent value="account" className="space-y-4 mt-4">
-            <AccountTab user={user} />
+          {/* Appearance Settings */}
+          <TabsContent value="appearance" className="space-y-4 mt-4">
+            <AppearanceTab />
           </TabsContent>
 
           {/* Notification Settings */}

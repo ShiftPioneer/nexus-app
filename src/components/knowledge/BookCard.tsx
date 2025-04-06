@@ -1,10 +1,11 @@
 
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Book, ReadingStatus } from "@/types/knowledge";
-import { Star, MoreVertical, Edit, Trash } from "lucide-react";
+import { Book } from "@/types/knowledge";
+import { BookOpen, MoreVertical, Edit, Trash, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface BookCardProps {
@@ -15,60 +16,110 @@ interface BookCardProps {
 }
 
 export function BookCard({ book, onEdit, onDelete, listView = false }: BookCardProps) {
-  const getStatusColor = (status: ReadingStatus) => {
-    switch (status) {
-      case "Reading Now":
-        return "bg-blue-100 text-blue-800";
-      case "Not Yet Read":
-        return "bg-gray-100 text-gray-800";
-      case "Finished":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const renderRating = () => {
-    return (
-      <div className="flex items-center">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`h-3 w-3 ${
-              star <= book.rating ? "text-yellow-500 fill-yellow-500" : "text-gray-300"
-            }`}
-          />
-        ))}
-      </div>
-    );
-  };
+  const progress = book.currentPage && book.totalPages 
+    ? Math.round((book.currentPage / book.totalPages) * 100) 
+    : 0;
 
   if (listView) {
     return (
-      <Card className="hover:shadow transition-shadow">
-        <CardContent className="p-4 flex items-start">
-          {book.coverImage ? (
-            <img
-              src={book.coverImage}
-              alt={book.title}
-              className="w-16 h-24 object-cover rounded-sm shadow-sm mr-4"
-            />
-          ) : (
-            <div className="w-16 h-24 bg-muted flex items-center justify-center rounded-sm shadow-sm mr-4">
-              <span className="text-xs text-muted-foreground text-center px-1">No Cover</span>
+      <Card className="overflow-hidden hover:shadow-md transition-all">
+        <CardContent className="p-0">
+          <div className="flex">
+            <div className="w-16 h-24 bg-gray-100 flex-shrink-0">
+              {book.coverImage ? (
+                <img 
+                  src={book.coverImage} 
+                  alt={`Cover for ${book.title}`} 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = 'https://via.placeholder.com/128x192?text=No+Cover';
+                  }}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                  <BookOpen className="h-5 w-5 text-gray-400" />
+                </div>
+              )}
             </div>
-          )}
-
-          <div className="flex-1 min-w-0">
-            <div className="flex justify-between">
-              <div>
-                <h3 className="font-semibold text-base mb-1 truncate">{book.title}</h3>
-                <p className="text-sm text-muted-foreground mb-2">{book.author}</p>
+            <div className="p-3 flex-1">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium text-base line-clamp-1">{book.title}</h3>
+                  <p className="text-xs text-muted-foreground">{book.author}</p>
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => onEdit(book)}>
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onDelete(book)} className="text-destructive">
+                      <Trash className="h-4 w-4 mr-2" />
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
+              <div className="mt-1 flex items-center gap-2">
+                <Badge variant="outline" className="text-xs">{book.readingStatus}</Badge>
+                {book.rating > 0 && (
+                  <div className="flex items-center">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star 
+                        key={i} 
+                        className={`h-3 w-3 ${i < book.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} 
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+              {book.readingStatus === "In Progress" && (
+                <div className="mt-2">
+                  <Progress value={progress} className="h-1" />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {book.currentPage} of {book.totalPages} pages ({progress}%)
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="overflow-hidden hover:shadow-md transition-all">
+      <CardContent className="p-3">
+        <div className="flex gap-3">
+          <div className="w-12 h-16 bg-gray-100 rounded overflow-hidden flex-shrink-0">
+            {book.coverImage ? (
+              <img 
+                src={book.coverImage} 
+                alt={`Cover for ${book.title}`} 
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/128x192?text=No+Cover';
+                }}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center bg-gray-200">
+                <BookOpen className="h-5 w-5 text-gray-400" />
+              </div>
+            )}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-start">
+              <h3 className="font-medium text-sm line-clamp-2">{book.title}</h3>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    <MoreVertical className="h-4 w-4" />
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0 -mt-1 -mr-1">
+                    <MoreVertical className="h-3 w-3" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -83,66 +134,16 @@ export function BookCard({ book, onEdit, onDelete, listView = false }: BookCardP
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              <Badge variant="secondary" className={getStatusColor(book.readingStatus)}>
-                {book.readingStatus}
-              </Badge>
-              {renderRating()}
-            </div>
-
-            {book.description && (
-              <p className="text-xs mt-2 text-muted-foreground line-clamp-1">{book.description}</p>
+            <p className="text-xs text-muted-foreground line-clamp-1">{book.author}</p>
+            
+            {book.readingStatus === "In Progress" && (
+              <div className="mt-2">
+                <Progress value={progress} className="h-1" />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {progress}%
+                </p>
+              </div>
             )}
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <Card className="overflow-hidden hover:shadow-md transition-shadow">
-      <CardContent className="p-3">
-        <div className="flex justify-between items-start mb-2">
-          <Badge variant="secondary" className={getStatusColor(book.readingStatus)}>
-            {book.readingStatus}
-          </Badge>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                <MoreVertical className="h-3 w-3" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(book)}>
-                <Edit className="h-4 w-4 mr-2" />
-                Edit
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onDelete(book)} className="text-destructive">
-                <Trash className="h-4 w-4 mr-2" />
-                Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-
-        <div className="flex items-start gap-3">
-          {book.coverImage ? (
-            <img
-              src={book.coverImage}
-              alt={book.title}
-              className="w-12 h-16 object-cover rounded-sm shadow-sm"
-            />
-          ) : (
-            <div className="w-12 h-16 bg-muted flex items-center justify-center rounded-sm shadow-sm">
-              <span className="text-xs text-muted-foreground text-center px-1">No Cover</span>
-            </div>
-          )}
-
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium text-sm mb-1 line-clamp-2">{book.title}</h3>
-            <p className="text-xs text-muted-foreground">{book.author}</p>
-            {renderRating()}
           </div>
         </div>
       </CardContent>

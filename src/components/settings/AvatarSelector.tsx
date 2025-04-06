@@ -2,7 +2,9 @@
 import React, { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Check } from 'lucide-react';
+import { Check, Upload } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 interface AvatarSelectorProps {
   currentAvatar: string;
@@ -18,15 +20,18 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
   isApplied
 }) => {
   const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar);
+  const [customAvatarUrl, setCustomAvatarUrl] = useState('');
   
-  // Sample avatar options with absolute URLs
+  // Modern avatars with positive themes
   const avatarOptions = [
-    'https://ui-avatars.com/api/?name=Avatar+1&background=0D8ABC&color=fff',
-    'https://ui-avatars.com/api/?name=Avatar+2&background=FFB900&color=fff',
-    'https://ui-avatars.com/api/?name=Avatar+3&background=00B4FF&color=fff',
-    'https://ui-avatars.com/api/?name=Avatar+4&background=107C10&color=fff',
-    'https://ui-avatars.com/api/?name=Avatar+5&background=EB144C&color=fff',
-    'https://ui-avatars.com/api/?name=Avatar+6&background=7552CC&color=fff',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=productivity&backgroundColor=ffb703',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=brain&backgroundColor=8338ec',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=energy&backgroundColor=fb5607',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=intellect&backgroundColor=3a86ff',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=growth&backgroundColor=06d6a0',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=hope&backgroundColor=ef476f',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=focus&backgroundColor=118ab2',
+    'https://api.dicebear.com/7.x/bottts/svg?seed=creativity&backgroundColor=ff006e',
   ];
 
   const handleAvatarSelect = (avatar: string) => {
@@ -34,8 +39,34 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     onAvatarChange(avatar);
   };
 
+  const handleCustomAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCustomAvatarUrl(e.target.value);
+  };
+
+  const handleCustomAvatarApply = () => {
+    if (customAvatarUrl) {
+      setSelectedAvatar(customAvatarUrl);
+      onAvatarChange(customAvatarUrl);
+    }
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          const avatarUrl = event.target.result.toString();
+          setSelectedAvatar(avatarUrl);
+          onAvatarChange(avatarUrl);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div className="flex justify-center">
         <Avatar className="w-24 h-24 border-4 border-primary/20">
           <AvatarImage src={selectedAvatar} alt="Selected avatar" />
@@ -43,7 +74,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
         </Avatar>
       </div>
       
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         {avatarOptions.map((avatar, index) => (
           <div 
             key={index}
@@ -61,6 +92,19 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
             )}
           </div>
         ))}
+      </div>
+      
+      <div className="pt-4">
+        <Label htmlFor="custom-avatar">Upload your own image</Label>
+        <div className="flex mt-2">
+          <Input 
+            id="avatar-upload" 
+            type="file" 
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="flex-1"
+          />
+        </div>
       </div>
       
       <div className="pt-2 text-center">

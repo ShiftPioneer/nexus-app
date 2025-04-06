@@ -7,14 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Book, ReadingStatus } from "@/types/knowledge";
-import { DatePicker } from "@/components/ui/date-picker";
 
 export interface BookDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (book: Book) => void;
-  book: Book;
-  bookCoverImage?: string;
+  book: Book | null;
+  bookCoverImage?: string | null;
   onBookCoverImageChange?: (url: string) => void;
 }
 
@@ -26,44 +25,46 @@ export function BookDialog({
   bookCoverImage,
   onBookCoverImageChange
 }: BookDialogProps) {
-  const isNewBook = !book.id;
+  const isNewBook = !book?.id;
   
-  const [title, setTitle] = useState(book.title || "");
-  const [author, setAuthor] = useState(book.author || "");
-  const [genre, setGenre] = useState(book.genre || "");
-  const [description, setDescription] = useState(book.description || "");
-  const [coverUrl, setCoverUrl] = useState(bookCoverImage || book.coverUrl || "");
-  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(book.readingStatus || "Not Started");
-  const [currentPage, setCurrentPage] = useState(book.currentPage || 0);
-  const [totalPages, setTotalPages] = useState(book.totalPages || 0);
-  const [notes, setNotes] = useState(book.notes || "");
-  const [tagsString, setTagsString] = useState((book.tags || []).join(", "));
+  const [title, setTitle] = useState(book?.title || "");
+  const [author, setAuthor] = useState(book?.author || "");
+  const [genre, setGenre] = useState(book?.genre || "");
+  const [description, setDescription] = useState(book?.description || "");
+  const [coverImage, setCoverImage] = useState(bookCoverImage || book?.coverImage || "");
+  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(book?.readingStatus || "Not Started");
+  const [currentPage, setCurrentPage] = useState(book?.currentPage || 0);
+  const [totalPages, setTotalPages] = useState(book?.totalPages || 0);
+  const [notes, setNotes] = useState(book?.notes || "");
+  const [tagsString, setTagsString] = useState((book?.tags || []).join(", "));
+  const [rating, setRating] = useState(book?.rating || 0);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     const updatedBook: Book = {
-      ...book,
+      id: book?.id || "",
       title,
       author,
       genre,
       description,
-      coverUrl: coverUrl,
+      coverImage,
       readingStatus,
       currentPage: readingStatus === "In Progress" ? currentPage : undefined,
       totalPages: (readingStatus === "In Progress" || readingStatus === "Completed") ? totalPages : undefined,
       notes,
       tags: tagsString.split(",").map(tag => tag.trim()).filter(tag => tag !== ""),
-      dateAdded: book.dateAdded || new Date(),
-      dateCompleted: readingStatus === "Completed" ? (book.dateCompleted || new Date()) : undefined,
+      dateAdded: book?.dateAdded || new Date(),
+      dateCompleted: readingStatus === "Completed" ? (book?.dateCompleted || new Date()) : undefined,
+      rating: rating || 0
     };
     
     onSave(updatedBook);
   };
 
-  const handleCoverUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const url = e.target.value;
-    setCoverUrl(url);
+    setCoverImage(url);
     if (onBookCoverImageChange) {
       onBookCoverImageChange(url);
     }
@@ -111,8 +112,8 @@ export function BookDialog({
                 <Label htmlFor="cover">Cover URL</Label>
                 <Input 
                   id="cover" 
-                  value={coverUrl} 
-                  onChange={handleCoverUrlChange} 
+                  value={coverImage} 
+                  onChange={handleCoverImageChange} 
                   placeholder="https://example.com/book-cover.jpg"
                 />
               </div>
@@ -181,6 +182,18 @@ export function BookDialog({
                   placeholder="fiction, sci-fi, recommended"
                 />
               </div>
+
+              <div>
+                <Label htmlFor="rating">Rating (0-5)</Label>
+                <Input 
+                  id="rating" 
+                  type="number" 
+                  min="0"
+                  max="5"
+                  value={rating} 
+                  onChange={(e) => setRating(parseInt(e.target.value) || 0)} 
+                />
+              </div>
             </div>
             
             <div className="space-y-4">
@@ -205,12 +218,12 @@ export function BookDialog({
                 />
               </div>
               
-              {coverUrl && (
+              {coverImage && (
                 <div className="mt-4">
                   <Label>Cover Preview</Label>
                   <div className="mt-2 w-32 h-48 bg-gray-100 rounded overflow-hidden">
                     <img 
-                      src={coverUrl} 
+                      src={coverImage} 
                       alt={`Cover for ${title}`} 
                       className="w-full h-full object-cover"
                       onError={(e) => {
