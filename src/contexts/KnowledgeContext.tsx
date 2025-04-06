@@ -1,25 +1,9 @@
+import React, { createContext, useState, useContext } from 'react';
+import { KnowledgeContextValue, KnowledgeEntry, KnowledgeCategory, Note, Resource, Book, Skillset, Tag } from '@/types/knowledge';
 
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
-import { KnowledgeEntry, KnowledgeCategory, KnowledgeContextValue } from "@/types/knowledge";
-import { useTasks } from "@/contexts/TaskContext";
-import { useToast } from "@/hooks/use-toast";
-import { v4 as uuidv4 } from "uuid";
+export const KnowledgeContext = createContext<KnowledgeContextValue | undefined>(undefined);
 
-const KnowledgeContext = createContext<KnowledgeContextValue | undefined>(undefined);
-
-export const useKnowledge = () => {
-  const context = useContext(KnowledgeContext);
-  if (!context) {
-    throw new Error("useKnowledge must be used within a KnowledgeProvider");
-  }
-  return context;
-};
-
-interface KnowledgeProviderProps {
-  children: ReactNode;
-}
-
-export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }) => {
+export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [entries, setEntries] = useState<KnowledgeEntry[]>([
     {
       id: "1",
@@ -67,11 +51,9 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
   const { tasks } = useTasks();
   const { toast } = useToast();
   
-  // Check network status
   useEffect(() => {
     const handleOnline = () => {
       setIsOffline(false);
-      // Sync offline entries when coming back online
       if (offlineEntries.length > 0) {
         setEntries(prev => [...prev, ...offlineEntries]);
         setOfflineEntries([]);
@@ -101,13 +83,12 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
     };
   }, [offlineEntries, toast]);
 
-  const addEntry = (entry: Omit<KnowledgeEntry, "id" | "createdAt" | "updatedAt">) => {
+  const addEntry = (entry: Omit<KnowledgeEntry, "id">) => {
     const newEntry: KnowledgeEntry = {
       ...entry,
-      id: uuidv4(),
+      id: Date.now().toString(),
       createdAt: new Date(),
-      updatedAt: new Date(),
-      category: entry.category || "inbox", // Default to inbox
+      updatedAt: new Date()
     };
     
     if (isOffline) {
@@ -126,7 +107,7 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
       });
     }
     
-    return newEntry;
+    return newEntry.id;
   };
 
   const updateEntry = (id: string, updatedFields: Partial<KnowledgeEntry>) => {
@@ -146,7 +127,6 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
   };
 
   const deleteEntry = (id: string) => {
-    // Find the entry before deleting
     const entryToDelete = entries.find(entry => entry.id === id);
     
     setEntries(prev => prev.filter(entry => entry.id !== id));
@@ -181,7 +161,6 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
   };
 
   const findSimilarEntries = (entry: KnowledgeEntry) => {
-    // Simple implementation - find entries with matching tags
     const entryTags = new Set(entry.tags);
     return entries.filter(e => 
       e.id !== entry.id && 
@@ -190,16 +169,13 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
   };
 
   const checkForDuplicates = (entry: Partial<KnowledgeEntry>): KnowledgeEntry[] => {
-    // Check for potential duplicates based on title similarity or tag overlap
     const potentialDuplicates = entries.filter(e => {
-      // Title similarity (basic check - contains major words)
       const titleWords = entry.title?.toLowerCase().split(/\s+/) || [];
       const existingTitleWords = e.title.toLowerCase().split(/\s+/);
       const titleSimilarity = titleWords.filter(word => 
         word.length > 3 && existingTitleWords.includes(word)
       ).length;
       
-      // Tag overlap
       const tagOverlap = entry.tags?.filter(tag => 
         e.tags.includes(tag)
       ).length || 0;
@@ -220,8 +196,6 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
   };
   
   const generateAiSummary = (entry: KnowledgeEntry) => {
-    // Simulate AI summary generation 
-    // In a real app, this would make an API call to an AI service
     const sentences = entry.content.split(/[.!?]+/).filter(s => s.trim().length > 0);
     const summaryLength = Math.max(1, Math.floor(sentences.length / 3));
     const summary = sentences.slice(0, summaryLength).join(". ") + ".";
@@ -297,7 +271,6 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
     });
   };
   
-  // For archiving old entries
   const archiveOldEntries = (daysThreshold: number) => {
     const thresholdDate = new Date();
     thresholdDate.setDate(thresholdDate.getDate() - daysThreshold);
@@ -327,7 +300,6 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
     });
   };
   
-  // For analytics and review
   const getEntriesStats = () => {
     const inboxCount = entries.filter(e => e.category === "inbox").length;
     const projectsCount = entries.filter(e => e.category === "projects").length;
@@ -347,36 +319,44 @@ export const KnowledgeProvider: React.FC<KnowledgeProviderProps> = ({ children }
     };
   };
 
+  const value: KnowledgeContextValue = {
+    entries,
+    searchQuery,
+    setSearchQuery,
+    activeFilter,
+    setActiveFilter,
+    activeTags,
+    setActiveTags,
+    addEntry,
+    updateEntry,
+    deleteEntry,
+    moveEntry,
+    getEntriesByCategory,
+    findSimilarEntries,
+    checkForDuplicates,
+    searchEntries,
+    generateAiSummary,
+    linkTaskToEntry,
+    unlinkTaskFromEntry,
+    getLinkedTasks,
+    getRelatedEntriesForTask,
+    filterEntries,
+    archiveOldEntries,
+    getEntriesStats,
+    isOffline
+  };
+
   return (
-    <KnowledgeContext.Provider
-      value={{
-        entries,
-        searchQuery,
-        setSearchQuery,
-        activeFilter,
-        setActiveFilter,
-        activeTags,
-        setActiveTags,
-        addEntry,
-        updateEntry,
-        deleteEntry,
-        moveEntry,
-        getEntriesByCategory,
-        findSimilarEntries,
-        checkForDuplicates,
-        searchEntries,
-        generateAiSummary,
-        linkTaskToEntry,
-        unlinkTaskFromEntry,
-        getLinkedTasks,
-        getRelatedEntriesForTask,
-        filterEntries,
-        archiveOldEntries,
-        getEntriesStats,
-        isOffline
-      }}
-    >
+    <KnowledgeContext.Provider value={value}>
       {children}
     </KnowledgeContext.Provider>
   );
+};
+
+export const useKnowledge = () => {
+  const context = useContext(KnowledgeContext);
+  if (!context) {
+    throw new Error("useKnowledge must be used within a KnowledgeProvider");
+  }
+  return context;
 };

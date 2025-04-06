@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { 
   Dialog, 
@@ -11,9 +12,15 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from "@/components/ui/select";
 import { Skillset, SkillsetCategory } from "@/types/knowledge";
 import { HexColorPicker } from "react-colorful";
-import { ColorSwatch } from "@/components/ui/color-swatch";
 
 interface SkillsetDialogProps {
   open: boolean;
@@ -30,7 +37,7 @@ export function SkillsetDialog({
 }: SkillsetDialogProps) {
   const [skillsetName, setSkillsetName] = useState(skillset?.name || "");
   const [description, setDescription] = useState(skillset?.description || "");
-  const [category, setCategory] = useState(skillset?.category || "technical");
+  const [category, setCategory] = useState<SkillsetCategory>(skillset?.category || "technical");
   const [mastery, setMastery] = useState(skillset?.mastery || 0);
   const [lastPracticed, setLastPracticed] = useState(skillset?.lastPracticed || new Date());
   const [resourceCount, setResourceCount] = useState(skillset?.resourceCount || 0);
@@ -43,8 +50,7 @@ export function SkillsetDialog({
       id: skillset?.id || Date.now().toString(),
       name: skillsetName,
       description: description,
-      category: category as SkillsetCategory,
-      // Ensure proficiency is set to a default value if not provided
+      category: category,
       proficiency: mastery || 0,
       mastery: mastery,
       lastPracticed: lastPracticed || new Date(),
@@ -92,7 +98,7 @@ export function SkillsetDialog({
             <Label htmlFor="category" className="text-right">
               Category
             </Label>
-            <Select value={category} onValueChange={(value) => setCategory(value)}>
+            <Select value={category} onValueChange={(value) => setCategory(value as SkillsetCategory)}>
               <SelectTrigger className="col-span-3">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
@@ -138,7 +144,10 @@ export function SkillsetDialog({
             </Label>
             <div className="col-span-3 flex items-center">
               <HexColorPicker color={color} onChange={setColor} />
-              <ColorSwatch color={color} />
+              <div 
+                className="ml-4 w-8 h-8 rounded-full border"
+                style={{ backgroundColor: color }}
+              />
             </div>
           </div>
         </div>

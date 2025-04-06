@@ -1,20 +1,17 @@
-
 import React, { useState } from "react";
+import AppLayout from "@/components/layout/AppLayout";
 import { useProjects } from "@/contexts/ProjectContext";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import PlanningBoardView from "@/components/planning/PlanningBoardView";
-import PlanningListView from "@/components/planning/PlanningListView";
-import ProjectCreationDialog from "@/components/planning/ProjectCreationDialog";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ProjectCreationDialog } from "@/components/planning/ProjectCreationDialog";
 import { Project } from "@/types/planning";
+import PlanningBoardView from "@/components/planning/PlanningBoardView";
 
 const Projects = () => {
   const { projects, addProject, updateProject } = useProjects();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [viewMode, setViewMode] = useState<"list" | "board">("list");
+  const [projectsViewMode, setProjectsViewMode] = useState<"list" | "board">("board");
 
   const handleOpenDialog = () => {
     setEditingProject(null);
@@ -36,70 +33,49 @@ const Projects = () => {
   };
 
   return (
-    <div className="animate-fade-in w-full">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-        <div>
-          <h2 className="text-xl font-bold mb-1">Projects</h2>
-          <p className="text-muted-foreground">
-            Manage and track your projects
-          </p>
-        </div>
-
-        <div className="flex items-center mt-4 md:mt-0 gap-4">
-          <Tabs 
-            value={viewMode} 
-            onValueChange={(value) => setViewMode(value as "list" | "board")}
-            className="mr-2"
-          >
-            <TabsList>
-              <TabsTrigger value="list">List</TabsTrigger>
-              <TabsTrigger value="board">Board</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <Button onClick={handleOpenDialog} className="bg-[#FF6500] hover:bg-[#E55A00]">
-            <Plus className="mr-2 h-4 w-4" /> New Project
-          </Button>
-        </div>
-      </div>
-
-      {projects.length === 0 ? (
-        <Card className="border-dashed">
-          <CardHeader>
-            <CardTitle>No projects yet</CardTitle>
-          </CardHeader>
-          <CardContent className="text-center py-6">
-            <p className="mb-4 text-muted-foreground">
-              Start by creating your first project
-            </p>
-            <Button onClick={handleOpenDialog} className="bg-[#FF6500] hover:bg-[#E55A00]">
-              <Plus className="mr-2 h-4 w-4" /> Create a Project
+    <div>
+      <AppLayout>
+        <div className="container px-4 py-6 mx-auto">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-2xl font-bold">Projects</h1>
+              <p className="text-muted-foreground">Manage your projects and track their progress</p>
+            </div>
+            <Button onClick={handleOpenDialog}>
+              <Plus className="mr-2 h-4 w-4" /> New Project
             </Button>
-          </CardContent>
-        </Card>
-      ) : viewMode === "list" ? (
-        <PlanningListView 
-          projects={projects} 
-          contentType="projects"
-          onEditItem={handleEditProject}
-        />
-      ) : (
-        <PlanningBoardView 
-          projects={projects} 
-          contentType="projects"
-          onEditItem={handleEditProject}
-        />
-      )}
+          </div>
 
-      {isDialogOpen && (
-        <ProjectCreationDialog
-          open={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-          onProjectCreate={handleCreateProject}
-          existingProjects={projects}
-          existingProject={editingProject}
-        />
-      )}
+          {projects.length > 0 ? (
+            <div>
+              <PlanningBoardView 
+                goals={projects} 
+                contentType="projects" 
+                onEditItem={handleEditProject} 
+              />
+            </div>
+          ) : (
+            <div className="text-center p-12 border-2 border-dashed rounded-lg">
+              <h3 className="text-xl font-medium mb-2">No projects yet</h3>
+              <p className="text-muted-foreground mb-6">
+                Create your first project to get started
+              </p>
+              <Button onClick={handleOpenDialog}>
+                <Plus className="mr-2 h-4 w-4" /> Create Your First Project
+              </Button>
+            </div>
+          )}
+
+          {isDialogOpen && (
+            <ProjectCreationDialog
+              open={isDialogOpen}
+              onOpenChange={setIsDialogOpen}
+              onSave={handleCreateProject}
+              project={editingProject}
+            />
+          )}
+        </div>
+      </AppLayout>
     </div>
   );
 };

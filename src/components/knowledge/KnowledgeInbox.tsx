@@ -1,4 +1,5 @@
-import React, { useState, useContext } from "react";
+
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, X, UploadCloud } from "lucide-react";
@@ -20,7 +21,7 @@ import {
   DialogFooter 
 } from "@/components/ui/dialog";
 import { KnowledgeCategory, KnowledgeEntry } from "@/types/knowledge";
-import { KnowledgeContext } from "@/contexts/KnowledgeContext";
+import { useKnowledge } from "@/contexts/KnowledgeContext";
 import { useToast } from "@/hooks/use-toast";
 
 const categoryOptions: KnowledgeCategory[] = ["note", "concept", "idea", "question", "insight", "summary", "inbox", "projects", "areas", "resources", "archives"];
@@ -31,7 +32,7 @@ interface KnowledgeInboxProps {
 }
 
 export function KnowledgeInbox({ open, onOpenChange }: KnowledgeInboxProps) {
-  const { addEntry } = useContext(KnowledgeContext);
+  const { addEntry } = useKnowledge();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [category, setCategory] = useState<KnowledgeCategory>("inbox");
@@ -80,7 +81,6 @@ export function KnowledgeInbox({ open, onOpenChange }: KnowledgeInboxProps) {
     setAttachment(null);
   };
 
-  // Remove the 'size' property when attaching files
   const handleAttachFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -97,7 +97,7 @@ export function KnowledgeInbox({ open, onOpenChange }: KnowledgeInboxProps) {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Knowledge Entry</DialogTitle>
-          <DialogDescription>Enter the details for your new knowledge entry.</DialogDescription>
+          <p className="text-sm text-muted-foreground">Enter the details for your new knowledge entry.</p>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
@@ -183,43 +183,4 @@ export function KnowledgeInbox({ open, onOpenChange }: KnowledgeInboxProps) {
       </DialogContent>
     </Dialog>
   );
-}
-
-interface DialogDescriptionProps extends React.HTMLAttributes<HTMLParagraphElement> {}
-
-const DialogDescription = React.forwardRef<HTMLParagraphElement, DialogDescriptionProps>(
-  ({ className, ...props }, ref) => (
-    <p
-      ref={ref}
-      className={cn(
-        "text-sm text-muted-foreground",
-        className
-      )}
-      {...props}
-    />
-  )
-);
-DialogDescription.displayName = "DialogDescription";
-
-function cn(...inputs: any[]) {
-  let className = "";
-  for (let i = 0; i < inputs.length; i++) {
-    const input = inputs[i];
-    if (input) {
-      if (typeof input === "string") {
-        className += input + " ";
-      } else if (typeof input === "object") {
-        if (Array.isArray(input)) {
-          className += cn(...input) + " ";
-        } else {
-          for (const key in input) {
-            if (input.hasOwnProperty(key) && input[key]) {
-              className += key + " ";
-            }
-          }
-        }
-      }
-    }
-  }
-  return className.trim();
 }

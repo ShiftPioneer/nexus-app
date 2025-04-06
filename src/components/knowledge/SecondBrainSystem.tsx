@@ -1,20 +1,16 @@
-
-import React, { useState, useEffect } from "react";
-import { useKnowledge } from "@/contexts/KnowledgeContext";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card } from "@/components/ui/card";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Plus, Filter, Grid3X3, List, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { KnowledgeList } from "./KnowledgeList";
+import { KnowledgeCategoryView } from "./KnowledgeCategoryView";
+import { KnowledgeInbox } from "./KnowledgeInbox";
+import { useKnowledge } from "@/contexts/KnowledgeContext";
 import { KnowledgeCategory } from "@/types/knowledge";
-import { Archive, FileSpreadsheet, FolderArchive, FolderOpen, Inbox, Search, Tag } from "lucide-react";
-import KnowledgeInbox from "./KnowledgeInbox";
-import KnowledgeList from "./KnowledgeList";
-import KnowledgeCategoryView from "./KnowledgeCategoryView";
-import EntryDialog from "./EntryDialog";
-import { Badge } from "@/components/ui/badge";
-import AIInsightsPanel from "./AIInsightsPanel";
 
-const SecondBrainSystem: React.FC = () => {
+export function SecondBrainSystem() {
   const {
     entries,
     getEntriesByCategory,
@@ -33,7 +29,6 @@ const SecondBrainSystem: React.FC = () => {
   const [availableTags, setAvailableTags] = useState<string[]>([]);
   const [showAIInsights, setShowAIInsights] = useState(false);
   
-  // Get all unique tags from entries
   useEffect(() => {
     const tags = new Set<string>();
     entries.forEach(entry => {
@@ -42,10 +37,8 @@ const SecondBrainSystem: React.FC = () => {
     setAvailableTags(Array.from(tags));
   }, [entries]);
   
-  // Stats
   const stats = getEntriesStats();
   
-  // Filtered entries based on active category, tags, and search
   const filteredEntries = filterEntries(activeFilter, activeTags, searchQuery);
   
   const toggleTag = (tag: string) => {
@@ -56,7 +49,6 @@ const SecondBrainSystem: React.FC = () => {
     }
   };
   
-  // Clear filters
   const clearFilters = () => {
     setActiveFilter('all');
     setActiveTags([]);
@@ -64,8 +56,7 @@ const SecondBrainSystem: React.FC = () => {
   };
   
   return (
-    <div className="space-y-6">
-      {/* Header with search and filters */}
+    <div>
       <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
         <div className="flex-1 w-full relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -93,7 +84,6 @@ const SecondBrainSystem: React.FC = () => {
         </div>
       </div>
       
-      {/* Filters */}
       <div className="flex flex-wrap gap-2">
         <Button 
           variant={activeFilter === 'all' ? "default" : "outline"} 
@@ -168,7 +158,6 @@ const SecondBrainSystem: React.FC = () => {
           </Badge>
         </Button>
         
-        {/* Tag filters */}
         {availableTags.length > 0 && (
           <div className="flex flex-wrap items-center gap-1 ml-2 border-l pl-2">
             <Tag className="h-4 w-4 text-muted-foreground mr-1" />
@@ -200,9 +189,7 @@ const SecondBrainSystem: React.FC = () => {
         )}
       </div>
       
-      {/* Main content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Capture panel or filtered entries */}
         <div className="lg:col-span-2">
           {showAddPanel ? (
             <KnowledgeInbox onAddEntry={() => setShowAddPanel(false)} />
@@ -214,7 +201,6 @@ const SecondBrainSystem: React.FC = () => {
           )}
         </div>
         
-        {/* Right: AI insights or Category details */}
         <div className="lg:col-span-1">
           {showAIInsights ? (
             <AIInsightsPanel />
@@ -230,6 +216,4 @@ const SecondBrainSystem: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default SecondBrainSystem;
+}

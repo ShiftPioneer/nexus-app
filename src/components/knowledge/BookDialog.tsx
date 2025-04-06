@@ -1,205 +1,283 @@
+
 import React, { useState } from "react";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
+import { CalendarIcon, Star } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 import { Book, ReadingStatus } from "@/types/knowledge";
-import { Badge } from "@/components/ui/badge";
-import { PlusCircle, X, UploadCloud, Star, StarHalf } from "lucide-react";
 
 interface BookDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (book: Book) => void;
-  book?: Book | null;
-  coverImage?: string | null;
-  onCoverImageChange: (coverImage: string | null) => void;
+  book?: Book;
 }
 
-export function BookDialog({ 
-  open, 
-  onOpenChange, 
-  onSave, 
-  book, 
-  coverImage, 
-  onCoverImageChange 
-}: BookDialogProps) {
+export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps) {
   const [title, setTitle] = useState(book?.title || "");
   const [author, setAuthor] = useState(book?.author || "");
-  const [description, setDescription] = useState(book?.description || "");
   const [readingStatus, setReadingStatus] = useState<ReadingStatus>(book?.readingStatus || "Not Yet Read");
+  const [description, setDescription] = useState(book?.description || "");
+  const [notes, setNotes] = useState(book?.notes || "");
+  const [pages, setPages] = useState(book?.pages?.toString() || "");
+  const [coverImage, setCoverImage] = useState(book?.coverImage || "");
+  const [tags, setTags] = useState(book?.tags.join(", ") || "");
   const [rating, setRating] = useState(book?.rating || 0);
-  const [tags, setTags] = useState(book?.tags?.join(", ") || "");
+  const [dateAdded, setDateAdded] = useState<Date>(book?.dateAdded || new Date());
+  const [dateCompleted, setDateCompleted] = useState<Date | undefined>(book?.dateCompleted);
   const [summary, setSummary] = useState(book?.summary || "");
   const [keyLessons, setKeyLessons] = useState(book?.keyLessons || "");
+  const [relatedSkillsets, setRelatedSkillsets] = useState(book?.relatedSkillsets?.join(", ") || "");
 
   const handleSave = () => {
+    if (!title || !author) return;
+
     const newBook: Book = {
       id: book?.id || Date.now().toString(),
       title,
       author,
-      coverImage: coverImage || undefined,
-      description,
       readingStatus,
+      description,
+      notes,
+      pages: pages ? parseInt(pages) : undefined,
+      coverImage,
+      tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
       rating,
-      tags: tags.split(",").map(tag => tag.trim()),
-      dateAdded: book?.dateAdded || new Date(),
+      dateAdded,
+      dateCompleted,
       summary,
-      keyLessons
+      keyLessons,
+      relatedSkillsets: relatedSkillsets
+        ? relatedSkillsets.split(",").map((skill) => skill.trim()).filter(Boolean)
+        : [],
+      pinned: book?.pinned || false,
     };
+
     onSave(newBook);
     onOpenChange(false);
   };
 
-  const handleRatingChange = (newRating: number) => {
-    setRating(newRating);
-  };
-
-  const renderStars = () => {
-    const stars = [];
-    for (let i = 1; i <= 5; i++) {
-      if (i <= rating) {
-        stars.push(<Star key={i} className="text-yellow-500 h-5 w-5" />);
-      } else if (i === Math.ceil(rating) && rating % 1 !== 0) {
-        stars.push(<StarHalf key={i} className="text-yellow-500 h-5 w-5" />);
-      } else {
-        stars.push(<Star key={i} className="text-gray-300 h-5 w-5" />);
-      }
-    }
-    return stars;
-  };
-
-  const handleCoverImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        onCoverImageChange(base64String);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{book ? "Edit Book" : "Add New Book"}</DialogTitle>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="title" className="text-right">
-              Title
-            </Label>
-            <Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} className="col-span-3" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input
+                id="title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="Book title"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="author">Author</Label>
+              <Input
+                id="author"
+                value={author}
+                onChange={(e) => setAuthor(e.target.value)}
+                placeholder="Author name"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="status">Reading Status</Label>
+              <Select value={readingStatus} onValueChange={(value) => setReadingStatus(value as ReadingStatus)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Not Yet Read">Not Yet Read</SelectItem>
+                  <SelectItem value="Reading Now">Reading Now</SelectItem>
+                  <SelectItem value="Finished">Finished</SelectItem>
+                  <SelectItem value="abandoned">Abandoned</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div>
+              <Label htmlFor="pages">Pages</Label>
+              <Input
+                id="pages"
+                type="number"
+                value={pages}
+                onChange={(e) => setPages(e.target.value)}
+                placeholder="Number of pages"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="coverImage">Cover Image URL</Label>
+              <Input
+                id="coverImage"
+                value={coverImage}
+                onChange={(e) => setCoverImage(e.target.value)}
+                placeholder="https://example.com/book-cover.jpg"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="tags">Tags (comma separated)</Label>
+              <Input
+                id="tags"
+                value={tags}
+                onChange={(e) => setTags(e.target.value)}
+                placeholder="philosophy, science, history"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="related-skillsets">Related Skillsets (comma separated)</Label>
+              <Input
+                id="related-skillsets"
+                value={relatedSkillsets}
+                onChange={(e) => setRelatedSkillsets(e.target.value)}
+                placeholder="critical thinking, writing"
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="author" className="text-right">
-              Author
-            </Label>
-            <Input id="author" value={author} onChange={(e) => setAuthor(e.target.value)} className="col-span-3" />
-          </div>
+          <div className="space-y-4">
+            <div>
+              <Label>Rating</Label>
+              <div className="flex items-center space-x-1 mt-2">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={cn(
+                      "h-6 w-6 cursor-pointer",
+                      star <= rating
+                        ? "text-yellow-500 fill-yellow-500"
+                        : "text-gray-300"
+                    )}
+                    onClick={() => setRating(star)}
+                  />
+                ))}
+              </div>
+            </div>
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="coverImage" className="text-right">
-              Cover Image
-            </Label>
-            <div className="col-span-3 flex items-center space-x-2">
-              <Input type="file" id="coverImage" accept="image/*" onChange={handleCoverImageUpload} className="hidden" />
-              <Label htmlFor="coverImage" className="cursor-pointer bg-secondary hover:bg-secondary-foreground text-secondary-foreground hover:text-card rounded-md px-3 py-1.5 text-sm font-medium">
-                <UploadCloud className="inline-block h-4 w-4 mr-2" />
-                Upload
-              </Label>
-              {coverImage && (
-                <div className="relative">
-                  <img src={coverImage} alt="Cover" className="h-10 w-10 rounded-md object-cover" />
-                  <Button variant="ghost" size="icon" className="absolute top-0 right-0 h-5 w-5 p-0" onClick={() => onCoverImageChange(null)}>
-                    <X className="h-3 w-3" />
+            <div>
+              <Label>Date Added</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal mt-2"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dateAdded ? format(dateAdded, "PPP") : "Pick a date"}
                   </Button>
-                </div>
-              )}
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dateAdded}
+                    onSelect={(date) => date && setDateAdded(date)}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-          </div>
 
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="description" className="text-right mt-2">
-              Description
-            </Label>
-            <Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} className="col-span-3" />
-          </div>
+            {(readingStatus === "Finished" || book?.dateCompleted) && (
+              <div>
+                <Label>Date Completed</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal mt-2"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {dateCompleted ? format(dateCompleted, "PPP") : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={dateCompleted}
+                      onSelect={(date) => setDateCompleted(date || undefined)}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            )}
 
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="readingStatus" className="text-right">
-              Reading Status
-            </Label>
-            <Select value={readingStatus} onValueChange={(value) => setReadingStatus(value as ReadingStatus)} className="col-span-3">
-              <SelectTrigger>
-                <SelectValue placeholder="Select status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Not Yet Read">Not Yet Read</SelectItem>
-                <SelectItem value="Reading Now">Reading Now</SelectItem>
-                <SelectItem value="Finished">Finished</SelectItem>
-                <SelectItem value="abandoned">Abandoned</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="rating" className="text-right">
-              Rating
-            </Label>
-            <div className="col-span-3 flex items-center">
-              {renderStars()}
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Book description"
+                rows={3}
+              />
             </div>
-          </div>
 
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="tags" className="text-right mt-2">
-              Tags
-            </Label>
-            <Textarea id="tags" value={tags} onChange={(e) => setTags(e.target.value)} className="col-span-3" placeholder="Comma-separated" />
-          </div>
+            <div>
+              <Label htmlFor="notes">Personal Notes</Label>
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Your notes about the book"
+                rows={3}
+              />
+            </div>
 
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="summary" className="text-right mt-2">
-              Summary
-            </Label>
-            <Textarea id="summary" value={summary} onChange={(e) => setSummary(e.target.value)} className="col-span-3" />
-          </div>
+            <div>
+              <Label htmlFor="summary">Summary</Label>
+              <Textarea
+                id="summary"
+                value={summary}
+                onChange={(e) => setSummary(e.target.value)}
+                placeholder="Brief summary of the book"
+                rows={3}
+              />
+            </div>
 
-          <div className="grid grid-cols-4 items-start gap-4">
-            <Label htmlFor="keyLessons" className="text-right mt-2">
-              Key Lessons
-            </Label>
-            <Textarea id="keyLessons" value={keyLessons} onChange={(e) => setKeyLessons(e.target.value)} className="col-span-3" />
+            <div>
+              <Label htmlFor="keyLessons">Key Lessons</Label>
+              <Textarea
+                id="keyLessons"
+                value={keyLessons}
+                onChange={(e) => setKeyLessons(e.target.value)}
+                placeholder="Key takeaways from the book"
+                rows={3}
+              />
+            </div>
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="secondary" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button type="submit" onClick={handleSave}>
-            {book ? "Update Book" : "Add Book"}
-          </Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

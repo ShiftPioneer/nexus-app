@@ -27,8 +27,8 @@ import { Note, Resource } from "@/types/knowledge";
 import { useKnowledge } from "@/contexts/KnowledgeContext";
 import { BookshelfTab } from "@/components/knowledge/BookshelfTab";
 import { SkillsetTab } from "@/components/knowledge/SkillsetTab";
-import ResourcesTab from "@/components/knowledge/ResourcesTab";
-import SecondBrainSystem from "@/components/knowledge/SecondBrainSystem";
+import { ResourcesTab } from "@/components/knowledge/ResourcesTab";
+import { SecondBrainSystem } from "@/components/knowledge/SecondBrainSystem";
 
 const Knowledge: React.FC = () => {
   const { toast } = useToast();

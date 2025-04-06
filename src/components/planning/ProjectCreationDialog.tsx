@@ -1,10 +1,10 @@
+
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-// Use react-day-picker instead of the non-existent datepicker
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -28,7 +28,7 @@ const projectFormSchema = z.object({
     message: "Project title must be at least 2 characters.",
   }),
   description: z.string().optional(),
-  status: z.enum(["not-started", "in-progress", "completed", "on-hold", "cancelled"]),
+  status: z.enum(["not-started", "in-progress", "completed", "on-hold", "cancelled", "active"]),
   dueDate: z.date().optional(),
   startDate: z.date(),
   category: z.string(),
@@ -53,8 +53,14 @@ export function ProjectCreationDialog({ open, onOpenChange, onSave, project }: P
 
   function onSubmit(values: ProjectFormValues) {
     const newProject: Project = {
-      ...values,
       id: project?.id || Date.now().toString(),
+      title: values.title,
+      description: values.description || "",
+      status: values.status,
+      dueDate: values.dueDate,
+      startDate: values.startDate,
+      category: values.category,
+      priority: values.priority,
       tasks: project?.tasks || [],
       subProjects: project?.subProjects || [],
       progress: project?.progress || 0,
