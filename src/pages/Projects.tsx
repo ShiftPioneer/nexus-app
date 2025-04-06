@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { useProjects } from "@/contexts/ProjectContext";
@@ -32,6 +33,22 @@ const Projects = () => {
     setIsDialogOpen(false);
   };
 
+  // Convert projects to the expected Goal format for PlanningBoardView
+  const projectsAsGoals = projects.map(project => ({
+    id: project.id,
+    title: project.title,
+    description: project.description,
+    status: project.status,
+    startDate: project.startDate,
+    endDate: project.endDate,
+    progress: project.progress || 0,
+    category: project.category,
+    pinned: project.pinned,
+    // These are required for the Goal type but not used in the UI for projects
+    timeframe: "custom",
+    milestones: []
+  }));
+
   return (
     <div>
       <AppLayout>
@@ -49,7 +66,7 @@ const Projects = () => {
           {projects.length > 0 ? (
             <div>
               <PlanningBoardView 
-                goals={projects} 
+                goals={projectsAsGoals} 
                 contentType="projects" 
                 onEditItem={handleEditProject} 
               />

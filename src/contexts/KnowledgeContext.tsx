@@ -1,5 +1,7 @@
-import React, { createContext, useState, useContext } from 'react';
+
+import React, { createContext, useState, useContext, useEffect } from 'react';
 import { KnowledgeContextValue, KnowledgeEntry, KnowledgeCategory, Note, Resource, Book, Skillset, Tag } from '@/types/knowledge';
+import { useToast } from '@/hooks/use-toast';
 
 export const KnowledgeContext = createContext<KnowledgeContextValue | undefined>(undefined);
 
@@ -43,12 +45,16 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   ]);
 
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [resources, setResources] = useState<Resource[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
+  const [skillsets, setSkillsets] = useState<Skillset[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<KnowledgeCategory | "all">("all");
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [isOffline, setIsOffline] = useState(false);
   const [offlineEntries, setOfflineEntries] = useState<KnowledgeEntry[]>([]);
-  const { tasks } = useTasks();
   const { toast } = useToast();
   
   useEffect(() => {
@@ -250,7 +256,7 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const entry = entries.find(e => e.id === entryId);
     if (!entry || !entry.linkedTaskIds?.length) return [];
     
-    return tasks.filter(task => entry.linkedTaskIds?.includes(task.id));
+    return []; // We don't have access to tasks here without a proper context
   };
   
   const getRelatedEntriesForTask = (taskId: string) => {
@@ -277,7 +283,7 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     
     const entriesToArchive = entries.filter(entry => 
       entry.category !== "archives" && 
-      entry.updatedAt < thresholdDate
+      entry.updatedAt && entry.updatedAt < thresholdDate
     );
     
     if (entriesToArchive.length === 0) {
@@ -319,14 +325,133 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     };
   };
 
+  const addResource = (resource: Omit<Resource, 'id'>) => {
+    const newResource: Resource = {
+      ...resource,
+      id: Date.now().toString(),
+      dateAdded: new Date()
+    };
+    setResources([...resources, newResource]);
+    return newResource.id;
+  };
+  
+  const updateResource = (id: string, resource: Partial<Resource>) => {
+    setResources(resources.map(r => r.id === id ? { ...r, ...resource } : r));
+  };
+  
+  const deleteResource = (id: string) => {
+    setResources(resources.filter(r => r.id !== id));
+  };
+  
+  const addBook = (book: Omit<Book, 'id'>) => {
+    const newBook: Book = {
+      ...book,
+      id: Date.now().toString(),
+      dateAdded: new Date()
+    };
+    setBooks([...books, newBook]);
+    return newBook.id;
+  };
+  
+  const updateBook = (id: string, book: Partial<Book>) => {
+    setBooks(books.map(b => b.id === id ? { ...b, ...book } : b));
+  };
+  
+  const deleteBook = (id: string) => {
+    setBooks(books.filter(b => b.id !== id));
+  };
+  
+  const addSkillset = (skillset: Omit<Skillset, 'id'>) => {
+    const newSkillset: Skillset = {
+      ...skillset,
+      id: Date.now().toString()
+    };
+    setSkillsets([...skillsets, newSkillset]);
+    return newSkillset.id;
+  };
+  
+  const updateSkillset = (id: string, skillset: Partial<Skillset>) => {
+    setSkillsets(skillsets.map(s => s.id === id ? { ...s, ...skillset } : s));
+  };
+  
+  const deleteSkillset = (id: string) => {
+    setSkillsets(skillsets.filter(s => s.id !== id));
+  };
+  
+  const addNote = (note: Omit<Note, 'id'>) => {
+    const newNote: Note = {
+      ...note,
+      id: Date.now().toString(),
+      lastUpdated: new Date()
+    };
+    setNotes([...notes, newNote]);
+    return newNote.id;
+  };
+  
+  const updateNote = (id: string, note: Partial<Note>) => {
+    setNotes(notes.map(n => n.id === id ? { ...n, ...note, lastUpdated: new Date() } : n));
+  };
+  
+  const deleteNote = (id: string) => {
+    setNotes(notes.filter(n => n.id !== id));
+  };
+
+  const togglePinNote = (id: string) => {
+    setNotes(notes =>
+      notes.map(note =>
+        note.id === id ? { ...note, pinned: !note.pinned } : note
+      )
+    );
+  };
+
+  const togglePinResource = (id: string) => {
+    setResources(resources =>
+      resources.map(resource =>
+        resource.id === id ? { ...resource, pinned: !resource.pinned } : resource
+      )
+    );
+  };
+
+  const togglePinBook = (id: string) => {
+    setBooks(books =>
+      books.map(book =>
+        book.id === id ? { ...book, pinned: !book.pinned } : book
+      )
+    );
+  };
+
+  const togglePinSkillset = (id: string) => {
+    setSkillsets(skillsets =>
+      skillsets.map(skillset =>
+        skillset.id === id ? { ...skillset, pinned: !skillset.pinned } : skillset
+      )
+    );
+  };
+
+  const togglePinEntry = (id: string) => {
+    setEntries(entries =>
+      entries.map(entry =>
+        entry.id === id ? { ...entry, pinned: !entry.pinned } : entry
+      )
+    );
+  };
+
   const value: KnowledgeContextValue = {
     entries,
+    notes,
+    resources,
+    books,
+    skillsets,
+    tags,
     searchQuery,
     setSearchQuery,
     activeFilter,
     setActiveFilter,
     activeTags,
     setActiveTags,
+    isOffline,
+    
+    // Entry operations
     addEntry,
     updateEntry,
     deleteEntry,
@@ -336,14 +461,42 @@ export const KnowledgeProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     checkForDuplicates,
     searchEntries,
     generateAiSummary,
+    filterEntries,
+    archiveOldEntries,
+    getEntriesStats,
+    togglePinEntry,
+    
+    // Resource operations
+    addResource,
+    updateResource,
+    deleteResource,
+    
+    // Book operations
+    addBook,
+    updateBook,
+    deleteBook,
+    
+    // Skillset operations
+    addSkillset,
+    updateSkillset,
+    deleteSkillset,
+    
+    // Note operations
+    addNote,
+    updateNote,
+    deleteNote,
+    
+    // Task linking
     linkTaskToEntry,
     unlinkTaskFromEntry,
     getLinkedTasks,
     getRelatedEntriesForTask,
-    filterEntries,
-    archiveOldEntries,
-    getEntriesStats,
-    isOffline
+    
+    // Pinning functionality
+    togglePinNote,
+    togglePinResource,
+    togglePinBook,
+    togglePinSkillset
   };
 
   return (

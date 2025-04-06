@@ -1,91 +1,87 @@
 
 import React, { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { CalendarIcon, Star } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Book, ReadingStatus } from "@/types/knowledge";
 
-interface BookDialogProps {
+export interface BookDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (book: Book) => void;
-  book?: Book;
+  book: Book | null;
+  coverImage?: string | null;
+  onCoverImageChange?: (coverImage: string | null) => void;
 }
 
-export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps) {
+export function BookDialog({ 
+  open, 
+  onOpenChange, 
+  onSave, 
+  book,
+  coverImage: initialCoverImage = null,
+  onCoverImageChange
+}: BookDialogProps) {
   const [title, setTitle] = useState(book?.title || "");
   const [author, setAuthor] = useState(book?.author || "");
-  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(book?.readingStatus || "Not Yet Read");
   const [description, setDescription] = useState(book?.description || "");
-  const [notes, setNotes] = useState(book?.notes || "");
-  const [pages, setPages] = useState(book?.pages?.toString() || "");
-  const [coverImage, setCoverImage] = useState(book?.coverImage || "");
-  const [tags, setTags] = useState(book?.tags.join(", ") || "");
-  const [rating, setRating] = useState(book?.rating || 0);
-  const [dateAdded, setDateAdded] = useState<Date>(book?.dateAdded || new Date());
-  const [dateCompleted, setDateCompleted] = useState<Date | undefined>(book?.dateCompleted);
+  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(book?.readingStatus || "Not Yet Read");
+  const [tags, setTags] = useState(book?.tags?.join(", ") || "");
+  const [rating, setRating] = useState(book?.rating?.toString() || "0");
+  const [coverImage, setCoverImage] = useState(initialCoverImage || book?.coverImage || "");
   const [summary, setSummary] = useState(book?.summary || "");
   const [keyLessons, setKeyLessons] = useState(book?.keyLessons || "");
-  const [relatedSkillsets, setRelatedSkillsets] = useState(book?.relatedSkillsets?.join(", ") || "");
-
+  const [skillsets, setSkillsets] = useState(book?.relatedSkillsets?.join(", ") || "");
+  
   const handleSave = () => {
-    if (!title || !author) return;
-
+    if (!title || !author) {
+      // Show an error message
+      return;
+    }
+    
     const newBook: Book = {
       id: book?.id || Date.now().toString(),
       title,
       author,
-      readingStatus,
       description,
-      notes,
-      pages: pages ? parseInt(pages) : undefined,
-      coverImage,
-      tags: tags.split(",").map((tag) => tag.trim()).filter(Boolean),
-      rating,
-      dateAdded,
-      dateCompleted,
+      readingStatus,
+      tags: tags.split(",").map(tag => tag.trim()).filter(Boolean),
+      rating: parseInt(rating) || 0,
+      coverImage: coverImage || undefined,
       summary,
       keyLessons,
-      relatedSkillsets: relatedSkillsets
-        ? relatedSkillsets.split(",").map((skill) => skill.trim()).filter(Boolean)
-        : [],
-      pinned: book?.pinned || false,
+      relatedSkillsets: skillsets.split(",").map(s => s.trim()).filter(Boolean),
+      dateAdded: book?.dateAdded || new Date(),
+      dateCompleted: readingStatus === "Finished" ? (book?.dateCompleted || new Date()) : undefined
     };
-
+    
     onSave(newBook);
-    onOpenChange(false);
   };
-
+  
+  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const imageUrl = URL.createObjectURL(file);
+      setCoverImage(imageUrl);
+      if (onCoverImageChange) {
+        onCoverImageChange(imageUrl);
+      }
+    }
+  };
+  
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{book ? "Edit Book" : "Add New Book"}</DialogTitle>
+          <DialogTitle>{book ? 'Edit Book' : 'Add New Book'}</DialogTitle>
         </DialogHeader>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-          <div className="space-y-4">
-            <div>
+        
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
@@ -94,8 +90,8 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
                 placeholder="Book title"
               />
             </div>
-
-            <div>
+            
+            <div className="grid gap-2">
               <Label htmlFor="author">Author</Label>
               <Input
                 id="author"
@@ -104,11 +100,23 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
                 placeholder="Author name"
               />
             </div>
-
-            <div>
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="A brief description of the book"
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
               <Label htmlFor="status">Reading Status</Label>
               <Select value={readingStatus} onValueChange={(value) => setReadingStatus(value as ReadingStatus)}>
-                <SelectTrigger>
+                <SelectTrigger id="status">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -119,164 +127,84 @@ export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps
                 </SelectContent>
               </Select>
             </div>
-
-            <div>
-              <Label htmlFor="pages">Pages</Label>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="rating">Rating (0-5)</Label>
               <Input
-                id="pages"
                 type="number"
-                value={pages}
-                onChange={(e) => setPages(e.target.value)}
-                placeholder="Number of pages"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="coverImage">Cover Image URL</Label>
-              <Input
-                id="coverImage"
-                value={coverImage}
-                onChange={(e) => setCoverImage(e.target.value)}
-                placeholder="https://example.com/book-cover.jpg"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="tags">Tags (comma separated)</Label>
-              <Input
-                id="tags"
-                value={tags}
-                onChange={(e) => setTags(e.target.value)}
-                placeholder="philosophy, science, history"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="related-skillsets">Related Skillsets (comma separated)</Label>
-              <Input
-                id="related-skillsets"
-                value={relatedSkillsets}
-                onChange={(e) => setRelatedSkillsets(e.target.value)}
-                placeholder="critical thinking, writing"
+                id="rating"
+                min="0"
+                max="5"
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
               />
             </div>
           </div>
-
-          <div className="space-y-4">
-            <div>
-              <Label>Rating</Label>
-              <div className="flex items-center space-x-1 mt-2">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star
-                    key={star}
-                    className={cn(
-                      "h-6 w-6 cursor-pointer",
-                      star <= rating
-                        ? "text-yellow-500 fill-yellow-500"
-                        : "text-gray-300"
-                    )}
-                    onClick={() => setRating(star)}
-                  />
-                ))}
-              </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="tags">Tags (comma separated)</Label>
+            <Input
+              id="tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="fiction, science, history"
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="skillsets">Related Skillsets (comma separated)</Label>
+            <Input
+              id="skillsets"
+              value={skillsets}
+              onChange={(e) => setSkillsets(e.target.value)}
+              placeholder="Programming, Design, Psychology"
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="cover">Cover Image</Label>
+            <Input
+              type="file"
+              id="cover"
+              accept="image/*"
+              onChange={handleCoverImageChange}
+              className="hidden"
+            />
+            <div className="flex items-center gap-4">
+              {coverImage && (
+                <div className="relative w-24 h-36 bg-gray-100 rounded overflow-hidden">
+                  <img src={coverImage} alt="Book cover" className="w-full h-full object-cover" />
+                </div>
+              )}
+              <Label htmlFor="cover" className="cursor-pointer bg-muted hover:bg-muted/90 text-sm px-4 py-2 rounded">
+                {coverImage ? "Change Cover" : "Upload Cover"}
+              </Label>
             </div>
-
-            <div>
-              <Label>Date Added</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal mt-2"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dateAdded ? format(dateAdded, "PPP") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={dateAdded}
-                    onSelect={(date) => date && setDateAdded(date)}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-
-            {(readingStatus === "Finished" || book?.dateCompleted) && (
-              <div>
-                <Label>Date Completed</Label>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal mt-2"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {dateCompleted ? format(dateCompleted, "PPP") : "Pick a date"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
-                    <Calendar
-                      mode="single"
-                      selected={dateCompleted}
-                      onSelect={(date) => setDateCompleted(date || undefined)}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            )}
-
-            <div>
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                placeholder="Book description"
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="notes">Personal Notes</Label>
-              <Textarea
-                id="notes"
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Your notes about the book"
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="summary">Summary</Label>
-              <Textarea
-                id="summary"
-                value={summary}
-                onChange={(e) => setSummary(e.target.value)}
-                placeholder="Brief summary of the book"
-                rows={3}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="keyLessons">Key Lessons</Label>
-              <Textarea
-                id="keyLessons"
-                value={keyLessons}
-                onChange={(e) => setKeyLessons(e.target.value)}
-                placeholder="Key takeaways from the book"
-                rows={3}
-              />
-            </div>
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="summary">Summary</Label>
+            <Textarea
+              id="summary"
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+              placeholder="A brief summary of the book's content"
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="keyLessons">Key Lessons</Label>
+            <Textarea
+              id="keyLessons"
+              value={keyLessons}
+              onChange={(e) => setKeyLessons(e.target.value)}
+              placeholder="Important takeaways from the book"
+            />
           </div>
         </div>
-
+        
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
