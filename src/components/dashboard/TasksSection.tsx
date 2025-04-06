@@ -3,79 +3,79 @@ import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { Plus, CheckCircle2, CheckSquare } from "lucide-react";
+import { Plus, CheckCircle2, Circle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useTasks } from "@/contexts/TaskContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
+
+interface Task {
+  id: string;
+  title: string;
+  completed: boolean;
+  priority: "high" | "medium" | "low";
+  dueTime?: string;
+}
 
 const TasksSection = () => {
-  const { tasks, getTodaysTasks, getCompletionRate, completeTask, addTask } = useTasks();
+  const [tasks, setTasks] = useState<Task[]>([
+    { 
+      id: "1", 
+      title: "Complete quarterly goal planning", 
+      completed: false, 
+      priority: "high",
+      dueTime: "11:00 AM" 
+    },
+    { 
+      id: "2", 
+      title: "Review habit tracking data", 
+      completed: false, 
+      priority: "medium",
+      dueTime: "2:30 PM" 
+    },
+    { 
+      id: "3", 
+      title: "Journal entry for the day", 
+      completed: false, 
+      priority: "medium" 
+    },
+    { 
+      id: "4", 
+      title: "30 minutes meditation session", 
+      completed: true, 
+      priority: "high" 
+    },
+    { 
+      id: "5", 
+      title: "Update progress on fitness goal", 
+      completed: true, 
+      priority: "low" 
+    },
+  ]);
+  
   const { toast } = useToast();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [taskTitle, setTaskTitle] = useState("");
-  const [taskPriority, setTaskPriority] = useState<"high" | "medium" | "low">("medium");
-  const [taskDate, setTaskDate] = useState<Date | undefined>(new Date());
-  const [taskTime, setTaskTime] = useState("");
   
-  const todaysTasks = getTodaysTasks();
-  const pendingTasks = todaysTasks.filter(task => !task.completed);
-  const completedTasks = todaysTasks.filter(task => task.completed);
-
-  const completionRate = Math.round(getCompletionRate() * 100);
-  
-  const handleToggleTask = (id: string) => {
-    completeTask(id);
+  const toggleTask = (id: string) => {
+    setTasks(tasks.map(task => 
+      task.id === id ? { ...task, completed: !task.completed } : task
+    ));
     
     const task = tasks.find(t => t.id === id);
-    if (task && !task.completed) {
-      toast({
-        title: "Task Completed",
-        description: `You've completed "${task.title}"!`,
-      });
+    if (task) {
+      if (!task.completed) {
+        toast({
+          title: "Task Completed",
+          description: `You've completed "${task.title}"!`,
+        });
+      }
     }
   };
   
-  const handleAddTask = () => {
-    setIsDialogOpen(true);
-  };
-  
-  const handleCreateTask = () => {
-    if (!taskTitle.trim()) {
-      toast({
-        title: "Task title required",
-        description: "Please enter a title for your task",
-        variant: "destructive"
-      });
-      return;
-    }
-    
-    const newTask = {
-      id: `task-${Date.now()}`,
-      title: taskTitle,
-      priority: taskPriority,
-      completed: false,
-      dueDate: taskDate,
-      dueTime: taskTime
-    };
-    
-    addTask(newTask);
-    
+  const addNewTask = () => {
     toast({
-      title: "Task Created",
-      description: "Your new task has been added",
+      description: "Task creation coming soon!",
     });
-    
-    // Reset form
-    setTaskTitle("");
-    setTaskPriority("medium");
-    setTaskDate(new Date());
-    setTaskTime("");
-    setIsDialogOpen(false);
   };
+  
+  const pendingTasks = tasks.filter(task => !task.completed);
+  const completedTasks = tasks.filter(task => task.completed);
 
   return (
     <section className="mb-6">
@@ -86,19 +86,10 @@ const TasksSection = () => {
               <CardTitle>Today's Focus</CardTitle>
               <CardDescription>Tasks to complete today</CardDescription>
             </div>
-            <div className="flex items-center gap-3">
-              <div className="bg-[#101020] rounded-lg px-3 py-2 flex items-center gap-2 text-white">
-                <CheckSquare className="h-5 w-5 text-blue-400" />
-                <div>
-                  <div className="font-bold">{completedTasks.length}/{todaysTasks.length}</div>
-                  <div className="text-xs text-slate-400">{completionRate}% completion rate</div>
-                </div>
-              </div>
-              <Button onClick={handleAddTask} size="sm" className="gap-1">
-                <Plus className="h-4 w-4" />
-                <span>New Task</span>
-              </Button>
-            </div>
+            <Button onClick={addNewTask} size="sm" className="gap-1">
+              <Plus className="h-4 w-4" />
+              <span>New Task</span>
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
@@ -124,7 +115,7 @@ const TasksSection = () => {
                     <Checkbox 
                       id={`task-${task.id}`} 
                       checked={task.completed}
-                      onCheckedChange={() => handleToggleTask(task.id)}
+                      onCheckedChange={() => toggleTask(task.id)}
                       className={`h-5 w-5 ${
                         task.priority === 'high' ? 'data-[state=checked]:bg-warning data-[state=checked]:border-warning' :
                         task.priority === 'medium' ? 'data-[state=checked]:bg-primary data-[state=checked]:border-primary' :
@@ -159,7 +150,7 @@ const TasksSection = () => {
                       <Checkbox 
                         id={`task-${task.id}`} 
                         checked={task.completed}
-                        onCheckedChange={() => handleToggleTask(task.id)}
+                        onCheckedChange={() => toggleTask(task.id)}
                         className="h-5 w-5 data-[state=checked]:bg-success data-[state=checked]:border-success"
                       />
                       <label 
@@ -176,73 +167,6 @@ const TasksSection = () => {
           </div>
         </CardContent>
       </Card>
-      
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Task</DialogTitle>
-            <DialogDescription>
-              Create a new task to add to your todo list
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="task-title">Task Title</Label>
-              <Input
-                id="task-title"
-                placeholder="What do you need to do?"
-                value={taskTitle}
-                onChange={(e) => setTaskTitle(e.target.value)}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="task-priority">Priority</Label>
-              <Select
-                value={taskPriority}
-                onValueChange={(value) => setTaskPriority(value as "high" | "medium" | "low")}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select priority" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>Due Date</Label>
-              <DatePicker
-                date={taskDate}
-                setDate={setTaskDate}
-              />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="task-time">Due Time (optional)</Label>
-              <Input
-                id="task-time"
-                type="time"
-                value={taskTime}
-                onChange={(e) => setTaskTime(e.target.value)}
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateTask}>
-              Create Task
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </section>
   );
 };

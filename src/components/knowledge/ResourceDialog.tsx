@@ -1,233 +1,179 @@
 
-import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import React, { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { 
-  FileText, 
-  Video, 
-  Globe, 
-  BookOpen, 
-  X 
-} from "lucide-react";
-import { Resource } from "@/types/knowledge";
+import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Resource, ResourceType } from "@/types/knowledge";
+import { Upload } from "lucide-react";
 
 interface ResourceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  resource: Resource | null;
   onSave: (resource: Resource) => void;
+  resource: Resource | null;
 }
 
-export function ResourceDialog({
-  open,
-  onOpenChange,
-  resource,
-  onSave
-}: ResourceDialogProps) {
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [type, setType] = useState<Resource['type']>("article");
-  const [description, setDescription] = useState("");
-  const [notes, setNotes] = useState("");
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
-  const [completed, setCompleted] = useState(false);
-  const [pinned, setPinned] = useState(false);
+const resourceTypes: ResourceType[] = [
+  'YouTube',
+  'Social Media',
+  'Online Course',
+  'Book',
+  'Article',
+  'Website',
+  'Other'
+];
 
+export function ResourceDialog({ open, onOpenChange, onSave, resource }: ResourceDialogProps) {
+  const [name, setName] = useState('');
+  const [type, setType] = useState<ResourceType>('YouTube');
+  const [description, setDescription] = useState('');
+  const [link, setLink] = useState('');
+  const [relatedSkillsets, setRelatedSkillsets] = useState('');
+  const [notes, setNotes] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  
   useEffect(() => {
     if (resource) {
-      setTitle(resource.title);
-      setUrl(resource.url || "");
+      setName(resource.name);
       setType(resource.type);
-      setDescription(resource.description || "");
-      setNotes(resource.notes || "");
-      setTags(resource.tags);
-      setCompleted(resource.completed);
-      setPinned(resource.pinned || false);
+      setDescription(resource.description || '');
+      setLink(resource.link);
+      setRelatedSkillsets(resource.relatedSkillsets.join(', '));
+      setNotes(resource.notes || '');
+      setImageUrl(resource.imageUrl || '');
     } else {
-      setTitle("");
-      setUrl("");
-      setType("article");
-      setDescription("");
-      setNotes("");
-      setTags([]);
-      setCompleted(false);
-      setPinned(false);
+      setName('');
+      setType('YouTube');
+      setDescription('');
+      setLink('');
+      setRelatedSkillsets('');
+      setNotes('');
+      setImageUrl('');
     }
   }, [resource, open]);
 
-  const handleAddTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()]);
-      setTagInput("");
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
-  };
-
   const handleSave = () => {
     const newResource: Resource = {
-      id: resource?.id || Date.now().toString(),
-      title,
-      url,
-      description,
+      id: resource?.id || '',
+      name,
       type,
+      description,
+      link,
+      relatedSkillsets: relatedSkillsets.split(',').map(s => s.trim()).filter(Boolean),
       notes,
-      tags,
-      dateAdded: resource?.dateAdded || new Date(),
-      completed,
-      pinned
+      imageUrl: imageUrl || undefined
     };
     onSave(newResource);
   };
 
+  // Mock function for image upload (in a real app, this would upload to a server)
+  const handleImageUpload = () => {
+    // This would be replaced with actual file upload logic
+    alert('Image upload feature would go here');
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{resource ? "Edit Resource" : "Add Resource"}</DialogTitle>
+          <DialogTitle>{resource ? 'Edit Resource' : 'Add New Resource'}</DialogTitle>
+          <DialogDescription>
+            Add a new resource to help you develop your skills.
+          </DialogDescription>
         </DialogHeader>
-
+        
         <div className="grid gap-4 py-4">
-          <div>
-            <Label htmlFor="title">Title</Label>
+          <div className="grid gap-2">
+            <label htmlFor="name" className="text-sm font-medium">Resource Name</label>
             <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Resource title"
+              id="name"
+              placeholder="e.g., JavaScript Course, Design Article, etc."
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
-
-          <div>
-            <Label htmlFor="url">URL</Label>
-            <Input
-              id="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
-            />
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <label htmlFor="type" className="text-sm font-medium">Resource Type</label>
+              <Select value={type} onValueChange={(value) => setType(value as ResourceType)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {resourceTypes.map((resourceType) => (
+                    <SelectItem key={resourceType} value={resourceType}>{resourceType}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid gap-2">
+              <label htmlFor="link" className="text-sm font-medium">Link</label>
+              <Input
+                id="link"
+                placeholder="https://..."
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+              />
+            </div>
           </div>
-
-          <div>
-            <Label htmlFor="description">Description</Label>
+          
+          <div className="grid gap-2">
+            <label htmlFor="description" className="text-sm font-medium">Description</label>
             <Textarea
               id="description"
+              placeholder="Brief description of this resource"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief description of the resource"
-              rows={2}
             />
           </div>
-
-          <div>
-            <Label htmlFor="type">Type</Label>
-            <Select value={type} onValueChange={(value) => setType(value as Resource['type'])}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="article" className="flex items-center gap-2">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-blue-500" />
-                    Article
-                  </div>
-                </SelectItem>
-                <SelectItem value="video">
-                  <div className="flex items-center gap-2">
-                    <Video className="h-4 w-4 text-red-500" />
-                    Video
-                  </div>
-                </SelectItem>
-                <SelectItem value="book">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-amber-500" />
-                    Book
-                  </div>
-                </SelectItem>
-                <SelectItem value="course">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4 text-green-500" />
-                    Course
-                  </div>
-                </SelectItem>
-                <SelectItem value="tool">
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-violet-500" />
-                    Tool
-                  </div>
-                </SelectItem>
-                <SelectItem value="other">
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4 text-purple-500" />
-                    Other
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <Label htmlFor="notes">Notes (optional)</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add any notes about this resource"
-              rows={3}
+          
+          <div className="grid gap-2">
+            <label htmlFor="skillsets" className="text-sm font-medium">Related Skillsets</label>
+            <Input
+              id="skillsets"
+              placeholder="e.g., JavaScript, Design (comma separated)"
+              value={relatedSkillsets}
+              onChange={(e) => setRelatedSkillsets(e.target.value)}
             />
           </div>
-
-          <div>
-            <Label htmlFor="tags">Tags</Label>
-            <div className="flex gap-2 mb-2">
-              <Input
-                id="tags"
-                value={tagInput}
-                onChange={(e) => setTagInput(e.target.value)}
-                placeholder="Add a tag"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleAddTag();
-                  }
-                }}
-              />
-              <Button type="button" onClick={handleAddTag} variant="outline">
-                Add
+          
+          <div className="grid gap-2">
+            <label className="text-sm font-medium">Upload File or Image</label>
+            <div className="border border-dashed rounded-md p-6 flex flex-col items-center justify-center text-center">
+              <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+              <p className="text-sm text-muted-foreground">Click to upload file or image</p>
+              <Button
+                variant="outline"
+                size="sm"
+                className="mt-2"
+                onClick={handleImageUpload}
+              >
+                Select File
               </Button>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="py-1">
-                  {tag}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-4 w-4 p-0 ml-1"
-                    onClick={() => handleRemoveTag(tag)}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
-                </Badge>
-              ))}
-            </div>
+          </div>
+          
+          <div className="grid gap-2">
+            <label htmlFor="notes" className="text-sm font-medium">Notes</label>
+            <Textarea
+              id="notes"
+              placeholder="Your personal notes about this resource"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+            />
           </div>
         </div>
-
+        
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={!title.trim()}>
-            {resource ? "Update" : "Add"} Resource
+          <Button onClick={handleSave}>
+            Save Resource
           </Button>
         </DialogFooter>
       </DialogContent>

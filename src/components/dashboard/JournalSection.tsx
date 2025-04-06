@@ -1,37 +1,59 @@
+
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { BookOpen, PenTool } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { FileText, PenSquare } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const todayPrompt = {
+  title: "Reflection Prompt",
+  question: "What are three things that went well today, and why did they matter to you?",
+  icon: <PenSquare className="h-5 w-5 text-primary" />,
+}
+
 const JournalSection = () => {
-  const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const handleCreateEntry = () => {
-    // Navigate to the journal page and signal to create a new entry
-    navigate('/journal?new=true');
+    toast({
+      description: "Journal feature coming soon!",
+    });
   };
-  return <Card className="border-dashed border-gray-600 text-white bg-slate-950">
-      <CardContent className="p-4 text-center space-y-2 bg-slate-950">
-        <div className="flex items-center justify-center gap-2">
-          <BookOpen className="h-5 w-5 text-[#FF6500]" />
-          <h3 className="text-lg font-bold">Daily Journal</h3>
-        </div>
-        
-        <p className="text-xs text-gray-400">
-          Capture your thoughts and reflections
-        </p>
-        
-        <div className="flex flex-col items-center py-2">
-          <h4 className="text-sm font-semibold">Today's Prompt</h4>
-          <p className="my-1 text-xs text-gray-300">
-            "What are three things that went well today?"
-          </p>
-        </div>
-        
-        <Button className="w-full py-1 text-white text-sm bg-[#FF6500] hover:bg-[#E55A00]" onClick={handleCreateEntry}>
-          <PenTool className="mr-2 h-3 w-3" />
-          New Entry
-        </Button>
-      </CardContent>
-    </Card>;
+  
+  return (
+    <section className="mb-6">
+      <Card className="border-dashed border-2 bg-card/50">
+        <CardHeader className="pb-2">
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Daily Journal
+              </CardTitle>
+              <CardDescription>Capture your thoughts and reflections</CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="flex justify-center mb-4">
+                {todayPrompt.icon}
+              </div>
+              <h3 className="text-lg font-medium mb-2">{todayPrompt.title}</h3>
+              <p className="text-muted-foreground mb-6">
+                "{todayPrompt.question}"
+              </p>
+              <Button onClick={handleCreateEntry} className="gap-2">
+                <PenSquare className="h-4 w-4" />
+                <span>Create Today's Entry</span>
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </section>
+  );
 };
+
 export default JournalSection;

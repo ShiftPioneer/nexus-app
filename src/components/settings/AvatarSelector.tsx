@@ -1,135 +1,159 @@
 
-import React, { useState } from 'react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Check, Upload } from 'lucide-react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
+import React, { useState, useRef } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+
+const DEFAULT_AVATARS = [
+  "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png", // Use existing image
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Max",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Lily",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Tech",
+  "https://api.dicebear.com/7.x/adventurer/svg?seed=Sam",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+  "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Nexus",
+];
 
 interface AvatarSelectorProps {
   currentAvatar: string;
-  onAvatarChange: (avatarUrl: string) => void;
-  onApply: () => void;
-  isApplied: boolean;
+  onAvatarChange: (avatar: string) => void;
 }
 
-const AvatarSelector: React.FC<AvatarSelectorProps> = ({
-  currentAvatar,
-  onAvatarChange,
-  onApply,
-  isApplied
-}) => {
-  const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar);
-  const [customAvatarUrl, setCustomAvatarUrl] = useState('');
-  
-  // Positive and productivity-focused avatars
-  const avatarOptions = [
-    'https://api.dicebear.com/7.x/bottts/svg?seed=brain&backgroundColor=8338ec',
-    'https://api.dicebear.com/7.x/bottts/svg?seed=focus&backgroundColor=118ab2',
-    'https://api.dicebear.com/7.x/bottts/svg?seed=energy&backgroundColor=fb5607',
-    'https://api.dicebear.com/7.x/bottts/svg?seed=productivity&backgroundColor=ffb703',
-    'https://api.dicebear.com/7.x/bottts/svg?seed=growth&backgroundColor=06d6a0',
-    'https://api.dicebear.com/7.x/bottts/svg?seed=hope&backgroundColor=ef476f',
-    'https://api.dicebear.com/7.x/bottts/svg?seed=intelligence&backgroundColor=43aa8b',
-    'https://api.dicebear.com/7.x/identicon/svg?seed=success&backgroundColor=f94144',
-    'https://api.dicebear.com/7.x/micah/svg?seed=motivation&backgroundColor=277da1',
-    'https://api.dicebear.com/7.x/micah/svg?seed=success&backgroundColor=f8961e',
-    'https://api.dicebear.com/7.x/lorelei/svg?seed=productivity&backgroundColor=ffb703',
-    'https://api.dicebear.com/7.x/notionists/svg?seed=creativity&backgroundColor=ff006e',
-  ];
+const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatarChange }) => {
+  const [open, setOpen] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar || DEFAULT_AVATARS[0]);
+  const [customAvatar, setCustomAvatar] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
-  const handleAvatarSelect = (avatar: string) => {
-    setSelectedAvatar(avatar);
-    onAvatarChange(avatar);
-  };
-
-  const handleCustomAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCustomAvatarUrl(e.target.value);
-  };
-
-  const handleCustomAvatarApply = () => {
-    if (customAvatarUrl) {
-      setSelectedAvatar(customAvatarUrl);
-      onAvatarChange(customAvatarUrl);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const file = e.target.files[0];
+      
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please upload an image file",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Validate file size (3MB)
+      if (file.size > 3 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please upload an image smaller than 3MB",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setCustomAvatar(file);
+      const imageUrl = URL.createObjectURL(file);
+      setSelectedAvatar(imageUrl);
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          const avatarUrl = event.target.result.toString();
-          setSelectedAvatar(avatarUrl);
-          onAvatarChange(avatarUrl);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleSelectAvatar = () => {
+    onAvatarChange(selectedAvatar);
+    setOpen(false);
+    
+    toast({
+      title: "Avatar Updated",
+      description: "Your avatar has been updated successfully",
+    });
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-center">
-        <Avatar className="w-24 h-24 border-4 border-primary/20">
-          <AvatarImage src={selectedAvatar} alt="Selected avatar" />
-          <AvatarFallback>AV</AvatarFallback>
+    <>
+      <div className="flex items-center space-x-4">
+        <Avatar className="h-20 w-20">
+          <AvatarImage src={currentAvatar} alt="Profile" />
+          <AvatarFallback>JD</AvatarFallback>
         </Avatar>
-      </div>
-      
-      <div className="grid grid-cols-4 gap-4">
-        {avatarOptions.map((avatar, index) => (
-          <div 
-            key={index}
-            className={`relative cursor-pointer border-2 rounded-full ${selectedAvatar === avatar ? 'border-primary' : 'border-transparent hover:border-primary/40'}`}
-            onClick={() => handleAvatarSelect(avatar)}
-          >
-            <Avatar className="w-16 h-16">
-              <AvatarImage src={avatar} alt={`Avatar option ${index + 1}`} />
-              <AvatarFallback>{index + 1}</AvatarFallback>
-            </Avatar>
-            {selectedAvatar === avatar && (
-              <div className="absolute -right-1 -bottom-1 bg-primary text-white rounded-full p-1">
-                <Check className="h-3 w-3" />
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-      
-      <div className="pt-4">
-        <Label htmlFor="avatar-upload">Upload your own image</Label>
-        <div className="flex gap-2 mt-2">
-          <Input 
-            id="avatar-upload" 
-            type="file" 
-            accept="image/*"
-            onChange={handleFileUpload}
-            className="flex-1"
-          />
-          <Button variant="outline" onClick={() => document.getElementById('avatar-upload')?.click()}>
-            <Upload className="h-4 w-4 mr-2" />
-            Browse
-          </Button>
-        </div>
-      </div>
-      
-      <div className="pt-2 text-center">
-        <Button 
-          onClick={onApply} 
-          disabled={isApplied || !selectedAvatar}
-          className={isApplied ? "bg-green-600 hover:bg-green-700" : ""}
-        >
-          {isApplied ? (
-            <div className="flex items-center">
-              <Check className="h-4 w-4 mr-2" />
-              Applied
-            </div>
-          ) : "Apply Avatar"}
+        <Button variant="outline" onClick={() => setOpen(true)}>
+          Change Avatar
         </Button>
       </div>
-    </div>
+      
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Select Avatar</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-6">
+            <div className="flex justify-center">
+              <Avatar className="h-24 w-24">
+                <AvatarImage src={selectedAvatar} alt="Selected Avatar" />
+                <AvatarFallback>?</AvatarFallback>
+              </Avatar>
+            </div>
+            
+            <RadioGroup
+              value={selectedAvatar}
+              onValueChange={setSelectedAvatar}
+              className="grid grid-cols-5 gap-3"
+            >
+              {DEFAULT_AVATARS.map((avatar, index) => (
+                <div key={index} className="flex flex-col items-center space-y-1">
+                  <Label
+                    htmlFor={`avatar-${index}`}
+                    className="cursor-pointer rounded-md overflow-hidden border-2 transition-all duration-200"
+                    style={{ 
+                      borderColor: selectedAvatar === avatar ? 'var(--primary)' : 'transparent'
+                    }}
+                  >
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={avatar} alt={`Avatar ${index + 1}`} />
+                      <AvatarFallback>{index + 1}</AvatarFallback>
+                    </Avatar>
+                  </Label>
+                  <RadioGroupItem
+                    id={`avatar-${index}`}
+                    value={avatar}
+                    className="sr-only"
+                  />
+                </div>
+              ))}
+            </RadioGroup>
+            
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                Upload Custom Avatar
+              </Button>
+              <input
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <p className="text-xs text-center text-muted-foreground">
+                Supported formats: JPG, PNG, GIF (max 3MB)
+              </p>
+            </div>
+            
+            <div className="flex justify-end">
+              <Button onClick={handleSelectAvatar}>Save Avatar</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

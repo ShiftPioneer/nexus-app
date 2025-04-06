@@ -1,190 +1,218 @@
-
 import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Plus, Search } from "lucide-react";
 import { Book, ReadingStatus } from "@/types/knowledge";
+import { LibraryBigIcon, BookOpen, Plus } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookDialog } from "./BookDialog";
-import { useToast } from "@/hooks/use-toast";
-import { BookshelfKanbanView } from "./BookshelfTab/BookshelfKanbanView";
-import { BookshelfListView } from "./BookshelfTab/BookshelfListView";
-import { useKnowledge } from "@/contexts/KnowledgeContext";
-
-export type BookshelfState = Record<ReadingStatus, Book[]>;
-
+import { BookCard } from "./BookCard";
+const sampleBooks: Book[] = [{
+  id: "1",
+  title: "Atomic Habits",
+  author: "James Clear",
+  readingStatus: "Reading Now",
+  rating: 5,
+  coverImage: "/sample-covers/atomic-habits.jpg",
+  description: "Tiny changes, remarkable results",
+  relatedSkillsets: ["Self-Improvement"],
+  summary: "A practical guide about how to build good habits and break bad ones.",
+  keyLessons: "Small changes compound over time. Focus on system over goals."
+}, {
+  id: "2",
+  title: "Design Patterns",
+  author: "Erich Gamma et al.",
+  readingStatus: "Not Yet Read",
+  rating: 0,
+  coverImage: "/sample-covers/design-patterns.jpg",
+  description: "Elements of Reusable Object-Oriented Software",
+  relatedSkillsets: ["Programming", "Design"],
+  summary: "",
+  keyLessons: ""
+}, {
+  id: "3",
+  title: "Thinking, Fast and Slow",
+  author: "Daniel Kahneman",
+  readingStatus: "Finished",
+  rating: 4,
+  coverImage: "/sample-covers/thinking-fast-slow.jpg",
+  description: "How the mind works and the two systems that drive the way we think",
+  relatedSkillsets: ["Psychology", "Decision Making"],
+  summary: "Explores the two systems that drive how we think and make choices.",
+  keyLessons: "Our brains use two systems: fast, intuitive thinking and slow, rational thinking."
+}];
+interface BookshelfState {
+  [key: string]: Book[];
+}
 export function BookshelfTab() {
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
-  const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingBook, setEditingBook] = useState<Book | null>(null);
-  const { toast } = useToast();
-  const [bookCoverImage, setBookCoverImage] = useState<string>("");
-  const { books = [], addBook, updateBook, deleteBook } = useKnowledge();
+  const [currentBook, setCurrentBook] = useState<Book | null>(null);
+  const [coverImage, setCoverImage] = useState<string | null>(null);
 
-  // Group books by reading status
-  const booksByStatus = React.useMemo(() => {
-    const result: BookshelfState = {
-      "Not Started": [],
-      "In Progress": [],
-      "Completed": [],
-      "Reading Now": [],
-      "Not Yet Read": [],
-      "Finished": [],
-      "abandoned": []
-    };
-    
-    books.forEach(book => {
-      if (!result[book.readingStatus]) {
-        result[book.readingStatus] = [];
-      }
-      result[book.readingStatus].push(book);
-    });
-    
-    return result;
-  }, [books]);
-
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(e.target.value);
+  // Initialize books by reading status
+  const initialState: BookshelfState = {
+    "Reading Now": [],
+    "Not Yet Read": [],
+    "Finished": []
   };
-
-  const filteredBooksByStatus = React.useMemo(() => {
-    const result: BookshelfState = {} as BookshelfState;
-    
-    Object.entries(booksByStatus).forEach(([status, statusBooks]) => {
-      result[status as ReadingStatus] = statusBooks.filter(book => 
-        book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (book.description && book.description.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-    });
-    
-    return result;
-  }, [booksByStatus, searchQuery]);
-
-  const allFilteredBooks = React.useMemo(() => 
-    Object.values(filteredBooksByStatus).flat(), 
-    [filteredBooksByStatus]
-  );
-
-  const handleAddNewBook = () => {
-    setEditingBook(null);
-    setBookCoverImage("");
-    setDialogOpen(true);
-  };
-
-  const handleEditBook = (book: Book) => {
-    setEditingBook(book);
-    setBookCoverImage(book.coverImage || "");
-    setDialogOpen(true);
-  };
-
-  const handleDeleteBook = (book: Book) => {
-    deleteBook(book.id);
-    
-    toast({
-      title: "Book deleted",
-      description: `"${book.title}" has been removed from your bookshelf.`,
-    });
-  };
-
-  const handleSaveBook = (book: Book) => {
-    if (editingBook) {
-      updateBook(book.id, book);
-      
-      toast({
-        title: "Book updated",
-        description: `"${book.title}" has been updated in your bookshelf.`,
+  sampleBooks.forEach(book => {
+    initialState[book.readingStatus].push(book);
+  });
+  const [booksByStatus, setBooksByStatus] = useState<BookshelfState>(initialState);
+  const handleAddBook = (book: Book) => {
+    if (currentBook) {
+      // Remove the book from its previous status (if it changed)
+      const newBooksByStatus = {
+        ...booksByStatus
+      };
+      Object.keys(newBooksByStatus).forEach(status => {
+        newBooksByStatus[status] = newBooksByStatus[status].filter(b => b.id !== book.id);
       });
+
+      // Add to the correct status
+      newBooksByStatus[book.readingStatus] = [...newBooksByStatus[book.readingStatus], book];
+      setBooksByStatus(newBooksByStatus);
     } else {
-      addBook(book);
-      
-      toast({
-        title: "Book added",
-        description: `"${book.title}" has been added to your bookshelf.`,
+      setBooksByStatus({
+        ...booksByStatus,
+        [book.readingStatus]: [...booksByStatus[book.readingStatus], {
+          ...book,
+          id: Date.now().toString()
+        }]
       });
     }
-    
     setDialogOpen(false);
-    setEditingBook(null);
+    setCurrentBook(null);
+    setCoverImage(null);
+  };
+  const handleEdit = (book: Book) => {
+    setCurrentBook(book);
+    setCoverImage(book.coverImage || null);
+    setDialogOpen(true);
+  };
+  const handleDelete = (book: Book) => {
+    setBooksByStatus({
+      ...booksByStatus,
+      [book.readingStatus]: booksByStatus[book.readingStatus].filter(b => b.id !== book.id)
+    });
+  };
+  const handleDragStart = (event: React.DragEvent, book: Book) => {
+    event.dataTransfer.setData('book', JSON.stringify(book));
+  };
+  const handleDragOver = (event: React.DragEvent) => {
+    event.preventDefault();
+  };
+  const handleDrop = (event: React.DragEvent, status: ReadingStatus) => {
+    event.preventDefault();
+    const bookData = event.dataTransfer.getData('book');
+    if (!bookData) return;
+    try {
+      const book = JSON.parse(bookData) as Book;
+      if (book.readingStatus === status) return;
+
+      // Remove the book from its current status
+      const newBooksByStatus = {
+        ...booksByStatus
+      };
+      newBooksByStatus[book.readingStatus] = booksByStatus[book.readingStatus].filter(b => b.id !== book.id);
+
+      // Update the status and add to the new status
+      book.readingStatus = status;
+      newBooksByStatus[status] = [...newBooksByStatus[status], book];
+      setBooksByStatus(newBooksByStatus);
+    } catch (e) {
+      console.error('Error parsing dragged book data', e);
+    }
   };
 
-  return (
-    <div className="space-y-6">
+  // Calculate all books across all statuses
+  const allBooks = Object.values(booksByStatus).flat();
+  return <div className="space-y-6 py-[20px] px-[20px]">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div className="w-full sm:w-96">
-          <Label htmlFor="search-books" className="sr-only">Search books</Label>
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              id="search-books"
-              placeholder="Search by title, author, or description..."
-              className="pl-9"
-              value={searchQuery}
-              onChange={handleSearch}
-            />
+        <h2 className="text-2xl font-bold">Your Bookshelf</h2>
+        <div className="flex items-center gap-4 w-full sm:w-auto">
+          <div className="border rounded-md overflow-hidden flex">
+            <Button variant={viewMode === "kanban" ? "default" : "ghost"} size="sm" className="h-9 rounded-none" onClick={() => setViewMode("kanban")}>
+              <LibraryBigIcon className="h-4 w-4 mr-2" />
+              Kanban
+            </Button>
+            <Button variant={viewMode === "list" ? "default" : "ghost"} size="sm" className="h-9 rounded-none" onClick={() => setViewMode("list")}>
+              <BookOpen className="h-4 w-4 mr-2" />
+              List
+            </Button>
           </div>
-        </div>
-        <div className="flex gap-2">
-          <Tabs 
-            value={viewMode} 
-            onValueChange={(value) => setViewMode(value as "kanban" | "list")}
-            className="hidden sm:flex"
-          >
-            <TabsList>
-              <TabsTrigger value="kanban">Kanban</TabsTrigger>
-              <TabsTrigger value="list">List</TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <Button onClick={handleAddNewBook} className="gap-2">
-            <Plus className="h-4 w-4" />
+          <Button onClick={() => {
+          setCurrentBook(null);
+          setDialogOpen(true);
+        }} className="gap-1 w-full sm:w-auto">
+            <Plus size={18} />
             Add Book
           </Button>
         </div>
       </div>
-
-      {/* Mobile view mode selection */}
-      <div className="flex sm:hidden justify-center mb-6">
-        <Tabs 
-          value={viewMode} 
-          onValueChange={(value) => setViewMode(value as "kanban" | "list")}
-        >
-          <TabsList>
-            <TabsTrigger value="kanban">Kanban</TabsTrigger>
-            <TabsTrigger value="list">List</TabsTrigger>
+      
+      {viewMode === "kanban" ? <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {Object.entries(booksByStatus).map(([status, books]) => <Card key={status} className="overflow-hidden" onDragOver={handleDragOver} onDrop={e => handleDrop(e, status as ReadingStatus)}>
+              <CardContent className="p-4 bg-orange-50 py-[26px] px-[26px]">
+                <div className="flex items-center gap-2 mb-4">
+                  <h3 className="font-bold text-lg text-secondary-light">{status}</h3>
+                  <span className="bg-orange-100 rounded-full px-2 py-0.5 text-xs text-orange-800">
+                    {books.length}
+                  </span>
+                </div>
+                
+                <div className="space-y-4 min-h-[150px]">
+                  {books.map(book => <div key={book.id} draggable onDragStart={e => handleDragStart(e, book)} className="cursor-move">
+                      <BookCard book={book} onEdit={handleEdit} onDelete={handleDelete} />
+                    </div>)}
+                  
+                  {books.length === 0 && <div className="border border-dashed rounded-md p-4 text-center text-muted-foreground">
+                      No books in this category
+                    </div>}
+                </div>
+              </CardContent>
+            </Card>)}
+        </div> : <Tabs defaultValue="all" className="w-full">
+          <TabsList className="w-full md:w-auto">
+            <TabsTrigger value="all">All Books</TabsTrigger>
+            <TabsTrigger value="reading">Reading Now</TabsTrigger>
+            <TabsTrigger value="toread">To Read</TabsTrigger>
+            <TabsTrigger value="finished">Finished</TabsTrigger>
           </TabsList>
-        </Tabs>
-      </div>
-
-      {viewMode === "kanban" ? (
-        <BookshelfKanbanView
-          booksByStatus={filteredBooksByStatus} 
-          setBooksByStatus={(newState) => {
-            // This is just a UI state, the actual updates happen when user edits a book
-          }}
-          onEdit={handleEditBook}
-          onDelete={handleDeleteBook}
-        />
-      ) : (
-        <BookshelfListView
-          booksByStatus={filteredBooksByStatus}
-          onEdit={handleEditBook}
-          onDelete={handleDeleteBook}
-          allBooks={allFilteredBooks}
-        />
-      )}
-
-      <BookDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onSave={handleSaveBook}
-        book={editingBook}
-        bookCoverImage={bookCoverImage}
-        onBookCoverImageChange={setBookCoverImage}
-      />
-    </div>
-  );
+          
+          <TabsContent value="all" className="mt-4">
+            <div className="space-y-4">
+              {allBooks.length > 0 ? allBooks.map(book => <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />) : <div className="text-center py-8 border border-dashed rounded-lg">
+                  <p className="text-muted-foreground">No books added yet</p>
+                </div>}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="reading" className="mt-4">
+            <div className="space-y-4">
+              {booksByStatus["Reading Now"].length > 0 ? booksByStatus["Reading Now"].map(book => <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />) : <div className="text-center py-8 border border-dashed rounded-lg">
+                  <p className="text-muted-foreground">No books currently being read</p>
+                </div>}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="toread" className="mt-4">
+            <div className="space-y-4">
+              {booksByStatus["Not Yet Read"].length > 0 ? booksByStatus["Not Yet Read"].map(book => <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />) : <div className="text-center py-8 border border-dashed rounded-lg">
+                  <p className="text-muted-foreground">Your reading list is empty</p>
+                </div>}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="finished" className="mt-4">
+            <div className="space-y-4">
+              {booksByStatus["Finished"].length > 0 ? booksByStatus["Finished"].map(book => <BookCard key={book.id} book={book} onEdit={handleEdit} onDelete={handleDelete} listView />) : <div className="text-center py-8 border border-dashed rounded-lg">
+                  <p className="text-muted-foreground">No finished books yet</p>
+                </div>}
+            </div>
+          </TabsContent>
+        </Tabs>}
+      
+      <BookDialog open={dialogOpen} onOpenChange={setDialogOpen} onSave={handleAddBook} book={currentBook} coverImage={coverImage} onCoverImageChange={setCoverImage} />
+    </div>;
 }
-
-export default BookshelfTab;

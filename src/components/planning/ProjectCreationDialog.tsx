@@ -1,258 +1,278 @@
 
-import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { CalendarIcon } from "lucide-react";
-import { format } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Project, Priority, ProjectStatus } from "@/types/planning";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ProjectCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (project: Project) => void;
-  project?: Project;
+  onProjectCreate: (project: Project) => void;
+  existingProjects: Project[];
+  initialProject?: Project | null;
 }
 
-const projectFormSchema = z.object({
-  title: z.string().min(2, {
-    message: "Project title must be at least 2 characters.",
-  }),
-  description: z.string().optional(),
-  status: z.enum(["not-started", "in-progress", "completed", "on-hold", "cancelled", "active"]),
-  dueDate: z.date().optional(),
-  startDate: z.date(),
-  category: z.string(),
-  priority: z.enum(["high", "medium", "low"]),
-});
+const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
+  open,
+  onOpenChange,
+  onProjectCreate,
+  existingProjects,
+  initialProject = null
+}) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<Project["category"]>("career");
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [blockingProjects, setBlockingProjects] = useState<string[]>([]);
+  const [blockedByProjects, setBlockedByProjects] = useState<string[]>([]);
 
-type ProjectFormValues = z.infer<typeof projectFormSchema>;
+  // If an initial project is provided, populate the form with its values
+  useEffect(() => {
+    if (initialProject) {
+      setTitle(initialProject.title);
+      setDescription(initialProject.description);
+      setCategory(initialProject.category);
+      setStartDate(initialProject.startDate);
+      setEndDate(initialProject.endDate);
+      setBlockingProjects(initialProject.blockingProjects || []);
+      setBlockedByProjects(initialProject.blockedByProjects || []);
+    } else {
+      resetForm();
+    }
+  }, [initialProject]);
 
-export function ProjectCreationDialog({ open, onOpenChange, onSave, project }: ProjectCreationDialogProps) {
-  const form = useForm<ProjectFormValues>({
-    resolver: zodResolver(projectFormSchema),
-    defaultValues: {
-      title: project?.title || "",
-      description: project?.description || "",
-      status: project?.status || "not-started",
-      dueDate: project?.dueDate,
-      startDate: project?.startDate || new Date(),
-      category: project?.category || "",
-      priority: project?.priority || "medium",
-    },
-  });
-
-  function onSubmit(values: ProjectFormValues) {
+  const handleSubmit = () => {
     const newProject: Project = {
-      id: project?.id || Date.now().toString(),
-      title: values.title,
-      description: values.description || "",
-      status: values.status,
-      dueDate: values.dueDate,
-      startDate: values.startDate,
-      category: values.category,
-      priority: values.priority,
-      tasks: project?.tasks || [],
-      subProjects: project?.subProjects || [],
-      progress: project?.progress || 0,
-      pinned: project?.pinned || false,
+      id: initialProject?.id || "",
+      title,
+      description,
+      category,
+      progress: initialProject?.progress || 0,
+      startDate,
+      endDate,
+      status: initialProject?.status || "not-started",
+      blockingProjects,
+      blockedByProjects
     };
-    onSave(newProject);
-    onOpenChange(false);
-  }
+    
+    onProjectCreate(newProject);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setTitle("");
+    setDescription("");
+    setCategory("career");
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setBlockingProjects([]);
+    setBlockedByProjects([]);
+  };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+    <Dialog open={open} onOpenChange={(isOpen) => {
+      if (!isOpen) resetForm();
+      onOpenChange(isOpen);
+    }}>
+      <DialogContent className="sm:max-w-[550px]">
         <DialogHeader>
-          <DialogTitle>{project ? "Edit Project" : "Create New Project"}</DialogTitle>
+          <DialogTitle>{initialProject ? 'Edit Project' : 'Create New Project'}</DialogTitle>
         </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Title</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Project Title" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Project Title</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter your project title"
             />
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Project Description" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Describe your project"
+              rows={3}
             />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="not-started">Not Started</SelectItem>
-                      <SelectItem value="in-progress">In Progress</SelectItem>
-                      <SelectItem value="completed">Completed</SelectItem>
-                      <SelectItem value="on-hold">On Hold</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="flex space-x-2">
-              <FormField
-                control={form.control}
-                name="startDate"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Start Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date > new Date()
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="dueDate"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <FormLabel>Due Date</FormLabel>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant={"outline"}
-                            className={cn(
-                              "w-full pl-3 text-left font-normal",
-                              !field.value && "text-muted-foreground"
-                            )}
-                          >
-                            {field.value ? (
-                              format(field.value, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={field.value}
-                          onSelect={field.onChange}
-                          disabled={(date) =>
-                            date < form.getValues("startDate")
-                          }
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+          </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select
+              value={category}
+              onValueChange={(val) => setCategory(val as Project["category"])}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="career">Career</SelectItem>
+                <SelectItem value="education">Education</SelectItem>
+                <SelectItem value="wealth">Wealth</SelectItem>
+                <SelectItem value="health">Health</SelectItem>
+                <SelectItem value="relationships">Relationships</SelectItem>
+                <SelectItem value="spirituality">Spirituality</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Start Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !startDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={startDate}
+                    onSelect={(date) => date && setStartDate(date)}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Category" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="priority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Priority</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a priority" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="high">High</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="low">Low</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button type="submit">{project ? "Update" : "Create"}</Button>
-            </DialogFooter>
-          </form>
-        </Form>
+            
+            <div className="space-y-2">
+              <Label>End Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !endDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={endDate}
+                    onSelect={(date) => date && setEndDate(date)}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+
+          {existingProjects.length > 0 && (
+            <>
+              <div className="space-y-2">
+                <Label>Blocking</Label>
+                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
+                  {existingProjects
+                    .filter(project => initialProject ? project.id !== initialProject.id : true)
+                    .map(project => (
+                    <div key={`blocking-${project.id}`} className="flex items-center space-x-2 mb-2">
+                      <Checkbox 
+                        id={`blocking-${project.id}`}
+                        checked={blockingProjects.includes(project.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setBlockingProjects([...blockingProjects, project.id]);
+                          } else {
+                            setBlockingProjects(blockingProjects.filter(id => id !== project.id));
+                          }
+                        }}
+                      />
+                      <label htmlFor={`blocking-${project.id}`} className="text-sm">{project.title}</label>
+                    </div>
+                  ))}
+                  {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).length === 0 && 
+                    <p className="text-sm text-muted-foreground">No existing projects to select</p>
+                  }
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Blocked By</Label>
+                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
+                  {existingProjects
+                    .filter(project => initialProject ? project.id !== initialProject.id : true)
+                    .map(project => (
+                    <div key={`blockedby-${project.id}`} className="flex items-center space-x-2 mb-2">
+                      <Checkbox 
+                        id={`blockedby-${project.id}`}
+                        checked={blockedByProjects.includes(project.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setBlockedByProjects([...blockedByProjects, project.id]);
+                          } else {
+                            setBlockedByProjects(blockedByProjects.filter(id => id !== project.id));
+                          }
+                        }}
+                      />
+                      <label htmlFor={`blockedby-${project.id}`} className="text-sm">{project.title}</label>
+                    </div>
+                  ))}
+                  {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).length === 0 && 
+                    <p className="text-sm text-muted-foreground">No existing projects to select</p>
+                  }
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+        
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSubmit} disabled={!title.trim()}>
+            {initialProject ? 'Update Project' : 'Create Project'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default ProjectCreationDialog;

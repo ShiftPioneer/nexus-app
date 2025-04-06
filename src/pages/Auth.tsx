@@ -11,7 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Lock, User, Loader2, AlertCircle } from "lucide-react";
 
 const Auth = () => {
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -47,15 +46,9 @@ const Auth = () => {
     setErrorMsg("");
 
     try {
-      // First create the user
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
-        options: {
-          data: {
-            full_name: name,
-          }
-        }
       });
 
       if (error) throw error;
@@ -257,20 +250,6 @@ const Auth = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp}>
                 <CardContent className="space-y-4 pt-5">
-                  <div className="space-y-2">
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-slate-500" />
-                      <Input
-                        type="text"
-                        placeholder="Full Name"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        className="pl-10 bg-slate-900 border-slate-700 text-white"
-                        required
-                      />
-                    </div>
-                  </div>
-                  
                   <div className="space-y-2">
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-slate-500" />

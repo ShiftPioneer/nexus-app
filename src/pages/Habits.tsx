@@ -12,98 +12,99 @@ import HabitStatisticsTrends from "@/components/habits/HabitStatisticsTrends";
 import HabitStatisticsCategories from "@/components/habits/HabitStatisticsCategories";
 import HabitStatisticsStreaks from "@/components/habits/HabitStatisticsStreaks";
 import HabitCreationDialog from "@/components/habits/HabitCreationDialog";
+
 const Habits = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("active");
   const [statisticsTab, setStatisticsTab] = useState("overview");
   const [showHabitDialog, setShowHabitDialog] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const [accountabilityScore, setAccountabilityScore] = useState(0);
-  const [habits, setHabits] = useState<Habit[]>([{
-    id: "1",
-    title: "Morning Meditation",
-    category: "mindfulness",
-    streak: 7,
-    target: 15,
-    status: "completed" as const,
-    completionDates: Array.from({
-      length: 7
-    }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date;
-    }),
-    type: "daily",
-    createdAt: new Date(Date.now() - 14 * 86400000),
-    duration: "10 minutes",
-    scoreValue: 5,
-    penaltyValue: 10
-  }, {
-    id: "2",
-    title: "Read 20 pages",
-    category: "learning",
-    streak: 3,
-    target: 30,
-    status: "pending" as const,
-    completionDates: Array.from({
-      length: 3
-    }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i - 1);
-      return date;
-    }),
-    type: "daily",
-    createdAt: new Date(Date.now() - 10 * 86400000),
-    duration: "20 pages",
-    scoreValue: 3,
-    penaltyValue: 5
-  }, {
-    id: "3",
-    title: "Workout",
-    category: "health",
-    streak: 0,
-    target: 5,
-    status: "missed" as const,
-    completionDates: [],
-    type: "daily",
-    createdAt: new Date(Date.now() - 5 * 86400000),
-    duration: "30 minutes",
-    scoreValue: 10,
-    penaltyValue: 15
-  }, {
-    id: "4",
-    title: "Drink 2L water",
-    category: "health",
-    streak: 12,
-    target: 30,
-    status: "completed" as const,
-    completionDates: Array.from({
-      length: 12
-    }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date;
-    }),
-    type: "daily",
-    createdAt: new Date(Date.now() - 20 * 86400000),
-    duration: "2 liters",
-    scoreValue: 2,
-    penaltyValue: 4
-  }]);
+  
+  const [habits, setHabits] = useState<Habit[]>([
+    {
+      id: "1",
+      title: "Morning Meditation",
+      category: "mindfulness",
+      streak: 7,
+      target: 15,
+      status: "completed" as const,
+      completionDates: Array.from({ length: 7 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        return date;
+      }),
+      type: "daily",
+      createdAt: new Date(Date.now() - 14 * 86400000),
+      duration: "10 minutes",
+      scoreValue: 5,
+      penaltyValue: 10
+    },
+    {
+      id: "2",
+      title: "Read 20 pages",
+      category: "learning",
+      streak: 3,
+      target: 30,
+      status: "pending" as const,
+      completionDates: Array.from({ length: 3 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - i - 1);
+        return date;
+      }),
+      type: "daily",
+      createdAt: new Date(Date.now() - 10 * 86400000),
+      duration: "20 pages",
+      scoreValue: 3,
+      penaltyValue: 5
+    },
+    {
+      id: "3",
+      title: "Workout",
+      category: "health",
+      streak: 0,
+      target: 5,
+      status: "missed" as const,
+      completionDates: [],
+      type: "daily",
+      createdAt: new Date(Date.now() - 5 * 86400000),
+      duration: "30 minutes",
+      scoreValue: 10,
+      penaltyValue: 15
+    },
+    {
+      id: "4",
+      title: "Drink 2L water",
+      category: "health",
+      streak: 12,
+      target: 30,
+      status: "completed" as const,
+      completionDates: Array.from({ length: 12 }, (_, i) => {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        return date;
+      }),
+      type: "daily",
+      createdAt: new Date(Date.now() - 20 * 86400000),
+      duration: "2 liters",
+      scoreValue: 2,
+      penaltyValue: 4
+    }
+  ]);
+
   useEffect(() => {
     const score = habits.reduce((total, habit) => {
-      return total + habit.streak * (habit.scoreValue || 5);
+      return total + (habit.streak * (habit.scoreValue || 5));
     }, 0);
     setAccountabilityScore(score);
   }, [habits]);
+  
   const handleCreateHabit = (habit: Habit) => {
     if (selectedHabit) {
       setHabits(habits.map(h => h.id === habit.id ? habit : h));
       toast({
         title: "Habit Updated",
-        description: "Your habit has been updated successfully!"
+        description: "Your habit has been updated successfully!",
       });
       setSelectedHabit(null);
     } else {
@@ -117,76 +118,90 @@ const Habits = () => {
       setHabits([...habits, newHabit]);
       toast({
         title: "Habit Created",
-        description: "Your new habit has been created successfully!"
+        description: "Your new habit has been created successfully!",
       });
     }
     setShowHabitDialog(false);
   };
+  
   const handleEditHabit = (habit: Habit) => {
     setSelectedHabit(habit);
     setShowHabitDialog(true);
   };
+  
   const completeHabit = (id: string) => {
     setHabits(habits.map(habit => {
       if (habit.id === id) {
-        const updatedHabit: Habit = {
-          ...habit,
+        const updatedHabit: Habit = { 
+          ...habit, 
           status: "completed" as const,
           streak: habit.streak + 1,
           completionDates: [...habit.completionDates, new Date()]
         };
+        
         setAccountabilityScore(prev => prev + (habit.scoreValue || 5));
+        
         return updatedHabit;
       }
       return habit;
     }));
+    
     const habit = habits.find(h => h.id === id);
     if (habit) {
       toast({
         title: "Habit Completed!",
-        description: `${habit.title} completed for today. +${habit.scoreValue || 5} points!`
+        description: `${habit.title} completed for today. +${habit.scoreValue || 5} points!`,
       });
+      
       const updatedStreak = habit.streak + 1;
       if (updatedStreak === habit.target) {
         setTimeout(() => {
           toast({
             title: "Achievement Unlocked!",
             description: `You've reached your streak goal of ${habit.target} days for ${habit.title}!`,
-            variant: "default"
+            variant: "default",
           });
         }, 1000);
       }
     }
   };
+
   const missHabit = (id: string) => {
     setHabits(habits.map(habit => {
       if (habit.id === id) {
-        const updatedHabit: Habit = {
-          ...habit,
+        const updatedHabit: Habit = { 
+          ...habit, 
           status: "missed" as const,
           streak: 0
         };
+        
         setAccountabilityScore(prev => Math.max(0, prev - (habit.penaltyValue || 10)));
+        
         return updatedHabit;
       }
       return habit;
     }));
+    
     const habit = habits.find(h => h.id === id);
     if (habit) {
       toast({
         title: "Habit Missed",
         description: `${habit.title} marked as missed. -${habit.penaltyValue || 10} points.`,
-        variant: "destructive"
+        variant: "destructive",
       });
     }
   };
+  
   const todayCompleted = habits.filter(h => h.status === "completed").length;
   const totalHabits = habits.length;
-  const completionRate = Math.round(habits.reduce((acc, habit) => acc + habit.completionDates.length, 0) / (Math.max(1, habits.length) * 30) * 100);
+  const completionRate = Math.round((habits.reduce((acc, habit) => 
+    acc + habit.completionDates.length, 0) / (Math.max(1, habits.length) * 30)) * 100);
   const longestStreak = habits.length > 0 ? Math.max(...habits.map(h => h.streak)) : 0;
+
   const pendingHabits = habits.filter(habit => habit.status === "pending");
   const completedHabits = habits.filter(habit => habit.status === "completed");
   const missedHabits = habits.filter(habit => habit.status === "missed");
+
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'health':
@@ -207,34 +222,47 @@ const Habits = () => {
         return 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
     }
   };
+
   const getWeekDays = () => {
     const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     const today = new Date().getDay();
     const orderedDays = [...days.slice(today + 1), ...days.slice(0, today + 1)];
     return orderedDays;
   };
+
   const generateWeeklyCompletionData = () => {
     const result = [];
     const habitSubset = habits.slice(0, 5);
+    
     for (const habit of habitSubset) {
       const weekData = {
         name: habit.title,
         category: habit.category,
-        completions: Array(7).fill(false)
+        completions: Array(7).fill(false),
       };
+      
       for (let i = 0; i < 7; i++) {
         const date = new Date();
         date.setDate(date.getDate() - i);
         const dateString = date.toISOString().split('T')[0];
-        const completed = habit.completionDates.some(d => new Date(d).toISOString().split('T')[0] === dateString);
-        weekData.completions[6 - i] = completed;
+        
+        const completed = habit.completionDates.some(d => 
+          new Date(d).toISOString().split('T')[0] === dateString
+        );
+        
+        weekData.completions[6-i] = completed;
       }
+      
       result.push(weekData);
     }
+    
     return result;
   };
+  
   const weeklyActivityData = generateWeeklyCompletionData();
-  return <AppLayout>
+
+  return (
+    <AppLayout>
       <div className="animate-fade-in space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -244,10 +272,7 @@ const Habits = () => {
             </h1>
             <p className="text-muted-foreground">Track your daily habits and build streaks</p>
           </div>
-          <Button onClick={() => {
-          setSelectedHabit(null);
-          setShowHabitDialog(true);
-        }} className="gap-2">
+          <Button onClick={() => {setSelectedHabit(null); setShowHabitDialog(true);}} className="gap-2">
             <Plus size={18} />
             New Habit
           </Button>
@@ -269,25 +294,46 @@ const Habits = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {habits.length === 0 ? <div className="text-center py-12">
+                {habits.length === 0 ? (
+                  <div className="text-center py-12">
                     <CheckCircle2 className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
                     <h3 className="mt-4 text-lg font-medium">No habits yet</h3>
                     <p className="mt-2 text-muted-foreground">
                       Start by creating your first habit to track.
                     </p>
-                    <Button onClick={() => {
-                  setSelectedHabit(null);
-                  setShowHabitDialog(true);
-                }} className="mt-4">
+                    <Button onClick={() => {setSelectedHabit(null); setShowHabitDialog(true);}} className="mt-4">
                       Create New Habit
                     </Button>
-                  </div> : <div className="space-y-2">
-                    {habits.map(habit => <Card key={habit.id} className={cn("border overflow-hidden hover:border-primary/30 transition-colors cursor-pointer", habit.status === "completed" && "border-success/30 bg-success/5", habit.status === "missed" && "border-destructive/30 bg-destructive/5")} onClick={() => handleEditHabit(habit)}>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {habits.map((habit) => (
+                      <Card 
+                        key={habit.id} 
+                        className={cn(
+                          "border overflow-hidden hover:border-primary/30 transition-colors cursor-pointer",
+                          habit.status === "completed" && "border-success/30 bg-success/5",
+                          habit.status === "missed" && "border-destructive/30 bg-destructive/5"
+                        )}
+                        onClick={() => handleEditHabit(habit)}
+                      >
                         <CardContent className="p-4">
                           <div className="flex justify-between items-center">
                             <div className="flex items-center gap-3">
-                              <div className={cn("h-12 w-12 rounded-full flex items-center justify-center", habit.status === "completed" ? "bg-success/20" : habit.status === "missed" ? "bg-destructive/20" : "bg-muted")}>
-                                <CheckCircle className={cn("h-6 w-6", habit.status === "completed" ? "text-success" : habit.status === "missed" ? "text-destructive" : "text-muted-foreground/50")} />
+                              <div 
+                                className={cn(
+                                  "h-12 w-12 rounded-full flex items-center justify-center",
+                                  habit.status === "completed" ? "bg-success/20" : 
+                                  habit.status === "missed" ? "bg-destructive/20" : "bg-muted"
+                                )}
+                              >
+                                <CheckCircle 
+                                  className={cn(
+                                    "h-6 w-6",
+                                    habit.status === "completed" ? "text-success" : 
+                                    habit.status === "missed" ? "text-destructive" : "text-muted-foreground/50"
+                                  )}
+                                />
                               </div>
                               <div>
                                 <h4 className="font-medium text-lg">{habit.title}</h4>
@@ -313,36 +359,54 @@ const Habits = () => {
                                 {habit.category}
                               </div>
                               
-                              {habit.status === "pending" && <div className="flex gap-2">
-                                  <Button size="sm" onClick={e => {
-                            e.stopPropagation();
-                            completeHabit(habit.id);
-                          }}>
+                              {habit.status === "pending" && (
+                                <div className="flex gap-2">
+                                  <Button 
+                                    size="sm"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      completeHabit(habit.id);
+                                    }}
+                                  >
                                     Complete
                                   </Button>
-                                  <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={e => {
-                            e.stopPropagation();
-                            missHabit(habit.id);
-                          }}>
+                                  <Button 
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      missHabit(habit.id);
+                                    }}
+                                  >
                                     Skip
                                   </Button>
-                                </div>}
+                                </div>
+                              )}
                               
-                              {habit.status === "completed" && <span className="px-2 py-1 text-xs rounded-full bg-success/20 text-success">
+                              {habit.status === "completed" && (
+                                <span className="px-2 py-1 text-xs rounded-full bg-success/20 text-success">
                                   Completed
-                                </span>}
+                                </span>
+                              )}
                               
-                              {habit.status === "missed" && <span className="px-2 py-1 text-xs rounded-full bg-destructive/20 text-destructive">
+                              {habit.status === "missed" && (
+                                <span className="px-2 py-1 text-xs rounded-full bg-destructive/20 text-destructive">
                                   Missed
-                                </span>}
+                                </span>
+                              )}
                             </div>
                           </div>
                           
                           <div className="mt-3">
                             <div className="h-2 bg-muted/30 rounded-full w-full overflow-hidden">
-                              <div className={cn("h-full rounded-full", habit.status === "missed" ? "bg-destructive/50" : "bg-primary")} style={{
-                          width: `${habit.streak / habit.target * 100}%`
-                        }}></div>
+                              <div 
+                                className={cn(
+                                  "h-full rounded-full",
+                                  habit.status === "missed" ? "bg-destructive/50" : "bg-primary"
+                                )}
+                                style={{ width: `${(habit.streak / habit.target) * 100}%` }}
+                              ></div>
                             </div>
                             <div className="mt-1 flex justify-between text-xs text-muted-foreground">
                               <span>Streak: {habit.streak}</span>
@@ -350,8 +414,10 @@ const Habits = () => {
                             </div>
                           </div>
                         </CardContent>
-                      </Card>)}
-                  </div>}
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
             
@@ -384,13 +450,13 @@ const Habits = () => {
           
           <div className="space-y-6">
             <Card className="bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
-              <CardContent className="pt-6 rounded-md bg-deep-light">
+              <CardContent className="pt-6">
                 <div className="flex justify-between items-center">
                   <div>
-                    <p className="text-muted-foreground text-base text-slate-300 font-bold">Accountability Score</p>
-                    <h2 className="text-3xl font-bold text-primary-dark">{accountabilityScore}</h2>
+                    <p className="text-sm text-muted-foreground">Accountability Score</p>
+                    <h2 className="text-3xl font-bold">{accountabilityScore}</h2>
                     <p className="text-xs text-green-600 mt-1 flex items-center">
-                      <span className="mr-1 font-thin text-sm text-teal-300">Earn points by completing habits</span>
+                      <span className="mr-1">Earn points by completing habits</span>
                     </p>
                   </div>
                   <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
@@ -409,7 +475,12 @@ const Habits = () => {
                 <CardDescription>Your longest streaks</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                {habits.length > 0 ? habits.sort((a, b) => b.streak - a.streak).slice(0, 5).map((habit, index) => <div key={habit.id} className="flex items-center justify-between py-2">
+                {habits.length > 0 ? (
+                  habits
+                    .sort((a, b) => b.streak - a.streak)
+                    .slice(0, 5)
+                    .map((habit, index) => (
+                      <div key={habit.id} className="flex items-center justify-between py-2">
                         <div className="flex items-center gap-3">
                           <div className={`h-8 w-8 rounded-full ${getCategoryColor(habit.category)}`} />
                           <span>{habit.title}</span>
@@ -417,9 +488,13 @@ const Habits = () => {
                         <div className={`px-3 py-1 rounded-full text-xs font-medium ${habit.streak > 0 ? "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400" : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"}`}>
                           {habit.streak} days
                         </div>
-                      </div>) : <p className="text-center text-muted-foreground py-4">
+                      </div>
+                    ))
+                ) : (
+                  <p className="text-center text-muted-foreground py-4">
                     No habits yet. Start building your streaks!
-                  </p>}
+                  </p>
+                )}
               </CardContent>
             </Card>
             
@@ -437,25 +512,34 @@ const Habits = () => {
                     <thead>
                       <tr>
                         <th className="text-left font-medium text-muted-foreground text-sm py-2">Habit</th>
-                        {getWeekDays().map((day, i) => <th key={i} className="text-center font-medium text-muted-foreground text-sm py-2 px-1">{day}</th>)}
+                        {getWeekDays().map((day, i) => (
+                          <th key={i} className="text-center font-medium text-muted-foreground text-sm py-2 px-1">{day}</th>
+                        ))}
                       </tr>
                     </thead>
                     <tbody>
-                      {weeklyActivityData.map((habit, index) => <tr key={index} className="border-t">
+                      {weeklyActivityData.map((habit, index) => (
+                        <tr key={index} className="border-t">
                           <td className="py-2">
                             <div className="flex items-center gap-2">
                               <div className={`h-2 w-2 rounded-full ${getCategoryColor(habit.category)}`} />
                               <span className="text-sm truncate max-w-[120px]">{habit.name}</span>
                             </div>
                           </td>
-                          {habit.completions.map((completed, i) => <td key={i} className="text-center">
+                          {habit.completions.map((completed, i) => (
+                            <td key={i} className="text-center">
                               <div className="flex justify-center">
-                                <div className={cn("h-7 w-7 rounded-full flex items-center justify-center", completed ? "bg-primary/20 text-primary" : "bg-muted/30 text-muted-foreground/30")}>
+                                <div className={cn(
+                                  "h-7 w-7 rounded-full flex items-center justify-center",
+                                  completed ? "bg-primary/20 text-primary" : "bg-muted/30 text-muted-foreground/30"
+                                )}>
                                   <CheckCircle className="h-4 w-4" />
                                 </div>
                               </div>
-                            </td>)}
-                        </tr>)}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
                     </tbody>
                   </table>
                 </div>
@@ -465,7 +549,14 @@ const Habits = () => {
         </div>
       </div>
       
-      <HabitCreationDialog open={showHabitDialog} onOpenChange={setShowHabitDialog} onHabitCreate={handleCreateHabit} initialHabit={selectedHabit} />
-    </AppLayout>;
+      <HabitCreationDialog
+        open={showHabitDialog}
+        onOpenChange={setShowHabitDialog}
+        onHabitCreate={handleCreateHabit}
+        initialHabit={selectedHabit}
+      />
+    </AppLayout>
+  );
 };
+
 export default Habits;

@@ -2,7 +2,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Circle, CircleDashed, CheckCircle2 } from "lucide-react";
-import { Goal, Project } from "@/types/planning";
 
 interface PlanningBoardViewProps {
   goals?: Goal[];

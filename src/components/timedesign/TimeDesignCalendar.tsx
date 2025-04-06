@@ -50,16 +50,16 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
     
     // Get background color based on activity category
     const colorMap = {
-      work: "bg-purple-200 border-l-4 border-purple-500 text-purple-900",
-      social: "bg-orange-200 border-l-4 border-orange-500 text-orange-900",
-      health: "bg-green-200 border-l-4 border-green-500 text-green-900",
-      learning: "bg-blue-200 border-l-4 border-blue-500 text-blue-900"
+      work: "bg-purple-100 border-l-4 border-purple-500",
+      social: "bg-orange-100 border-l-4 border-orange-500",
+      health: "bg-green-100 border-l-4 border-green-500",
+      learning: "bg-blue-100 border-l-4 border-blue-500"
     };
     
     return {
       top: `${startPosition}px`,
       height: `${height}px`,
-      className: `absolute w-full ${colorMap[activity.category]} p-2 rounded-r-md overflow-hidden cursor-pointer hover:shadow-md transition-shadow`,
+      className: `absolute w-full ${colorMap[activity.category]} p-1 overflow-hidden cursor-pointer`,
     };
   };
 
@@ -79,23 +79,13 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
 
   const renderDayCalendar = () => {
     return (
-      <div className="relative min-h-[900px] ml-16">
-        {/* Time labels column */}
-        <div className="absolute left-[-64px] top-0 h-full w-16">
-          {hours.map(hour => (
-            <div key={hour} className="relative h-[60px]">
-              <span className="absolute top-[-10px] right-4 text-sm font-medium text-muted-foreground">
-                {hour % 12 === 0 ? 12 : hour % 12} 
-                {hour >= 12 ? "PM" : "AM"}
-              </span>
-            </div>
-          ))}
-        </div>
-        
-        {/* Hour grid */}
+      <div className="relative min-h-[900px]">
         {hours.map(hour => (
           <div key={hour} className="grid grid-cols-1 border-b h-[60px]">
             <div className="relative">
+              <span className="absolute -top-3 -left-10 text-sm text-muted-foreground">
+                {hour % 12 === 0 ? 12 : hour % 12}:00 {hour >= 12 ? "PM" : "AM"}
+              </span>
               <div className="border-t h-[30px]"></div>
             </div>
           </div>
@@ -112,13 +102,10 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
                 className={className}
                 onClick={() => onEditActivity(activity)}
               >
-                <div className="text-sm font-semibold">{activity.title}</div>
-                <div className="text-xs font-medium">
+                <div className="text-xs font-medium">{activity.title}</div>
+                <div className="text-xs">
                   {activity.startTime} - {activity.endTime}
                 </div>
-                {height > 60 && (
-                  <div className="text-xs mt-1">{activity.description}</div>
-                )}
               </div>
             );
           })}
@@ -129,9 +116,8 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
 
   const renderWeekCalendar = () => {
     return (
-      <div className="min-h-[900px] ml-16">
-        {/* Day headers */}
-        <div className="grid grid-cols-7 border-b sticky top-0 bg-background z-10">
+      <div className="min-h-[900px]">
+        <div className="grid grid-cols-7 border-b">
           {weekDays.map((day, i) => (
             <div 
               key={i} 
@@ -151,52 +137,46 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
           ))}
         </div>
         
-        {/* Time labels column */}
-        <div className="absolute left-[-64px] top-[56px] h-full w-16">
-          {hours.map(hour => (
-            <div key={hour} className="relative h-[60px]">
-              <span className="absolute top-[-10px] right-4 text-sm font-medium text-muted-foreground">
-                {hour % 12 === 0 ? 12 : hour % 12} 
-                {hour >= 12 ? "PM" : "AM"}
-              </span>
-            </div>
-          ))}
-        </div>
-        
-        {/* Day columns with hours */}
         <div className="grid grid-cols-7 relative">
           {weekDays.map((day, dayIndex) => (
-            <div key={dayIndex} className="border-r relative">
+            <div key={dayIndex} className="border-r">
               {hours.map(hour => (
                 <div key={hour} className="border-b h-[60px] relative">
+                  {dayIndex === 0 && (
+                    <span className="absolute -top-3 -left-10 text-sm text-muted-foreground">
+                      {hour % 12 === 0 ? 12 : hour % 12}:00 {hour >= 12 ? "PM" : "AM"}
+                    </span>
+                  )}
                   <div className="border-t h-[30px]"></div>
                 </div>
               ))}
               
               {/* Activities for this day */}
-              {filteredActivities
-                .filter(activity => isSameDay(activity.startDate, day))
-                .map(activity => {
-                  const { top, height, className } = getActivityStyle(activity);
-                  return (
-                    <div
-                      key={activity.id}
-                      style={{ 
-                        top, 
-                        height,
-                        width: `calc(100% - 8px)`,
-                        left: "4px"
-                      }}
-                      className={className}
-                      onClick={() => onEditActivity(activity)}
-                    >
-                      <div className="text-xs font-semibold truncate">{activity.title}</div>
-                      <div className="text-xs truncate">
-                        {activity.startTime} - {activity.endTime}
+              <div className="absolute inset-0">
+                {filteredActivities
+                  .filter(activity => isSameDay(activity.startDate, day))
+                  .map(activity => {
+                    const { top, height, className } = getActivityStyle(activity);
+                    return (
+                      <div
+                        key={activity.id}
+                        style={{ 
+                          top, 
+                          height,
+                          width: `calc(100% - 8px)`,
+                          left: "4px"
+                        }}
+                        className={className}
+                        onClick={() => onEditActivity(activity)}
+                      >
+                        <div className="text-xs font-medium truncate">{activity.title}</div>
+                        <div className="text-xs truncate">
+                          {activity.startTime} - {activity.endTime}
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+              </div>
             </div>
           ))}
         </div>
