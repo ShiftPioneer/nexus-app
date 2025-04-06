@@ -14,7 +14,7 @@ export interface BookDialogProps {
   onOpenChange: (open: boolean) => void;
   onSave: (book: Book) => void;
   book: Book | null;
-  bookCoverImage?: string | null;
+  bookCoverImage?: string;
   onBookCoverImageChange?: (url: string) => void;
 }
 
@@ -31,7 +31,7 @@ export function BookDialog({
     id: "",
     title: "",
     author: "",
-    readingStatus: "Not Started" as ReadingStatus,
+    readingStatus: "Not Started",
     dateAdded: new Date(),
     tags: [],
     rating: 0
@@ -40,18 +40,18 @@ export function BookDialog({
   const isNewBook = !book?.id;
   const currentBook = book || defaultBook;
   
-  const [title, setTitle] = useState(currentBook?.title || "");
-  const [author, setAuthor] = useState(currentBook?.author || "");
-  const [genre, setGenre] = useState(currentBook?.genre || "");
-  const [description, setDescription] = useState(currentBook?.description || "");
-  const [coverImage, setCoverImage] = useState(bookCoverImage || currentBook?.coverImage || "");
-  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(currentBook?.readingStatus || "Not Started");
-  const [currentPage, setCurrentPage] = useState(currentBook?.currentPage || 0);
-  const [totalPages, setTotalPages] = useState(currentBook?.totalPages || 0);
-  const [notes, setNotes] = useState(currentBook?.notes || "");
-  const [tagsString, setTagsString] = useState((currentBook?.tags || []).join(", "));
-  const [rating, setRating] = useState(currentBook?.rating || 0);
-  const [dateCompleted, setDateCompleted] = useState<Date | undefined>(currentBook?.dateCompleted);
+  const [title, setTitle] = useState(currentBook.title || "");
+  const [author, setAuthor] = useState(currentBook.author || "");
+  const [genre, setGenre] = useState(currentBook.genre || "");
+  const [description, setDescription] = useState(currentBook.description || "");
+  const [coverImage, setCoverImage] = useState(bookCoverImage || currentBook.coverImage || "");
+  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(currentBook.readingStatus || "Not Started");
+  const [currentPage, setCurrentPage] = useState(currentBook.currentPage || 0);
+  const [totalPages, setTotalPages] = useState(currentBook.totalPages || 0);
+  const [notes, setNotes] = useState(currentBook.notes || "");
+  const [tagsString, setTagsString] = useState((currentBook.tags || []).join(", "));
+  const [rating, setRating] = useState(currentBook.rating || 0);
+  const [dateCompleted, setDateCompleted] = useState<Date | undefined>(currentBook.dateCompleted);
   
   // Update form fields when book prop changes
   useEffect(() => {
@@ -75,7 +75,7 @@ export function BookDialog({
     e.preventDefault();
     
     const updatedBook: Book = {
-      id: currentBook?.id || "",
+      id: currentBook.id || "",
       title,
       author,
       genre,
@@ -86,7 +86,7 @@ export function BookDialog({
       totalPages: (readingStatus === "In Progress" || readingStatus === "Completed") ? totalPages : undefined,
       notes,
       tags: tagsString.split(",").map(tag => tag.trim()).filter(tag => tag !== ""),
-      dateAdded: currentBook?.dateAdded || new Date(),
+      dateAdded: currentBook.dateAdded || new Date(),
       dateCompleted: readingStatus === "Completed" ? (dateCompleted || new Date()) : undefined,
       rating: rating || 0
     };
@@ -163,6 +163,10 @@ export function BookDialog({
                     <SelectItem value="Not Started">Not Started</SelectItem>
                     <SelectItem value="In Progress">In Progress</SelectItem>
                     <SelectItem value="Completed">Completed</SelectItem>
+                    <SelectItem value="Reading Now">Reading Now</SelectItem>
+                    <SelectItem value="Not Yet Read">Not Yet Read</SelectItem>
+                    <SelectItem value="Finished">Finished</SelectItem>
+                    <SelectItem value="abandoned">Abandoned</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

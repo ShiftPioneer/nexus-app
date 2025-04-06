@@ -1,3 +1,4 @@
+
 export interface Note {
   id: string;
   title: string;
@@ -71,7 +72,11 @@ export interface KnowledgeEntry {
   };
   aiSummary?: string;
   attachments?: any[];
+  lastUpdated?: Date; // Added for compatibility with Note interface
 }
+
+export type SkillsetCategory = "technical" | "creative" | "soft" | "language" | "business" | "other" | 
+  "Programming" | "Design" | "Analytics" | "Soft Skills" | "Language" | "Music" | "Sport" | "Art" | "Business" | "Religion" | "Other";
 
 export interface Skillset {
   id: string;
@@ -89,9 +94,6 @@ export interface Skillset {
   learningResources?: string[];
   tags?: string[];
 }
-
-export type SkillsetCategory = "technical" | "creative" | "soft" | "language" | "business" | "other" | 
-  "Programming" | "Design" | "Analytics" | "Soft Skills" | "Language" | "Music" | "Sport" | "Art" | "Business" | "Religion" | "Other";
 
 export interface KnowledgeContextValue {
   entries: KnowledgeEntry[];

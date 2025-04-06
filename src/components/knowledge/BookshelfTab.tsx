@@ -20,7 +20,7 @@ export function BookshelfTab() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const { toast } = useToast();
-  const [coverImage, setCoverImage] = useState<string>("");
+  const [bookCoverImage, setBookCoverImage] = useState<string>("");
   const { books = [], addBook, updateBook, deleteBook } = useKnowledge();
 
   // Group books by reading status
@@ -70,13 +70,13 @@ export function BookshelfTab() {
 
   const handleAddNewBook = () => {
     setEditingBook(null);
-    setCoverImage("");
+    setBookCoverImage("");
     setDialogOpen(true);
   };
 
   const handleEditBook = (book: Book) => {
     setEditingBook(book);
-    setCoverImage(book.coverImage || "");
+    setBookCoverImage(book.coverImage || "");
     setDialogOpen(true);
   };
 
@@ -180,8 +180,8 @@ export function BookshelfTab() {
         onOpenChange={setDialogOpen}
         onSave={handleSaveBook}
         book={editingBook}
-        bookCoverImage={coverImage}
-        onBookCoverImageChange={setCoverImage}
+        bookCoverImage={bookCoverImage}
+        onBookCoverImageChange={setBookCoverImage}
       />
     </div>
   );

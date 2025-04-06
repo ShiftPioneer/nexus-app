@@ -1,34 +1,26 @@
 
-import React, { useState } from "react";
-import Sidebar from "@/components/layout/Sidebar";
-import TopBar from "@/components/layout/TopBar";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
+import React from "react";
+import Sidebar from "./Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-export default function AppLayout({ children }: AppLayoutProps) {
-  const [showMobileMenu, setShowMobileMenu] = useState(false);
-  const isMobile = useIsMobile();
-  
-  const toggleMobileMenu = () => {
-    setShowMobileMenu(!showMobileMenu);
-  };
-  
+const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   return (
     <SidebarProvider>
-      <div className="min-h-screen bg-background flex w-full">
+      <div className="flex min-h-screen bg-background">
         <Sidebar />
-        <div className="flex-1 flex flex-col ml-0 md:ml-[80px] lg:ml-[256px] transition-all duration-300 w-full">
-          <TopBar toggleSidebar={toggleMobileMenu} />
-          <main className="flex-1 p-4">
-            {children}
-          </main>
-        </div>
+        <main className={cn(
+          "flex-1 ml-[80px] lg:ml-[256px] transition-all duration-300 overflow-auto"
+        )}>
+          {children}
+        </main>
       </div>
     </SidebarProvider>
   );
-}
+};
+
+export default AppLayout;

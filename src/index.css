@@ -48,6 +48,17 @@
     --input: 215 27.9% 16.9%;
     --ring: 263.4 70% 50.4%;
   }
+
+  /* Custom accessibility classes */
+  .reduce-motion * {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .reduce-transparency * {
+    opacity: 1 !important;
+    backdrop-filter: none !important;
+  }
 }
  
 @layer base {
@@ -116,7 +127,7 @@ html, body {
 
 /* Sidebar animation */
 .sidebar-transition {
-  transition: all 0.5s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
 /* Responsive layout classes */
@@ -142,6 +153,7 @@ html, body {
 @media (max-width: 640px) {
   .main-container {
     min-height: -webkit-fill-available;
+    overflow-x: hidden;
   }
   
   /* Ensure content is visible on mobile */
@@ -158,3 +170,10 @@ html, body {
   max-height: 80vh;
   overflow-y: auto;
 }
+
+/* Theme specific styles for transition effects */
+.dark .theme-transition,
+.light .theme-transition {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+

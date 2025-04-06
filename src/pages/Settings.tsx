@@ -51,7 +51,6 @@ const Settings = () => {
           {/* Profile Settings */}
           <TabsContent value="profile" className="space-y-4 mt-4">
             <ProfileTab user={user} />
-            <AccountTab user={user} />
           </TabsContent>
 
           {/* Appearance Settings */}

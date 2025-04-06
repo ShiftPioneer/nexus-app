@@ -1,240 +1,219 @@
 
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import React, { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast";
-import KnowledgeList from "./KnowledgeList";
-import KnowledgeCategoryView from "./KnowledgeCategoryView";
-import { KnowledgeInbox } from "./KnowledgeInbox";
-import { 
-  FolderOpen, 
-  Inbox, 
-  FileSpreadsheet, 
-  Archive, 
-  Tag,
-  ArrowLeft
-} from "lucide-react";
-import AIInsightsPanel from "./AIInsightsPanel";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Search, Plus, Filter } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { KnowledgeEntry, KnowledgeCategory } from "@/types/knowledge";
+import KnowledgeCategoryView from "./KnowledgeCategoryView";
+import { EntryDialog } from "./EntryDialog";
+import { useToast } from "@/hooks/use-toast";
+import { useKnowledge } from "@/contexts/KnowledgeContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuCheckboxItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-interface SecondBrainSystemProps {
-  entries: KnowledgeEntry[];
-  onAddEntry: () => void;
-}
-
-export function SecondBrainSystem({ entries, onAddEntry }: SecondBrainSystemProps) {
-  const [activeCategory, setActiveCategory] = useState<"all" | KnowledgeCategory>("all");
-  const [activeSidebarItem, setActiveSidebarItem] = useState<string>("all");
-  const [activeFilter, setActiveFilter] = useState<string>("all");
+export function SecondBrainSystem() {
+  const { entries, addEntry, updateEntry } = useKnowledge();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"all" | KnowledgeCategory>("all");
+  const [editingEntry, setEditingEntry] = useState<KnowledgeEntry | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
-  useEffect(() => {
-    console.log("SecondBrainSystem mounted with entries:", entries);
-  }, [entries]);
+  // Get unique tags from all entries
+  const allTags = Array.from(new Set(entries.flatMap(entry => entry.tags || [])));
 
-  const categoryCounts = {
-    all: entries.length,
-    note: entries.filter(e => e.category === "note").length,
-    resource: entries.filter(e => e.category === "resource").length,
-    reference: entries.filter(e => e.category === "reference").length,
-    concept: entries.filter(e => e.category === "concept").length,
-    idea: entries.filter(e => e.category === "idea").length,
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
-  const tagCounts: { [key: string]: number } = {};
-  entries.forEach(entry => {
-    entry.tags.forEach(tag => {
-      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-    });
-  });
-
-  const handleCategoryClick = (category: "all" | KnowledgeCategory) => {
-    setActiveCategory(category);
-    setActiveSidebarItem(category);
-    setActiveFilter("all");
-  };
-
-  const handleTagClick = (tag: string) => {
-    setActiveCategory("all");
-    setActiveSidebarItem(`tag-${tag}`);
-    setActiveFilter(tag);
-  };
-
+  // Filter entries based on search query, active tab, and selected tags
   const filteredEntries = entries.filter(entry => {
-    if (activeCategory !== "all" && entry.category !== activeCategory) {
-      return false;
-    }
+    const matchesSearch = 
+      entry.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      entry.content.toLowerCase().includes(searchQuery.toLowerCase());
     
-    if (activeFilter !== "all" && !entry.tags.includes(activeFilter)) {
-      return false;
-    }
+    const matchesCategory = activeTab === "all" || entry.category === activeTab;
     
-    return true;
+    const matchesTags = 
+      selectedTags.length === 0 || 
+      selectedTags.some(tag => entry.tags.includes(tag));
+    
+    return matchesSearch && matchesCategory && matchesTags;
   });
+
+  const handleAddEntry = () => {
+    setEditingEntry(null);
+    setDialogOpen(true);
+  };
+
+  const handleEditEntry = (entry: KnowledgeEntry) => {
+    setEditingEntry(entry);
+    setDialogOpen(true);
+  };
+
+  const handleSaveEntry = (entry: KnowledgeEntry) => {
+    if (editingEntry) {
+      updateEntry(entry.id, entry);
+      toast({
+        title: "Entry updated",
+        description: `"${entry.title}" has been updated successfully.`,
+      });
+    } else {
+      addEntry(entry);
+      toast({
+        title: "Entry added",
+        description: `"${entry.title}" has been added to your knowledge base.`,
+      });
+    }
+    
+    setDialogOpen(false);
+    setEditingEntry(null);
+  };
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags(prev => 
+      prev.includes(tag)
+        ? prev.filter(t => t !== tag)
+        : [...prev, tag]
+    );
+  };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-      {/* Sidebar */}
-      <Card className="col-span-1 h-fit">
-        <CardContent className="p-4">
-          <nav className="space-y-2">
-            <button
-              onClick={() => handleCategoryClick("all")}
-              className={cn(
-                "w-full flex items-center justify-between p-2 rounded-md hover:bg-secondary text-left",
-                activeSidebarItem === "all" && "bg-secondary"
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="w-full sm:w-96">
+          <Label htmlFor="search-entries" className="sr-only">Search entries</Label>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="search-entries"
+              placeholder="Search entries..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Filter className="h-4 w-4 mr-2" />
+                Filter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              {allTags.map(tag => (
+                <DropdownMenuCheckboxItem
+                  key={tag}
+                  checked={selectedTags.includes(tag)}
+                  onCheckedChange={() => toggleTag(tag)}
+                >
+                  {tag}
+                </DropdownMenuCheckboxItem>
+              ))}
+              {allTags.length === 0 && (
+                <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                  No tags found
+                </div>
               )}
-            >
-              <span className="flex items-center gap-2">
-                <FolderOpen className="h-4 w-4" />
-                All Entries
-              </span>
-              <Badge variant="outline" className="ml-auto">
-                {categoryCounts.all}
-              </Badge>
-            </button>
-            
-            <button
-              onClick={() => handleCategoryClick("note")}
-              className={cn(
-                "w-full flex items-center justify-between p-2 rounded-md hover:bg-secondary text-left",
-                activeSidebarItem === "note" && "bg-secondary"
-              )}
-            >
-              <span className="flex items-center gap-2">
-                <Inbox className="h-4 w-4" />
-                Notes
-              </span>
-              <Badge variant="outline" className="ml-auto">
-                {categoryCounts.note}
-              </Badge>
-            </button>
-            
-            <button
-              onClick={() => handleCategoryClick("resource")}
-              className={cn(
-                "w-full flex items-center justify-between p-2 rounded-md hover:bg-secondary text-left",
-                activeSidebarItem === "resource" && "bg-secondary"
-              )}
-            >
-              <span className="flex items-center gap-2">
-                <FileSpreadsheet className="h-4 w-4" />
-                Resources
-              </span>
-              <Badge variant="outline" className="ml-auto">
-                {categoryCounts.resource}
-              </Badge>
-            </button>
-            
-            <button
-              onClick={() => handleCategoryClick("reference")}
-              className={cn(
-                "w-full flex items-center justify-between p-2 rounded-md hover:bg-secondary text-left",
-                activeSidebarItem === "reference" && "bg-secondary"
-              )}
-            >
-              <span className="flex items-center gap-2">
-                <FolderOpen className="h-4 w-4" />
-                References
-              </span>
-              <Badge variant="outline" className="ml-auto">
-                {categoryCounts.reference}
-              </Badge>
-            </button>
-            
-            <button
-              onClick={() => handleCategoryClick("concept")}
-              className={cn(
-                "w-full flex items-center justify-between p-2 rounded-md hover:bg-secondary text-left",
-                activeSidebarItem === "concept" && "bg-secondary"
-              )}
-            >
-              <span className="flex items-center gap-2">
-                <FolderOpen className="h-4 w-4" />
-                Concepts
-              </span>
-              <Badge variant="outline" className="ml-auto">
-                {categoryCounts.concept}
-              </Badge>
-            </button>
-            
-            <button
-              onClick={() => handleCategoryClick("idea")}
-              className={cn(
-                "w-full flex items-center justify-between p-2 rounded-md hover:bg-secondary text-left",
-                activeSidebarItem === "idea" && "bg-secondary"
-              )}
-            >
-              <span className="flex items-center gap-2">
-                <Archive className="h-4 w-4" />
-                Ideas
-              </span>
-              <Badge variant="outline" className="ml-auto">
-                {categoryCounts.idea}
-              </Badge>
-            </button>
-            
-            {/* Tags section */}
-            <div className="pt-4">
-              <h3 className="text-sm font-medium mb-2">Tags</h3>
-              <div className="space-y-1 max-h-48 overflow-y-auto">
-                {Object.entries(tagCounts).map(([tag, count]) => (
-                  <button
-                    key={tag}
-                    onClick={() => handleTagClick(tag)}
-                    className={cn(
-                      "w-full flex items-center justify-between p-2 rounded-md hover:bg-secondary text-sm text-left",
-                      activeSidebarItem === `tag-${tag}` && "bg-secondary"
-                    )}
-                  >
-                    <span className="flex items-center gap-2">
-                      <Tag className="h-3 w-3" />
-                      {tag}
-                    </span>
-                    <Badge variant="outline" className="text-xs ml-auto">{count}</Badge>
-                  </button>
-                ))}
-                {Object.keys(tagCounts).length === 0 && (
-                  <div className="text-sm text-muted-foreground p-2">
-                    No tags yet
-                  </div>
-                )}
-              </div>
-            </div>
-          </nav>
-        </CardContent>
-      </Card>
-
-      {/* Main content area */}
-      <div className="col-span-1 md:col-span-3 space-y-6">
-        <KnowledgeInbox onAddEntry={onAddEntry} />
-
-        <Tabs defaultValue="list">
-          <TabsList>
-            <TabsTrigger value="list">List</TabsTrigger>
-            <TabsTrigger value="category">Category</TabsTrigger>
-            <TabsTrigger value="insights">AI Insights</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="list" className="mt-6">
-            <Card>
-              <KnowledgeList entries={filteredEntries} />
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="category" className="mt-6">
-            <Card>
-              <KnowledgeCategoryView entries={filteredEntries} />
-            </Card>
-          </TabsContent>
-          
-          <TabsContent value="insights" className="mt-6">
-            <AIInsightsPanel />
-          </TabsContent>
-        </Tabs>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Button onClick={handleAddEntry} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Entry
+          </Button>
+        </div>
       </div>
+
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "all" | KnowledgeCategory)}>
+        <TabsList className="mb-4 flex w-full flex-wrap">
+          <TabsTrigger value="all">All</TabsTrigger>
+          <TabsTrigger value="note">Notes</TabsTrigger>
+          <TabsTrigger value="resource">Resources</TabsTrigger>
+          <TabsTrigger value="reference">References</TabsTrigger>
+          <TabsTrigger value="idea">Ideas</TabsTrigger>
+          <TabsTrigger value="concept">Concepts</TabsTrigger>
+          <TabsTrigger value="insight">Insights</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="all">
+          <KnowledgeCategoryView 
+            entries={filteredEntries} 
+            category="all"
+            onAddEntry={handleAddEntry}
+            onSelectEntry={handleEditEntry}
+          />
+        </TabsContent>
+        
+        <TabsContent value="note">
+          <KnowledgeCategoryView 
+            entries={filteredEntries.filter(entry => entry.category === "note")} 
+            category="note"
+            onAddEntry={handleAddEntry}
+            onSelectEntry={handleEditEntry}
+          />
+        </TabsContent>
+        
+        <TabsContent value="resource">
+          <KnowledgeCategoryView 
+            entries={filteredEntries.filter(entry => entry.category === "resource")} 
+            category="resource"
+            onAddEntry={handleAddEntry}
+            onSelectEntry={handleEditEntry}
+          />
+        </TabsContent>
+        
+        <TabsContent value="reference">
+          <KnowledgeCategoryView 
+            entries={filteredEntries.filter(entry => entry.category === "reference")} 
+            category="reference"
+            onAddEntry={handleAddEntry}
+            onSelectEntry={handleEditEntry}
+          />
+        </TabsContent>
+        
+        <TabsContent value="idea">
+          <KnowledgeCategoryView 
+            entries={filteredEntries.filter(entry => entry.category === "idea")} 
+            category="idea"
+            onAddEntry={handleAddEntry}
+            onSelectEntry={handleEditEntry}
+          />
+        </TabsContent>
+        
+        <TabsContent value="concept">
+          <KnowledgeCategoryView 
+            entries={filteredEntries.filter(entry => entry.category === "concept")} 
+            category="concept"
+            onAddEntry={handleAddEntry}
+            onSelectEntry={handleEditEntry}
+          />
+        </TabsContent>
+        
+        <TabsContent value="insight">
+          <KnowledgeCategoryView 
+            entries={filteredEntries.filter(entry => entry.category === "insight")} 
+            category="insight"
+            onAddEntry={handleAddEntry}
+            onSelectEntry={handleEditEntry}
+          />
+        </TabsContent>
+      </Tabs>
+
+      <EntryDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSave={handleSaveEntry}
+        entry={editingEntry}
+      />
     </div>
   );
 }

@@ -32,6 +32,10 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     'https://api.dicebear.com/7.x/bottts/svg?seed=hope&backgroundColor=ef476f',
     'https://api.dicebear.com/7.x/bottts/svg?seed=focus&backgroundColor=118ab2',
     'https://api.dicebear.com/7.x/bottts/svg?seed=creativity&backgroundColor=ff006e',
+    'https://api.dicebear.com/7.x/identicon/svg?seed=intelligence&backgroundColor=43aa8b',
+    'https://api.dicebear.com/7.x/identicon/svg?seed=success&backgroundColor=f94144',
+    'https://api.dicebear.com/7.x/shapes/svg?seed=motivation&backgroundColor=277da1',
+    'https://api.dicebear.com/7.x/shapes/svg?seed=productivity&backgroundColor=f8961e',
   ];
 
   const handleAvatarSelect = (avatar: string) => {

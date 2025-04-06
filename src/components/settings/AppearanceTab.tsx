@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Sun, Moon, Monitor, RotateCcw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+// Define accent colors
 const accentColors = [
   { name: 'Blue', value: 'blue', class: 'bg-blue-500' },
   { name: 'Purple', value: 'purple', class: 'bg-purple-500' },
@@ -24,11 +25,44 @@ export default function AppearanceTab() {
   const [reducedMotion, setReducedMotion] = useState(false);
   const [reducedTransparency, setReducedTransparency] = useState(false);
   
+  // Load saved settings on mount
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    const savedAccentColor = localStorage.getItem('accentColor') || 'blue';
+    const savedReducedMotion = localStorage.getItem('reducedMotion') === 'true';
+    const savedReducedTransparency = localStorage.getItem('reducedTransparency') === 'true';
+    
+    setTheme(savedTheme);
+    setAccentColor(savedAccentColor);
+    setReducedMotion(savedReducedMotion);
+    setReducedTransparency(savedReducedTransparency);
+    
+    // Apply theme to document
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add(savedTheme);
+    
+    // Apply accent color
+    document.documentElement.style.setProperty('--accent-color', savedAccentColor);
+  }, []);
+  
   const resetAppearance = () => {
     setTheme('dark');
     setAccentColor('blue');
     setReducedMotion(false);
     setReducedTransparency(false);
+    
+    // Save to localStorage
+    localStorage.setItem('theme', 'dark');
+    localStorage.setItem('accentColor', 'blue');
+    localStorage.setItem('reducedMotion', 'false');
+    localStorage.setItem('reducedTransparency', 'false');
+    
+    // Apply theme to document
+    document.documentElement.classList.remove('light', 'dark');
+    document.documentElement.classList.add('dark');
+    
+    // Apply accent color
+    document.documentElement.style.setProperty('--accent-color', 'blue');
     
     toast({
       title: 'Appearance reset',
@@ -38,7 +72,11 @@ export default function AppearanceTab() {
   
   const handleThemeChange = (value: string) => {
     setTheme(value);
-    // In a real app, this would trigger a theme change in the application
+    
+    // Save to localStorage
+    localStorage.setItem('theme', value);
+    
+    // Apply theme to document
     document.documentElement.classList.remove('light', 'dark');
     document.documentElement.classList.add(value);
     
@@ -51,10 +89,38 @@ export default function AppearanceTab() {
   const handleAccentColorChange = (color: string) => {
     setAccentColor(color);
     
+    // Save to localStorage
+    localStorage.setItem('accentColor', color);
+    
+    // Apply accent color
+    document.documentElement.style.setProperty('--accent-color', color);
+    
     toast({
       title: 'Accent color updated',
       description: `Accent color changed to ${color}.`,
     });
+  };
+
+  const handleReducedMotionChange = (checked: boolean) => {
+    setReducedMotion(checked);
+    localStorage.setItem('reducedMotion', String(checked));
+    
+    if (checked) {
+      document.documentElement.classList.add('reduce-motion');
+    } else {
+      document.documentElement.classList.remove('reduce-motion');
+    }
+  };
+
+  const handleReducedTransparencyChange = (checked: boolean) => {
+    setReducedTransparency(checked);
+    localStorage.setItem('reducedTransparency', String(checked));
+    
+    if (checked) {
+      document.documentElement.classList.add('reduce-transparency');
+    } else {
+      document.documentElement.classList.remove('reduce-transparency');
+    }
   };
   
   return (
@@ -116,6 +182,7 @@ export default function AppearanceTab() {
                   accentColor === color.value ? 'ring-2 ring-offset-2 ring-offset-background ring-black' : ''
                 }`}
                 title={color.name}
+                type="button"
               >
                 {accentColor === color.value && (
                   <span className="text-white font-bold">✓</span>
@@ -144,7 +211,7 @@ export default function AppearanceTab() {
             <Switch 
               id="reduced-motion" 
               checked={reducedMotion}
-              onCheckedChange={setReducedMotion}
+              onCheckedChange={handleReducedMotionChange}
             />
           </div>
           
@@ -158,7 +225,7 @@ export default function AppearanceTab() {
             <Switch 
               id="reduced-transparency" 
               checked={reducedTransparency}
-              onCheckedChange={setReducedTransparency}
+              onCheckedChange={handleReducedTransparencyChange}
             />
           </div>
         </CardContent>
