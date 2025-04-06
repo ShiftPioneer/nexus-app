@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Book, ReadingStatus } from "@/types/knowledge";
+import { DatePicker } from "@/components/ui/date-picker";
 
 export interface BookDialogProps {
   open: boolean;
@@ -25,25 +26,56 @@ export function BookDialog({
   bookCoverImage,
   onBookCoverImageChange
 }: BookDialogProps) {
+  // Check if book is null, if so use a default empty book
+  const defaultBook: Book = {
+    id: "",
+    title: "",
+    author: "",
+    readingStatus: "Not Started" as ReadingStatus,
+    dateAdded: new Date(),
+    tags: [],
+    rating: 0
+  };
+
   const isNewBook = !book?.id;
+  const currentBook = book || defaultBook;
   
-  const [title, setTitle] = useState(book?.title || "");
-  const [author, setAuthor] = useState(book?.author || "");
-  const [genre, setGenre] = useState(book?.genre || "");
-  const [description, setDescription] = useState(book?.description || "");
-  const [coverImage, setCoverImage] = useState(bookCoverImage || book?.coverImage || "");
-  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(book?.readingStatus || "Not Started");
-  const [currentPage, setCurrentPage] = useState(book?.currentPage || 0);
-  const [totalPages, setTotalPages] = useState(book?.totalPages || 0);
-  const [notes, setNotes] = useState(book?.notes || "");
-  const [tagsString, setTagsString] = useState((book?.tags || []).join(", "));
-  const [rating, setRating] = useState(book?.rating || 0);
+  const [title, setTitle] = useState(currentBook?.title || "");
+  const [author, setAuthor] = useState(currentBook?.author || "");
+  const [genre, setGenre] = useState(currentBook?.genre || "");
+  const [description, setDescription] = useState(currentBook?.description || "");
+  const [coverImage, setCoverImage] = useState(bookCoverImage || currentBook?.coverImage || "");
+  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(currentBook?.readingStatus || "Not Started");
+  const [currentPage, setCurrentPage] = useState(currentBook?.currentPage || 0);
+  const [totalPages, setTotalPages] = useState(currentBook?.totalPages || 0);
+  const [notes, setNotes] = useState(currentBook?.notes || "");
+  const [tagsString, setTagsString] = useState((currentBook?.tags || []).join(", "));
+  const [rating, setRating] = useState(currentBook?.rating || 0);
+  const [dateCompleted, setDateCompleted] = useState<Date | undefined>(currentBook?.dateCompleted);
+  
+  // Update form fields when book prop changes
+  useEffect(() => {
+    if (book) {
+      setTitle(book.title || "");
+      setAuthor(book.author || "");
+      setGenre(book.genre || "");
+      setDescription(book.description || "");
+      setCoverImage(bookCoverImage || book.coverImage || "");
+      setReadingStatus(book.readingStatus || "Not Started");
+      setCurrentPage(book.currentPage || 0);
+      setTotalPages(book.totalPages || 0);
+      setNotes(book.notes || "");
+      setTagsString((book.tags || []).join(", "));
+      setRating(book.rating || 0);
+      setDateCompleted(book.dateCompleted);
+    }
+  }, [book, bookCoverImage]);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     const updatedBook: Book = {
-      id: book?.id || "",
+      id: currentBook?.id || "",
       title,
       author,
       genre,
@@ -54,8 +86,8 @@ export function BookDialog({
       totalPages: (readingStatus === "In Progress" || readingStatus === "Completed") ? totalPages : undefined,
       notes,
       tags: tagsString.split(",").map(tag => tag.trim()).filter(tag => tag !== ""),
-      dateAdded: book?.dateAdded || new Date(),
-      dateCompleted: readingStatus === "Completed" ? (book?.dateCompleted || new Date()) : undefined,
+      dateAdded: currentBook?.dateAdded || new Date(),
+      dateCompleted: readingStatus === "Completed" ? (dateCompleted || new Date()) : undefined,
       rating: rating || 0
     };
     
@@ -161,16 +193,25 @@ export function BookDialog({
               )}
               
               {readingStatus === "Completed" && (
-                <div>
-                  <Label htmlFor="totalPages">Total Pages</Label>
-                  <Input 
-                    id="totalPages" 
-                    type="number" 
-                    min="1"
-                    value={totalPages} 
-                    onChange={(e) => setTotalPages(parseInt(e.target.value) || 0)} 
-                  />
-                </div>
+                <>
+                  <div>
+                    <Label htmlFor="totalPages">Total Pages</Label>
+                    <Input 
+                      id="totalPages" 
+                      type="number" 
+                      min="1"
+                      value={totalPages} 
+                      onChange={(e) => setTotalPages(parseInt(e.target.value) || 0)} 
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="dateCompleted">Date Completed</Label>
+                    <DatePicker
+                      date={dateCompleted}
+                      setDate={setDateCompleted}
+                    />
+                  </div>
+                </>
               )}
               
               <div>

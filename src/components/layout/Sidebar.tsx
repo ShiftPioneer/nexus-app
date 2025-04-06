@@ -6,7 +6,8 @@ import NavigationMenu from "./NavigationMenu";
 import { useSidebar } from "@/components/ui/sidebar";
 
 const Sidebar: React.FC = () => {
-  const { isCollapsed, setIsCollapsed } = useSidebar();
+  const { expanded, setExpanded } = useSidebar();
+  const isCollapsed = !expanded;
 
   return (
     <motion.aside
@@ -45,7 +46,7 @@ const Sidebar: React.FC = () => {
           )}
         </div>
         <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
+          onClick={() => setExpanded(!expanded)}
           className="rounded-full p-1 text-white hover:bg-[#2A2F3C] focus:outline-none"
         >
           <svg

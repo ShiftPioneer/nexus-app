@@ -1,4 +1,3 @@
-
 export interface Note {
   id: string;
   title: string;
@@ -50,7 +49,7 @@ export interface Book {
   totalPages?: number;
 }
 
-export type ReadingStatus = "Not Yet Read" | "Reading Now" | "Finished" | "Not Started" | "In Progress" | "Completed" | "abandoned";
+export type ReadingStatus = "Not Started" | "In Progress" | "Completed" | "Reading Now" | "Not Yet Read" | "Finished" | "abandoned";
 
 export type KnowledgeCategory = "note" | "concept" | "idea" | "question" | "insight" | "summary" | "inbox" | "projects" | "areas" | "resources" | "archives" | "resource" | "reference";
 
@@ -71,6 +70,7 @@ export interface KnowledgeEntry {
     type: string;
   };
   aiSummary?: string;
+  attachments?: any[];
 }
 
 export interface Skillset {
@@ -142,4 +142,7 @@ export interface KnowledgeContextValue {
   
   // Offline status
   isOffline?: boolean;
+  
+  // Other utilities
+  getEntriesStats?: () => any;
 }

@@ -12,6 +12,8 @@ import { BookshelfKanbanView } from "./BookshelfTab/BookshelfKanbanView";
 import { BookshelfListView } from "./BookshelfTab/BookshelfListView";
 import { useKnowledge } from "@/contexts/KnowledgeContext";
 
+export type BookshelfState = Record<ReadingStatus, Book[]>;
+
 export function BookshelfTab() {
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,41 +21,52 @@ export function BookshelfTab() {
   const [editingBook, setEditingBook] = useState<Book | null>(null);
   const { toast } = useToast();
   const [coverImage, setCoverImage] = useState<string>("");
-  const { books: allBooks, addBook, updateBook, deleteBook } = useKnowledge();
+  const { books = [], addBook, updateBook, deleteBook } = useKnowledge();
 
   // Group books by reading status
-  const booksByStatus = allBooks.reduce((acc, book) => {
-    const status = book.readingStatus;
-    if (!acc[status]) {
-      acc[status] = [];
-    }
-    acc[status].push(book);
-    return acc;
-  }, {
-    "Not Started": [],
-    "In Progress": [],
-    "Completed": [],
-    "Reading Now": [],
-    "Not Yet Read": [],
-    "Finished": [],
-  } as Record<string, Book[]>);
+  const booksByStatus = React.useMemo(() => {
+    const result: BookshelfState = {
+      "Not Started": [],
+      "In Progress": [],
+      "Completed": [],
+      "Reading Now": [],
+      "Not Yet Read": [],
+      "Finished": [],
+      "abandoned": []
+    };
+    
+    books.forEach(book => {
+      if (!result[book.readingStatus]) {
+        result[book.readingStatus] = [];
+      }
+      result[book.readingStatus].push(book);
+    });
+    
+    return result;
+  }, [books]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
   };
 
-  const filteredBooksByStatus = Object.fromEntries(
-    Object.entries(booksByStatus).map(([status, books]) => [
-      status,
-      books.filter(book => 
+  const filteredBooksByStatus = React.useMemo(() => {
+    const result: BookshelfState = {} as BookshelfState;
+    
+    Object.entries(booksByStatus).forEach(([status, statusBooks]) => {
+      result[status as ReadingStatus] = statusBooks.filter(book => 
         book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
         (book.description && book.description.toLowerCase().includes(searchQuery.toLowerCase()))
-      )
-    ])
-  );
+      );
+    });
+    
+    return result;
+  }, [booksByStatus, searchQuery]);
 
-  const allFilteredBooks = Object.values(filteredBooksByStatus).flat();
+  const allFilteredBooks = React.useMemo(() => 
+    Object.values(filteredBooksByStatus).flat(), 
+    [filteredBooksByStatus]
+  );
 
   const handleAddNewBook = () => {
     setEditingBook(null);

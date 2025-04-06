@@ -30,25 +30,27 @@ export function BookshelfTab() {
         id: "1",
         title: "Atomic Habits",
         author: "James Clear",
-        coverUrl: "https://covers.openlibrary.org/b/id/8479576-M.jpg",
+        coverImage: "https://covers.openlibrary.org/b/id/8479576-M.jpg",
         description: "Tiny Changes, Remarkable Results",
         readingStatus: "Not Started",
         dateAdded: new Date(2023, 0, 15),
         genre: "Self Improvement",
         tags: ["habits", "psychology"],
-        notes: ""
+        notes: "",
+        rating: 0
       },
       {
         id: "2",
         title: "Deep Work",
         author: "Cal Newport",
-        coverUrl: "https://covers.openlibrary.org/b/id/10110013-M.jpg",
+        coverImage: "https://covers.openlibrary.org/b/id/10110013-M.jpg",
         description: "Rules for Focused Success in a Distracted World",
         readingStatus: "Not Started",
         dateAdded: new Date(2023, 1, 20),
         genre: "Productivity",
         tags: ["focus", "productivity"],
-        notes: ""
+        notes: "",
+        rating: 0
       }
     ],
     "In Progress": [
@@ -56,7 +58,7 @@ export function BookshelfTab() {
         id: "3",
         title: "The Psychology of Money",
         author: "Morgan Housel",
-        coverUrl: "https://covers.openlibrary.org/b/id/10356439-M.jpg",
+        coverImage: "https://covers.openlibrary.org/b/id/10356439-M.jpg",
         description: "Timeless lessons on wealth, greed, and happiness",
         readingStatus: "In Progress",
         dateAdded: new Date(2023, 2, 5),
@@ -64,7 +66,8 @@ export function BookshelfTab() {
         currentPage: 120,
         totalPages: 256,
         tags: ["money", "psychology"],
-        notes: "Interesting perspectives on how people think about money differently."
+        notes: "Interesting perspectives on how people think about money differently.",
+        rating: 0
       }
     ],
     "Completed": [
@@ -72,7 +75,7 @@ export function BookshelfTab() {
         id: "4",
         title: "Project Hail Mary",
         author: "Andy Weir",
-        coverUrl: "https://covers.openlibrary.org/b/id/10389354-M.jpg",
+        coverImage: "https://covers.openlibrary.org/b/id/10389354-M.jpg",
         description: "A lone astronaut must save the earth from disaster",
         readingStatus: "Completed",
         dateAdded: new Date(2022, 11, 10),
@@ -82,7 +85,11 @@ export function BookshelfTab() {
         tags: ["sci-fi", "space"],
         notes: "Excellent story with great character development."
       }
-    ]
+    ],
+    "Reading Now": [],
+    "Not Yet Read": [],
+    "Finished": [],
+    "abandoned": []
   });
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,6 +106,8 @@ export function BookshelfTab() {
     return acc;
   }, {} as BookshelfState);
 
+  const allFilteredBooks = Object.values(filteredBooksByStatus).flat();
+
   const handleAddNewBook = () => {
     setEditingBook(null);
     setCoverImage("");
@@ -107,7 +116,7 @@ export function BookshelfTab() {
 
   const handleEditBook = (book: Book) => {
     setEditingBook(book);
-    setCoverImage(book.coverUrl || "");
+    setCoverImage(book.coverImage || "");
     setDialogOpen(true);
   };
 
@@ -150,7 +159,7 @@ export function BookshelfTab() {
     // Add the book to the appropriate status
     newBooksByStatus[book.readingStatus] = [
       ...newBooksByStatus[book.readingStatus],
-      { ...book, coverUrl: coverImage || book.coverUrl }
+      { ...book, coverImage: coverImage || book.coverImage }
     ];
     
     setBooksByStatus(newBooksByStatus);
@@ -221,6 +230,7 @@ export function BookshelfTab() {
           booksByStatus={filteredBooksByStatus}
           onEdit={handleEditBook}
           onDelete={handleDeleteBook}
+          allBooks={allFilteredBooks}
         />
       )}
 
@@ -228,17 +238,7 @@ export function BookshelfTab() {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         onSave={handleSaveBook}
-        book={editingBook ? { ...editingBook } : {
-          id: "",
-          title: "",
-          author: "",
-          readingStatus: "Not Started" as ReadingStatus,
-          dateAdded: new Date(),
-          genre: "",
-          tags: [],
-          notes: ""
-        }}
-        // Pass coverImage and its handler to BookDialog
+        book={editingBook}
         bookCoverImage={coverImage}
         onBookCoverImageChange={setCoverImage}
       />
