@@ -1,154 +1,103 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { 
-  LayoutDashboard, CheckCircle, BookOpen, 
-  Calendar, Target, LayoutGrid, Settings, 
-  ArrowLeft, FileText, Brain, Zap, Repeat, LineChart, TimerReset
-} from "lucide-react";
+import { LayoutDashboard, CheckCircle, BookOpen, Calendar, Target, LayoutGrid, Settings, ArrowLeft, FileText, Brain, Zap, Repeat, LineChart, TimerReset } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
-
 interface NavigationMenuProps {
   isCollapsed?: boolean;
 }
-
-const NavigationMenu: React.FC<NavigationMenuProps> = ({ isCollapsed = false }) => {
+const NavigationMenu: React.FC<NavigationMenuProps> = ({
+  isCollapsed = false
+}) => {
   const location = useLocation();
   const currentPath = location.pathname;
-  
-  const menuItems = [
-    {
-      title: "Dashboard",
-      path: "/",
-      icon: LayoutDashboard
-    },
-    {
-      title: "GTD",
-      path: "/gtd",
-      icon: CheckCircle
-    },
-    {
-      title: "Tasks",
-      path: "/tasks",
-      icon: CheckCircle
-    },
-    {
-      title: "Time Design",
-      path: "/time-design",
-      icon: TimerReset
-    },
-    {
-      title: "Goals",
-      path: "/planning",
-      icon: Target
-    },
-    {
-      title: "Habits",
-      path: "/habits",
-      icon: Repeat
-    },
-    {
-      title: "Focus",
-      path: "/focus",
-      icon: Zap
-    },
-    {
-      title: "Mindset",
-      path: "/mindset",
-      icon: Brain
-    },
-    {
-      title: "Knowledge",
-      path: "/knowledge",
-      icon: FileText
-    },
-    {
-      title: "Journal",
-      path: "/journal",
-      icon: BookOpen
-    },
-    {
-      title: "Energy",
-      path: "/energy",
-      icon: Calendar
-    },
-    {
-      title: "Stats",
-      path: "/stats",
-      icon: LineChart
-    },
-    {
-      title: "Settings",
-      path: "/settings",
-      icon: Settings
-    }
-  ];
-  
+  const menuItems = [{
+    title: "Dashboard",
+    path: "/",
+    icon: LayoutDashboard
+  }, {
+    title: "GTD",
+    path: "/gtd",
+    icon: CheckCircle
+  }, {
+    title: "Tasks",
+    path: "/tasks",
+    icon: CheckCircle
+  }, {
+    title: "Time Design",
+    path: "/time-design",
+    icon: TimerReset
+  }, {
+    title: "Goals",
+    path: "/planning",
+    icon: Target
+  }, {
+    title: "Habits",
+    path: "/habits",
+    icon: Repeat
+  }, {
+    title: "Focus",
+    path: "/focus",
+    icon: Zap
+  }, {
+    title: "Mindset",
+    path: "/mindset",
+    icon: Brain
+  }, {
+    title: "Knowledge",
+    path: "/knowledge",
+    icon: FileText
+  }, {
+    title: "Journal",
+    path: "/journal",
+    icon: BookOpen
+  }, {
+    title: "Energy",
+    path: "/energy",
+    icon: Calendar
+  }, {
+    title: "Stats",
+    path: "/stats",
+    icon: LineChart
+  }, {
+    title: "Settings",
+    path: "/settings",
+    icon: Settings
+  }];
   const goBack = () => {
     window.history.back();
   };
-  
-  return (
-    <SidebarMenu className="space-y-1 scrollbar-none">
+  return <SidebarMenu className="space-y-1 scrollbar-none">
       <SidebarMenuItem>
-        <SidebarMenuButton 
-          className={cn(
-            "hover:bg-[#2A2F3C] transition-all duration-300 text-[#B0B5BD]",
-            isCollapsed ? "justify-center" : "px-2"
-          )}
-          onClick={goBack}
-        >
-          <motion.div 
-            className="w-full flex items-center gap-3" 
-            whileHover={{ scale: 1.05 }} 
-            whileTap={{ scale: 0.95 }}
-          >
-            <ArrowLeft className="h-5 w-5 text-[#B0B5BD]" />
-            {!isCollapsed && <span className="text-sm font-medium">Back</span>}
-          </motion.div>
-        </SidebarMenuButton>
+        
       </SidebarMenuItem>
       
       <div className="border-b border-[#2A2F3C] my-2"></div>
       
-      {menuItems.map(item => (
-        <SidebarMenuItem key={item.path}>
-          <SidebarMenuButton 
-            asChild 
-            isActive={currentPath === item.path} 
-            tooltip={isCollapsed ? item.title : undefined}
-            className={cn(
-              "hover:bg-[#2A2F3C] transition-all duration-300 group",
-              currentPath === item.path ? "bg-[#2A2F3C] text-[#0FA0CE]" : "text-[#B0B5BD]",
-              isCollapsed ? "justify-center" : "px-2"
-            )}
-          >
-            <motion.div className="w-full" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+      {menuItems.map(item => <SidebarMenuItem key={item.path}>
+          <SidebarMenuButton asChild isActive={currentPath === item.path} tooltip={isCollapsed ? item.title : undefined} className={cn("hover:bg-[#2A2F3C] transition-all duration-300 group", currentPath === item.path ? "bg-[#2A2F3C] text-[#0FA0CE]" : "text-[#B0B5BD]", isCollapsed ? "justify-center" : "px-2")}>
+            <motion.div className="w-full" whileHover={{
+          scale: 1.05
+        }} whileTap={{
+          scale: 0.95
+        }}>
               <Link to={item.path} className="w-full flex items-center gap-3">
-                <motion.div 
-                  whileHover={{ scale: 1.2 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <item.icon className={cn(
-                    "h-5 w-5 transition-transform transform duration-300", 
-                    currentPath === item.path ? "text-[#0FA0CE]" : "text-[#B0B5BD]"
-                  )} />
+                <motion.div whileHover={{
+              scale: 1.2
+            }} transition={{
+              duration: 0.3
+            }}>
+                  <item.icon className={cn("h-5 w-5 transition-transform transform duration-300", currentPath === item.path ? "text-[#0FA0CE]" : "text-[#B0B5BD]")} />
                 </motion.div>
                 
-                {!isCollapsed && (
-                  <span className="text-sm font-medium transition-transform duration-300 group-hover:translate-x-1">
+                {!isCollapsed && <span className="text-sm font-medium transition-transform duration-300 group-hover:translate-x-1">
                     {item.title}
-                  </span>
-                )}
+                  </span>}
               </Link>
             </motion.div>
           </SidebarMenuButton>
-        </SidebarMenuItem>
-      ))}
-    </SidebarMenu>
-  );
+        </SidebarMenuItem>)}
+    </SidebarMenu>;
 };
-
 export default NavigationMenu;
