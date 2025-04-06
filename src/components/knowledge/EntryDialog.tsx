@@ -1,378 +1,218 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { KnowledgeEntry, KnowledgeCategory } from "@/types/knowledge";
-import { Trash, FolderMove, Paperclip, ExternalLink } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { KnowledgeCategory, KnowledgeEntry } from "@/types/knowledge";
+import { X, Plus, FolderIcon, FileText } from "lucide-react"; 
+import { Badge } from "@/components/ui/badge";
 
 interface EntryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  entry: KnowledgeEntry | null;
-  onSave: (entry: Omit<KnowledgeEntry, "id">) => void;
-  onDelete?: (entryId: string) => void;
-  onMove?: (entryId: string, category: KnowledgeCategory) => void;
-  editMode?: boolean;
+  onSave: (entry: KnowledgeEntry) => void;
+  entry?: KnowledgeEntry;
 }
 
-export function EntryDialog({ 
-  open, 
-  onOpenChange, 
-  entry, 
-  onSave, 
-  onDelete,
-  onMove,
-  editMode = false
-}: EntryDialogProps) {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [category, setCategory] = useState<KnowledgeCategory>("inbox");
-  const [tags, setTags] = useState<string[]>([]);
-  const [tagInput, setTagInput] = useState("");
-  const [url, setUrl] = useState("");
-  const [attachment, setAttachment] = useState<{
-    name: string;
-    url: string;
-    type: string;
-  } | null>(null);
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [moveDialogOpen, setMoveDialogOpen] = useState(false);
+export function EntryDialog({ open, onOpenChange, onSave, entry }: EntryDialogProps) {
+  const isEditMode = !!entry?.id;
   
-  useEffect(() => {
-    if (entry) {
-      setTitle(entry.title);
-      setContent(entry.content);
-      setCategory(entry.category);
-      setTags(entry.tags);
-      setUrl(entry.url || "");
-      setAttachment(entry.fileAttachment || null);
-    } else {
-      resetForm();
-    }
-  }, [entry, open]);
-  
-  const resetForm = () => {
-    setTitle("");
-    setContent("");
-    setCategory("inbox");
-    setTags([]);
-    setTagInput("");
-    setUrl("");
-    setAttachment(null);
-  };
-  
+  const [title, setTitle] = useState(entry?.title || "");
+  const [content, setContent] = useState(entry?.content || "");
+  const [category, setCategory] = useState<KnowledgeCategory>(entry?.category || "note");
+  const [tags, setTags] = useState<string[]>(entry?.tags || []);
+  const [newTag, setNewTag] = useState("");
+  const [attachments, setAttachments] = useState<Array<{ name: string; url: string; type: string; }>>(
+    entry?.attachments || []
+  );
+  const [url, setUrl] = useState(entry?.url || "");
+
   const handleAddTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()]);
-      setTagInput("");
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      setTags([...tags, newTag.trim()]);
+      setNewTag("");
     }
   };
-  
-  const handleTagInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleAddTag();
     }
   };
-  
-  const handleRemoveTag = (tag: string) => {
-    setTags(tags.filter(t => t !== tag));
+
+  const handleAddAttachment = () => {
+    // In a real app, this would handle file uploads or adding URLs
+    const newAttachment = {
+      name: `Attachment ${attachments.length + 1}`,
+      url: `https://example.com/attachment${attachments.length + 1}`,
+      type: "pdf"
+    };
+    setAttachments([...attachments, newAttachment]);
   };
-  
-  const handleSave = () => {
-    if (!title) return;
+
+  const handleRemoveAttachment = (index: number) => {
+    setAttachments(attachments.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     
-    const newEntry: Omit<KnowledgeEntry, "id"> = {
+    const updatedEntry: KnowledgeEntry = {
+      id: entry?.id || Date.now().toString(),
       title,
       content,
       category,
       tags,
-      createdAt: entry?.createdAt || new Date(),
-      updatedAt: new Date(),
-      url: url || undefined,
-      fileAttachment: attachment || undefined,
-      pinned: entry?.pinned || false,
-      linkedTaskIds: entry?.linkedTaskIds || [],
-      aiSummary: entry?.aiSummary
+      dateCreated: entry?.dateCreated || new Date(),
+      dateUpdated: new Date(),
+      attachments,
+      url: category === 'resource' ? url : undefined,
+      pinned: entry?.pinned || false
     };
     
-    onSave(newEntry);
-    resetForm();
+    onSave(updatedEntry);
+    onOpenChange(false);
   };
-  
-  const handleDelete = () => {
-    if (entry && onDelete) {
-      onDelete(entry.id);
-      setDeleteDialogOpen(false);
-      onOpenChange(false);
-    }
-  };
-  
-  const handleMove = (newCategory: KnowledgeCategory) => {
-    if (entry && onMove) {
-      onMove(entry.id, newCategory);
-      setMoveDialogOpen(false);
-    }
-  };
-  
-  const handleAttachmentUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      // This is a mock function - in a real application, you'd upload the file to storage
-      // and get back a URL
-      const mockUploadFile = (file: File) => {
-        return {
-          name: file.name,
-          url: URL.createObjectURL(file), // This will create a temporary URL
-          type: file.type
-        };
-      };
-      
-      setAttachment(mockUploadFile(file));
-    }
-  };
-  
-  const handleRemoveAttachment = () => {
-    setAttachment(null);
-  };
-  
+
   return (
-    <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="sm:max-w-[625px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editMode ? "Edit Entry" : "Create New Entry"}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{isEditMode ? 'Edit Entry' : 'Create New Entry'}</DialogTitle>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-6 py-4">
+          <div className="grid grid-cols-4 gap-4">
+            <div className="col-span-4">
               <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Entry title"
+              <Input 
+                id="title" 
+                value={title} 
+                onChange={(e) => setTitle(e.target.value)} 
+                required 
               />
             </div>
             
-            <div className="grid gap-2">
+            <div className="col-span-4 sm:col-span-1">
               <Label htmlFor="category">Category</Label>
-              <Select value={category} onValueChange={(value) => setCategory(value as KnowledgeCategory)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
+              <Select 
+                value={category} 
+                onValueChange={(value) => setCategory(value as KnowledgeCategory)}
+              >
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="inbox">Inbox</SelectItem>
-                  <SelectItem value="projects">Projects</SelectItem>
-                  <SelectItem value="areas">Areas</SelectItem>
-                  <SelectItem value="resources">Resources</SelectItem>
-                  <SelectItem value="archives">Archives</SelectItem>
+                  <SelectItem value="note">Note</SelectItem>
+                  <SelectItem value="resource">Resource</SelectItem>
+                  <SelectItem value="reference">Reference</SelectItem>
+                  <SelectItem value="concept">Concept</SelectItem>
+                  <SelectItem value="idea">Idea</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {category === 'resource' && (
+              <div className="col-span-4 sm:col-span-3">
+                <Label htmlFor="url">URL</Label>
+                <Input 
+                  id="url" 
+                  value={url} 
+                  onChange={(e) => setUrl(e.target.value)} 
+                  placeholder="https://" 
+                />
+              </div>
+            )}
             
-            <div className="grid gap-2">
+            <div className="col-span-4">
               <Label htmlFor="content">Content</Label>
-              <Textarea
-                id="content"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                placeholder="Write your thoughts, ideas, or notes here..."
-                className="min-h-[200px]"
+              <Textarea 
+                id="content" 
+                value={content} 
+                onChange={(e) => setContent(e.target.value)} 
+                className="min-h-[200px]" 
               />
             </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="url">URL (optional)</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="url"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                  placeholder="https://example.com"
-                  type="url"
-                />
-                {url && (
-                  <a 
-                    href={url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center px-3 bg-gray-100 rounded-md hover:bg-gray-200"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                )}
-              </div>
-            </div>
-            
-            <div className="grid gap-2">
+
+            <div className="col-span-4">
               <Label htmlFor="tags">Tags</Label>
+              <div className="flex gap-2 flex-wrap mb-2">
+                {tags.map(tag => (
+                  <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                    {tag}
+                    <X 
+                      className="h-3 w-3 cursor-pointer" 
+                      onClick={() => handleRemoveTag(tag)} 
+                    />
+                  </Badge>
+                ))}
+              </div>
               <div className="flex gap-2">
-                <Input
-                  id="tags"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleTagInputKeyDown}
-                  placeholder="Add a tag and press Enter"
+                <Input 
+                  id="tags" 
+                  value={newTag} 
+                  onChange={(e) => setNewTag(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Add a tag" 
+                  className="flex-1"
                 />
-                <Button type="button" variant="outline" onClick={handleAddTag}>
-                  Add
+                <Button 
+                  type="button" 
+                  onClick={handleAddTag} 
+                  size="sm" 
+                  variant="outline"
+                >
+                  <Plus className="h-4 w-4" />
                 </Button>
               </div>
-              
-              {tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                  {tags.map(tag => (
-                    <span 
-                      key={tag} 
-                      className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-sm flex items-center"
-                    >
-                      #{tag}
-                      <button 
-                        type="button" 
-                        className="ml-1 text-gray-500 hover:text-gray-700"
-                        onClick={() => handleRemoveTag(tag)}
-                      >
-                        ×
-                      </button>
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
-            
-            <div className="grid gap-2">
-              <Label>Attachment</Label>
-              {attachment ? (
-                <div className="flex items-center justify-between bg-gray-50 p-2 rounded">
-                  <div className="flex items-center">
-                    <Paperclip className="h-4 w-4 mr-2" />
-                    <span className="text-sm truncate max-w-[300px]">{attachment.name}</span>
+
+            <div className="col-span-4">
+              <Label>Attachments</Label>
+              <div className="space-y-2 mt-2">
+                {attachments.map((attachment, index) => (
+                  <div key={index} className="flex items-center gap-2 p-2 border rounded-md">
+                    {attachment.type === "pdf" ? (
+                      <FileText className="h-4 w-4 text-red-500" />
+                    ) : (
+                      <FolderIcon className="h-4 w-4 text-blue-500" />
+                    )}
+                    <span className="flex-1 text-sm">{attachment.name}</span>
+                    <Button 
+                      type="button" 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => handleRemoveAttachment(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
                   </div>
-                  <Button variant="ghost" size="sm" onClick={handleRemoveAttachment}>
-                    Remove
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex items-center">
-                  <Input
-                    type="file"
-                    id="attachment"
-                    className="hidden"
-                    onChange={handleAttachmentUpload}
-                  />
-                  <Label htmlFor="attachment" className="cursor-pointer flex items-center gap-2 text-sm border rounded p-2">
-                    <Paperclip className="h-4 w-4" />
-                    Attach a file
-                  </Label>
-                </div>
-              )}
+                ))}
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleAddAttachment} 
+                  className="w-full flex items-center gap-1"
+                >
+                  <Plus className="h-4 w-4" /> Add Attachment
+                </Button>
+              </div>
             </div>
           </div>
           
-          <DialogFooter className="flex justify-between">
-            <div className="flex gap-2">
-              {editMode && entry && (
-                <>
-                  <Popover open={moveDialogOpen} onOpenChange={setMoveDialogOpen}>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" size="sm">
-                        <FolderMove className="h-4 w-4 mr-2" />
-                        Move
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[200px] p-0">
-                      <div className="p-2">
-                        <p className="text-sm font-medium mb-2">Move to category:</p>
-                        <div className="space-y-1">
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start" 
-                            onClick={() => handleMove("inbox")}
-                          >
-                            Inbox
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start" 
-                            onClick={() => handleMove("projects")}
-                          >
-                            Projects
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start" 
-                            onClick={() => handleMove("areas")}
-                          >
-                            Areas
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start" 
-                            onClick={() => handleMove("resources")}
-                          >
-                            Resources
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="w-full justify-start" 
-                            onClick={() => handleMove("archives")}
-                          >
-                            Archives
-                          </Button>
-                        </div>
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                  
-                  <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="outline" size="sm" className="text-destructive">
-                        <Trash className="h-4 w-4 mr-2" />
-                        Delete
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Entry</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this entry? This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </>
-              )}
-            </div>
-            
-            <div className="flex gap-2">
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSave}>
-                {editMode ? "Save Changes" : "Create Entry"}
-              </Button>
-            </div>
+          <DialogFooter>
+            <Button type="submit">{isEditMode ? 'Update' : 'Create'}</Button>
           </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

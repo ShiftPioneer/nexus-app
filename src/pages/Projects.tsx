@@ -1,12 +1,12 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PlusCircle, ListTodo, KanbanSquare } from "lucide-react";
-import { PlanningBoardView } from "@/components/planning/PlanningBoardView";
-import { PlanningListView } from "@/components/planning/PlanningListView";
+import PlanningBoardView from "@/components/planning/PlanningBoardView";
+import PlanningListView from "@/components/planning/PlanningListView";
 import { ProjectCreationDialog } from "@/components/planning/ProjectCreationDialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -96,6 +96,11 @@ const Projects: React.FC = () => {
     });
   };
 
+  const handleEditProject = (project: Project) => {
+    // This function will be implemented in the future
+    console.log("Edit project:", project);
+  };
+
   return (
     <AppLayout>
       <div className="container mx-auto py-6 px-4">
@@ -149,15 +154,15 @@ const Projects: React.FC = () => {
 
         {viewMode === "board" ? (
           <PlanningBoardView 
-            goals={filteredProjects as any[]} 
-            onUpdateGoal={() => {}} 
-            onDeleteGoal={() => {}} 
+            projects={filteredProjects}
+            contentType="projects"
+            onEditItem={handleEditProject}
           />
         ) : (
           <PlanningListView 
-            goals={filteredProjects as any[]} 
-            onUpdateGoal={() => {}} 
-            onDeleteGoal={() => {}} 
+            projects={filteredProjects}
+            contentType="projects"
+            onEditItem={handleEditProject}
           />
         )}
 

@@ -1,163 +1,246 @@
 
 import React, { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { LibraryBigIcon, BookOpen, Plus } from "lucide-react";
-import { BookDialog } from "../BookDialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Plus, Search } from "lucide-react";
 import { Book, ReadingStatus } from "@/types/knowledge";
 import { BookshelfKanbanView } from "./BookshelfKanbanView";
 import { BookshelfListView } from "./BookshelfListView";
+import { BookDialog } from "../BookDialog";
+import { useToast } from "@/hooks/use-toast";
 
-// Sample books data
-const sampleBooks: Book[] = [{
-  id: "1",
-  title: "Atomic Habits",
-  author: "James Clear",
-  readingStatus: "Reading Now" as ReadingStatus,
-  rating: 5,
-  coverImage: "/sample-covers/atomic-habits.jpg",
-  description: "Tiny changes, remarkable results",
-  relatedSkillsets: ["Self-Improvement"],
-  summary: "A practical guide about how to build good habits and break bad ones.",
-  keyLessons: "Small changes compound over time. Focus on system over goals.",
-  dateAdded: new Date(),
-  tags: ["habits", "self-improvement"]
-}, {
-  id: "2",
-  title: "Design Patterns",
-  author: "Erich Gamma et al.",
-  readingStatus: "Not Yet Read" as ReadingStatus,
-  rating: 0,
-  coverImage: "/sample-covers/design-patterns.jpg",
-  description: "Elements of Reusable Object-Oriented Software",
-  relatedSkillsets: ["Programming", "Design"],
-  summary: "",
-  keyLessons: "",
-  dateAdded: new Date(),
-  tags: ["programming", "design"]
-}, {
-  id: "3",
-  title: "Thinking, Fast and Slow",
-  author: "Daniel Kahneman",
-  readingStatus: "Finished" as ReadingStatus,
-  rating: 4,
-  coverImage: "/sample-covers/thinking-fast-slow.jpg",
-  description: "How the mind works and the two systems that drive the way we think",
-  relatedSkillsets: ["Psychology", "Decision Making"],
-  summary: "Explores the two systems that drive how we think and make choices.",
-  keyLessons: "Our brains use two systems: fast, intuitive thinking and slow, rational thinking.",
-  dateAdded: new Date(),
-  tags: ["psychology", "decision-making"]
-}];
-
-export interface BookshelfState {
-  [key: string]: Book[];
-}
+export type BookshelfState = {
+  [key in ReadingStatus]: Book[];
+};
 
 export function BookshelfTab() {
   const [viewMode, setViewMode] = useState<"kanban" | "list">("kanban");
+  const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [currentBook, setCurrentBook] = useState<Book | null>(null);
-  
-  // Initialize books by reading status
-  const initialState: BookshelfState = {
-    "Reading Now": [],
-    "Not Yet Read": [],
-    "Finished": []
-  };
-  
-  sampleBooks.forEach(book => {
-    initialState[book.readingStatus].push(book);
-  });
-  
-  const [booksByStatus, setBooksByStatus] = useState<BookshelfState>(initialState);
-  
-  const handleAddBook = (book: Book) => {
-    if (currentBook) {
-      // Remove the book from its previous status (if it changed)
-      const newBooksByStatus = {
-        ...booksByStatus
-      };
-      Object.keys(newBooksByStatus).forEach(status => {
-        newBooksByStatus[status] = newBooksByStatus[status].filter(b => b.id !== book.id);
-      });
+  const [editingBook, setEditingBook] = useState<Book | null>(null);
+  const { toast } = useToast();
+  const [coverImage, setCoverImage] = useState<string>("");
 
-      // Add to the correct status
-      newBooksByStatus[book.readingStatus] = [...newBooksByStatus[book.readingStatus], book];
-      setBooksByStatus(newBooksByStatus);
-    } else {
-      setBooksByStatus({
-        ...booksByStatus,
-        [book.readingStatus]: [...booksByStatus[book.readingStatus], {
-          ...book,
-          id: Date.now().toString()
-        }]
-      });
-    }
-    setDialogOpen(false);
-    setCurrentBook(null);
+  // Sample books data
+  const [booksByStatus, setBooksByStatus] = useState<BookshelfState>({
+    "Not Started": [
+      {
+        id: "1",
+        title: "Atomic Habits",
+        author: "James Clear",
+        coverUrl: "https://covers.openlibrary.org/b/id/8479576-M.jpg",
+        description: "Tiny Changes, Remarkable Results",
+        readingStatus: "Not Started",
+        dateAdded: new Date(2023, 0, 15),
+        genre: "Self Improvement",
+        tags: ["habits", "psychology"],
+        notes: ""
+      },
+      {
+        id: "2",
+        title: "Deep Work",
+        author: "Cal Newport",
+        coverUrl: "https://covers.openlibrary.org/b/id/10110013-M.jpg",
+        description: "Rules for Focused Success in a Distracted World",
+        readingStatus: "Not Started",
+        dateAdded: new Date(2023, 1, 20),
+        genre: "Productivity",
+        tags: ["focus", "productivity"],
+        notes: ""
+      }
+    ],
+    "In Progress": [
+      {
+        id: "3",
+        title: "The Psychology of Money",
+        author: "Morgan Housel",
+        coverUrl: "https://covers.openlibrary.org/b/id/10356439-M.jpg",
+        description: "Timeless lessons on wealth, greed, and happiness",
+        readingStatus: "In Progress",
+        dateAdded: new Date(2023, 2, 5),
+        genre: "Finance",
+        currentPage: 120,
+        totalPages: 256,
+        tags: ["money", "psychology"],
+        notes: "Interesting perspectives on how people think about money differently."
+      }
+    ],
+    "Completed": [
+      {
+        id: "4",
+        title: "Project Hail Mary",
+        author: "Andy Weir",
+        coverUrl: "https://covers.openlibrary.org/b/id/10389354-M.jpg",
+        description: "A lone astronaut must save the earth from disaster",
+        readingStatus: "Completed",
+        dateAdded: new Date(2022, 11, 10),
+        dateCompleted: new Date(2023, 0, 5),
+        genre: "Science Fiction",
+        rating: 5,
+        tags: ["sci-fi", "space"],
+        notes: "Excellent story with great character development."
+      }
+    ]
+  });
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
-  
-  const handleEdit = (book: Book) => {
-    setCurrentBook(book);
+
+  const filteredBooksByStatus = Object.entries(booksByStatus).reduce((acc, [status, books]) => {
+    const filtered = books.filter(book => 
+      book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (book.description && book.description.toLowerCase().includes(searchQuery.toLowerCase()))
+    );
+    acc[status as ReadingStatus] = filtered;
+    return acc;
+  }, {} as BookshelfState);
+
+  const handleAddNewBook = () => {
+    setEditingBook(null);
+    setCoverImage("");
     setDialogOpen(true);
   };
-  
-  const handleDelete = (book: Book) => {
-    setBooksByStatus({
-      ...booksByStatus,
-      [book.readingStatus]: booksByStatus[book.readingStatus].filter(b => b.id !== book.id)
+
+  const handleEditBook = (book: Book) => {
+    setEditingBook(book);
+    setCoverImage(book.coverUrl || "");
+    setDialogOpen(true);
+  };
+
+  const handleDeleteBook = (book: Book) => {
+    const newBooksByStatus = { ...booksByStatus };
+    newBooksByStatus[book.readingStatus] = 
+      booksByStatus[book.readingStatus].filter(b => b.id !== book.id);
+    
+    setBooksByStatus(newBooksByStatus);
+    
+    toast({
+      title: "Book deleted",
+      description: `"${book.title}" has been removed from your bookshelf.`,
     });
   };
-  
-  // Calculate all books across all statuses
-  const allBooks = Object.values(booksByStatus).flat();
-  
+
+  const handleSaveBook = (book: Book) => {
+    const newBooksByStatus = { ...booksByStatus };
+    
+    // If editing an existing book
+    if (editingBook) {
+      // Remove the book from its current status
+      newBooksByStatus[editingBook.readingStatus] = 
+        booksByStatus[editingBook.readingStatus].filter(b => b.id !== editingBook.id);
+      
+      // If the status changed, ensure the new status category exists
+      if (!newBooksByStatus[book.readingStatus]) {
+        newBooksByStatus[book.readingStatus] = [];
+      }
+    } else {
+      // For new books, ensure the status category exists
+      if (!newBooksByStatus[book.readingStatus]) {
+        newBooksByStatus[book.readingStatus] = [];
+      }
+      
+      // Generate an ID for new book
+      book.id = Date.now().toString();
+    }
+    
+    // Add the book to the appropriate status
+    newBooksByStatus[book.readingStatus] = [
+      ...newBooksByStatus[book.readingStatus],
+      { ...book, coverUrl: coverImage || book.coverUrl }
+    ];
+    
+    setBooksByStatus(newBooksByStatus);
+    setDialogOpen(false);
+    
+    toast({
+      title: editingBook ? "Book updated" : "Book added",
+      description: `"${book.title}" has been ${editingBook ? 'updated' : 'added to your bookshelf'}.`,
+    });
+  };
+
   return (
-    <div className="space-y-6 py-[20px] px-[20px]">
+    <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <h2 className="text-2xl font-bold">Your Bookshelf</h2>
-        <div className="flex items-center gap-4 w-full sm:w-auto">
-          <div className="border rounded-md overflow-hidden flex">
-            <Button variant={viewMode === "kanban" ? "default" : "ghost"} size="sm" className="h-9 rounded-none" onClick={() => setViewMode("kanban")}>
-              <LibraryBigIcon className="h-4 w-4 mr-2" />
-              Kanban
-            </Button>
-            <Button variant={viewMode === "list" ? "default" : "ghost"} size="sm" className="h-9 rounded-none" onClick={() => setViewMode("list")}>
-              <BookOpen className="h-4 w-4 mr-2" />
-              List
-            </Button>
+        <div className="w-full sm:w-96">
+          <Label htmlFor="search-books" className="sr-only">Search books</Label>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              id="search-books"
+              placeholder="Search by title, author, or description..."
+              className="pl-9"
+              value={searchQuery}
+              onChange={handleSearch}
+            />
           </div>
-          <Button onClick={() => {
-          setCurrentBook(null);
-          setDialogOpen(true);
-        }} className="gap-1 w-full sm:w-auto">
-            <Plus size={18} />
+        </div>
+        <div className="flex gap-2">
+          <Tabs 
+            value={viewMode} 
+            onValueChange={(value) => setViewMode(value as "kanban" | "list")}
+            className="hidden sm:flex"
+          >
+            <TabsList>
+              <TabsTrigger value="kanban">Kanban</TabsTrigger>
+              <TabsTrigger value="list">List</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <Button onClick={handleAddNewBook} className="gap-2">
+            <Plus className="h-4 w-4" />
             Add Book
           </Button>
         </div>
       </div>
-      
+
+      {/* Mobile view mode selection */}
+      <div className="flex sm:hidden justify-center mb-6">
+        <Tabs 
+          value={viewMode} 
+          onValueChange={(value) => setViewMode(value as "kanban" | "list")}
+        >
+          <TabsList>
+            <TabsTrigger value="kanban">Kanban</TabsTrigger>
+            <TabsTrigger value="list">List</TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
       {viewMode === "kanban" ? (
-        <BookshelfKanbanView 
-          booksByStatus={booksByStatus} 
+        <BookshelfKanbanView
+          booksByStatus={filteredBooksByStatus} 
           setBooksByStatus={setBooksByStatus}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+          onEdit={handleEditBook}
+          onDelete={handleDeleteBook}
         />
       ) : (
-        <BookshelfListView 
-          booksByStatus={booksByStatus}
-          allBooks={allBooks}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
+        <BookshelfListView
+          booksByStatus={filteredBooksByStatus}
+          onEdit={handleEditBook}
+          onDelete={handleDeleteBook}
         />
       )}
-      
-      <BookDialog 
-        open={dialogOpen} 
-        onOpenChange={setDialogOpen} 
-        onSave={handleAddBook} 
-        book={currentBook}
+
+      <BookDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        onSave={handleSaveBook}
+        book={editingBook ? { ...editingBook } : {
+          id: "",
+          title: "",
+          author: "",
+          readingStatus: "Not Started" as ReadingStatus,
+          dateAdded: new Date(),
+          genre: "",
+          tags: [],
+          notes: ""
+        }}
+        // Pass coverImage and its handler to BookDialog
+        bookCoverImage={coverImage}
+        onBookCoverImageChange={setCoverImage}
       />
     </div>
   );

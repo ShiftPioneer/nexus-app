@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 
 export interface KnowledgeInboxProps {
-  // No props needed for this component
+  onAddEntry?: () => void;
 }
 
-export function KnowledgeInbox() {
+export function KnowledgeInbox({ onAddEntry }: KnowledgeInboxProps) {
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -20,15 +20,30 @@ export function KnowledgeInbox() {
         </p>
         
         <div className="space-y-2">
-          <Button variant="outline" className="w-full justify-start gap-2" size="sm">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start gap-2" 
+            size="sm"
+            onClick={onAddEntry}
+          >
             <Plus className="h-4 w-4" />
             Add Quick Note
           </Button>
-          <Button variant="outline" className="w-full justify-start gap-2" size="sm">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start gap-2" 
+            size="sm"
+            onClick={onAddEntry}
+          >
             <Plus className="h-4 w-4" />
             Add Resource Link
           </Button>
-          <Button variant="outline" className="w-full justify-start gap-2" size="sm">
+          <Button 
+            variant="outline" 
+            className="w-full justify-start gap-2" 
+            size="sm"
+            onClick={onAddEntry}
+          >
             <Plus className="h-4 w-4" />
             Add Quick Thought
           </Button>
