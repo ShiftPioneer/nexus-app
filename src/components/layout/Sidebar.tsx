@@ -1,7 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Sidebar as ShadcnSidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
+import { 
+  Sidebar as ShadcnSidebar, 
+  SidebarContent, 
+  SidebarFooter 
+} from "@/components/ui/sidebar";
 import { ChevronLeft, ChevronRight, User, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import NavigationMenu from "./NavigationMenu";
@@ -17,12 +21,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-interface SidebarProps {
-  collapsed?: boolean;
-}
-
-const Sidebar: React.FC<SidebarProps> = () => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+const Sidebar: React.FC = () => {
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   
