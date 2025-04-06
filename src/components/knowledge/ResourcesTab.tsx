@@ -61,7 +61,7 @@ const sampleResources: Resource[] = [
   }
 ];
 
-export default function ResourcesTab() {
+export function ResourcesTab() {
   const [resources, setResources] = useState<Resource[]>(sampleResources);
   const [selectedResource, setSelectedResource] = useState<Resource | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -202,9 +202,7 @@ export default function ResourcesTab() {
                 </DropdownMenu>
               </div>
 
-              <h3 className="font-semibold text-base mb-1 line-clamp-2">
-                {resource.title}
-              </h3>
+              <h3 className="font-semibold text-base mb-1 line-clamp-2">{resource.title}</h3>
 
               {resource.notes && (
                 <p className="text-sm text-muted-foreground mt-2 mb-3 line-clamp-2">
@@ -257,3 +255,5 @@ export default function ResourcesTab() {
     </div>
   );
 }
+
+export default ResourcesTab;

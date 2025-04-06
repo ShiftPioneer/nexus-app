@@ -6,12 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { KnowledgeHeader } from "@/components/knowledge/KnowledgeHeader";
 import { NotesTab } from "@/components/knowledge/NotesTab";
-import { ResourcesTab } from "@/components/knowledge/ResourcesTab";
+import ResourcesTab from "@/components/knowledge/ResourcesTab";
 import { BookshelfTab } from "@/components/knowledge/BookshelfTab";
 import { SkillsetTab } from "@/components/knowledge/SkillsetTab";
-import { SecondBrainSystem } from "@/components/knowledge/SecondBrainSystem";
 import { TagsTab } from "@/components/knowledge/TagsTab";
-import { useKnowledge } from "@/contexts/KnowledgeContext";
+import AIInsightsPanel from "@/components/knowledge/AIInsightsPanel";
 import { useToast } from "@/hooks/use-toast";
 
 const Knowledge: React.FC = () => {
@@ -24,7 +23,7 @@ const Knowledge: React.FC = () => {
         activeTab === "resources" ? "resource" : 
         activeTab === "books" ? "book" : 
         activeTab === "skillsets" ? "skillset" : 
-        activeTab === "secondbrain" ? "entry" : ""}`,
+        activeTab === "tags" ? "tag" : ""}`,
       description: "Creation dialog coming soon",
       duration: 3000,
     });
@@ -45,7 +44,6 @@ const Knowledge: React.FC = () => {
               activeTab === "resources" ? "Resource" : 
               activeTab === "books" ? "Book" : 
               activeTab === "skillsets" ? "Skillset" : 
-              activeTab === "secondbrain" ? "Entry" : 
               activeTab === "tags" ? "Tag" : ""
             }
           </Button>
@@ -70,8 +68,8 @@ const Knowledge: React.FC = () => {
             <SkillsetTab />
           </TabsContent>
           
-          <TabsContent value="secondbrain" className="mt-6">
-            <SecondBrainSystem />
+          <TabsContent value="insights" className="mt-6">
+            <AIInsightsPanel />
           </TabsContent>
           
           <TabsContent value="tags" className="mt-6">

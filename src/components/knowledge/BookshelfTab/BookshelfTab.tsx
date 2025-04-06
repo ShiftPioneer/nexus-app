@@ -1,16 +1,13 @@
 
 import React, { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LibraryBigIcon, BookOpen, Plus } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BookDialog } from "../BookDialog";
-import { BookCard } from "../BookCard";
 import { Book, ReadingStatus } from "@/types/knowledge";
 import { BookshelfKanbanView } from "./BookshelfKanbanView";
 import { BookshelfListView } from "./BookshelfListView";
 
-// Sample books data with corrected types
+// Sample books data
 const sampleBooks: Book[] = [{
   id: "1",
   title: "Atomic Habits",

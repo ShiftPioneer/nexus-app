@@ -1,186 +1,39 @@
 
-import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import React from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, X, UploadCloud } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/components/ui/select";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogFooter 
-} from "@/components/ui/dialog";
-import { KnowledgeCategory, KnowledgeEntry } from "@/types/knowledge";
-import { useKnowledge } from "@/contexts/KnowledgeContext";
-import { useToast } from "@/hooks/use-toast";
+import { Plus } from "lucide-react";
 
-const categoryOptions: KnowledgeCategory[] = ["note", "concept", "idea", "question", "insight", "summary", "inbox", "projects", "areas", "resources", "archives"];
-
-interface KnowledgeInboxProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+export interface KnowledgeInboxProps {
+  // No props needed for this component
 }
 
-export function KnowledgeInbox({ open, onOpenChange }: KnowledgeInboxProps) {
-  const { addEntry } = useKnowledge();
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [category, setCategory] = useState<KnowledgeCategory>("inbox");
-  const [tags, setTags] = useState("");
-  const [attachment, setAttachment] = useState<{ name: string; url: string; type: string } | null>(null);
-  const { toast } = useToast();
-
-  const handleSave = () => {
-    if (!title || !content) {
-      toast({
-        title: "Missing fields",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const newEntry: Omit<KnowledgeEntry, "id"> = {
-      title,
-      content,
-      category,
-      tags: tags.split(",").map(tag => tag.trim()),
-      createdAt: new Date(),
-      pinned: false,
-      fileAttachment: attachment
-    };
-
-    addEntry(newEntry);
-    toast({
-      title: "Entry added",
-      description: `Successfully added entry "${title}" to ${category}.`,
-    });
-    onOpenChange(false);
-    clearForm();
-  };
-
-  const clearForm = () => {
-    setTitle("");
-    setContent("");
-    setCategory("inbox");
-    setTags("");
-    setAttachment(null);
-  };
-
-  const handleRemoveAttachment = () => {
-    setAttachment(null);
-  };
-
-  const handleAttachFile = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setAttachment({
-        name: file.name,
-        url: URL.createObjectURL(file),
-        type: file.type
-      });
-    }
-  };
-
+export function KnowledgeInbox() {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add New Knowledge Entry</DialogTitle>
-          <p className="text-sm text-muted-foreground">Enter the details for your new knowledge entry.</p>
-        </DialogHeader>
-
-        <div className="grid gap-4 py-4">
-          <div className="grid gap-2">
-            <Label htmlFor="title">Title</Label>
-            <Input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="content">Content</Label>
-            <Textarea
-              id="content"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              className="min-h-[100px]"
-            />
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="category">Category</Label>
-            <Select onValueChange={(value) => setCategory(value as KnowledgeCategory)} defaultValue={category}>
-              <SelectTrigger id="category">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {categoryOptions.map((cat) => (
-                  <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="tags">Tags (comma separated)</Label>
-            <Input
-              type="text"
-              id="tags"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="attachment">Attachment</Label>
-            {attachment ? (
-              <div className="flex items-center justify-between rounded-md border p-2">
-                <span>{attachment.name}</span>
-                <Button type="button" variant="ghost" onClick={handleRemoveAttachment}>
-                  <X className="h-4 w-4" />
-                  Remove
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Input
-                  type="file"
-                  id="attachment"
-                  className="hidden"
-                  onChange={handleAttachFile}
-                />
-                <Label htmlFor="attachment" className="cursor-pointer flex items-center">
-                  <UploadCloud className="mr-2 h-4 w-4" />
-                  Attach File
-                </Label>
-              </div>
-            )}
-          </div>
+    <Card>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg">Knowledge Inbox</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground mb-4">
+          Quickly capture ideas, thoughts, and resources to process later.
+        </p>
+        
+        <div className="space-y-2">
+          <Button variant="outline" className="w-full justify-start gap-2" size="sm">
+            <Plus className="h-4 w-4" />
+            Add Quick Note
+          </Button>
+          <Button variant="outline" className="w-full justify-start gap-2" size="sm">
+            <Plus className="h-4 w-4" />
+            Add Resource Link
+          </Button>
+          <Button variant="outline" className="w-full justify-start gap-2" size="sm">
+            <Plus className="h-4 w-4" />
+            Add Quick Thought
+          </Button>
         </div>
-
-        <DialogFooter>
-          <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button type="submit" onClick={handleSave}>
-            Save
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </CardContent>
+    </Card>
   );
 }

@@ -1,99 +1,173 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
-import { useProjects } from "@/contexts/ProjectContext";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PlusCircle, ListTodo, KanbanSquare } from "lucide-react";
+import { PlanningBoardView } from "@/components/planning/PlanningBoardView";
+import { PlanningListView } from "@/components/planning/PlanningListView";
 import { ProjectCreationDialog } from "@/components/planning/ProjectCreationDialog";
-import { Project } from "@/types/planning";
-import PlanningBoardView from "@/components/planning/PlanningBoardView";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
-const Projects = () => {
-  const { projects, addProject, updateProject } = useProjects();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [projectsViewMode, setProjectsViewMode] = useState<"list" | "board">("board");
+type ProjectStatus = "planning" | "active" | "completed" | "abandoned" | "on hold";
 
-  const handleOpenDialog = () => {
-    setEditingProject(null);
-    setIsDialogOpen(true);
+interface Project {
+  id: string;
+  title: string;
+  description: string;
+  status: ProjectStatus;
+  startDate: Date;
+  endDate: Date;
+  progress: number;
+  category: string;
+  pinned: boolean;
+  timeframe: string;
+  milestones: any[];
+}
+
+// Mock projects data for testing
+const mockProjects: Project[] = [
+  {
+    id: "1",
+    title: "Company Website Redesign",
+    description: "Redesign the company website with a modern UI/UX",
+    status: "active",
+    startDate: new Date(2023, 3, 15),
+    endDate: new Date(2023, 6, 30),
+    progress: 60,
+    category: "Work",
+    pinned: true,
+    timeframe: "Q2 2023",
+    milestones: []
+  },
+  {
+    id: "2",
+    title: "Learn React Native",
+    description: "Complete a comprehensive React Native course and build a mobile app",
+    status: "planning",
+    startDate: new Date(2023, 5, 1),
+    endDate: new Date(2023, 7, 31),
+    progress: 0,
+    category: "Personal Development",
+    pinned: false,
+    timeframe: "Q3 2023",
+    milestones: []
+  },
+  {
+    id: "3",
+    title: "Home Office Setup",
+    description: "Set up an ergonomic and productive home office space",
+    status: "completed",
+    startDate: new Date(2023, 1, 10),
+    endDate: new Date(2023, 2, 15),
+    progress: 100,
+    category: "Personal",
+    pinned: false,
+    timeframe: "Q1 2023",
+    milestones: []
+  }
+];
+
+const Projects: React.FC = () => {
+  const [projects, setProjects] = useState<Project[]>(mockProjects);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"board" | "list">("board");
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
   };
 
-  const handleEditProject = (project: Project) => {
-    setEditingProject(project);
-    setIsDialogOpen(true);
-  };
+  const filteredProjects = projects.filter(project => 
+    project.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    project.description.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleCreateProject = (project: Project) => {
-    if (editingProject) {
-      updateProject(project.id, project);
-    } else {
-      addProject(project);
-    }
-    setIsDialogOpen(false);
+    setProjects([...projects, { ...project, id: Date.now().toString() }]);
+    setCreateDialogOpen(false);
+    toast({
+      title: "Project created",
+      description: `"${project.title}" has been added to your projects`,
+    });
   };
 
-  // Convert projects to the expected Goal format for PlanningBoardView
-  const projectsAsGoals = projects.map(project => ({
-    id: project.id,
-    title: project.title,
-    description: project.description,
-    status: project.status,
-    startDate: project.startDate,
-    endDate: project.endDate,
-    progress: project.progress || 0,
-    category: project.category,
-    pinned: project.pinned,
-    // These are required for the Goal type but not used in the UI for projects
-    timeframe: "custom",
-    milestones: []
-  }));
-
   return (
-    <div>
-      <AppLayout>
-        <div className="container px-4 py-6 mx-auto">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-2xl font-bold">Projects</h1>
-              <p className="text-muted-foreground">Manage your projects and track their progress</p>
-            </div>
-            <Button onClick={handleOpenDialog}>
-              <Plus className="mr-2 h-4 w-4" /> New Project
-            </Button>
+    <AppLayout>
+      <div className="container mx-auto py-6 px-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <div>
+            <h1 className="text-2xl font-bold">Projects</h1>
+            <p className="text-muted-foreground">Manage and track your ongoing projects</p>
           </div>
-
-          {projects.length > 0 ? (
-            <div>
-              <PlanningBoardView 
-                goals={projectsAsGoals} 
-                contentType="projects" 
-                onEditItem={handleEditProject} 
-              />
-            </div>
-          ) : (
-            <div className="text-center p-12 border-2 border-dashed rounded-lg">
-              <h3 className="text-xl font-medium mb-2">No projects yet</h3>
-              <p className="text-muted-foreground mb-6">
-                Create your first project to get started
-              </p>
-              <Button onClick={handleOpenDialog}>
-                <Plus className="mr-2 h-4 w-4" /> Create Your First Project
-              </Button>
-            </div>
-          )}
-
-          {isDialogOpen && (
-            <ProjectCreationDialog
-              open={isDialogOpen}
-              onOpenChange={setIsDialogOpen}
-              onSave={handleCreateProject}
-              project={editingProject}
-            />
-          )}
+          <Button onClick={() => setCreateDialogOpen(true)} className="gap-2">
+            <PlusCircle className="h-4 w-4" />
+            New Project
+          </Button>
         </div>
-      </AppLayout>
-    </div>
+
+        <Card className="mb-6">
+          <CardContent className="p-4">
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
+              <div className="w-full sm:w-80">
+                <Label htmlFor="search" className="sr-only">Search</Label>
+                <Input
+                  id="search"
+                  placeholder="Search projects..."
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  className="w-full"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button
+                  variant={viewMode === "board" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("board")}
+                  className="gap-2"
+                >
+                  <KanbanSquare className="h-4 w-4" />
+                  Board
+                </Button>
+                <Button
+                  variant={viewMode === "list" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setViewMode("list")}
+                  className="gap-2"
+                >
+                  <ListTodo className="h-4 w-4" />
+                  List
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {viewMode === "board" ? (
+          <PlanningBoardView 
+            goals={filteredProjects as any[]} 
+            onUpdateGoal={() => {}} 
+            onDeleteGoal={() => {}} 
+          />
+        ) : (
+          <PlanningListView 
+            goals={filteredProjects as any[]} 
+            onUpdateGoal={() => {}} 
+            onDeleteGoal={() => {}} 
+          />
+        )}
+
+        <ProjectCreationDialog
+          open={createDialogOpen}
+          onOpenChange={setCreateDialogOpen}
+          onSave={handleCreateProject}
+        />
+      </div>
+    </AppLayout>
   );
 };
 

@@ -1,46 +1,87 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Book, ReadingStatus } from "@/types/knowledge";
 
 export interface BookDialogProps {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
   onSave: (book: Book) => void;
   book: Book | null;
-  coverImage?: string | null;
-  onCoverImageChange?: (coverImage: string | null) => void;
 }
 
-export function BookDialog({ 
-  open, 
-  onOpenChange, 
-  onSave, 
-  book,
-  coverImage: initialCoverImage = null,
-  onCoverImageChange
-}: BookDialogProps) {
-  const [title, setTitle] = useState(book?.title || "");
-  const [author, setAuthor] = useState(book?.author || "");
-  const [description, setDescription] = useState(book?.description || "");
-  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(book?.readingStatus || "Not Yet Read");
-  const [tags, setTags] = useState(book?.tags?.join(", ") || "");
-  const [rating, setRating] = useState(book?.rating?.toString() || "0");
-  const [coverImage, setCoverImage] = useState(initialCoverImage || book?.coverImage || "");
-  const [summary, setSummary] = useState(book?.summary || "");
-  const [keyLessons, setKeyLessons] = useState(book?.keyLessons || "");
-  const [skillsets, setSkillsets] = useState(book?.relatedSkillsets?.join(", ") || "");
+export function BookDialog({ open, onOpenChange, onSave, book }: BookDialogProps) {
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [description, setDescription] = useState("");
+  const [readingStatus, setReadingStatus] = useState<ReadingStatus>("Not Yet Read");
+  const [rating, setRating] = useState<number>(0);
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagsInput, setTagsInput] = useState("");
+  const [relatedSkillsets, setRelatedSkillsets] = useState<string[]>([]);
+  const [skillsetsInput, setSkillsetsInput] = useState("");
+  const [summary, setSummary] = useState("");
+  const [keyLessons, setKeyLessons] = useState("");
+  
+  useEffect(() => {
+    if (book) {
+      setTitle(book.title);
+      setAuthor(book.author);
+      setDescription(book.description || "");
+      setReadingStatus(book.readingStatus);
+      setRating(book.rating);
+      setTags(book.tags || []);
+      setRelatedSkillsets(book.relatedSkillsets || []);
+      setSummary(book.summary || "");
+      setKeyLessons(book.keyLessons || "");
+    } else {
+      resetForm();
+    }
+  }, [book, open]);
+  
+  const resetForm = () => {
+    setTitle("");
+    setAuthor("");
+    setDescription("");
+    setReadingStatus("Not Yet Read");
+    setRating(0);
+    setTags([]);
+    setTagsInput("");
+    setRelatedSkillsets([]);
+    setSkillsetsInput("");
+    setSummary("");
+    setKeyLessons("");
+  };
+  
+  const handleAddTag = () => {
+    if (tagsInput.trim() && !tags.includes(tagsInput.trim())) {
+      setTags([...tags, tagsInput.trim()]);
+      setTagsInput("");
+    }
+  };
+  
+  const handleRemoveTag = (tag: string) => {
+    setTags(tags.filter(t => t !== tag));
+  };
+  
+  const handleAddSkillset = () => {
+    if (skillsetsInput.trim() && !relatedSkillsets.includes(skillsetsInput.trim())) {
+      setRelatedSkillsets([...relatedSkillsets, skillsetsInput.trim()]);
+      setSkillsetsInput("");
+    }
+  };
+  
+  const handleRemoveSkillset = (skillset: string) => {
+    setRelatedSkillsets(relatedSkillsets.filter(s => s !== skillset));
+  };
   
   const handleSave = () => {
-    if (!title || !author) {
-      // Show an error message
-      return;
-    }
+    if (!title || !author) return;
     
     const newBook: Book = {
       id: book?.id || Date.now().toString(),
@@ -48,58 +89,47 @@ export function BookDialog({
       author,
       description,
       readingStatus,
-      tags: tags.split(",").map(tag => tag.trim()).filter(Boolean),
-      rating: parseInt(rating) || 0,
-      coverImage: coverImage || undefined,
+      rating,
+      tags,
+      relatedSkillsets,
       summary,
       keyLessons,
-      relatedSkillsets: skillsets.split(",").map(s => s.trim()).filter(Boolean),
       dateAdded: book?.dateAdded || new Date(),
-      dateCompleted: readingStatus === "Finished" ? (book?.dateCompleted || new Date()) : undefined
+      coverImage: book?.coverImage || "",
     };
     
     onSave(newBook);
-  };
-  
-  const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setCoverImage(imageUrl);
-      if (onCoverImageChange) {
-        onCoverImageChange(imageUrl);
-      }
-    }
+    resetForm();
   };
   
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{book ? 'Edit Book' : 'Add New Book'}</DialogTitle>
+          <DialogTitle>{book ? "Edit Book" : "Add New Book"}</DialogTitle>
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                placeholder="Book title"
-              />
-            </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="author">Author</Label>
-              <Input
-                id="author"
-                value={author}
-                onChange={(e) => setAuthor(e.target.value)}
-                placeholder="Author name"
-              />
-            </div>
+          <div className="grid gap-2">
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Book title"
+              required
+            />
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="author">Author *</Label>
+            <Input
+              id="author"
+              value={author}
+              onChange={(e) => setAuthor(e.target.value)}
+              placeholder="Author name"
+              required
+            />
           </div>
           
           <div className="grid gap-2">
@@ -108,104 +138,162 @@ export function BookDialog({
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="A brief description of the book"
+              placeholder="Brief description of the book"
+              rows={2}
             />
           </div>
           
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="status">Reading Status</Label>
-              <Select value={readingStatus} onValueChange={(value) => setReadingStatus(value as ReadingStatus)}>
-                <SelectTrigger id="status">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Not Yet Read">Not Yet Read</SelectItem>
-                  <SelectItem value="Reading Now">Reading Now</SelectItem>
-                  <SelectItem value="Finished">Finished</SelectItem>
-                  <SelectItem value="abandoned">Abandoned</SelectItem>
-                </SelectContent>
-              </Select>
+          <div className="grid gap-2">
+            <Label>Reading Status</Label>
+            <RadioGroup 
+              value={readingStatus} 
+              onValueChange={(value) => setReadingStatus(value as ReadingStatus)}
+              className="flex space-x-2"
+            >
+              <div className="flex items-center space-x-1">
+                <RadioGroupItem value="Not Yet Read" id="not-read" />
+                <Label htmlFor="not-read" className="cursor-pointer">Not Yet Read</Label>
+              </div>
+              <div className="flex items-center space-x-1">
+                <RadioGroupItem value="Reading Now" id="reading" />
+                <Label htmlFor="reading" className="cursor-pointer">Reading Now</Label>
+              </div>
+              <div className="flex items-center space-x-1">
+                <RadioGroupItem value="Finished" id="finished" />
+                <Label htmlFor="finished" className="cursor-pointer">Finished</Label>
+              </div>
+            </RadioGroup>
+          </div>
+          
+          <div className="grid gap-2">
+            <Label>Rating {readingStatus === "Finished" ? "(out of 5)" : ""}</Label>
+            <div className="flex space-x-2">
+              {[1, 2, 3, 4, 5].map(star => (
+                <Button
+                  key={star}
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className={`w-8 h-8 p-0 ${rating >= star ? "bg-yellow-100 text-yellow-700 border-yellow-400" : ""}`}
+                  onClick={() => setRating(star)}
+                  disabled={readingStatus !== "Finished"}
+                >
+                  {star}
+                </Button>
+              ))}
             </div>
-            
-            <div className="grid gap-2">
-              <Label htmlFor="rating">Rating (0-5)</Label>
+          </div>
+          
+          <div className="grid gap-2">
+            <Label htmlFor="tags">Tags</Label>
+            <div className="flex gap-2">
               <Input
-                type="number"
-                id="rating"
-                min="0"
-                max="5"
-                value={rating}
-                onChange={(e) => setRating(e.target.value)}
+                id="tags"
+                value={tagsInput}
+                onChange={(e) => setTagsInput(e.target.value)}
+                placeholder="Add a tag"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddTag();
+                  }
+                }}
               />
+              <Button type="button" onClick={handleAddTag} variant="outline">
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {tags.map(tag => (
+                <span 
+                  key={tag} 
+                  className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs flex items-center"
+                >
+                  {tag}
+                  <button 
+                    type="button" 
+                    className="ml-1 text-gray-500 hover:text-gray-700"
+                    onClick={() => handleRemoveTag(tag)}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
             </div>
           </div>
           
           <div className="grid gap-2">
-            <Label htmlFor="tags">Tags (comma separated)</Label>
-            <Input
-              id="tags"
-              value={tags}
-              onChange={(e) => setTags(e.target.value)}
-              placeholder="fiction, science, history"
-            />
-          </div>
-          
-          <div className="grid gap-2">
-            <Label htmlFor="skillsets">Related Skillsets (comma separated)</Label>
-            <Input
-              id="skillsets"
-              value={skillsets}
-              onChange={(e) => setSkillsets(e.target.value)}
-              placeholder="Programming, Design, Psychology"
-            />
-          </div>
-          
-          <div className="grid gap-2">
-            <Label htmlFor="cover">Cover Image</Label>
-            <Input
-              type="file"
-              id="cover"
-              accept="image/*"
-              onChange={handleCoverImageChange}
-              className="hidden"
-            />
-            <div className="flex items-center gap-4">
-              {coverImage && (
-                <div className="relative w-24 h-36 bg-gray-100 rounded overflow-hidden">
-                  <img src={coverImage} alt="Book cover" className="w-full h-full object-cover" />
-                </div>
-              )}
-              <Label htmlFor="cover" className="cursor-pointer bg-muted hover:bg-muted/90 text-sm px-4 py-2 rounded">
-                {coverImage ? "Change Cover" : "Upload Cover"}
-              </Label>
+            <Label htmlFor="skillsets">Related Skillsets</Label>
+            <div className="flex gap-2">
+              <Input
+                id="skillsets"
+                value={skillsetsInput}
+                onChange={(e) => setSkillsetsInput(e.target.value)}
+                placeholder="Add a skillset"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleAddSkillset();
+                  }
+                }}
+              />
+              <Button type="button" onClick={handleAddSkillset} variant="outline">
+                Add
+              </Button>
+            </div>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {relatedSkillsets.map(skillset => (
+                <span 
+                  key={skillset} 
+                  className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs flex items-center"
+                >
+                  {skillset}
+                  <button 
+                    type="button" 
+                    className="ml-1 text-blue-500 hover:text-blue-700"
+                    onClick={() => handleRemoveSkillset(skillset)}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
             </div>
           </div>
           
-          <div className="grid gap-2">
-            <Label htmlFor="summary">Summary</Label>
-            <Textarea
-              id="summary"
-              value={summary}
-              onChange={(e) => setSummary(e.target.value)}
-              placeholder="A brief summary of the book's content"
-            />
-          </div>
-          
-          <div className="grid gap-2">
-            <Label htmlFor="keyLessons">Key Lessons</Label>
-            <Textarea
-              id="keyLessons"
-              value={keyLessons}
-              onChange={(e) => setKeyLessons(e.target.value)}
-              placeholder="Important takeaways from the book"
-            />
-          </div>
+          {readingStatus === "Finished" && (
+            <>
+              <div className="grid gap-2">
+                <Label htmlFor="summary">Summary</Label>
+                <Textarea
+                  id="summary"
+                  value={summary}
+                  onChange={(e) => setSummary(e.target.value)}
+                  placeholder="Brief summary of the book"
+                  rows={3}
+                />
+              </div>
+              
+              <div className="grid gap-2">
+                <Label htmlFor="keyLessons">Key Lessons or Takeaways</Label>
+                <Textarea
+                  id="keyLessons"
+                  value={keyLessons}
+                  onChange={(e) => setKeyLessons(e.target.value)}
+                  placeholder="What are your main takeaways?"
+                  rows={3}
+                />
+              </div>
+            </>
+          )}
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={handleSave}>Save</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={handleSave} disabled={!title || !author}>
+            {book ? "Save Changes" : "Add Book"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
