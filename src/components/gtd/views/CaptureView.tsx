@@ -1,15 +1,15 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import QuickCaptureForm from "./capture/QuickCaptureForm";
 import { GTDTask } from "@/types/planning";
 import { useToast } from "@/hooks/use-toast";
-
 const CaptureView: React.FC = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [activeTab, setActiveTab] = useState("quick-capture");
-  
+
   // Handler for adding tasks
   const handleAddTask = (task: Partial<GTDTask>) => {
     // In a real app, this would save to a database
@@ -17,12 +17,10 @@ const CaptureView: React.FC = () => {
     toast({
       title: "Task captured",
       description: "Your task has been added to your inbox",
-      duration: 3000,
+      duration: 3000
     });
   };
-
-  return (
-    <Card>
+  return <Card>
       <CardHeader>
         <CardTitle>Capture</CardTitle>
         <CardDescription>Collect what has your attention</CardDescription>
@@ -31,8 +29,8 @@ const CaptureView: React.FC = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="mb-4">
             <TabsTrigger value="quick-capture">Quick Capture</TabsTrigger>
-            <TabsTrigger value="email-capture">Email Integration</TabsTrigger>
-            <TabsTrigger value="voice-capture">Voice Capture</TabsTrigger>
+            
+            
           </TabsList>
           
           <TabsContent value="quick-capture">
@@ -54,8 +52,6 @@ const CaptureView: React.FC = () => {
           </TabsContent>
         </Tabs>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default CaptureView;
