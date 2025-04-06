@@ -31,10 +31,10 @@ export function BookDialog({
     id: "",
     title: "",
     author: "",
-    readingStatus: "Not Started",
+    readingStatus: "not-started",
     dateAdded: new Date(),
-    tags: [],
-    rating: 0
+    rating: 0,
+    tags: []
   };
 
   const isNewBook = !book?.id;
@@ -44,8 +44,8 @@ export function BookDialog({
   const [author, setAuthor] = useState(currentBook.author || "");
   const [genre, setGenre] = useState(currentBook.genre || "");
   const [description, setDescription] = useState(currentBook.description || "");
-  const [coverImage, setCoverImage] = useState(bookCoverImage || currentBook.coverImage || "");
-  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(currentBook.readingStatus || "Not Started");
+  const [coverImage, setCoverImage] = useState(bookCoverImage || currentBook.coverImage || currentBook.coverUrl || "");
+  const [readingStatus, setReadingStatus] = useState<ReadingStatus>(currentBook.readingStatus || "not-started");
   const [currentPage, setCurrentPage] = useState(currentBook.currentPage || 0);
   const [totalPages, setTotalPages] = useState(currentBook.totalPages || 0);
   const [notes, setNotes] = useState(currentBook.notes || "");
@@ -60,8 +60,8 @@ export function BookDialog({
       setAuthor(book.author || "");
       setGenre(book.genre || "");
       setDescription(book.description || "");
-      setCoverImage(bookCoverImage || book.coverImage || "");
-      setReadingStatus(book.readingStatus || "Not Started");
+      setCoverImage(bookCoverImage || book.coverImage || book.coverUrl || "");
+      setReadingStatus(book.readingStatus || "not-started");
       setCurrentPage(book.currentPage || 0);
       setTotalPages(book.totalPages || 0);
       setNotes(book.notes || "");
@@ -82,12 +82,12 @@ export function BookDialog({
       description,
       coverImage,
       readingStatus,
-      currentPage: readingStatus === "In Progress" ? currentPage : undefined,
-      totalPages: (readingStatus === "In Progress" || readingStatus === "Completed") ? totalPages : undefined,
+      currentPage: readingStatus === "in-progress" ? currentPage : undefined,
+      totalPages: (readingStatus === "in-progress" || readingStatus === "completed") ? totalPages : undefined,
       notes,
       tags: tagsString.split(",").map(tag => tag.trim()).filter(tag => tag !== ""),
       dateAdded: currentBook.dateAdded || new Date(),
-      dateCompleted: readingStatus === "Completed" ? (dateCompleted || new Date()) : undefined,
+      dateCompleted: readingStatus === "completed" ? (dateCompleted || new Date()) : undefined,
       rating: rating || 0
     };
     
@@ -100,6 +100,20 @@ export function BookDialog({
     if (onBookCoverImageChange) {
       onBookCoverImageChange(url);
     }
+  };
+
+  // Helper function to convert legacy status values to new enum values
+  const mapStatusValue = (status: string): ReadingStatus => {
+    const statusMap: Record<string, ReadingStatus> = {
+      "Not Started": "not-started",
+      "In Progress": "in-progress",
+      "Completed": "completed",
+      "Reading Now": "in-progress",
+      "Not Yet Read": "not-started",
+      "Finished": "completed",
+      "abandoned": "abandoned"
+    };
+    return (statusMap[status] || status) as ReadingStatus;
   };
 
   return (
@@ -160,18 +174,15 @@ export function BookDialog({
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Not Started">Not Started</SelectItem>
-                    <SelectItem value="In Progress">In Progress</SelectItem>
-                    <SelectItem value="Completed">Completed</SelectItem>
-                    <SelectItem value="Reading Now">Reading Now</SelectItem>
-                    <SelectItem value="Not Yet Read">Not Yet Read</SelectItem>
-                    <SelectItem value="Finished">Finished</SelectItem>
+                    <SelectItem value="not-started">Not Started</SelectItem>
+                    <SelectItem value="in-progress">In Progress</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
                     <SelectItem value="abandoned">Abandoned</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
               
-              {readingStatus === "In Progress" && (
+              {readingStatus === "in-progress" && (
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="currentPage">Current Page</Label>
@@ -196,7 +207,7 @@ export function BookDialog({
                 </div>
               )}
               
-              {readingStatus === "Completed" && (
+              {readingStatus === "completed" && (
                 <>
                   <div>
                     <Label htmlFor="totalPages">Total Pages</Label>

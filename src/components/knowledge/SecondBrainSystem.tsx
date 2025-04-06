@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function SecondBrainSystem() {
-  const { entries, addEntry, updateEntry } = useKnowledge();
+  const { entries = [], addEntry, updateEntry, getEntriesStats } = useKnowledge();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | KnowledgeCategory>("all");
   const [editingEntry, setEditingEntry] = useState<KnowledgeEntry | null>(null);

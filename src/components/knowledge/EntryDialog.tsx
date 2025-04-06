@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { KnowledgeEntry, KnowledgeCategory } from "@/types/knowledge";
-import { PlusCircle, X } from "lucide-react";
 
 export interface EntryDialogProps {
   open: boolean;
@@ -30,7 +29,8 @@ export function EntryDialog({
     category: "note",
     tags: [],
     createdAt: new Date(),
-    attachments: []
+    updatedAt: new Date(),
+    pinned: false
   };
 
   const isNewEntry = !entry?.id;
@@ -65,7 +65,12 @@ export function EntryDialog({
       createdAt: currentEntry.createdAt || new Date(),
       updatedAt: new Date(),
       pinned: currentEntry.pinned || false,
-      url: category === "resource" ? url : undefined
+      url: category === "resource" ? url : undefined,
+      // Include for backward compatibility
+      dateCreated: currentEntry.dateCreated || currentEntry.createdAt || new Date(),
+      dateUpdated: currentEntry.dateUpdated || new Date(),
+      lastUpdated: currentEntry.lastUpdated || new Date(),
+      attachments: currentEntry.attachments || []
     };
     
     onSave(updatedEntry);
@@ -102,15 +107,9 @@ export function EntryDialog({
                   <SelectItem value="note">Note</SelectItem>
                   <SelectItem value="concept">Concept</SelectItem>
                   <SelectItem value="idea">Idea</SelectItem>
-                  <SelectItem value="question">Question</SelectItem>
                   <SelectItem value="insight">Insight</SelectItem>
-                  <SelectItem value="summary">Summary</SelectItem>
                   <SelectItem value="resource">Resource</SelectItem>
                   <SelectItem value="reference">Reference</SelectItem>
-                  <SelectItem value="inbox">Inbox</SelectItem>
-                  <SelectItem value="projects">Projects</SelectItem>
-                  <SelectItem value="areas">Areas</SelectItem>
-                  <SelectItem value="archives">Archives</SelectItem>
                 </SelectContent>
               </Select>
             </div>

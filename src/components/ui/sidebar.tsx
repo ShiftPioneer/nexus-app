@@ -56,10 +56,10 @@ interface SidebarMenuButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
 
 export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenuButtonProps>(
   ({ className, isActive, asChild = false, tooltip, ...props }, ref) => {
-    const Comp = asChild ? "div" : "button";
+    const Comp = asChild ? React.Fragment : "button";
     return (
       <Comp
-        ref={ref}
+        ref={asChild ? undefined : ref}
         className={cn(
           "flex w-full items-center rounded-md p-2 text-sm transition-colors",
           isActive ? "bg-accent text-accent-foreground" : "hover:bg-muted", 

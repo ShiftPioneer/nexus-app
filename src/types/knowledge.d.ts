@@ -1,3 +1,4 @@
+
 export type KnowledgeCategory = 'note' | 'resource' | 'reference' | 'idea' | 'concept' | 'insight';
 
 export type SkillsetCategory = 'technical' | 'soft' | 'creative' | 'language' | 'business' | 'other';
@@ -18,6 +19,22 @@ export interface KnowledgeEntry {
   attachments?: any[]; // Adding for backward compatibility
 }
 
+export interface Note {
+  id: string;
+  title: string;
+  content: string;
+  tags: string[];
+  lastUpdated: Date;
+  pinned?: boolean;
+  image?: string;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  color: string;
+}
+
 export interface Book {
   id: string;
   title: string;
@@ -34,11 +51,14 @@ export interface Book {
   dateAdded: Date;
   dateStarted?: Date;
   dateFinished?: Date;
+  dateCompleted?: Date; // For backward compatibility
   highlights?: string[];
   quotes?: string[];
   summary?: string;
   keyLessons?: string;
   genre?: string; // For backward compatibility
+  tags?: string[]; // For backward compatibility
+  pinned?: boolean; // For backward compatibility
 }
 
 export type ReadingStatus = 'not-started' | 'in-progress' | 'completed' | 'abandoned';
@@ -48,6 +68,13 @@ export interface BookshelfState {
   'in-progress': Book[];
   'completed': Book[];
   'abandoned': Book[];
+  // For backward compatibility
+  'Not Started'?: Book[];
+  'In Progress'?: Book[];
+  'Completed'?: Book[];
+  'Reading Now'?: Book[];
+  'Not Yet Read'?: Book[];
+  'Finished'?: Book[];
 }
 
 export interface Skillset {
@@ -61,6 +88,12 @@ export interface Skillset {
   lastPracticed?: Date;
   icon?: string;
   skills?: string[]; // For backward compatibility
+  proficiency?: number; // For backward compatibility
+  mastery?: number; // For backward compatibility
+  resourceCount?: number; // For backward compatibility
+  color?: string; // For backward compatibility
+  pinned?: boolean; // For backward compatibility
+  learningResources?: string[]; // For backward compatibility
 }
 
 export interface Resource {
@@ -74,6 +107,7 @@ export interface Resource {
   completed: boolean;
   notes?: string;
   rating?: number;
+  pinned?: boolean; // For backward compatibility
 }
 
 export interface KnowledgeContextValue {
@@ -81,18 +115,30 @@ export interface KnowledgeContextValue {
   books: Book[];
   skillsets: Skillset[];
   resources: Resource[];
-  addEntry: (entry: KnowledgeEntry) => void;
-  updateEntry: (id: string, entry: KnowledgeEntry) => void;
+  notes?: Note[]; // For backward compatibility
+  tags?: Tag[]; // For backward compatibility
+  addEntry: (entry: Omit<KnowledgeEntry, "id">) => string;
+  updateEntry: (id: string, entry: Partial<KnowledgeEntry>) => void;
   deleteEntry: (id: string) => void;
-  addBook: (book: Book) => void;
-  updateBook: (id: string, book: Book) => void;
+  addBook: (book: Omit<Book, "id">) => string;
+  updateBook: (id: string, book: Partial<Book>) => void;
   deleteBook: (id: string) => void;
-  addSkillset: (skillset: Skillset) => void;
-  updateSkillset: (id: string, skillset: Skillset) => void;
+  addSkillset: (skillset: Omit<Skillset, "id">) => string;
+  updateSkillset: (id: string, skillset: Partial<Skillset>) => void;
   deleteSkillset: (id: string) => void;
-  addResource: (resource: Resource) => void;
-  updateResource: (id: string, resource: Resource) => void;
+  addResource: (resource: Omit<Resource, "id">) => string;
+  updateResource: (id: string, resource: Partial<Resource>) => void;
   deleteResource: (id: string) => void;
   togglePinNote?: (id: string) => void; // Making optional for backward compatibility
+  togglePinResource?: (id: string) => void;
+  togglePinBook?: (id: string) => void;
+  togglePinSkillset?: (id: string) => void;
   getEntriesStats?: () => any; // Making optional for backward compatibility
+  // Additional field for components
+  addNote?: (note: Omit<Note, "id">) => string;
+  updateNote?: (id: string, note: Partial<Note>) => void;
+  deleteNote?: (id: string) => void;
+  addTag?: (tag: Omit<Tag, "id">) => string;
+  updateTag?: (id: string, tag: Partial<Tag>) => void;
+  deleteTag?: (id: string) => void;
 }

@@ -11,9 +11,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export interface DatePickerProps {
+interface DatePickerProps {
   date?: Date;
-  setDate: (date: Date | undefined) => void;
+  setDate: (date?: Date) => void;
 }
 
 export function DatePicker({ date, setDate }: DatePickerProps) {

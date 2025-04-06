@@ -31,24 +31,33 @@ export function ResourceDialog({
 }: ResourceDialogProps) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
-  const [type, setType] = useState<"article" | "video" | "book" | "course" | "other">("article");
+  const [type, setType] = useState<Resource['type']>("article");
+  const [description, setDescription] = useState("");
   const [notes, setNotes] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+  const [completed, setCompleted] = useState(false);
+  const [pinned, setPinned] = useState(false);
 
   useEffect(() => {
     if (resource) {
       setTitle(resource.title);
       setUrl(resource.url || "");
       setType(resource.type);
+      setDescription(resource.description || "");
       setNotes(resource.notes || "");
       setTags(resource.tags);
+      setCompleted(resource.completed);
+      setPinned(resource.pinned || false);
     } else {
       setTitle("");
       setUrl("");
       setType("article");
+      setDescription("");
       setNotes("");
       setTags([]);
+      setCompleted(false);
+      setPinned(false);
     }
   }, [resource, open]);
 
@@ -67,13 +76,14 @@ export function ResourceDialog({
     const newResource: Resource = {
       id: resource?.id || Date.now().toString(),
       title,
-      url: url || undefined,
+      url,
+      description,
       type,
-      notes: notes || undefined,
+      notes,
       tags,
       dateAdded: resource?.dateAdded || new Date(),
-      pinned: resource?.pinned || false,
-      completed: resource?.completed || false
+      completed,
+      pinned
     };
     onSave(newResource);
   };
@@ -97,7 +107,7 @@ export function ResourceDialog({
           </div>
 
           <div>
-            <Label htmlFor="url">URL (optional)</Label>
+            <Label htmlFor="url">URL</Label>
             <Input
               id="url"
               value={url}
@@ -107,8 +117,19 @@ export function ResourceDialog({
           </div>
 
           <div>
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Brief description of the resource"
+              rows={2}
+            />
+          </div>
+
+          <div>
             <Label htmlFor="type">Type</Label>
-            <Select value={type} onValueChange={(value) => setType(value as any)}>
+            <Select value={type} onValueChange={(value) => setType(value as Resource['type'])}>
               <SelectTrigger>
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
@@ -135,6 +156,12 @@ export function ResourceDialog({
                   <div className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4 text-green-500" />
                     Course
+                  </div>
+                </SelectItem>
+                <SelectItem value="tool">
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-violet-500" />
+                    Tool
                   </div>
                 </SelectItem>
                 <SelectItem value="other">
