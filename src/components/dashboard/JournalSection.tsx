@@ -1,21 +1,16 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BookOpen, PenTool } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-
 const JournalSection = () => {
   const navigate = useNavigate();
-  
   const handleCreateEntry = () => {
     // Navigate to the journal page and signal to create a new entry
     navigate('/journal?new=true');
   };
-  
-  return (
-    <Card className="border-dashed border-gray-600 bg-[#131729] text-white">
-      <CardContent className="p-4 text-center space-y-2">
+  return <Card className="border-dashed border-gray-600 text-white bg-slate-950">
+      <CardContent className="p-4 text-center space-y-2 bg-slate-950">
         <div className="flex items-center justify-center gap-2">
           <BookOpen className="h-5 w-5 text-[#FF6500]" />
           <h3 className="text-lg font-bold">Daily Journal</h3>
@@ -32,16 +27,11 @@ const JournalSection = () => {
           </p>
         </div>
         
-        <Button 
-          className="w-full py-1 text-white text-sm bg-[#FF6500] hover:bg-[#E55A00]"
-          onClick={handleCreateEntry}
-        >
+        <Button className="w-full py-1 text-white text-sm bg-[#FF6500] hover:bg-[#E55A00]" onClick={handleCreateEntry}>
           <PenTool className="mr-2 h-3 w-3" />
           New Entry
         </Button>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default JournalSection;
