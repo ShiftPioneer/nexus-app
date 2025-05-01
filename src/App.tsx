@@ -2,7 +2,7 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Index from './pages/Index';
 import NotFound from './pages/NotFound';
-import Tasks from './pages/Tasks';
+import Actions from './pages/Actions';
 import TimeDesign from './pages/TimeDesign';
 import Habits from './pages/Habits';
 import Journal from './pages/Journal';
@@ -61,10 +61,10 @@ function App() {
               } 
             />
             <Route 
-              path="/tasks" 
+              path="/actions" 
               element={
                 <ProtectedRoute>
-                  <Tasks />
+                  <Actions />
                 </ProtectedRoute>
               } 
             />

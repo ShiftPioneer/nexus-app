@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Define TaskPriority and TaskStatus types with all possible values
 export type TaskPriority = "Very Low" | "Low" | "Medium" | "High" | "Very High";
-export type TaskStatus = "inbox" | "next-action" | "project" | "waiting-for" | "someday" | "reference" | "completed" | "deleted" | "today";
+export type TaskStatus = "inbox" | "next-action" | "project" | "waiting-for" | "someday" | "reference" | "completed" | "deleted" | "today" | "todo" | "in-progress" | "todo-not";
 
 export interface TaskAttachment {
   name: string;
@@ -28,6 +28,7 @@ export interface GTDTask {
   timeEstimate?: number;
   delegatedTo?: string;
   attachment?: TaskAttachment;
+  isToDoNot?: boolean; // New field to differentiate between to-do and to-do-not tasks
 }
 
 interface GTDContextType {
@@ -39,6 +40,9 @@ interface GTDContextType {
   activeView: "capture" | "clarify" | "organize" | "reflect" | "engage";
   setActiveView: (view: "capture" | "clarify" | "organize" | "reflect" | "engage") => void;
   getTaskById: (id: string) => GTDTask | undefined;
+  hasUnreadNotifications: boolean;
+  setHasUnreadNotifications: (value: boolean) => void;
+  markNotificationsAsRead: () => void;
 }
 
 const GTDContext = createContext<GTDContextType | null>(null);
@@ -92,11 +96,30 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         status: "today",
         createdAt: new Date(),
         tags: ["health", "exercise"]
+      },
+      {
+        id: "5",
+        title: "Scroll social media",
+        priority: "Low",
+        status: "todo",
+        createdAt: new Date(),
+        tags: ["avoid"],
+        isToDoNot: true
+      },
+      {
+        id: "6",
+        title: "Eat junk food",
+        priority: "Medium",
+        status: "todo",
+        createdAt: new Date(),
+        tags: ["health", "avoid"],
+        isToDoNot: true
       }
     ];
   });
 
   const [activeView, setActiveView] = useState<"capture" | "clarify" | "organize" | "reflect" | "engage">("capture");
+  const [hasUnreadNotifications, setHasUnreadNotifications] = useState<boolean>(true); // Set to true by default for demo
 
   // Save tasks to local storage when they change
   useEffect(() => {
@@ -167,6 +190,10 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }));
   };
 
+  const markNotificationsAsRead = () => {
+    setHasUnreadNotifications(false);
+  };
+
   return (
     <GTDContext.Provider value={{
       tasks,
@@ -176,7 +203,10 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       moveTask,
       activeView,
       setActiveView,
-      getTaskById
+      getTaskById,
+      hasUnreadNotifications,
+      setHasUnreadNotifications,
+      markNotificationsAsRead
     }}>
       {children}
     </GTDContext.Provider>

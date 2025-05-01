@@ -1,94 +1,137 @@
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
-import { LayoutDashboard, CheckCircle, Clock, Zap, BookOpen, Brain, LayoutGrid, Settings, Calendar, BarChartHorizontal, Target, RefreshCcw, CheckSquare } from "lucide-react";
+import { 
+  LayoutDashboard, CheckCircle, Clock, Zap, BookOpen, Brain, 
+  LayoutGrid, Settings, BarChartHorizontal, Target, RefreshCw, CheckSquare 
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
+
 interface NavigationMenuProps {
   isCollapsed?: boolean;
 }
+
 const NavigationMenu: React.FC<NavigationMenuProps> = ({
   isCollapsed = false
 }) => {
   const location = useLocation();
   const currentPath = location.pathname;
-  const menuItems = [{
-    title: "Dashboard",
-    path: "/",
-    icon: LayoutDashboard
-  }, {
-    title: "GTD",
-    path: "/gtd",
-    icon: CheckSquare
-  }, {
-    title: "Tasks",
-    path: "/tasks",
-    icon: CheckCircle
-  }, {
-    title: "Habits",
-    path: "/habits",
-    icon: RefreshCcw
-  }, {
-    title: "Goals",
-    path: "/planning",
-    icon: Target
-  }, {
-    title: "Focus",
-    path: "/focus",
-    icon: Brain
-  }, {
-    title: "Mindset",
-    path: "/mindset",
-    icon: Zap
-  }, {
-    title: "Time Design",
-    path: "/time-design",
-    icon: Clock
-  }, {
-    title: "Journal",
-    path: "/journal",
-    icon: BookOpen
-  }, {
-    title: "Knowledge",
-    path: "/knowledge",
-    icon: LayoutGrid
-  }, {
-    title: "Energy",
-    path: "/energy",
-    icon: Zap
-  }, {
-    title: "Stats",
-    path: "/stats",
-    icon: BarChartHorizontal
-  }, {
-    title: "Settings",
-    path: "/settings",
-    icon: Settings
-  }];
-  return <SidebarMenu className="space-y-1 scrollbar-none">
-      {menuItems.map(item => <SidebarMenuItem key={item.path}>
-          <SidebarMenuButton asChild isActive={currentPath === item.path} tooltip={isCollapsed ? item.title : undefined} className={cn("hover:bg-[#2A2F3C] transition-all duration-300 group", currentPath === item.path ? "bg-[#2A2F3C] text-[#0FA0CE]" : "text-[#B0B5BD]", isCollapsed ? "justify-center" : "px-2")}>
-            <motion.div className="w-full" whileHover={{
-          scale: 1.05
-        }} whileTap={{
-          scale: 0.95
-        }}>
+  
+  // Updated menu items based on the requested sidebar order
+  const menuItems = [
+    {
+      title: "Dashboard",
+      path: "/",
+      icon: LayoutDashboard
+    },
+    {
+      title: "GTD",
+      path: "/gtd",
+      icon: CheckSquare
+    },
+    {
+      title: "Actions",
+      path: "/actions",
+      icon: CheckCircle
+    },
+    {
+      title: "Time Design",
+      path: "/time-design",
+      icon: Clock
+    },
+    {
+      title: "Goals",
+      path: "/planning",
+      icon: Target
+    },
+    {
+      title: "Habits",
+      path: "/habits",
+      icon: RefreshCw
+    },
+    {
+      title: "Focus",
+      path: "/focus",
+      icon: Brain
+    },
+    {
+      title: "Mindset",
+      path: "/mindset",
+      icon: Zap
+    },
+    {
+      title: "Knowledge",
+      path: "/knowledge",
+      icon: LayoutGrid
+    },
+    {
+      title: "Journal",
+      path: "/journal",
+      icon: BookOpen
+    },
+    {
+      title: "Energy",
+      path: "/energy",
+      icon: Zap
+    },
+    {
+      title: "Stats",
+      path: "/stats",
+      icon: BarChartHorizontal
+    },
+    {
+      title: "Settings",
+      path: "/settings",
+      icon: Settings
+    }
+  ];
+
+  return (
+    <SidebarMenu className="space-y-1 scrollbar-none">
+      {menuItems.map(item => (
+        <SidebarMenuItem key={item.path}>
+          <SidebarMenuButton 
+            asChild 
+            isActive={currentPath === item.path} 
+            tooltip={isCollapsed ? item.title : undefined} 
+            className={cn(
+              "hover:bg-[#2A2F3C] transition-all duration-300 group", 
+              currentPath === item.path ? "bg-[#2A2F3C] text-[#0FA0CE]" : "text-[#B0B5BD]",
+              isCollapsed ? "justify-center" : "px-2"
+            )}
+          >
+            <motion.div 
+              className="w-full" 
+              whileHover={{ scale: 1.05 }} 
+              whileTap={{ scale: 0.95 }}
+            >
               <Link to={item.path} className="w-full flex items-center gap-3">
-                <motion.div whileHover={{
-              scale: 1.2
-            }} transition={{
-              duration: 0.3
-            }}>
-                  <item.icon className={cn("h-5 w-5 transition-transform transform duration-300", currentPath === item.path ? "text-[#0FA0CE]" : "text-[#B0B5BD]")} />
+                <motion.div 
+                  whileHover={{ scale: 1.2 }} 
+                  transition={{ duration: 0.3 }}
+                >
+                  <item.icon 
+                    className={cn(
+                      "h-5 w-5 transition-transform transform duration-300", 
+                      currentPath === item.path ? "text-[#0FA0CE]" : "text-[#B0B5BD]"
+                    )} 
+                  />
                 </motion.div>
                 
-                {!isCollapsed && <span className="transition-transform duration-300 group-hover:translate-x-1 text-base font-bold">
+                {!isCollapsed && (
+                  <span className="transition-transform duration-300 group-hover:translate-x-1 text-base font-bold">
                     {item.title}
-                  </span>}
+                  </span>
+                )}
               </Link>
             </motion.div>
           </SidebarMenuButton>
-        </SidebarMenuItem>)}
-    </SidebarMenu>;
+        </SidebarMenuItem>
+      ))}
+    </SidebarMenu>
+  );
 };
+
 export default NavigationMenu;

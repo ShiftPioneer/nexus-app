@@ -17,19 +17,21 @@ interface TasksListProps {
   tasks: any[]; // Using any type to match the existing prop type
   showActions?: boolean;
   onTaskComplete?: (id: string) => void;
+  isToDoNot?: boolean;
 }
 
 const TasksList: React.FC<TasksListProps> = ({ 
   tasks,
   showActions = false,
-  onTaskComplete
+  onTaskComplete,
+  isToDoNot = false
 }) => {
   const { updateTask } = useGTD();
 
   if (!tasks.length) {
     return (
       <Card className="text-center p-6 bg-slate-900 border-slate-700 text-slate-200">
-        <p className="text-slate-400">No tasks to display</p>
+        <p className="text-slate-400">No {isToDoNot ? "items" : "tasks"} to display</p>
       </Card>
     );
   }
@@ -84,9 +86,9 @@ const TasksList: React.FC<TasksListProps> = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
                   <DropdownMenuItem onClick={() => handleMarkComplete(task.id)}>
-                    Mark Complete
+                    {isToDoNot ? "Mark as Avoided" : "Mark Complete"}
                   </DropdownMenuItem>
-                  <DropdownMenuItem>Edit Task</DropdownMenuItem>
+                  <DropdownMenuItem>Edit {isToDoNot ? "Item" : "Task"}</DropdownMenuItem>
                   <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -125,7 +127,7 @@ const TasksList: React.FC<TasksListProps> = ({
                   Edit
                 </Button>
                 <Button size="sm" className="text-xs h-7 bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white">
-                  Start Focus
+                  {isToDoNot ? "Focus on Avoiding" : "Start Focus"}
                 </Button>
               </div>
             </CardContent>

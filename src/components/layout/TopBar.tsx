@@ -9,6 +9,7 @@ import ThemeToggle from "../theme/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGTD } from "@/components/gtd/GTDContext";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -28,8 +29,10 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu }: TopBarProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { hasUnreadNotifications, markNotificationsAsRead } = useGTD();
   
   const handleNotificationClick = () => {
+    markNotificationsAsRead();
     toast({
       title: "No new notifications",
       description: "You're all caught up!",
@@ -84,7 +87,9 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu }: TopBarProps) => {
           onClick={handleNotificationClick}
         >
           <Bell className="h-5 w-5" />
-          <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-primary"></span>
+          {hasUnreadNotifications && (
+            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
+          )}
         </Button>
         
         <DropdownMenu>
