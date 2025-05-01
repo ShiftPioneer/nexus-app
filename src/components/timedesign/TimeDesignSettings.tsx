@@ -1,39 +1,70 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Calendar, CheckCircle, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const TimeDesignSettings: React.FC = () => {
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
-  const handleGoogleCalendarConnect = () => {
+  // Check if Google Calendar is already connected
+  useEffect(() => {
+    // In a real app, this would fetch from your database
+    const savedState = localStorage.getItem('googleCalendarConnected');
+    if (savedState) {
+      setGoogleCalendarConnected(savedState === 'true');
+    }
+  }, []);
+
+  const handleGoogleCalendarConnect = async () => {
     // In a real implementation, this would use OAuth 2.0 flow to connect to Google Calendar API
-    // For now, we'll simulate a successful connection
-    setGoogleCalendarConnected(!googleCalendarConnected);
-    
-    if (!googleCalendarConnected) {
+    setIsConnecting(true);
+
+    try {
+      // Simulate connection process
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      const newConnectionState = !googleCalendarConnected;
+      setGoogleCalendarConnected(newConnectionState);
+      localStorage.setItem('googleCalendarConnected', String(newConnectionState));
+      
+      if (newConnectionState) {
+        toast({
+          title: "Google Calendar Connected",
+          description: "Your Google Calendar has been successfully connected.",
+        });
+      } else {
+        toast({
+          title: "Google Calendar Disconnected",
+          description: "Your Google Calendar has been disconnected.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
       toast({
-        title: "Google Calendar Connected",
-        description: "Your Google Calendar has been successfully connected.",
-      });
-    } else {
-      toast({
-        title: "Google Calendar Disconnected",
-        description: "Your Google Calendar has been disconnected.",
+        title: "Connection Failed",
+        description: "Failed to connect to Google Calendar. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsConnecting(false);
     }
   };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Google Calendar Integration</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Calendar className="h-5 w-5 text-primary" />
+          Google Calendar Integration
+        </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex items-center justify-between">
@@ -41,18 +72,34 @@ const TimeDesignSettings: React.FC = () => {
             <Label htmlFor="google-calendar" className="font-medium">Connect your Google Calendar to sync activities</Label>
             <p className="text-sm text-muted-foreground mt-1">
               {googleCalendarConnected ? (
-                <span className="text-green-500">Connected</span>
+                <span className="flex items-center gap-1 text-green-500">
+                  <CheckCircle className="h-4 w-4" /> Connected
+                </span>
               ) : (
                 "Not Connected"
               )}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Switch 
-              id="google-calendar" 
-              checked={googleCalendarConnected} 
-              onCheckedChange={handleGoogleCalendarConnect}
-            />
+            <Button
+              variant={isConnecting ? "outline" : googleCalendarConnected ? "default" : "outline"}
+              size="sm"
+              onClick={handleGoogleCalendarConnect}
+              disabled={isConnecting}
+              className="min-w-[120px] flex items-center justify-center gap-2"
+            >
+              {isConnecting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : googleCalendarConnected ? (
+                "Disconnect"
+              ) : (
+                "Connect"
+              )}
+            </Button>
+            
             {googleCalendarConnected && (
               <Button 
                 variant="outline" 
@@ -72,17 +119,77 @@ const TimeDesignSettings: React.FC = () => {
             <h4 className="font-medium mb-2">Synchronization Options</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label htmlFor="sync-two-way">Two-way Synchronization</Label>
+                <div>
+                  <Label htmlFor="sync-two-way">Two-way Synchronization</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Changes in either calendar will sync to the other
+                  </p>
+                </div>
                 <Switch id="sync-two-way" defaultChecked />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="sync-notifications">Sync Notifications</Label>
+                <div>
+                  <Label htmlFor="sync-notifications">Sync Notifications</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Receive notifications for synced calendar events
+                  </p>
+                </div>
                 <Switch id="sync-notifications" defaultChecked />
               </div>
               <div className="flex items-center justify-between">
-                <Label htmlFor="sync-availability">Sync Availability Status</Label>
+                <div>
+                  <Label htmlFor="sync-availability">Sync Availability Status</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Show your busy/free status from Google Calendar
+                  </p>
+                </div>
                 <Switch id="sync-availability" />
               </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="auto-block">Auto-block Focus Time</Label>
+                  <p className="text-xs text-muted-foreground">
+                    Automatically block focus time on your Google Calendar
+                  </p>
+                </div>
+                <Switch id="auto-block" />
+              </div>
+            </div>
+            
+            <div className="mt-4 pt-4 border-t">
+              <h4 className="font-medium mb-2">Calendar Selection</h4>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Primary Calendar</Label>
+                    <p className="text-xs text-muted-foreground">
+                      {user?.email || "Your primary calendar"}
+                    </p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Work Calendar</Label>
+                    <p className="text-xs text-muted-foreground">Work events</p>
+                  </div>
+                  <Switch />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>Personal Calendar</Label>
+                    <p className="text-xs text-muted-foreground">Personal events</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-end mt-4">
+              <Button variant="outline" size="sm" className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                Sync Now
+              </Button>
             </div>
           </div>
         )}
@@ -134,7 +241,9 @@ const TimeDesignSettings: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="email-notifications">Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">Receive email reminders for upcoming activities</p>
+                <p className="text-sm text-muted-foreground">
+                  Receive email reminders for upcoming activities
+                </p>
               </div>
               <Switch id="email-notifications" />
             </div>
@@ -142,7 +251,9 @@ const TimeDesignSettings: React.FC = () => {
             <div className="flex items-center justify-between">
               <div>
                 <Label htmlFor="browser-notifications">Browser Notifications</Label>
-                <p className="text-sm text-muted-foreground">Get browser alerts before activities start</p>
+                <p className="text-sm text-muted-foreground">
+                  Get browser alerts before activities start
+                </p>
               </div>
               <Switch id="browser-notifications" />
             </div>

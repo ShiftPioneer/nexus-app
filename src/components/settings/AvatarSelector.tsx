@@ -6,19 +6,20 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { CheckCircle, Zap, Fire, Star, Brain } from "lucide-react";
 
 // Updated avatars with productivity and creativity-themed icons
 const PRODUCTIVITY_AVATARS = [
   "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Productive&backgroundColor=ffb703",
+  "https://api.dicebear.com/7.x/shapes/svg?seed=Productive&backgroundColor=ffb703",
   "https://api.dicebear.com/7.x/bottts/svg?seed=Brain&backgroundColor=8ecae6",
   "https://api.dicebear.com/7.x/bottts/svg?seed=Focus&backgroundColor=e63946",
-  "https://api.dicebear.com/7.x/icons/svg?icon=brain",
-  "https://api.dicebear.com/7.x/icons/svg?icon=lightbulb",
-  "https://api.dicebear.com/7.x/icons/svg?icon=fire",
-  "https://api.dicebear.com/7.x/icons/svg?icon=star",
-  "https://api.dicebear.com/7.x/icons/svg?icon=rocket",
-  "https://api.dicebear.com/7.x/icons/svg?icon=bolt",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=zap&backgroundColor=ffd700",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=brain&backgroundColor=4cc9f0",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=star&backgroundColor=06d6a0",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=fire&backgroundColor=ef476f",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=rocket&backgroundColor=118ab2",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=check&backgroundColor=073b4c",
 ];
 
 interface AvatarSelectorProps {
@@ -78,7 +79,9 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
       <div className="flex items-center space-x-4">
         <Avatar className="h-20 w-20">
           <AvatarImage src={currentAvatar} alt="Profile" />
-          <AvatarFallback>JD</AvatarFallback>
+          <AvatarFallback>
+            <User className="h-10 w-10 text-muted-foreground" />
+          </AvatarFallback>
         </Avatar>
         <Button variant="outline" onClick={() => setOpen(true)}>
           Change Avatar
@@ -95,7 +98,9 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
             <div className="flex justify-center">
               <Avatar className="h-24 w-24">
                 <AvatarImage src={selectedAvatar} alt="Selected Avatar" />
-                <AvatarFallback>?</AvatarFallback>
+                <AvatarFallback>
+                  <User className="h-12 w-12 text-muted-foreground" />
+                </AvatarFallback>
               </Avatar>
             </div>
             
@@ -155,6 +160,25 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
         </DialogContent>
       </Dialog>
     </>
+  );
+};
+
+// Import the User icon from lucide-react
+const User = ({ className }: { className?: string }) => {
+  return (
+    <svg 
+      xmlns="http://www.w3.org/2000/svg" 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round" 
+      className={className}
+    >
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </svg>
   );
 };
 

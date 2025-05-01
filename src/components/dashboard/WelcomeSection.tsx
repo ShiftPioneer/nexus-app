@@ -1,14 +1,18 @@
+
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+
 const getGreeting = () => {
   const hour = new Date().getHours();
   if (hour < 12) return "Good Morning";
   if (hour < 18) return "Good Afternoon";
   return "Good Evening";
 };
+
 const quotes = [{
   text: "The future depends on what you do today.",
   author: "Mahatma Gandhi"
@@ -25,28 +29,35 @@ const quotes = [{
   text: "You don't have to be great to start, but you have to start to be great.",
   author: "Zig Ziglar"
 }];
+
 const WelcomeSection = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [quote, setQuote] = useState(quotes[Math.floor(Math.random() * quotes.length)]);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+  const { user } = useAuth();
+  
+  // Get user's name from profile data or email
+  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || "User";
+  
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
   }, []);
+  
   const formattedTime = currentTime.toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true
   });
+  
   const formattedDate = currentTime.toLocaleDateString([], {
     weekday: 'long',
     month: 'long',
     day: 'numeric'
   });
+  
   const handleNewQuote = () => {
     let newQuote;
     do {
@@ -57,13 +68,15 @@ const WelcomeSection = () => {
       description: "New quote generated!"
     });
   };
-  return <section className="mb-6 space-y-4">
+  
+  return (
+    <section className="mb-6 space-y-4">
       <Card className="overflow-hidden">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-center">
             <div className="flex-1 space-y-2 my-[10px] py-[5px]">
               <h1 className="text-3xl font-bold">
-                <span className="text-primary">{getGreeting()}</span>, User
+                <span className="text-primary">{getGreeting()}</span>, {userName}
               </h1>
               <p className="text-muted-foreground py-[10px]">
                 Ready to make today extraordinary? Your life operating system is primed for action.
@@ -97,6 +110,8 @@ const WelcomeSection = () => {
           </div>
         </CardContent>
       </Card>
-    </section>;
+    </section>
+  );
 };
+
 export default WelcomeSection;

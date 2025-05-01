@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ import {
 const ActionsContent = () => {
   const { toast } = useToast();
   const { tasks: allTasks, updateTask, moveTask, addTask } = useGTD();
-  const [viewMode, setViewMode] = useState<"kanban" | "list" | "eisenhower">("kanban");
+  const [viewMode, setViewMode] = useState<"kanban" | "list" | "eisenhower">("list"); // Changed default to list view
   const [selectedDay, setSelectedDay] = useState(startOfToday());
   const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
   const [editingTask, setEditingTask] = useState<GTDTask | null>(null);
@@ -209,15 +210,6 @@ const ActionsContent = () => {
           {viewMode !== "eisenhower" && (
             <div className="flex bg-muted rounded-lg p-1">
               <Button 
-                variant={viewMode === "kanban" ? "default" : "ghost"} 
-                size="sm" 
-                onClick={() => setViewMode("kanban")}
-                className="gap-1"
-              >
-                <Grid2X2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Kanban</span>
-              </Button>
-              <Button 
                 variant={viewMode === "list" ? "default" : "ghost"} 
                 size="sm" 
                 onClick={() => setViewMode("list")}
@@ -225,6 +217,15 @@ const ActionsContent = () => {
               >
                 <ListTodo className="h-4 w-4" />
                 <span className="hidden sm:inline">List</span>
+              </Button>
+              <Button 
+                variant={viewMode === "kanban" ? "default" : "ghost"} 
+                size="sm" 
+                onClick={() => setViewMode("kanban")}
+                className="gap-1"
+              >
+                <Grid2X2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Kanban</span>
               </Button>
               <Button 
                 variant={viewMode === "eisenhower" ? "default" : "ghost"} 
@@ -274,16 +275,41 @@ const ActionsContent = () => {
   );
   
   function renderTasksContent(isToDoNot: boolean) {
-    // Fix the type comparison by using triple equals for strict equality
+    // Fix the type comparison using type guard function
     if (viewMode === "eisenhower") {
+      // When in Eisenhower mode, show navigation buttons to go back to list/kanban view
       return (
-        <EisenhowerMatrix 
-          matrix={getEisenhowerMatrix(isToDoNot)} 
-          onTaskClick={handleEditTask}
-          onTaskMove={handleTaskMove}
-          getPriorityColor={getPriorityColor}
-          isToDoNot={isToDoNot}
-        />
+        <div>
+          <div className="mb-4 flex justify-end">
+            <div className="flex bg-muted rounded-lg p-1">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setViewMode("list")}
+                className="gap-1"
+              >
+                <ListTodo className="h-4 w-4" />
+                <span className="hidden sm:inline">List View</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setViewMode("kanban")}
+                className="gap-1"
+              >
+                <Grid2X2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Kanban View</span>
+              </Button>
+            </div>
+          </div>
+          <EisenhowerMatrix 
+            matrix={getEisenhowerMatrix(isToDoNot)} 
+            onTaskClick={handleEditTask}
+            onTaskMove={handleTaskMove}
+            getPriorityColor={getPriorityColor}
+            isToDoNot={isToDoNot}
+          />
+        </div>
       );
     } 
     
@@ -481,7 +507,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({
         </CardContent>
       </Card>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {quadrants.map(quadrant => (
           <Card key={quadrant.id} className={`border ${quadrant.className}`}>
             <CardHeader className={`pb-2 ${quadrant.headerClass}`}>
