@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthError } from "@supabase/supabase-js";
-import { Eye, EyeOff, Google } from "lucide-react";
+import { Eye, EyeOff, Globe } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Auth = () => {
@@ -227,7 +227,7 @@ const Auth = () => {
                   onClick={handleGoogleAuth}
                   className="w-full border-slate-700 hover:bg-slate-700 hover:text-white"
                 >
-                  <Google className="h-5 w-5 mr-2" />
+                  <Globe className="h-5 w-5 mr-2" />
                   Google
                 </Button>
               </div>
