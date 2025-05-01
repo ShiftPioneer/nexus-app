@@ -1,121 +1,186 @@
 
 import React from "react";
-import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import { Calendar } from "lucide-react";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { GTDTask, TaskStatus } from "@/components/gtd/GTDContext";
+import { format } from "date-fns";
+import {
+  Calendar,
+  ClipboardCheck,
+  Timer,
+  CheckCircle2,
+  ArrowRight,
+  Clock,
+  Tag,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
-// Define component properties
 export interface KanbanBoardProps {
   columns: {
-    [key: string]: any[]; // The columns object with status keys and task arrays
+    [key: string]: GTDTask[];
   };
-  onTaskClick: (task: any) => void;
+  onTaskClick: (task: GTDTask) => void;
   onTaskMove: (taskId: string, newStatus: string) => void;
   getPriorityColor: (priority: string) => string;
+  isToDoNot?: boolean;
 }
 
 const KanbanBoard: React.FC<KanbanBoardProps> = ({
   columns,
   onTaskClick,
   onTaskMove,
-  getPriorityColor
+  getPriorityColor,
+  isToDoNot = false
 }) => {
-  const handleDragEnd = (result: any) => {
-    const { destination, source, draggableId } = result;
-    
-    if (!destination) return;
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-    
-    onTaskMove(draggableId, destination.droppableId);
+  // Column headers with icons and descriptions
+  const columnInfo = {
+    todo: {
+      title: isToDoNot ? "To Avoid" : "To Do",
+      icon: <ClipboardCheck className="h-4 w-4" />,
+      description: isToDoNot 
+        ? "Actions and habits to avoid" 
+        : "Tasks that need to be completed",
+    },
+    today: {
+      title: isToDoNot ? "Avoid Today" : "Today",
+      icon: <Calendar className="h-4 w-4" />,
+      description: isToDoNot 
+        ? "Things to avoid today" 
+        : "Tasks scheduled for today",
+    },
+    "in-progress": {
+      title: "In Progress",
+      icon: <Timer className="h-4 w-4" />,
+      description: "Tasks currently being worked on",
+    },
+    completed: {
+      title: isToDoNot ? "Successfully Avoided" : "Completed",
+      icon: <CheckCircle2 className="h-4 w-4" />,
+      description: isToDoNot 
+        ? "Things you've successfully avoided" 
+        : "Tasks that have been completed",
+    },
   };
-  
-  const statusLabels: Record<string, string> = {
-    today: "Today",
-    todo: "To Do",
-    "in-progress": "In Progress",
-    completed: "Completed",
+
+  // Function to get the next status for a task
+  const getNextStatus = (currentStatus: string): TaskStatus => {
+    switch (currentStatus) {
+      case "todo":
+        return "today";
+      case "next-action":
+        return "today";
+      case "today":
+        return "in-progress";
+      case "in-progress":
+        return "completed";
+      case "completed":
+        return "todo";
+      default:
+        return "todo";
+    }
   };
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {Object.keys(columns).map((status) => (
-          <div key={status} className="flex flex-col h-full">
-            <div className="flex items-center justify-between mb-2 px-2">
-              <h3 className="font-semibold text-sm">{statusLabels[status]}</h3>
-              <span className="text-xs bg-muted px-2 py-1 rounded-full">
-                {columns[status].length}
-              </span>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {Object.keys(columns).map((columnId) => (
+        <Card key={columnId}>
+          <CardHeader className="py-2 px-3 flex flex-row items-center justify-between space-y-0">
+            <div className="flex items-center gap-2">
+              <div className="bg-primary p-1 rounded-md">
+                {columnInfo[columnId].icon}
+              </div>
+              <div>
+                <h3 className="text-sm font-medium">{columnInfo[columnId].title}</h3>
+                <p className="text-xs text-muted-foreground">
+                  {columns[columnId].length} {isToDoNot ? "items" : "tasks"}
+                </p>
+              </div>
             </div>
-            
-            <Droppable droppableId={status}>
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={`flex-1 p-2 min-h-[200px] bg-accent/10 rounded-lg ${
-                    snapshot.isDraggingOver ? "bg-accent/20" : ""
-                  }`}
-                >
-                  {columns[status].map((task, index) => (
-                    <Draggable key={task.id} draggableId={task.id} index={index}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          className={`p-3 mb-2 bg-card rounded-md border shadow-sm cursor-grab ${
-                            snapshot.isDragging ? "shadow-md" : ""
-                          }`}
-                          onClick={() => onTaskClick(task)}
-                        >
-                          <div className="flex items-center justify-between mb-1">
-                            <div className="flex items-center gap-2">
-                              <div className={`h-2 w-2 rounded-full ${getPriorityColor(task.priority)}`} />
-                              <h4 className="text-sm font-medium">{task.title}</h4>
-                            </div>
-                            {task.dueDate && (
-                              <div className="flex items-center text-xs text-muted-foreground">
-                                <Calendar className="h-3 w-3 mr-1" />
-                                {new Date(task.dueDate).toLocaleDateString()}
-                              </div>
-                            )}
-                          </div>
-                          
+          </CardHeader>
+          <CardContent className="pt-2 pb-3 px-3">
+            <div className="text-xs text-muted-foreground mb-3">
+              {columnInfo[columnId].description}
+            </div>
+
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
+              {columns[columnId].length === 0 ? (
+                <div className="border border-dashed rounded-md p-3 text-center text-sm text-muted-foreground">
+                  No {isToDoNot ? "items" : "tasks"}
+                </div>
+              ) : (
+                columns[columnId].map((task) => (
+                  <Card
+                    key={task.id}
+                    className="cursor-pointer hover:shadow-md transition-all"
+                    onClick={() => onTaskClick(task)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="flex-1">
+                          <div className="font-medium text-sm">{task.title}</div>
                           {task.description && (
-                            <p className="text-xs text-muted-foreground line-clamp-2">
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                               {task.description}
                             </p>
                           )}
-                          
-                          {task.tags && task.tags.length > 0 && (
-                            <div className="mt-1 flex flex-wrap gap-1">
-                              {task.tags.map((tag: string) => (
-                                <span
-                                  key={tag}
-                                  className="px-1.5 py-0.5 bg-accent/50 text-accent-foreground text-xs rounded-full"
-                                >
-                                  {tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {task.dueDate && (
+                              <Badge
+                                variant="outline"
+                                className="flex items-center gap-1 text-xs"
+                              >
+                                <Clock className="h-3 w-3" />
+                                {format(new Date(task.dueDate), "MMM d")}
+                              </Badge>
+                            )}
+
+                            {task.tags && task.tags.length > 0 && (
+                              <Badge
+                                variant="outline"
+                                className="flex items-center gap-1 text-xs"
+                              >
+                                <Tag className="h-3 w-3" />
+                                {task.tags[0]}
+                                {task.tags.length > 1 && `+${task.tags.length - 1}`}
+                              </Badge>
+                            )}
+
+                            <Badge
+                              className={`${getPriorityColor(
+                                task.priority
+                              )} text-white`}
+                            >
+                              {task.priority}
+                            </Badge>
+                          </div>
                         </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
+
+                        {/* Move to next status button */}
+                        {columnId !== "completed" && (
+                          <Button
+                            size="icon"
+                            variant="outline"
+                            className="h-6 w-6 rounded-full"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onTaskMove(task.id, getNextStatus(task.status));
+                            }}
+                            title={`Move to ${getNextStatus(task.status)}`}
+                          >
+                            <ArrowRight className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
               )}
-            </Droppable>
-          </div>
-        ))}
-      </div>
-    </DragDropContext>
+            </div>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
   );
 };
 

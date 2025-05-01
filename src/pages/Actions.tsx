@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -275,7 +274,7 @@ const ActionsContent = () => {
   );
   
   function renderTasksContent(isToDoNot: boolean) {
-    return viewMode === "eisenhower" ? (
+    return (viewMode === "eisenhower") ? (
       <EisenhowerMatrix 
         matrix={getEisenhowerMatrix(isToDoNot)} 
         onTaskClick={handleEditTask}

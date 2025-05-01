@@ -48,10 +48,10 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
     const startParts = activity.startTime.split(":");
     const endParts = activity.endTime.split(":");
     
-    const startHour = parseInt(startParts[0]);
-    const startMinute = parseInt(startParts[1]);
-    const endHour = parseInt(endParts[0]);
-    const endMinute = parseInt(endParts[1]);
+    const startHour = parseInt(startParts[0], 10);
+    const startMinute = parseInt(startParts[1], 10);
+    const endHour = parseInt(endParts[0], 10);
+    const endMinute = parseInt(endParts[1], 10);
     
     // Calculate top position (start time)
     const startPosition = ((startHour - 5) * 60 + startMinute) * 1.5; // Scale factor for better visibility
@@ -143,7 +143,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
                 <div className="text-xs flex items-center justify-between">
                   <span>{activity.startTime} - {activity.endTime}</span>
                 </div>
-                {height > 80 && activity.description && (
+                {parseInt(height, 10) > 80 && activity.description && (
                   <div className="text-xs mt-1 line-clamp-2">{activity.description}</div>
                 )}
               </div>
@@ -242,7 +242,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
                         <div className="text-xs truncate flex-nowrap">
                           {activity.startTime} - {activity.endTime}
                         </div>
-                        {height > 80 && activity.description && (
+                        {parseInt(height, 10) > 80 && activity.description && (
                           <div className="text-xs mt-1 line-clamp-1">{activity.description}</div>
                         )}
                       </div>

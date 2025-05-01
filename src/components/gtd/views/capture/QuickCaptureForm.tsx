@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useGTD } from "../../GTDContext";
 import {
@@ -31,6 +30,48 @@ import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import TagInput from "../../../ui/tag-input";
 
+// Define WebkitSpeechRecognition interface for TypeScript
+interface SpeechRecognitionEvent extends Event {
+  results: {
+    [index: number]: {
+      [index: number]: {
+        transcript: string;
+      };
+      isFinal: boolean;
+      length: number;
+    };
+    length: number;
+    resultIndex: number;
+  };
+}
+
+interface SpeechRecognitionErrorEvent extends Event {
+  error: string;
+  message?: string;
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start: () => void;
+  stop: () => void;
+  onresult: (event: SpeechRecognitionEvent) => void;
+  onerror: (event: SpeechRecognitionErrorEvent) => void;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognition;
+}
+
+// Add types to the global window object
+declare global {
+  interface Window {
+    SpeechRecognition?: SpeechRecognitionConstructor;
+    webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  }
+}
+
 const QuickCaptureForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -47,41 +88,44 @@ const QuickCaptureForm = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Speech recognition setup
-  const recognitionRef = useRef<any>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   
   useEffect(() => {
     // Initialize speech recognition
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
-      recognitionRef.current = new SpeechRecognition();
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
+    if (window.webkitSpeechRecognition || window.SpeechRecognition) {
+      const SpeechRecognitionAPI = window.webkitSpeechRecognition || window.SpeechRecognition;
+      recognitionRef.current = new SpeechRecognitionAPI();
       
-      recognitionRef.current.onresult = (event: any) => {
-        let interimTranscript = '';
-        let finalTranscript = '';
+      if (recognitionRef.current) {
+        recognitionRef.current.continuous = true;
+        recognitionRef.current.interimResults = true;
         
-        for (let i = event.resultIndex; i < event.results.length; ++i) {
-          if (event.results[i].isFinal) {
-            finalTranscript += event.results[i][0].transcript;
-          } else {
-            interimTranscript += event.results[i][0].transcript;
+        recognitionRef.current.onresult = (event: SpeechRecognitionEvent) => {
+          let interimTranscript = '';
+          let finalTranscript = '';
+          
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+              finalTranscript += event.results[i][0].transcript;
+            } else {
+              interimTranscript += event.results[i][0].transcript;
+            }
           }
-        }
+          
+          if (finalTranscript) {
+            setRecordedText(finalTranscript);
+          }
+        };
         
-        if (finalTranscript) {
-          setRecordedText(finalTranscript);
-        }
-      };
-      
-      recognitionRef.current.onerror = () => {
-        setIsRecording(false);
-        toast({
-          title: "Speech Recognition Error",
-          description: "An error occurred with speech recognition",
-          variant: "destructive",
-        });
-      };
+        recognitionRef.current.onerror = () => {
+          setIsRecording(false);
+          toast({
+            title: "Speech Recognition Error",
+            description: "An error occurred with speech recognition",
+            variant: "destructive",
+          });
+        };
+      }
     }
     
     return () => {
