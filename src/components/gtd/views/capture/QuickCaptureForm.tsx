@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from "react";
 import { useGTD } from "../../GTDContext";
 import {
@@ -41,8 +42,9 @@ interface SpeechRecognitionEvent extends Event {
       length: number;
     };
     length: number;
-    resultIndex: number;
   };
+  // Define the optional resultIndex property
+  resultIndex?: number;
 }
 
 interface SpeechRecognitionErrorEvent extends Event {
@@ -104,7 +106,10 @@ const QuickCaptureForm = () => {
           let interimTranscript = '';
           let finalTranscript = '';
           
-          for (let i = event.resultIndex; i < event.results.length; ++i) {
+          // Use 0 as default if resultIndex is undefined
+          const resultIndex = event.resultIndex || 0;
+          
+          for (let i = resultIndex; i < event.results.length; ++i) {
             if (event.results[i].isFinal) {
               finalTranscript += event.results[i][0].transcript;
             } else {

@@ -274,15 +274,20 @@ const ActionsContent = () => {
   );
   
   function renderTasksContent(isToDoNot: boolean) {
-    return (viewMode === "eisenhower") ? (
-      <EisenhowerMatrix 
-        matrix={getEisenhowerMatrix(isToDoNot)} 
-        onTaskClick={handleEditTask}
-        onTaskMove={handleTaskMove}
-        getPriorityColor={getPriorityColor}
-        isToDoNot={isToDoNot}
-      />
-    ) : (
+    // Fix the type comparison by using triple equals for strict equality
+    if (viewMode === "eisenhower") {
+      return (
+        <EisenhowerMatrix 
+          matrix={getEisenhowerMatrix(isToDoNot)} 
+          onTaskClick={handleEditTask}
+          onTaskMove={handleTaskMove}
+          getPriorityColor={getPriorityColor}
+          isToDoNot={isToDoNot}
+        />
+      );
+    } 
+    
+    return (
       <>
         <Card>
           <CardHeader className="pb-2">

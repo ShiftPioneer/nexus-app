@@ -169,6 +169,94 @@ const TasksContent = () => {
   // Stats for the dashboard
   const stats = getTasksStats();
   
+  function renderTasksContent() {
+    // Fix the type comparison by using triple equals for strict equality
+    if (viewMode === "eisenhower") {
+      return (
+        <EisenhowerMatrix 
+          matrix={getEisenhowerMatrix()} 
+          onTaskClick={handleEditTask}
+          onTaskMove={handleTaskMove}
+          getPriorityColor={getPriorityColor}
+        />
+      );
+    } 
+    
+    return (
+      <>
+        <Card>
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle>Today's Progress</CardTitle>
+              <div className="flex items-center gap-1">
+                <Badge variant="outline" className="font-normal">
+                  {stats.completed} / {stats.total} tasks
+                </Badge>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-sm">
+                    {stats.completed === stats.total && stats.total > 0 
+                      ? "Completed!" 
+                      : `${stats.completionPercentage}% Complete`}
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    {stats.pending} remaining
+                  </span>
+                </div>
+                <Progress value={stats.completionPercentage} className="h-2" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {viewMode === "kanban" && (
+          <KanbanBoard
+            columns={getKanbanColumns()}
+            onTaskClick={handleEditTask}
+            onTaskMove={handleTaskMove}
+            getPriorityColor={getPriorityColor}
+          />
+        )}
+
+        {viewMode === "list" && (
+          <Tabs defaultValue="today">
+            <TabsList>
+              <TabsTrigger value="today">Today</TabsTrigger>
+              <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+              <TabsTrigger value="completed">Completed</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="today" className="mt-4">
+              <TasksList 
+                tasks={getTodayTasks()} 
+                showActions={true}
+              />
+            </TabsContent>
+            
+            <TabsContent value="upcoming" className="mt-4">
+              <TasksList 
+                tasks={getIncompleteTasks().filter(t => t.status !== "today")} 
+                showActions={true}
+              />
+            </TabsContent>
+            
+            <TabsContent value="completed" className="mt-4">
+              <TasksList 
+                tasks={getCompletedTasks()} 
+                showActions={false}
+              />
+            </TabsContent>
+          </Tabs>
+        )}
+      </>
+    );
+  }
+  
   return (
     <motion.div 
       className="space-y-6"
@@ -224,87 +312,8 @@ const TasksContent = () => {
         </div>
       </div>
       
-      {viewMode === "eisenhower" ? (
-        <EisenhowerMatrix 
-          matrix={getEisenhowerMatrix()} 
-          onTaskClick={handleEditTask}
-          onTaskMove={handleTaskMove}
-          getPriorityColor={getPriorityColor}
-        />
-      ) : (
-        <>
-          <Card>
-            <CardHeader className="pb-2">
-              <div className="flex items-center justify-between">
-                <CardTitle>Today's Progress</CardTitle>
-                <div className="flex items-center gap-1">
-                  <Badge variant="outline" className="font-normal">
-                    {stats.completed} / {stats.total} tasks
-                  </Badge>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm">
-                      {stats.completed === stats.total && stats.total > 0 
-                        ? "Completed!" 
-                        : `${stats.completionPercentage}% Complete`}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {stats.pending} remaining
-                    </span>
-                  </div>
-                  <Progress value={stats.completionPercentage} className="h-2" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {viewMode === "kanban" && (
-            <KanbanBoard
-              columns={getKanbanColumns()}
-              onTaskClick={handleEditTask}
-              onTaskMove={handleTaskMove}
-              getPriorityColor={getPriorityColor}
-            />
-          )}
-
-          {viewMode === "list" && (
-            <Tabs defaultValue="today">
-              <TabsList>
-                <TabsTrigger value="today">Today</TabsTrigger>
-                <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
-                <TabsTrigger value="completed">Completed</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="today" className="mt-4">
-                <TasksList 
-                  tasks={getTodayTasks()} 
-                  showActions={true}
-                />
-              </TabsContent>
-              
-              <TabsContent value="upcoming" className="mt-4">
-                <TasksList 
-                  tasks={getIncompleteTasks().filter(t => t.status !== "today")} 
-                  showActions={true}
-                />
-              </TabsContent>
-              
-              <TabsContent value="completed" className="mt-4">
-                <TasksList 
-                  tasks={getCompletedTasks()} 
-                  showActions={false}
-                />
-              </TabsContent>
-            </Tabs>
-          )}
-        </>
-      )}
-
+      {renderTasksContent()}
+      
       <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
         <DialogContent className="sm:max-w-[600px]">
           <TaskForm

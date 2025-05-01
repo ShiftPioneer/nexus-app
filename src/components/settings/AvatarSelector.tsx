@@ -7,17 +7,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 
-const DEFAULT_AVATARS = [
-  "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png", // Use existing image
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Felix",
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Aneka",
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Max",
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Lily",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Tech",
-  "https://api.dicebear.com/7.x/adventurer/svg?seed=Sam",
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-  "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Nexus",
+// Updated avatars with productivity and creativity-themed icons
+const PRODUCTIVITY_AVATARS = [
+  "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Productive&backgroundColor=ffb703",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Brain&backgroundColor=8ecae6",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Focus&backgroundColor=e63946",
+  "https://api.dicebear.com/7.x/icons/svg?icon=brain",
+  "https://api.dicebear.com/7.x/icons/svg?icon=lightbulb",
+  "https://api.dicebear.com/7.x/icons/svg?icon=fire",
+  "https://api.dicebear.com/7.x/icons/svg?icon=star",
+  "https://api.dicebear.com/7.x/icons/svg?icon=rocket",
+  "https://api.dicebear.com/7.x/icons/svg?icon=bolt",
 ];
 
 interface AvatarSelectorProps {
@@ -27,7 +28,7 @@ interface AvatarSelectorProps {
 
 const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatarChange }) => {
   const [open, setOpen] = useState(false);
-  const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar || DEFAULT_AVATARS[0]);
+  const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar || PRODUCTIVITY_AVATARS[0]);
   const [customAvatar, setCustomAvatar] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -103,7 +104,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
               onValueChange={setSelectedAvatar}
               className="grid grid-cols-5 gap-3"
             >
-              {DEFAULT_AVATARS.map((avatar, index) => (
+              {PRODUCTIVITY_AVATARS.map((avatar, index) => (
                 <div key={index} className="flex flex-col items-center space-y-1">
                   <Label
                     htmlFor={`avatar-${index}`}
