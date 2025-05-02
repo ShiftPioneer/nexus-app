@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -680,9 +679,8 @@ const Settings = () => {
                     </div>
                     
                     <div className="space-y-2">
-                      <Label htmlFor="sync-frequency">Sync Frequency</Label>
+                      <Label>Sync Frequency</Label>
                       <Select 
-                        id="sync-frequency"
                         disabled={!calendarSettings.googleCalendarSync} 
                         value={calendarSettings.syncFrequency}
                         onValueChange={(value) => updateCalendarSetting("syncFrequency", value)}
@@ -725,7 +723,7 @@ const Settings = () => {
                     <div className="flex items-center space-x-3">
                       <div className="p-2 rounded-md bg-blue-100 dark:bg-blue-900/30">
                         <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
-                          <path d="M10.5 14l4-4l-4-4v8zM19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" />
+                          <path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" />
                         </svg>
                       </div>
                       <div>

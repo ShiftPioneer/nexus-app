@@ -1,82 +1,71 @@
 
 import React from "react";
-import { useGTD } from "./GTDContext";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Inbox, CheckCircle2, LayoutGrid, RefreshCw, Play } from "lucide-react";
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
+import { Inbox, List, CheckCheck, Rocket, Calendar } from "lucide-react";
 
 const GTDPrinciple: React.FC = () => {
-  const { activeView } = useGTD();
-  
   const principles = [
     {
-      key: "capture",
-      title: "1. Capture",
-      description: "Collect everything that has your attention in a trusted system outside your mind.",
-      icon: Inbox,
-      color: "bg-blue-500/20 border-blue-500/50 text-blue-500"
+      icon: <Inbox className="h-8 w-8" />,
+      title: "Capture",
+      description: "Collect what has your attention",
+      bgColor: "bg-purple-100 dark:bg-purple-900/20",
+      iconColor: "text-purple-600 dark:text-purple-400"
     },
     {
-      key: "clarify",
-      title: "2. Clarify",
-      description: "Process what it means. Is it actionable? What's the next action?",
-      icon: CheckCircle2,
-      color: "bg-green-500/20 border-green-500/50 text-green-500"
+      icon: <List className="h-8 w-8" />,
+      title: "Clarify",
+      description: "Process what it means",
+      bgColor: "bg-blue-100 dark:bg-blue-900/20",
+      iconColor: "text-blue-600 dark:text-blue-400"
     },
     {
-      key: "organize",
-      title: "3. Organize",
-      description: "Put it where it belongs. Categorize and prioritize.",
-      icon: LayoutGrid,
-      color: "bg-purple-500/20 border-purple-500/50 text-purple-500"
+      icon: <CheckCheck className="h-8 w-8" />,
+      title: "Organize",
+      description: "Put it where it belongs",
+      bgColor: "bg-green-100 dark:bg-green-900/20",
+      iconColor: "text-green-600 dark:text-green-400"
     },
     {
-      key: "reflect",
-      title: "4. Reflect",
-      description: "Review regularly. Keep your system updated and trustworthy.",
-      icon: RefreshCw,
-      color: "bg-orange-500/20 border-orange-500/50 text-orange-500"
+      icon: <Calendar className="h-8 w-8" />,
+      title: "Reflect",
+      description: "Review frequently",
+      bgColor: "bg-amber-100 dark:bg-amber-900/20",
+      iconColor: "text-amber-600 dark:text-amber-400"
     },
     {
-      key: "engage",
-      title: "5. Engage",
-      description: "Simply do. Choose the right action at the right time.",
-      icon: Play,
-      color: "bg-[#FF6500]/20 border-[#FF6500]/50 text-[#FF6500]"
+      icon: <Rocket className="h-8 w-8" />,
+      title: "Engage",
+      description: "Simply do",
+      bgColor: "bg-rose-100 dark:bg-rose-900/20",
+      iconColor: "text-rose-600 dark:text-rose-400"
     }
   ];
-
+  
   return (
-    <Card className="bg-slate-900 border-slate-700 text-slate-200">
-      <CardHeader>
-        <CardTitle>GTD Principles</CardTitle>
-        <CardDescription className="text-slate-400">Effective task management workflow</CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {principles.map((principle) => (
-          <motion.div 
-            key={principle.key}
-            className={cn(
-              "px-4 py-5 rounded-xl border transition-all duration-300",
-              principle.color,
-              activeView === principle.key ? "scale-[1.02] shadow-lg" : "opacity-90"
-            )}
-            whileHover={{ scale: 1.02 }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-full bg-slate-800/50">
-                <principle.icon className={cn("h-5 w-5", principle.key === activeView ? "text-white" : "")} />
+    <Card className="overflow-hidden">
+      <CardContent className="p-0">
+        <div className="p-4">
+          <h2 className="text-xl font-semibold">GTD Principles</h2>
+          <p className="text-muted-foreground text-sm">The five pillars of Getting Things Done</p>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-5 divide-x divide-y sm:divide-y-0 divide-border">
+          {principles.map((principle) => (
+            <div 
+              key={principle.title} 
+              className="p-4 flex flex-col items-center text-center hover:bg-accent/50 transition-colors"
+            >
+              <div className={`p-3 rounded-lg mb-2 ${principle.bgColor}`}>
+                <div className={principle.iconColor}>
+                  {principle.icon}
+                </div>
               </div>
-              <div>
-                <h4 className="font-semibold mb-1 text-slate-50">{principle.title}</h4>
-                <p className="text-gray-300 text-sm">
-                  {principle.description}
-                </p>
-              </div>
+              <h3 className="font-medium">{principle.title}</h3>
+              <p className="text-xs text-muted-foreground mt-1">{principle.description}</p>
             </div>
-          </motion.div>
-        ))}
+          ))}
+        </div>
       </CardContent>
     </Card>
   );

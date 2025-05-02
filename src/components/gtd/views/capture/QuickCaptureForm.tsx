@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useGTD } from "../../GTDContext";
 import {
@@ -30,6 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import TagInput from "../../../ui/tag-input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Define WebkitSpeechRecognition interface for TypeScript
 interface SpeechRecognitionEvent extends Event {
@@ -84,6 +84,7 @@ const QuickCaptureForm = () => {
   const [attachment, setAttachment] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedText, setRecordedText] = useState("");
+  const [isToDoNot, setIsToDoNot] = useState(false);
   
   const { addTask } = useGTD();
   const { toast } = useToast();
@@ -195,6 +196,7 @@ const QuickCaptureForm = () => {
       description,
       priority,
       status: "inbox" as const,
+      isToDoNot,
       ...(dueDate && { dueDate }),
       ...(tags.length && { tags }),
       ...(context && { context }),
@@ -210,8 +212,8 @@ const QuickCaptureForm = () => {
     addTask(newTask);
     
     toast({
-      title: "Task Captured",
-      description: "Your task has been added to the inbox",
+      title: isToDoNot ? "Not To Do Captured" : "Task Captured",
+      description: isToDoNot ? "Your not-to-do item has been added to the inbox" : "Your task has been added to the inbox",
     });
     
     // Reset the form
@@ -223,6 +225,7 @@ const QuickCaptureForm = () => {
     setContext("");
     setAttachment(null);
     setRecordedText("");
+    setIsToDoNot(false);
   };
   
   return (
@@ -271,6 +274,24 @@ const QuickCaptureForm = () => {
               onChange={(e) => setDescription(e.target.value)}
               className="mt-1 min-h-[100px]"
             />
+          </div>
+
+          <div>
+            <Label className="mb-1 block">Task Type</Label>
+            <RadioGroup 
+              value={isToDoNot ? "not-to-do" : "to-do"}
+              onValueChange={(val) => setIsToDoNot(val === "not-to-do")}
+              className="flex flex-row space-x-4"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="to-do" id="capture-to-do" />
+                <Label htmlFor="capture-to-do">To Do</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="not-to-do" id="capture-not-to-do" />
+                <Label htmlFor="capture-not-to-do">Not To Do</Label>
+              </div>
+            </RadioGroup>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -361,7 +382,9 @@ const QuickCaptureForm = () => {
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" className="w-full">Capture Task</Button>
+          <Button type="submit" className="w-full">
+            Capture {isToDoNot ? "Not To Do" : "Task"}
+          </Button>
         </CardFooter>
       </form>
     </Card>

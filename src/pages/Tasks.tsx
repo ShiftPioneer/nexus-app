@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import TasksList from "@/components/gtd/TasksList";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import EisenhowerMatrix from "@/components/gtd/EisenhowerMatrix";
 
 type ViewMode = "list" | "kanban" | "eisenhower"; 
 
@@ -30,15 +32,15 @@ const TasksContent = () => {
   
   // Get tasks based on the selected view
   const getTodayTasks = () => {
-    return allTasks.filter(task => task.status === "today");
+    return allTasks.filter(task => task.status === "today" && !task.isToDoNot);
   };
   
   const getIncompleteTasks = () => {
-    return allTasks.filter(task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && !isCompleted(task));
+    return allTasks.filter(task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && !isCompleted(task) && !task.isToDoNot);
   };
   
   const getCompletedTasks = () => {
-    return allTasks.filter(task => task.status === "completed");
+    return allTasks.filter(task => task.status === "completed" && !task.isToDoNot);
   };
   
   // Helper to check if a task is completed
@@ -49,10 +51,10 @@ const TasksContent = () => {
   // Get kanban columns for task board
   const getKanbanColumns = () => {
     return {
-      "todo": allTasks.filter(task => task.status === "todo" || task.status === "next-action"),
-      "today": allTasks.filter(task => task.status === "today"),
-      "in-progress": allTasks.filter(task => task.status === "in-progress"),
-      "completed": allTasks.filter(task => task.status === "completed"),
+      "todo": allTasks.filter(task => (task.status === "todo" || task.status === "next-action") && !task.isToDoNot),
+      "today": allTasks.filter(task => task.status === "today" && !task.isToDoNot),
+      "in-progress": allTasks.filter(task => task.status === "in-progress" && !task.isToDoNot),
+      "completed": allTasks.filter(task => task.status === "completed" && !task.isToDoNot),
     };
   };
   
@@ -60,22 +62,22 @@ const TasksContent = () => {
   const getEisenhowerMatrix = () => {
     const urgentImportant = allTasks.filter(
       task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && 
-        (task.priority === "Very High" || task.priority === "High")
+        (task.priority === "Very High" || task.priority === "High") && !task.isToDoNot
     );
     
     const notUrgentImportant = allTasks.filter(
       task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && 
-        task.priority === "Medium"
+        task.priority === "Medium" && !task.isToDoNot
     );
     
     const urgentNotImportant = allTasks.filter(
       task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && 
-        task.priority === "Low"
+        task.priority === "Low" && !task.isToDoNot
     );
     
     const notUrgentNotImportant = allTasks.filter(
       task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && 
-        task.priority === "Very Low"
+        task.priority === "Very Low" && !task.isToDoNot
     );
     
     return {
@@ -132,6 +134,7 @@ const TasksContent = () => {
       addTask({
         ...taskData,
         status: "todo",
+        isToDoNot: false // Ensure we're creating a regular task, not a not-to-do
       });
       toast({
         title: "Task Added",
@@ -173,7 +176,7 @@ const TasksContent = () => {
   
   function renderTasksContent() {
     // Fix the type comparison using type guard function
-    if (viewMode === "eisenhower") {
+    if (viewMode === "eisenhower" as ViewMode) {
       // When in Eisenhower mode, show navigation buttons to go back to list/kanban view
       return (
         <div>
@@ -300,37 +303,35 @@ const TasksContent = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          {viewMode !== "eisenhower" && (
-            <div className="flex bg-muted rounded-lg p-1">
-              <Button 
-                variant={viewMode === "list" ? "default" : "ghost"} 
-                size="sm" 
-                onClick={() => setViewMode("list")}
-                className="gap-1"
-              >
-                <ListTodo className="h-4 w-4" />
-                <span className="hidden sm:inline">List</span>
-              </Button>
-              <Button 
-                variant={viewMode === "kanban" ? "default" : "ghost"} 
-                size="sm" 
-                onClick={() => setViewMode("kanban")}
-                className="gap-1"
-              >
-                <Grid2X2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Kanban</span>
-              </Button>
-              <Button 
-                variant={viewMode === "eisenhower" ? "default" : "ghost"} 
-                size="sm" 
-                onClick={() => setViewMode("eisenhower")}
-                className="gap-1"
-              >
-                <CheckSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">Eisenhower</span>
-              </Button>
-            </div>
-          )}
+          <div className="flex bg-muted rounded-lg p-1">
+            <Button 
+              variant={viewMode === "list" ? "default" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("list")}
+              className="gap-1"
+            >
+              <ListTodo className="h-4 w-4" />
+              <span className="hidden sm:inline">List</span>
+            </Button>
+            <Button 
+              variant={viewMode === "kanban" ? "default" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("kanban")}
+              className="gap-1"
+            >
+              <Grid2X2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Kanban</span>
+            </Button>
+            <Button 
+              variant={viewMode === "eisenhower" ? "default" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("eisenhower")}
+              className="gap-1"
+            >
+              <CheckSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Eisenhower</span>
+            </Button>
+          </div>
           
           <Button onClick={handleAddTask} className="gap-1">
             <PlusCircle className="h-4 w-4" />
@@ -362,149 +363,6 @@ const Tasks = () => {
         <TasksContent />
       </GTDProvider>
     </AppLayout>
-  );
-};
-
-interface EisenhowerMatrixProps {
-  matrix: {
-    [key: string]: GTDTask[];
-  };
-  onTaskClick: (task: GTDTask) => void;
-  onTaskMove: (taskId: string, newStatus: string) => void;
-  getPriorityColor: (priority: string) => string;
-}
-
-const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ 
-  matrix, 
-  onTaskClick,
-  onTaskMove,
-  getPriorityColor
-}) => {
-  const quadrants = [
-    {
-      id: "urgent-important",
-      title: "Do First",
-      description: "Urgent & Important",
-      className: "bg-red-50 border-red-200 dark:bg-red-900/20 dark:border-red-800",
-      headerClass: "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-200"
-    },
-    {
-      id: "not-urgent-important",
-      title: "Schedule",
-      description: "Important, Not Urgent",
-      className: "bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800",
-      headerClass: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-200"
-    },
-    {
-      id: "urgent-not-important",
-      title: "Delegate",
-      description: "Urgent, Not Important",
-      className: "bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800",
-      headerClass: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-200"
-    },
-    {
-      id: "not-urgent-not-important",
-      title: "Eliminate",
-      description: "Not Urgent, Not Important",
-      className: "bg-gray-50 border-gray-200 dark:bg-gray-800/20 dark:border-gray-700",
-      headerClass: "bg-gray-100 text-gray-800 dark:bg-gray-800/30 dark:text-gray-200"
-    }
-  ];
-  
-  // Allow dragging tasks between quadrants
-  const handleDragEnd = (result: any) => {
-    const { destination, source, draggableId } = result;
-    
-    if (!destination) return;
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-    
-    // Map quadrant to priority
-    let newPriority: TaskPriority;
-    
-    switch (destination.droppableId) {
-      case "urgent-important":
-        newPriority = "Very High";
-        break;
-      case "not-urgent-important":
-        newPriority = "Medium";
-        break;
-      case "urgent-not-important":
-        newPriority = "Low";
-        break;
-      case "not-urgent-not-important":
-        newPriority = "Very Low";
-        break;
-      default:
-        newPriority = "Medium";
-    }
-    
-    // Update task with new priority
-    onTaskMove(draggableId, newPriority);
-  };
-  
-  return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader className="pb-2">
-          <CardTitle className="flex items-center gap-2">
-            <CheckSquare className="h-5 w-5" />
-            Eisenhower Matrix
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Prioritize tasks based on urgency and importance. Drag tasks between quadrants to change their priority.
-          </p>
-        </CardContent>
-      </Card>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {quadrants.map(quadrant => (
-          <Card key={quadrant.id} className={`border ${quadrant.className}`}>
-            <CardHeader className={`pb-2 ${quadrant.headerClass}`}>
-              <CardTitle className="text-lg">{quadrant.title}</CardTitle>
-              <p className="text-xs">{quadrant.description}</p>
-            </CardHeader>
-            <CardContent className="max-h-[300px] overflow-y-auto">
-              {matrix[quadrant.id]?.length > 0 ? (
-                <div className="space-y-2">
-                  {matrix[quadrant.id].map(task => (
-                    <Card 
-                      key={task.id}
-                      className="cursor-pointer border hover:shadow-sm transition-shadow"
-                      onClick={() => onTaskClick(task)}
-                    >
-                      <CardContent className="p-3">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h4 className="text-sm font-medium">{task.title}</h4>
-                            {task.description && (
-                              <p className="text-xs text-muted-foreground line-clamp-1">
-                                {task.description}
-                              </p>
-                            )}
-                          </div>
-                          <div className={`h-2 w-2 rounded-full ${getPriorityColor(task.priority)}`} />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="py-8 text-center text-muted-foreground">
-                  <p className="text-sm">No tasks in this quadrant</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    </div>
   );
 };
 

@@ -1,162 +1,86 @@
 
 import React, { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Clock } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  if (hour < 12) return "Good Morning";
-  if (hour < 18) return "Good Afternoon";
-  return "Good Evening";
-};
-
-const quotes = [{
-  text: "The future depends on what you do today.",
-  author: "Mahatma Gandhi"
-}, {
-  text: "It's not about having time, it's about making time.",
-  author: "Unknown"
-}, {
-  text: "The best way to predict the future is to create it.",
-  author: "Peter Drucker"
-}, {
-  text: "Don't count the days, make the days count.",
-  author: "Muhammad Ali"
-}, {
-  text: "You don't have to be great to start, but you have to start to be great.",
-  author: "Zig Ziglar"
-}];
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const WelcomeSection = () => {
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [quote, setQuote] = useState(quotes[Math.floor(Math.random() * quotes.length)]);
-  const { toast } = useToast();
   const { user } = useAuth();
-  const [profileData, setProfileData] = useState<any>(null);
+  const [greeting, setGreeting] = useState("");
+  const [profileData, setProfileData] = useState({
+    name: "",
+    avatar: "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png"
+  });
   
-  // Get profile data from localStorage
+  // Set greeting based on time of day
   useEffect(() => {
-    const fetchProfileData = async () => {
-      try {
-        // Get from localStorage
-        const savedProfile = localStorage.getItem('userProfile');
-        if (savedProfile) {
-          const profile = JSON.parse(savedProfile);
-          setProfileData(profile);
-        }
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Good morning");
+    else if (hour < 18) setGreeting("Good afternoon");
+    else setGreeting("Good evening");
+
+    // Load profile data from localStorage
+    try {
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        const parsedProfile = JSON.parse(savedProfile);
+        setProfileData(prev => ({
+          ...prev,
+          name: parsedProfile.name || '',
+          avatar: parsedProfile.avatar || prev.avatar
+        }));
+      } else if (user) {
+        setProfileData(prev => ({
+          ...prev,
+          name: user.displayName || ''
+        }));
+      }
+    } catch (error) {
+      console.error('Error loading profile data:', error);
+    }
+
+    // Listen for profile data updates
+    const handleProfileUpdate = (event: any) => {
+      if (event.detail) {
+        setProfileData(prev => ({
+          ...prev,
+          name: event.detail.name || prev.name,
+          avatar: event.detail.avatar || prev.avatar
+        }));
       }
     };
-    
-    fetchProfileData();
-    
-    // Listen for profile updates
-    const handleProfileUpdate = (e: any) => {
-      setProfileData(e.detail);
-    };
-    
+
     window.addEventListener('profileUpdated', handleProfileUpdate);
-    
-    return () => {
-      window.removeEventListener('profileUpdated', handleProfileUpdate);
-    };
+    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
   }, [user]);
-  
-  // Get user's name from profile data, user metadata or email
-  const getUserName = () => {
-    // First priority: name from profile settings
-    if (profileData?.name) {
-      return profileData.name;
-    }
-    
-    // Second priority: user metadata name
-    if (user?.user_metadata?.name) {
-      return user.user_metadata.name;
-    }
-    
-    // Fallback: email username or generic "User"
-    return user?.email?.split('@')[0] || "User";
-  };
-  
-  const userName = getUserName();
-  
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
-  
-  const formattedTime = currentTime.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-    hour12: true
-  });
-  
-  const formattedDate = currentTime.toLocaleDateString([], {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric'
-  });
-  
-  const handleNewQuote = () => {
-    let newQuote;
-    do {
-      newQuote = quotes[Math.floor(Math.random() * quotes.length)];
-    } while (newQuote.text === quote.text);
-    setQuote(newQuote);
-    toast({
-      description: "New quote generated!"
-    });
-  };
+
+  const userName = profileData.name || user?.displayName || user?.email?.split('@')[0] || 'there';
   
   return (
-    <section className="mb-6 space-y-4">
-      <Card className="overflow-hidden">
-        <CardContent className="p-6">
-          <div className="flex flex-col md:flex-row gap-6 items-center">
-            <div className="flex-1 space-y-2 my-[10px] py-[5px]">
-              <h1 className="text-3xl font-bold">
-                <span className="text-primary">{getGreeting()}</span>, {userName}
-              </h1>
-              <p className="text-muted-foreground py-[10px]">
-                Ready to make today extraordinary? Your life operating system is primed for action.
-              </p>
-              
-              <div className="flex flex-wrap gap-4 mt-4">
-                <Button variant="default" className="gap-2">
-                  <span>Start Your Day</span>
-                </Button>
-                <Button variant="outline" className="text-orange-600 bg-deep-DEFAULT">View Today's Plan</Button>
-              </div>
-            </div>
-            
-            <div className="flex flex-col items-center gap-2 p-4 bg-card shadow-sm border my-[10px] py-[20px] rounded-xl border-width [5px]">
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-primary" />
-                <span className="text-2xl font-semibold">{formattedTime}</span>
-              </div>
-              <span className="text-sm text-muted-foreground">{formattedDate}</span>
-            </div>
-          </div>
-          
-          <div className="mt-6 p-4 rounded-lg border border-accent/20 bg-accent-DEFAULT">
-            <blockquote className="italic text-lg">"{quote.text}"</blockquote>
-            <div className="mt-2 flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">— {quote.author}</span>
-              <Button variant="ghost" size="sm" onClick={handleNewQuote} className="text-primary-dark">
-                New Quote
-              </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </section>
+    <Card className="col-span-2 md:col-span-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-900/20 dark:to-purple-900/20">
+      <CardHeader className="flex flex-row items-start justify-between pb-2">
+        <div>
+          <CardTitle className="text-2xl font-bold">
+            {greeting}, {userName}!
+          </CardTitle>
+          <CardDescription className="text-base">
+            <CalendarIcon className="inline mr-1 h-4 w-4" />
+            Today is {format(new Date(), "EEEE, MMMM do")}
+          </CardDescription>
+        </div>
+        <Avatar className="h-12 w-12">
+          <AvatarImage src={profileData.avatar} />
+          <AvatarFallback>{userName.charAt(0).toUpperCase()}</AvatarFallback>
+        </Avatar>
+      </CardHeader>
+      <CardContent>
+        <div className="text-sm">
+          <p>You have <strong>5 tasks</strong> planned for today, and <strong>3 focus sessions</strong> scheduled.</p>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
