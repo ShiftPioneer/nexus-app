@@ -19,7 +19,8 @@ const Settings = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  const [profileData, setProfileData] = useState({
+  // Default profile data
+  const defaultProfileData = {
     name: "",
     email: "",
     language: "english",
@@ -27,8 +28,9 @@ const Settings = () => {
     avatar: "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png",
     interests: ["productivity", "technology", "health"],
     bio: "Passionate about personal development and productivity.",
-  });
+  };
   
+  const [profileData, setProfileData] = useState(defaultProfileData);
   const [notificationSettings, setNotificationSettings] = useState({
     email: true,
     push: true,
@@ -46,41 +48,66 @@ const Settings = () => {
   const [calendarSettings, setCalendarSettings] = useState({
     googleCalendarSync: false,
     syncTasksToCalendar: true,
-    syncEventsToTasks: true
+    syncEventsToTasks: true,
+    syncFrequency: "hourly",
+    autoAddNewEvents: true,
+    calendarId: ""
   });
 
   // Load user profile data on component mount
   useEffect(() => {
+    // Initialize with user email if available
     if (user) {
-      // First try to load from localStorage
-      try {
-        const savedProfile = localStorage.getItem('userProfile');
-        if (savedProfile) {
-          const parsedProfile = JSON.parse(savedProfile);
-          setProfileData(prev => ({
-            ...prev,
-            ...parsedProfile
-          }));
-        } else {
-          // If no saved profile, initialize with user data from auth
-          setProfileData(prev => ({
-            ...prev,
-            name: user.user_metadata?.name || user.email?.split('@')[0] || '',
-            email: user.email || ''
-          }));
-        }
-      } catch (error) {
-        console.error('Error loading profile:', error);
+      setProfileData(prev => ({
+        ...prev,
+        email: user.email || ''
+      }));
+    }
+    
+    // Try to load from localStorage
+    try {
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        const parsedProfile = JSON.parse(savedProfile);
+        setProfileData(prev => ({
+          ...prev,
+          ...parsedProfile
+        }));
       }
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+    
+    // Try to load stored settings
+    try {
+      const savedNotifications = localStorage.getItem('notificationSettings');
+      if (savedNotifications) {
+        setNotificationSettings(JSON.parse(savedNotifications));
+      }
+      
+      const savedPrivacy = localStorage.getItem('privacySettings');
+      if (savedPrivacy) {
+        setPrivacySettings(JSON.parse(savedPrivacy));
+      }
+      
+      const savedCalendar = localStorage.getItem('calendarSettings');
+      if (savedCalendar) {
+        setCalendarSettings(JSON.parse(savedCalendar));
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
     }
   }, [user]);
   
   const handleSave = () => {
-    // Save profile data to localStorage
+    // Save all settings to localStorage
     try {
       localStorage.setItem('userProfile', JSON.stringify(profileData));
+      localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings));
+      localStorage.setItem('privacySettings', JSON.stringify(privacySettings));
+      localStorage.setItem('calendarSettings', JSON.stringify(calendarSettings));
       
-      // Update the TopBar to show the avatar
+      // Dispatch event to update components that use the profile data
       const event = new CustomEvent('profileUpdated', { detail: profileData });
       window.dispatchEvent(event);
       
@@ -119,10 +146,10 @@ const Settings = () => {
     }));
   };
   
-  const toggleCalendarSetting = (setting: string) => {
+  const updateCalendarSetting = (setting: string, value: any) => {
     setCalendarSettings(prev => ({
       ...prev,
-      [setting]: !prev[setting as keyof typeof prev]
+      [setting]: value
     }));
   };
   
@@ -131,19 +158,32 @@ const Settings = () => {
   };
   
   const handleConnectGoogleCalendar = () => {
-    // Simulating Google Calendar connection
-    // In a real app, this would initiate OAuth flow
-    setCalendarSettings(prev => ({
-      ...prev,
-      googleCalendarSync: !prev.googleCalendarSync
-    }));
-    
-    toast({
-      title: calendarSettings.googleCalendarSync ? "Google Calendar Disconnected" : "Google Calendar Connected",
-      description: calendarSettings.googleCalendarSync ? 
-        "Your Google Calendar has been disconnected" :
-        "Your Google Calendar has been connected successfully!",
-    });
+    if (calendarSettings.googleCalendarSync) {
+      // Disconnect Google Calendar
+      setCalendarSettings(prev => ({
+        ...prev,
+        googleCalendarSync: false,
+        calendarId: ""
+      }));
+      
+      toast({
+        title: "Google Calendar Disconnected",
+        description: "Your Google Calendar has been disconnected successfully."
+      });
+    } else {
+      // In a real app, this would initiate the OAuth flow
+      // For now, we'll simulate connecting
+      setCalendarSettings(prev => ({
+        ...prev,
+        googleCalendarSync: true,
+        calendarId: "primary"
+      }));
+      
+      toast({
+        title: "Google Calendar Connected",
+        description: "Your Google Calendar has been connected successfully!"
+      });
+    }
   };
   
   return (
@@ -191,6 +231,7 @@ const Settings = () => {
                         id="name" 
                         value={profileData.name} 
                         onChange={e => updateProfileData("name", e.target.value)} 
+                        placeholder="Enter your name"
                       />
                     </div>
                     <div className="space-y-2">
@@ -565,8 +606,8 @@ const Settings = () => {
               <CardContent className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className="p-2 rounded-md bg-red-100">
-                      <CalendarCheck2 className="h-6 w-6 text-red-600" />
+                    <div className="p-2 rounded-md bg-red-100 dark:bg-red-900/30">
+                      <CalendarCheck2 className="h-6 w-6 text-red-600 dark:text-red-400" />
                     </div>
                     <div>
                       <h4 className="font-medium">Google Calendar</h4>
@@ -577,9 +618,23 @@ const Settings = () => {
                     variant={calendarSettings.googleCalendarSync ? "default" : "outline"} 
                     onClick={handleConnectGoogleCalendar}
                   >
-                    {calendarSettings.googleCalendarSync ? "Connected" : "Connect"}
+                    {calendarSettings.googleCalendarSync ? "Disconnect" : "Connect"}
                   </Button>
                 </div>
+                
+                {calendarSettings.googleCalendarSync && (
+                  <div className="bg-muted/50 p-4 rounded-md">
+                    <p className="text-sm mb-2">Connected Calendar ID:</p>
+                    <Input 
+                      value={calendarSettings.calendarId} 
+                      onChange={e => updateCalendarSetting("calendarId", e.target.value)}
+                      placeholder="primary"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Use "primary" for your main calendar, or the specific calendar ID from Google Calendar
+                    </p>
+                  </div>
+                )}
                 
                 <div className="space-y-4 pt-4 border-t">
                   <h4 className="font-medium">Sync Settings</h4>
@@ -594,7 +649,7 @@ const Settings = () => {
                         id="sync-tasks" 
                         disabled={!calendarSettings.googleCalendarSync} 
                         checked={calendarSettings.syncTasksToCalendar}
-                        onCheckedChange={() => toggleCalendarSetting('syncTasksToCalendar')}
+                        onCheckedChange={(checked) => updateCalendarSetting("syncTasksToCalendar", checked)}
                       />
                     </div>
                     
@@ -607,15 +662,51 @@ const Settings = () => {
                         id="sync-events" 
                         disabled={!calendarSettings.googleCalendarSync}
                         checked={calendarSettings.syncEventsToTasks}
-                        onCheckedChange={() => toggleCalendarSetting('syncEventsToTasks')}
+                        onCheckedChange={(checked) => updateCalendarSetting("syncEventsToTasks", checked)}
                       />
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <Label htmlFor="auto-add-events">Auto Add New Events</Label>
+                        <p className="text-sm text-muted-foreground">Automatically create tasks for new calendar events</p>
+                      </div>
+                      <Switch 
+                        id="auto-add-events" 
+                        disabled={!calendarSettings.googleCalendarSync || !calendarSettings.syncEventsToTasks}
+                        checked={calendarSettings.autoAddNewEvents}
+                        onCheckedChange={(checked) => updateCalendarSetting("autoAddNewEvents", checked)}
+                      />
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="sync-frequency">Sync Frequency</Label>
+                      <Select 
+                        id="sync-frequency"
+                        disabled={!calendarSettings.googleCalendarSync} 
+                        value={calendarSettings.syncFrequency}
+                        onValueChange={(value) => updateCalendarSetting("syncFrequency", value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select frequency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="realtime">Real-time</SelectItem>
+                          <SelectItem value="hourly">Hourly</SelectItem>
+                          <SelectItem value="daily">Daily</SelectItem>
+                          <SelectItem value="manual">Manual</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   
                   {calendarSettings.googleCalendarSync && (
-                    <div className="mt-6">
+                    <div className="mt-6 space-y-2">
                       <Button variant="outline" className="w-full">
                         Visit Google Calendar
+                      </Button>
+                      <Button variant="secondary" className="w-full">
+                        Manual Sync Now
                       </Button>
                     </div>
                   )}
@@ -632,8 +723,8 @@ const Settings = () => {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 rounded-md bg-blue-100">
-                        <svg className="h-6 w-6 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
+                      <div className="p-2 rounded-md bg-blue-100 dark:bg-blue-900/30">
+                        <svg className="h-6 w-6 text-blue-600 dark:text-blue-400" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M10.5 14l4-4l-4-4v8zM19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" />
                         </svg>
                       </div>
@@ -647,8 +738,8 @@ const Settings = () => {
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 rounded-md bg-purple-100">
-                        <svg className="h-6 w-6 text-purple-600" viewBox="0 0 24 24" fill="currentColor">
+                      <div className="p-2 rounded-md bg-purple-100 dark:bg-purple-900/30">
+                        <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M19 3H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14h-2v-7h2v7zm0-8h-2V7h2v2z" />
                         </svg>
                       </div>
@@ -662,8 +753,8 @@ const Settings = () => {
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
-                      <div className="p-2 rounded-md bg-green-100">
-                        <svg className="h-6 w-6 text-green-600" viewBox="0 0 24 24" fill="currentColor">
+                      <div className="p-2 rounded-md bg-green-100 dark:bg-green-900/30">
+                        <svg className="h-6 w-6 text-green-600 dark:text-green-400" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z" />
                           <path d="M14 9h-4v2h2v4h2V9z" />
                           <path d="M10 7h4v2h-4z" />

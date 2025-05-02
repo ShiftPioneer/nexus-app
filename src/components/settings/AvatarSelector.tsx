@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, Zap, Star, User } from "lucide-react";
+import { CheckCircle, Zap, Star, User, Flame } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 // Updated avatars with productivity and creativity-themed icons
@@ -16,7 +16,7 @@ const PRODUCTIVITY_AVATARS = [
   "https://api.dicebear.com/7.x/bottts/svg?seed=Brain&backgroundColor=8ecae6",
   "https://api.dicebear.com/7.x/bottts/svg?seed=Focus&backgroundColor=e63946",
   "https://api.dicebear.com/7.x/identicon/svg?seed=zap&backgroundColor=ffd700",
-  "https://api.dicebear.com/7.x/identicon/svg?seed=brain&backgroundColor=4cc9f0",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=flame&backgroundColor=ff4500",
   "https://api.dicebear.com/7.x/identicon/svg?seed=star&backgroundColor=06d6a0",
   "https://api.dicebear.com/7.x/identicon/svg?seed=check&backgroundColor=ef476f",
   "https://api.dicebear.com/7.x/identicon/svg?seed=rocket&backgroundColor=118ab2",

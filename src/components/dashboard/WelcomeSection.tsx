@@ -38,18 +38,15 @@ const WelcomeSection = () => {
   const { user } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   
-  // Get profile data from Supabase or local storage
+  // Get profile data from localStorage
   useEffect(() => {
     const fetchProfileData = async () => {
-      if (!user) return;
-      
       try {
-        // First try to get from localStorage
+        // Get from localStorage
         const savedProfile = localStorage.getItem('userProfile');
         if (savedProfile) {
           const profile = JSON.parse(savedProfile);
           setProfileData(profile);
-          return;
         }
       } catch (error) {
         console.error("Failed to fetch profile:", error);
@@ -57,18 +54,32 @@ const WelcomeSection = () => {
     };
     
     fetchProfileData();
+    
+    // Listen for profile updates
+    const handleProfileUpdate = (e: any) => {
+      setProfileData(e.detail);
+    };
+    
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
   }, [user]);
   
   // Get user's name from profile data, user metadata or email
   const getUserName = () => {
+    // First priority: name from profile settings
     if (profileData?.name) {
       return profileData.name;
     }
     
+    // Second priority: user metadata name
     if (user?.user_metadata?.name) {
       return user.user_metadata.name;
     }
     
+    // Fallback: email username or generic "User"
     return user?.email?.split('@')[0] || "User";
   };
   

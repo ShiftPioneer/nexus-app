@@ -67,6 +67,10 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu }: TopBarProps) => {
     return user?.email?.split('@')[0] || "User";
   };
   
+  const getUserAvatar = () => {
+    return profileData?.avatar || "";
+  };
+  
   const handleNotificationClick = () => {
     markNotificationsAsRead();
     toast({
@@ -132,7 +136,7 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu }: TopBarProps) => {
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="flex items-center gap-2 p-1.5 h-auto">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={profileData?.avatar || ""} alt={getUserName()} />
+                <AvatarImage src={getUserAvatar()} alt={getUserName()} />
                 <AvatarFallback className="bg-primary/10 text-primary">
                   <User className="h-4 w-4" />
                 </AvatarFallback>

@@ -1,13 +1,14 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
-import { Menu } from "lucide-react";
+import { Menu, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { GTDProvider } from "@/components/gtd/GTDContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -19,9 +20,48 @@ const AppLayout = ({
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
+  const [profileData, setProfileData] = useState<any>(null);
+  
+  useEffect(() => {
+    try {
+      // Load profile data from localStorage
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        setProfileData(JSON.parse(savedProfile));
+      }
+    } catch (error) {
+      console.error("Failed to load profile data:", error);
+    }
+
+    // Listen for profile updates
+    const handleProfileUpdate = (e: any) => {
+      setProfileData(e.detail);
+    };
+    
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
   
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
+  };
+  
+  const getUserName = () => {
+    if (profileData?.name) {
+      return profileData.name;
+    }
+    
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name;
+    }
+    
+    return user?.email?.split('@')[0] || "User";
+  };
+  
+  const getUserAvatar = () => {
+    return profileData?.avatar || "";
   };
   
   return (
@@ -53,6 +93,22 @@ const AppLayout = ({
                 {children}
               </div>
             </main>
+            
+            {/* Fixed user info at bottom of sidebar */}
+            {!isMobile && (
+              <div className="fixed bottom-0 left-0 w-64 bg-card border-t p-4 flex items-center gap-3">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={getUserAvatar()} alt={getUserName()} />
+                  <AvatarFallback className="bg-primary/10 text-primary">
+                    <User className="h-5 w-5" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate">{getUserName()}</p>
+                  <p className="text-xs text-muted-foreground truncate">Pro Plan</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </SidebarProvider>

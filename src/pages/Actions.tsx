@@ -30,7 +30,7 @@ type ViewMode = "list" | "kanban" | "eisenhower";
 const ActionsContent = () => {
   const { toast } = useToast();
   const { tasks: allTasks, updateTask, moveTask, addTask } = useGTD();
-  const [viewMode, setViewMode] = useState<ViewMode>("list"); // Changed default to list view
+  const [viewMode, setViewMode] = useState<ViewMode>("list"); // Default to list view
   const [selectedDay, setSelectedDay] = useState(startOfToday());
   const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
   const [editingTask, setEditingTask] = useState<GTDTask | null>(null);
@@ -209,37 +209,36 @@ const ActionsContent = () => {
         </div>
         
         <div className="flex items-center gap-2">
-          {viewMode !== "eisenhower" && (
-            <div className="flex bg-muted rounded-lg p-1">
-              <Button 
-                variant={viewMode === "list" ? "default" : "ghost"} 
-                size="sm" 
-                onClick={() => setViewMode("list")}
-                className="gap-1"
-              >
-                <ListTodo className="h-4 w-4" />
-                <span className="hidden sm:inline">List</span>
-              </Button>
-              <Button 
-                variant={viewMode === "kanban" ? "default" : "ghost"} 
-                size="sm" 
-                onClick={() => setViewMode("kanban")}
-                className="gap-1"
-              >
-                <Grid2X2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Kanban</span>
-              </Button>
-              <Button 
-                variant={viewMode === "eisenhower" ? "default" : "ghost"} 
-                size="sm" 
-                onClick={() => setViewMode("eisenhower")}
-                className="gap-1"
-              >
-                <CheckSquare className="h-4 w-4" />
-                <span className="hidden sm:inline">Eisenhower</span>
-              </Button>
-            </div>
-          )}
+          {/* Always show view toggle buttons */}
+          <div className="flex bg-muted rounded-lg p-1">
+            <Button 
+              variant={viewMode === "list" ? "default" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("list")}
+              className="gap-1"
+            >
+              <ListTodo className="h-4 w-4" />
+              <span className="hidden sm:inline">List</span>
+            </Button>
+            <Button 
+              variant={viewMode === "kanban" ? "default" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("kanban")}
+              className="gap-1"
+            >
+              <Grid2X2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Kanban</span>
+            </Button>
+            <Button 
+              variant={viewMode === "eisenhower" ? "default" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("eisenhower")}
+              className="gap-1"
+            >
+              <CheckSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Eisenhower</span>
+            </Button>
+          </div>
           
           <Button onClick={handleAddTask} className="gap-1">
             <PlusCircle className="h-4 w-4" />
@@ -278,31 +277,8 @@ const ActionsContent = () => {
   
   function renderTasksContent(isToDoNot: boolean) {
     if (viewMode === "eisenhower") {
-      // When in Eisenhower mode, show navigation buttons to go back to list/kanban view
       return (
         <div>
-          <div className="mb-4 flex justify-end">
-            <div className="flex bg-muted rounded-lg p-1">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setViewMode("list")}
-                className="gap-1"
-              >
-                <ListTodo className="h-4 w-4" />
-                <span className="hidden sm:inline">List View</span>
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                onClick={() => setViewMode("kanban")}
-                className="gap-1"
-              >
-                <Grid2X2 className="h-4 w-4" />
-                <span className="hidden sm:inline">Kanban View</span>
-              </Button>
-            </div>
-          </div>
           <EisenhowerMatrix 
             matrix={getEisenhowerMatrix(isToDoNot)} 
             onTaskClick={handleEditTask}
@@ -453,42 +429,6 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({
     }
   ];
   
-  // Allow dragging tasks between quadrants
-  const handleDragEnd = (result: any) => {
-    const { destination, source, draggableId } = result;
-    
-    if (!destination) return;
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-    
-    // Map quadrant to priority
-    let newPriority: TaskPriority;
-    
-    switch (destination.droppableId) {
-      case "urgent-important":
-        newPriority = "Very High";
-        break;
-      case "not-urgent-important":
-        newPriority = "Medium";
-        break;
-      case "urgent-not-important":
-        newPriority = "Low";
-        break;
-      case "not-urgent-not-important":
-        newPriority = "Very Low";
-        break;
-      default:
-        newPriority = "Medium";
-    }
-    
-    // Update task with new priority
-    onTaskMove(draggableId, newPriority);
-  };
-  
   return (
     <div className="space-y-4">
       <Card>
@@ -526,7 +466,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({
                     >
                       <CardContent className="p-3">
                         <div className="flex justify-between items-start">
-                          <div>
+                          <div className="flex-1 pr-2">
                             <h4 className="text-sm font-medium">{task.title}</h4>
                             {task.description && (
                               <p className="text-xs text-muted-foreground line-clamp-1">
@@ -534,7 +474,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({
                               </p>
                             )}
                           </div>
-                          <div className={`h-2 w-2 rounded-full ${getPriorityColor(task.priority)}`} />
+                          <div className={`h-2 w-2 rounded-full ${getPriorityColor(task.priority)} flex-shrink-0`} />
                         </div>
                       </CardContent>
                     </Card>
