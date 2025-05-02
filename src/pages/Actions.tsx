@@ -30,7 +30,7 @@ const ActionsContent = () => {
   const [selectedDay, setSelectedDay] = useState(startOfToday());
   const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
   const [editingTask, setEditingTask] = useState<GTDTask | null>(null);
-  const [activeTab, setActiveTab] = useState<"todo" | "todo-not">("todo");
+  const [activeTab, setActiveTab] = useState<"todo" | "not-to-do">("todo");
 
   // Get tasks based on the selected view
   const getTodayTasks = (isToDoNot: boolean = false) => {
@@ -102,7 +102,7 @@ const ActionsContent = () => {
     });
   };
   const handleTaskSubmit = (taskData: any) => {
-    const isToDoNot = activeTab === "todo-not";
+    const isToDoNot = activeTab === "not-to-do";
     if (editingTask) {
       updateTask(editingTask.id, {
         ...taskData,
@@ -153,7 +153,7 @@ const ActionsContent = () => {
   };
 
   // Stats for the dashboard
-  const stats = getTasksStats(activeTab === "todo-not");
+  const stats = getTasksStats(activeTab === "not-to-do");
   return <motion.div className="space-y-6" initial={{
     opacity: 0
   }} animate={{
@@ -193,24 +193,24 @@ const ActionsContent = () => {
         </div>
       </div>
       
-      <Tabs defaultValue="todo" value={activeTab} onValueChange={value => setActiveTab(value as "todo" | "todo-not")} className="w-full">
+      <Tabs defaultValue="todo" value={activeTab} onValueChange={value => setActiveTab(value as "todo" | "not-to-do")} className="w-full">
         <TabsList className="mb-6">
           <TabsTrigger value="todo" className="flex-1">To Do</TabsTrigger>
-          <TabsTrigger value="todo-not" className="flex-1">Not To Do </TabsTrigger>
+          <TabsTrigger value="not-to-do" className="flex-1">Not To Do </TabsTrigger>
         </TabsList>
         
         <TabsContent value="todo">
           {renderTasksContent(false)}
         </TabsContent>
         
-        <TabsContent value="todo-not">
+        <TabsContent value="not-to-do">
           {renderTasksContent(true)}
         </TabsContent>
       </Tabs>
 
       <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
         <DialogContent className="sm:max-w-[600px]">
-          <TaskForm task={editingTask} onSubmit={handleTaskSubmit} onCancel={() => setShowAddTaskDialog(false)} isToDoNot={activeTab === "todo-not"} />
+          <TaskForm task={editingTask} onSubmit={handleTaskSubmit} onCancel={() => setShowAddTaskDialog(false)} isToDoNot={activeTab === "not-to-do"} />
         </DialogContent>
       </Dialog>
     </motion.div>;

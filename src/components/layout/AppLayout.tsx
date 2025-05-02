@@ -57,11 +57,15 @@ const AppLayout = ({
       return user.user_metadata.name;
     }
     
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    
     return user?.email?.split('@')[0] || "User";
   };
   
   const getUserAvatar = () => {
-    return profileData?.avatar || "";
+    return profileData?.avatar || user?.user_metadata?.avatar_url || "";
   };
   
   return (
@@ -93,22 +97,6 @@ const AppLayout = ({
                 {children}
               </div>
             </main>
-            
-            {/* Fixed user info at bottom of sidebar */}
-            {!isMobile && (
-              <div className="fixed bottom-0 left-0 w-64 bg-card border-t p-4 flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarImage src={getUserAvatar()} alt={getUserName()} />
-                  <AvatarFallback className="bg-primary/10 text-primary">
-                    <User className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{getUserName()}</p>
-                  <p className="text-xs text-muted-foreground truncate">Pro Plan</p>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </SidebarProvider>

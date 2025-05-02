@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 // Define TaskPriority and TaskStatus types with all possible values
 export type TaskPriority = "Very Low" | "Low" | "Medium" | "High" | "Very High";
-export type TaskStatus = "inbox" | "next-action" | "project" | "waiting-for" | "someday" | "reference" | "completed" | "deleted" | "today" | "todo" | "in-progress" | "todo-not";
+export type TaskStatus = "inbox" | "next-action" | "project" | "waiting-for" | "someday" | "reference" | "completed" | "deleted" | "today" | "todo" | "in-progress" | "do-it" | "delegate-it" | "defer-it";
 
 export interface TaskAttachment {
   name: string;
@@ -28,7 +28,7 @@ export interface GTDTask {
   timeEstimate?: number;
   delegatedTo?: string;
   attachment?: TaskAttachment;
-  isToDoNot?: boolean; // New field to differentiate between to-do and to-do-not tasks
+  isToDoNot?: boolean; // Field to differentiate between to-do and not-to-do tasks
 }
 
 interface GTDContextType {
@@ -131,6 +131,33 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // This is a general sync effect that can be enhanced based on specific sync requirements
     console.log("Tasks updated:", tasks);
   }, [tasks]);
+
+  // Add logic to sync tasks between GTD and Actions pages
+  useEffect(() => {
+    // Handle synchronization based on task status changes
+    const syncTasksWithActions = () => {
+      setTasks(prevTasks => {
+        return prevTasks.map(task => {
+          // If a task is marked as "do-it", move it to "next-action"
+          if (task.status === "do-it") {
+            return { ...task, status: "next-action" };
+          }
+          // If a task is marked as "delegate-it", move it to "waiting-for"
+          else if (task.status === "delegate-it") {
+            return { ...task, status: "waiting-for" };
+          }
+          // If a task is marked as "defer-it", move it to "someday"
+          else if (task.status === "defer-it") {
+            return { ...task, status: "someday" };
+          }
+          return task;
+        });
+      });
+    };
+
+    // Run synchronization
+    syncTasksWithActions();
+  }, [tasks]); // This will run whenever tasks change
 
   const getTaskById = (id: string): GTDTask | undefined => {
     return tasks.find(task => task.id === id);

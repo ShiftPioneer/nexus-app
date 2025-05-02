@@ -2,11 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Sidebar as ShadcnSidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
-import { ChevronLeft, ChevronRight, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import NavigationMenu from "./NavigationMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -15,6 +16,30 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const [profileData, setProfileData] = useState<any>(null);
+  
+  useEffect(() => {
+    try {
+      // Load profile data from localStorage
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        setProfileData(JSON.parse(savedProfile));
+      }
+    } catch (error) {
+      console.error("Failed to load profile data:", error);
+    }
+
+    // Listen for profile updates
+    const handleProfileUpdate = (e: any) => {
+      setProfileData(e.detail);
+    };
+    
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
   
   const handleToggleCollapse = () => {
     setIsCollapsed(!isCollapsed);
@@ -22,6 +47,35 @@ const Sidebar: React.FC<SidebarProps> = () => {
   
   const handleProfileClick = () => {
     navigate("/settings");
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      navigate("/auth");
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+  
+  const getUserName = () => {
+    if (profileData?.name) {
+      return profileData.name;
+    }
+    
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name;
+    }
+    
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    
+    return user?.email?.split('@')[0] || "User";
+  };
+  
+  const getUserAvatar = () => {
+    return profileData?.avatar || user?.user_metadata?.avatar_url || "";
   };
   
   return (
@@ -91,30 +145,42 @@ const Sidebar: React.FC<SidebarProps> = () => {
         
         <SidebarFooter className="border-t border-[#2A2F3C] p-3 bg-slate-950">
           <div 
-            className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3")} 
+            className={cn("flex items-center mb-2", isCollapsed ? "justify-center" : "gap-3")} 
             onClick={handleProfileClick} 
             style={{ cursor: 'pointer' }}
           >
             <Avatar className="h-8 w-8 bg-[#FF5722]/20 text-[#FF5722]">
-              <AvatarFallback>JD</AvatarFallback>
-              <AvatarImage src="" alt="User Profile" />
+              <AvatarImage src={getUserAvatar()} alt="User Profile" />
+              <AvatarFallback>{getUserName().substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             
             <AnimatePresence>
               {!isCollapsed && (
                 <motion.div 
-                  className="flex flex-col" 
+                  className="flex flex-col flex-1 min-w-0" 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                 >
-                  <span className="text-sm font-medium">John Doe</span>
+                  <span className="text-sm font-medium truncate">{getUserName()}</span>
                   <span className="text-xs text-[#0FA0CE]">Pro Plan</span>
                 </motion.div>
               )}
             </AnimatePresence>
           </div>
+          
+          {!isCollapsed && (
+            <motion.button
+              onClick={handleSignOut}
+              className="w-full mt-1 flex items-center gap-2 px-2 py-1.5 text-sm text-red-400 hover:bg-red-500/10 rounded-md"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <LogOut size={16} />
+              <span>Sign out</span>
+            </motion.button>
+          )}
         </SidebarFooter>
       </ShadcnSidebar>
 

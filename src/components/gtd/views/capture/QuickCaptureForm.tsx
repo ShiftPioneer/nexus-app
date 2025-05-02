@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from "react";
 import { useGTD } from "../../GTDContext";
 import {
@@ -30,6 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Label } from "@/components/ui/label";
 import TagInput from "../../../ui/tag-input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 // Define WebkitSpeechRecognition interface for TypeScript
 interface SpeechRecognitionEvent extends Event {
@@ -84,6 +84,7 @@ const QuickCaptureForm = () => {
   const [attachment, setAttachment] = useState<File | null>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordedText, setRecordedText] = useState("");
+  const [taskType, setTaskType] = useState<"todo" | "not-to-do">("todo");
   
   const { addTask } = useGTD();
   const { toast } = useToast();
@@ -195,6 +196,7 @@ const QuickCaptureForm = () => {
       description,
       priority,
       status: "inbox" as const,
+      isToDoNot: taskType === "not-to-do",
       ...(dueDate && { dueDate }),
       ...(tags.length && { tags }),
       ...(context && { context }),
@@ -210,8 +212,10 @@ const QuickCaptureForm = () => {
     addTask(newTask);
     
     toast({
-      title: "Task Captured",
-      description: "Your task has been added to the inbox",
+      title: taskType === "todo" ? "Task Captured" : "Avoidance Item Captured",
+      description: taskType === "todo" 
+        ? "Your task has been added to the inbox" 
+        : "Your avoidance item has been added to the inbox",
     });
     
     // Reset the form
@@ -223,6 +227,7 @@ const QuickCaptureForm = () => {
     setContext("");
     setAttachment(null);
     setRecordedText("");
+    setTaskType("todo");
   };
   
   return (
@@ -241,6 +246,25 @@ const QuickCaptureForm = () => {
               onChange={(e) => setTitle(e.target.value)}
               className="mt-1"
             />
+          </div>
+
+          <div>
+            <Label>Task Type</Label>
+            <RadioGroup 
+              defaultValue="todo" 
+              value={taskType}
+              onValueChange={(value) => setTaskType(value as "todo" | "not-to-do")}
+              className="flex gap-4 mt-2"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="todo" id="todo" />
+                <Label htmlFor="todo" className="cursor-pointer">To Do</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="not-to-do" id="not-to-do" />
+                <Label htmlFor="not-to-do" className="cursor-pointer">Not To Do</Label>
+              </div>
+            </RadioGroup>
           </div>
 
           <div>
@@ -361,7 +385,9 @@ const QuickCaptureForm = () => {
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" className="w-full">Capture Task</Button>
+          <Button type="submit" className="w-full">
+            Capture {taskType === "todo" ? "Task" : "Avoidance Item"}
+          </Button>
         </CardFooter>
       </form>
     </Card>

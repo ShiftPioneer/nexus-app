@@ -9,6 +9,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  updateUserProfile: (data: any) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +28,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [loading, setLoading] = useState<boolean>(true);
   const { toast } = useToast();
 
+  // Function to update profile data
+  const updateUserProfile = async (data: any) => {
+    try {
+      // Store profile data in localStorage
+      const currentProfile = localStorage.getItem('userProfile');
+      const profile = currentProfile ? { ...JSON.parse(currentProfile), ...data } : data;
+      
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+      
+      // Dispatch a custom event to notify other components
+      window.dispatchEvent(new CustomEvent('profileUpdated', { detail: profile }));
+      
+      // Optional: Update user metadata in Supabase if user is logged in
+      if (user) {
+        await supabase.auth.updateUser({
+          data: { ...user.user_metadata, ...data }
+        });
+      }
+      
+      toast({
+        title: "Profile Updated",
+        description: "Your profile has been updated successfully",
+      });
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update your profile",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -41,6 +75,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             title: "Signed in",
             description: `Welcome${session?.user?.email ? ` ${session.user.email}` : ""}!`,
           });
+          
+          // If user has name in metadata, store it in profile
+          if (session?.user?.user_metadata?.name || session?.user?.user_metadata?.full_name) {
+            const name = session.user.user_metadata.name || session.user.user_metadata.full_name;
+            const avatar = session.user.user_metadata.avatar_url || "";
+            updateUserProfile({ name, avatar });
+          }
           break;
         case "SIGNED_OUT":
           toast({
@@ -56,6 +97,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // If user has name in metadata, store it in profile
+      if (session?.user?.user_metadata?.name || session?.user?.user_metadata?.full_name) {
+        const name = session.user.user_metadata.name || session.user.user_metadata.full_name;
+        const avatar = session.user.user_metadata.avatar_url || "";
+        updateUserProfile({ name, avatar });
+      }
     });
 
     return () => {
@@ -68,7 +116,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, loading, signOut }}>
+    <AuthContext.Provider value={{ 
+      session, 
+      user, 
+      loading, 
+      signOut,
+      updateUserProfile
+    }}>
       {children}
     </AuthContext.Provider>
   );
