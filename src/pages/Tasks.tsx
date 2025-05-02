@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -19,10 +18,12 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
+type ViewMode = "list" | "kanban" | "eisenhower"; 
+
 const TasksContent = () => {
   const { toast } = useToast();
   const { tasks: allTasks, updateTask, moveTask, addTask } = useGTD();
-  const [viewMode, setViewMode] = useState<"kanban" | "list" | "eisenhower">("list"); // Changed default to list view
+  const [viewMode, setViewMode] = useState<ViewMode>("list"); // Changed default to list view
   const [selectedDay, setSelectedDay] = useState(startOfToday());
   const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
   const [editingTask, setEditingTask] = useState<GTDTask | null>(null);

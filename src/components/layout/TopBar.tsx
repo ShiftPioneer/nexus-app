@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { User, Search, Bell, Menu, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +30,42 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu }: TopBarProps) => {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const { hasUnreadNotifications, markNotificationsAsRead } = useGTD();
+  const [profileData, setProfileData] = useState<any>(null);
+  
+  useEffect(() => {
+    // Load user profile data
+    try {
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        setProfileData(JSON.parse(savedProfile));
+      }
+    } catch (error) {
+      console.error("Failed to load profile data:", error);
+    }
+
+    // Listen for profile updates
+    const handleProfileUpdate = (e: any) => {
+      setProfileData(e.detail);
+    };
+    
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
+  
+  const getUserName = () => {
+    if (profileData?.name) {
+      return profileData.name;
+    }
+    
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name;
+    }
+    
+    return user?.email?.split('@')[0] || "User";
+  };
   
   const handleNotificationClick = () => {
     markNotificationsAsRead();
@@ -94,12 +130,15 @@ const TopBar = ({ showMobileMenu, toggleMobileMenu }: TopBarProps) => {
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarImage src="" alt="User" />
-              <AvatarFallback className="bg-primary/10 text-primary">
-                <User className="h-4 w-4" />
-              </AvatarFallback>
-            </Avatar>
+            <Button variant="ghost" className="flex items-center gap-2 p-1.5 h-auto">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={profileData?.avatar || ""} alt={getUserName()} />
+                <AvatarFallback className="bg-primary/10 text-primary">
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+              <span className="text-sm font-medium hidden md:block">{getUserName()}</span>
+            </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>

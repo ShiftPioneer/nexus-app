@@ -6,7 +6,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, Zap, Fire, Star, Brain } from "lucide-react";
+import { CheckCircle, Zap, Star, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 // Updated avatars with productivity and creativity-themed icons
 const PRODUCTIVITY_AVATARS = [
@@ -17,9 +18,9 @@ const PRODUCTIVITY_AVATARS = [
   "https://api.dicebear.com/7.x/identicon/svg?seed=zap&backgroundColor=ffd700",
   "https://api.dicebear.com/7.x/identicon/svg?seed=brain&backgroundColor=4cc9f0",
   "https://api.dicebear.com/7.x/identicon/svg?seed=star&backgroundColor=06d6a0",
-  "https://api.dicebear.com/7.x/identicon/svg?seed=fire&backgroundColor=ef476f",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=check&backgroundColor=ef476f",
   "https://api.dicebear.com/7.x/identicon/svg?seed=rocket&backgroundColor=118ab2",
-  "https://api.dicebear.com/7.x/identicon/svg?seed=check&backgroundColor=073b4c",
+  "https://api.dicebear.com/7.x/identicon/svg?seed=circle&backgroundColor=073b4c",
 ];
 
 interface AvatarSelectorProps {
@@ -33,6 +34,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
   const [customAvatar, setCustomAvatar] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -160,25 +162,6 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
         </DialogContent>
       </Dialog>
     </>
-  );
-};
-
-// Import the User icon from lucide-react
-const User = ({ className }: { className?: string }) => {
-  return (
-    <svg 
-      xmlns="http://www.w3.org/2000/svg" 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
-      className={className}
-    >
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
   );
 };
 

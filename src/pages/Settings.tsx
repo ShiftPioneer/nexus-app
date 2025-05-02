@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,16 +13,18 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AvatarSelector from "@/components/settings/AvatarSelector";
 import TagInput from "@/components/ui/tag-input";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Settings = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
+    name: "",
+    email: "",
     language: "english",
     timezone: "UTC+0",
-    avatar: "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png", // Default avatar
+    avatar: "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png",
     interests: ["productivity", "technology", "health"],
     bio: "Passionate about personal development and productivity.",
   });
@@ -45,12 +48,54 @@ const Settings = () => {
     syncTasksToCalendar: true,
     syncEventsToTasks: true
   });
+
+  // Load user profile data on component mount
+  useEffect(() => {
+    if (user) {
+      // First try to load from localStorage
+      try {
+        const savedProfile = localStorage.getItem('userProfile');
+        if (savedProfile) {
+          const parsedProfile = JSON.parse(savedProfile);
+          setProfileData(prev => ({
+            ...prev,
+            ...parsedProfile
+          }));
+        } else {
+          // If no saved profile, initialize with user data from auth
+          setProfileData(prev => ({
+            ...prev,
+            name: user.user_metadata?.name || user.email?.split('@')[0] || '',
+            email: user.email || ''
+          }));
+        }
+      } catch (error) {
+        console.error('Error loading profile:', error);
+      }
+    }
+  }, [user]);
   
   const handleSave = () => {
-    toast({
-      title: "Settings Saved",
-      description: "Your settings have been saved successfully."
-    });
+    // Save profile data to localStorage
+    try {
+      localStorage.setItem('userProfile', JSON.stringify(profileData));
+      
+      // Update the TopBar to show the avatar
+      const event = new CustomEvent('profileUpdated', { detail: profileData });
+      window.dispatchEvent(event);
+      
+      toast({
+        title: "Settings Saved",
+        description: "Your settings have been saved successfully."
+      });
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save settings",
+        variant: "destructive"
+      });
+    }
   };
   
   const updateProfileData = (field: string, value: string | string[]) => {
@@ -86,9 +131,18 @@ const Settings = () => {
   };
   
   const handleConnectGoogleCalendar = () => {
+    // Simulating Google Calendar connection
+    // In a real app, this would initiate OAuth flow
+    setCalendarSettings(prev => ({
+      ...prev,
+      googleCalendarSync: !prev.googleCalendarSync
+    }));
+    
     toast({
-      title: "Google Calendar",
-      description: "Google Calendar integration coming soon!"
+      title: calendarSettings.googleCalendarSync ? "Google Calendar Disconnected" : "Google Calendar Connected",
+      description: calendarSettings.googleCalendarSync ? 
+        "Your Google Calendar has been disconnected" :
+        "Your Google Calendar has been connected successfully!",
     });
   };
   
@@ -133,11 +187,21 @@ const Settings = () => {
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="name">Name</Label>
-                      <Input id="name" value={profileData.name} onChange={e => updateProfileData("name", e.target.value)} />
+                      <Input 
+                        id="name" 
+                        value={profileData.name} 
+                        onChange={e => updateProfileData("name", e.target.value)} 
+                      />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="email">Email</Label>
-                      <Input id="email" type="email" value={profileData.email} onChange={e => updateProfileData("email", e.target.value)} />
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        value={profileData.email} 
+                        onChange={e => updateProfileData("email", e.target.value)} 
+                        disabled={!!user?.email}
+                      />
                     </div>
                   </div>
 
@@ -547,6 +611,14 @@ const Settings = () => {
                       />
                     </div>
                   </div>
+                  
+                  {calendarSettings.googleCalendarSync && (
+                    <div className="mt-6">
+                      <Button variant="outline" className="w-full">
+                        Visit Google Calendar
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>

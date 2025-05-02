@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -35,9 +36,43 @@ const WelcomeSection = () => {
   const [quote, setQuote] = useState(quotes[Math.floor(Math.random() * quotes.length)]);
   const { toast } = useToast();
   const { user } = useAuth();
+  const [profileData, setProfileData] = useState<any>(null);
   
-  // Get user's name from profile data or email
-  const userName = user?.user_metadata?.name || user?.email?.split('@')[0] || "User";
+  // Get profile data from Supabase or local storage
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (!user) return;
+      
+      try {
+        // First try to get from localStorage
+        const savedProfile = localStorage.getItem('userProfile');
+        if (savedProfile) {
+          const profile = JSON.parse(savedProfile);
+          setProfileData(profile);
+          return;
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+      }
+    };
+    
+    fetchProfileData();
+  }, [user]);
+  
+  // Get user's name from profile data, user metadata or email
+  const getUserName = () => {
+    if (profileData?.name) {
+      return profileData.name;
+    }
+    
+    if (user?.user_metadata?.name) {
+      return user.user_metadata.name;
+    }
+    
+    return user?.email?.split('@')[0] || "User";
+  };
+  
+  const userName = getUserName();
   
   useEffect(() => {
     const timer = setInterval(() => {

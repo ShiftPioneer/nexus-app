@@ -25,10 +25,12 @@ import {
   DropdownMenuTrigger
 } from "@/components/ui/dropdown-menu";
 
+type ViewMode = "list" | "kanban" | "eisenhower";
+
 const ActionsContent = () => {
   const { toast } = useToast();
   const { tasks: allTasks, updateTask, moveTask, addTask } = useGTD();
-  const [viewMode, setViewMode] = useState<"kanban" | "list" | "eisenhower">("list"); // Changed default to list view
+  const [viewMode, setViewMode] = useState<ViewMode>("list"); // Changed default to list view
   const [selectedDay, setSelectedDay] = useState(startOfToday());
   const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
   const [editingTask, setEditingTask] = useState<GTDTask | null>(null);
@@ -275,7 +277,6 @@ const ActionsContent = () => {
   );
   
   function renderTasksContent(isToDoNot: boolean) {
-    // Fix the type comparison using type guard function
     if (viewMode === "eisenhower") {
       // When in Eisenhower mode, show navigation buttons to go back to list/kanban view
       return (
@@ -311,7 +312,7 @@ const ActionsContent = () => {
           />
         </div>
       );
-    } 
+    }
     
     return (
       <>
