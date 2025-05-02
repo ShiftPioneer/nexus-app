@@ -1,233 +1,132 @@
 
-import React, { useEffect, useState } from "react";
-import { Link, useLocation } from "react-router-dom";
-import {
-  LayoutDashboard,
-  CheckSquare,
-  Calendar,
-  Settings,
-  BookOpen,
-  Brain,
-  Zap,
-  Target,
-  Clock,
-  LogOut,
-  ListTodo,
-  ChevronRight,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Sidebar as ShadcnSidebar, SidebarContent, SidebarFooter } from "@/components/ui/sidebar";
+import { ChevronLeft, ChevronRight, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import NavigationMenu from "./NavigationMenu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuth } from "@/contexts/AuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarProps {
-  collapsed: boolean; 
-  setCollapsed: (collapsed: boolean) => void;
+  collapsed?: boolean;
 }
 
-const Sidebar = ({ collapsed, setCollapsed }: SidebarProps) => {
-  const location = useLocation();
-  const { user, signOut } = useAuth();
-  const [profileData, setProfileData] = useState({
-    name: "",
-    email: "",
-    avatar: "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png"
-  });
-
-  useEffect(() => {
-    // Load profile data from localStorage
-    try {
-      const savedProfile = localStorage.getItem('userProfile');
-      if (savedProfile) {
-        const parsedProfile = JSON.parse(savedProfile);
-        setProfileData(prev => ({
-          ...prev,
-          name: parsedProfile.name || (user?.email?.split('@')[0] || ''),
-          avatar: parsedProfile.avatar || prev.avatar
-        }));
-      } else if (user) {
-        setProfileData(prev => ({
-          ...prev,
-          name: user.email?.split('@')[0] || '',
-          email: user.email || ''
-        }));
-      }
-    } catch (error) {
-      console.error('Error loading profile data:', error);
-    }
-
-    // Listen for profile data updates
-    const handleProfileUpdate = (event: any) => {
-      if (event.detail) {
-        setProfileData(prev => ({
-          ...prev,
-          name: event.detail.name || prev.name,
-          avatar: event.detail.avatar || prev.avatar
-        }));
-      }
-    };
-
-    window.addEventListener('profileUpdated', handleProfileUpdate);
-    return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
-  }, [user]);
+const Sidebar: React.FC<SidebarProps> = () => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const navigate = useNavigate();
   
-  const menuItems = [
-    {
-      title: "Dashboard",
-      icon: <LayoutDashboard className="h-4 w-4" />,
-      href: "/",
-    },
-    {
-      title: "Tasks",
-      icon: <CheckSquare className="h-4 w-4" />,
-      href: "/tasks",
-    },
-    {
-      title: "Actions",
-      icon: <ListTodo className="h-4 w-4" />,
-      href: "/actions",
-    },
-    {
-      title: "GTD System",
-      icon: <CheckSquare className="h-4 w-4" />,
-      href: "/gtd",
-    },
-    {
-      title: "Calendar",
-      icon: <Calendar className="h-4 w-4" />,
-      href: "/calendar",
-    },
-    {
-      title: "Planning",
-      icon: <Target className="h-4 w-4" />,
-      href: "/planning",
-    },
-    {
-      title: "Time Design",
-      icon: <Clock className="h-4 w-4" />,
-      href: "/time-design",
-    },
-    {
-      title: "Focus",
-      icon: <Zap className="h-4 w-4" />,
-      href: "/focus",
-    },
-    {
-      title: "Energy",
-      icon: <Zap className="h-4 w-4" />,
-      href: "/energy",
-    },
-    {
-      title: "Mindset",
-      icon: <Brain className="h-4 w-4" />,
-      href: "/mindset",
-    },
-    {
-      title: "Knowledge",
-      icon: <BookOpen className="h-4 w-4" />,
-      href: "/knowledge",
-    },
-    {
-      title: "Journal",
-      icon: <BookOpen className="h-4 w-4" />,
-      href: "/journal",
-    },
-  ];
-
+  const handleToggleCollapse = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+  
+  const handleProfileClick = () => {
+    navigate("/settings");
+  };
+  
   return (
-    <div
-      className={cn(
-        "flex flex-col border-r bg-background h-screen fixed transition-all duration-300 z-30",
-        collapsed ? "w-[70px]" : "w-[250px]"
-      )}
-    >
-      <div className="p-4 pb-2 flex justify-between items-center">
-        <h1 className={cn("font-semibold text-xl flex-1", collapsed && "hidden")}>
-          Flowquest
-        </h1>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-        >
-          <ChevronRight
-            className={cn("h-4 w-4 transition-transform", collapsed && "rotate-180")}
-          />
-        </Button>
-      </div>
-
-      <ScrollArea className="flex-1">
-        <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                item.href === location.pathname
-                  ? "bg-accent text-accent-foreground hover:bg-accent/80"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+    <div className="relative h-screen">
+      <ShadcnSidebar 
+        variant="sidebar" 
+        className={cn(
+          "transition-all duration-300 ease-in-out bg-[#1A1F2C] text-white border-r border-[#2A2F3C]", 
+          isCollapsed ? 'collapsed w-[4rem]' : 'w-[14rem]',
+          "[&_[data-sidebar=content]]:scrollbar-none"
+        )} 
+        style={{
+          '--sidebar-width': '14rem',
+          '--sidebar-width-collapsed': '4rem'
+        } as React.CSSProperties} 
+        data-collapsed={isCollapsed}
+      >
+        <SidebarContent className="px-2 py-4 scrollbar-none bg-slate-950">
+          <div className={cn(
+            "flex items-center justify-between mb-6 px-2 transition-all duration-300", 
+            isCollapsed ? "justify-center" : ""
+          )}>
+            <AnimatePresence initial={false} mode="sync">
+              {!isCollapsed ? (
+                <motion.div 
+                  key="expanded" 
+                  className="flex items-center justify-between w-full"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                >
+                  <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
+                  <motion.span 
+                    className="p-1 cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors" 
+                    onClick={handleToggleCollapse}
+                    whileHover={{ scale: 1.2 }}
+                    whileTap={{ scale: 0.9 }}
+                  >
+                    <ChevronLeft className="h-5 w-5 text-[#FF6500] bg-transparent" />
+                  </motion.span>
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="collapsed" 
+                  className="cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors p-1" 
+                  onClick={handleToggleCollapse}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <img 
+                    alt="Nexus Logo" 
+                    src="/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png" 
+                    className="h-8 w-8 object-fill" 
+                  />
+                </motion.div>
               )}
-            >
-              {item.icon}
-              <span className={cn("flex-1", collapsed && "hidden")}>
-                {item.title}
-              </span>
-            </Link>
-          ))}
-        </nav>
-      </ScrollArea>
-
-      <div className="p-4 mt-auto border-t">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={profileData.avatar} />
-            <AvatarFallback>
-              {profileData.name ? profileData.name.charAt(0).toUpperCase() : 'U'}
-            </AvatarFallback>
-          </Avatar>
-          
-          <div className={cn("flex flex-col flex-1 overflow-hidden", collapsed && "hidden")}>
-            <p className="text-sm font-medium truncate">{profileData.name || 'User'}</p>
-            <p className="text-xs text-muted-foreground truncate">
-              {profileData.email || ''}
-            </p>
+            </AnimatePresence>
           </div>
           
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn("ml-auto", !collapsed && "hidden")}
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
-        </div>
+          <NavigationMenu isCollapsed={isCollapsed} />
+        </SidebarContent>
         
-        <div className={cn("mt-3 space-y-3", collapsed && "hidden")}>
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-            asChild
+        <SidebarFooter className="border-t border-[#2A2F3C] p-3 bg-slate-950">
+          <div 
+            className={cn("flex items-center", isCollapsed ? "justify-center" : "gap-3")} 
+            onClick={handleProfileClick} 
+            style={{ cursor: 'pointer' }}
           >
-            <Link to="/settings">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Link>
-          </Button>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            className="w-full justify-start"
-            onClick={signOut}
-          >
-            <LogOut className="h-4 w-4 mr-2" />
-            Log out
-          </Button>
-        </div>
-      </div>
+            <Avatar className="h-8 w-8 bg-[#FF5722]/20 text-[#FF5722]">
+              <AvatarFallback>JD</AvatarFallback>
+              <AvatarImage src="" alt="User Profile" />
+            </Avatar>
+            
+            <AnimatePresence>
+              {!isCollapsed && (
+                <motion.div 
+                  className="flex flex-col" 
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2, ease: "easeInOut" }}
+                >
+                  <span className="text-sm font-medium">John Doe</span>
+                  <span className="text-xs text-[#0FA0CE]">Pro Plan</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </SidebarFooter>
+      </ShadcnSidebar>
+
+      {isCollapsed && (
+        <motion.div 
+          className="absolute top-1/2 -translate-y-1/2 left-[3.8rem] h-12 w-1 bg-[#2A2F3C] rounded-r cursor-pointer opacity-50 hover:opacity-100 transition-opacity" 
+          onClick={handleToggleCollapse}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          whileHover={{ opacity: 1 }}
+        />
+      )}
     </div>
   );
 };

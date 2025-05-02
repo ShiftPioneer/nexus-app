@@ -28,7 +28,7 @@ export interface GTDTask {
   timeEstimate?: number;
   delegatedTo?: string;
   attachment?: TaskAttachment;
-  isToDoNot?: boolean; // Field to differentiate between to-do and not-to-do tasks
+  isToDoNot?: boolean; // New field to differentiate between to-do and to-do-not tasks
 }
 
 interface GTDContextType {
@@ -131,29 +131,6 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     // This is a general sync effect that can be enhanced based on specific sync requirements
     console.log("Tasks updated:", tasks);
   }, [tasks]);
-
-  // Map GTD actions to Actions page statuses
-  useEffect(() => {
-    const updateActionsFromGTD = () => {
-      setTasks(prevTasks => 
-        prevTasks.map(task => {
-          // Only update tasks that have been processed in the clarify step
-          if (task.status === "next-action") {
-            return { ...task, status: "todo" };
-          } else if (task.status === "waiting-for") {
-            return { ...task, status: "in-progress" };
-          } else if (task.status === "someday") {
-            return { ...task, status: "todo" };
-          } else if (task.status === "reference") {
-            return { ...task, status: "completed" };
-          }
-          return task;
-        })
-      );
-    };
-
-    updateActionsFromGTD();
-  }, []);
 
   const getTaskById = (id: string): GTDTask | undefined => {
     return tasks.find(task => task.id === id);

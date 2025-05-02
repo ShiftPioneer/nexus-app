@@ -13,7 +13,6 @@ import Settings from './pages/Settings';
 import Mindset from './pages/Mindset';
 import Focus from './pages/Focus';
 import GTD from './pages/GTD';
-import Tasks from './pages/Tasks';
 import Auth from './pages/Auth';
 import { FocusTimerProvider } from './components/focus/FocusTimerService';
 import { Toaster } from '@/components/ui/toaster';
@@ -66,14 +65,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Actions />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/tasks" 
-              element={
-                <ProtectedRoute>
-                  <Tasks />
                 </ProtectedRoute>
               } 
             />
