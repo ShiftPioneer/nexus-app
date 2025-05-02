@@ -1,91 +1,104 @@
 
 import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusCircle, Calendar, ArrowRight, ArrowLeft, CalendarDays, CheckSquare, Grid2X2, ListTodo, Filter } from "lucide-react";
-import { format, startOfToday, addDays } from "date-fns";
-import KanbanBoard from "@/components/tasks/KanbanBoard";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { GTDProvider, useGTD, GTDTask, TaskPriority, TaskStatus } from "@/components/gtd/GTDContext";
+import { GTDProvider, GTDTask, TaskStatus, useGTD } from "@/components/gtd/GTDContext";
+import { 
+  Tabs, TabsContent, TabsList, TabsTrigger 
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { PlusCircle, Check, Clock, Archive, Grid2X2, ListTodo, CheckSquare } from "lucide-react";
+import { motion } from "framer-motion";
 import TaskForm from "@/components/tasks/TaskForm";
 import TasksList from "@/components/gtd/TasksList";
-import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import KanbanBoard from "@/components/tasks/KanbanBoard";
 import EisenhowerMatrix from "@/components/gtd/EisenhowerMatrix";
+import { Badge } from "@/components/ui/badge";
 
 type ViewMode = "list" | "kanban" | "eisenhower";
 
-const ActionsContent = () => {
+interface ActionContentProps {
+  taskType: "todo" | "not-todo";
+}
+
+const ActionContent = ({ taskType }: ActionContentProps) => {
+  const { tasks, updateTask, addTask, moveTask } = useGTD();
   const { toast } = useToast();
-  const { tasks: allTasks, updateTask, moveTask, addTask } = useGTD();
-  const [viewMode, setViewMode] = useState<ViewMode>("list"); // Default to list view
-  const [selectedDay, setSelectedDay] = useState(startOfToday());
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
   const [editingTask, setEditingTask] = useState<GTDTask | null>(null);
-  const [activeTab, setActiveTab] = useState<"todo" | "todo-not">("todo");
-
-  // Get tasks based on the selected view
-  const getTodayTasks = (isNotToDo: boolean = false) => {
-    return allTasks.filter(task => task.status === "today" && task.isToDoNot === isNotToDo);
+  
+  // Filter tasks based on the current tab
+  const filteredTasks = tasks.filter(task => {
+    if (taskType === "todo") {
+      return !task.isToDoNot;
+    } else {
+      return task.isToDoNot === true;
+    }
+  });
+  
+  // Get tasks for each status
+  const getTodayTasks = () => {
+    return filteredTasks.filter(task => task.status === "today");
   };
   
-  const getIncompleteTasks = (isNotToDo: boolean = false) => {
-    return allTasks.filter(task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && !isCompleted(task) && task.isToDoNot === isNotToDo);
+  const getPlannedTasks = () => {
+    return filteredTasks.filter(task => 
+      task.status === "next-action" || 
+      task.status === "todo" ||
+      task.status === "someday"
+    );
   };
   
-  const getCompletedTasks = (isNotToDo: boolean = false) => {
-    return allTasks.filter(task => task.status === "completed" && task.isToDoNot === isNotToDo);
+  const getWaitingForTasks = () => {
+    return filteredTasks.filter(task => task.status === "waiting-for" || task.status === "in-progress");
   };
-
-  // Helper to check if a task is completed
-  const isCompleted = (task: GTDTask) => {
-    return task.status === "completed";
+  
+  const getCompletedTasks = () => {
+    return filteredTasks.filter(task => task.status === "completed");
   };
-
+  
   // Get kanban columns for task board
-  const getKanbanColumns = (isNotToDo: boolean = false) => {
+  const getKanbanColumns = () => {
     return {
-      "todo": allTasks.filter(task => (task.status === "todo" || task.status === "next-action") && task.isToDoNot === isNotToDo),
-      "today": allTasks.filter(task => task.status === "today" && task.isToDoNot === isNotToDo),
-      "in-progress": allTasks.filter(task => task.status === "in-progress" && task.isToDoNot === isNotToDo),
-      "completed": allTasks.filter(task => task.status === "completed" && task.isToDoNot === isNotToDo)
+      "todo": filteredTasks.filter(task => task.status === "todo" || task.status === "next-action"),
+      "today": filteredTasks.filter(task => task.status === "today"),
+      "in-progress": filteredTasks.filter(task => task.status === "in-progress" || task.status === "waiting-for"),
+      "completed": filteredTasks.filter(task => task.status === "completed"),
     };
   };
-
+  
   // Get eisenhower matrix quadrants
-  const getEisenhowerMatrix = (isNotToDo: boolean = false) => {
-    const urgentImportant = allTasks.filter(task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && (task.priority === "Very High" || task.priority === "High") && task.isToDoNot === isNotToDo);
-    const notUrgentImportant = allTasks.filter(task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && task.priority === "Medium" && task.isToDoNot === isNotToDo);
-    const urgentNotImportant = allTasks.filter(task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && task.priority === "Low" && task.isToDoNot === isNotToDo);
-    const notUrgentNotImportant = allTasks.filter(task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && task.priority === "Very Low" && task.isToDoNot === isNotToDo);
+  const getEisenhowerMatrix = () => {
+    const urgentImportant = filteredTasks.filter(
+      task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && 
+        (task.priority === "Very High" || task.priority === "High")
+    );
+    
+    const notUrgentImportant = filteredTasks.filter(
+      task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && 
+        task.priority === "Medium"
+    );
+    
+    const urgentNotImportant = filteredTasks.filter(
+      task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && 
+        task.priority === "Low"
+    );
+    
+    const notUrgentNotImportant = filteredTasks.filter(
+      task => (task.status === "today" || task.status === "todo" || task.status === "next-action") && 
+        task.priority === "Very Low"
+    );
     
     return {
       "urgent-important": urgentImportant,
       "not-urgent-important": notUrgentImportant,
       "urgent-not-important": urgentNotImportant,
-      "not-urgent-not-important": notUrgentNotImportant
+      "not-urgent-not-important": notUrgentNotImportant,
     };
   };
-
-  // Get stats for dashboard
-  const getTasksStats = (isNotToDo: boolean = false) => {
-    const todayTasks = getTodayTasks(isNotToDo);
-    const completedTodayTasks = todayTasks.filter(task => isCompleted(task));
-    const completionPercentage = todayTasks.length > 0 ? Math.round(completedTodayTasks.length / todayTasks.length * 100) : 0;
-    
-    return {
-      total: todayTasks.length,
-      completed: completedTodayTasks.length,
-      pending: todayTasks.length - completedTodayTasks.length,
-      completionPercentage
-    };
-  };
-
+  
   // Handle task operations
   const handleAddTask = () => {
     setEditingTask(null);
@@ -101,36 +114,45 @@ const ActionsContent = () => {
     moveTask(taskId, newStatus as TaskStatus);
     toast({
       title: "Task Updated",
-      description: `Task moved to ${newStatus.replace("-", " ")}`
+      description: `Task moved to ${newStatus.replace("-", " ")}`,
+    });
+  };
+  
+  const handleTaskComplete = (id: string) => {
+    updateTask(id, { status: "completed" });
+    toast({
+      title: taskType === "not-todo" ? "Successfully Avoided" : "Task Completed",
+      description: taskType === "not-todo" 
+        ? "You've successfully avoided this item!" 
+        : "Great job completing this task!"
     });
   };
   
   const handleTaskSubmit = (taskData: any) => {
-    const isNotToDo = activeTab === "todo-not";
-    
     if (editingTask) {
-      updateTask(editingTask.id, {
-        ...taskData,
-        isToDoNot: isNotToDo
-      });
+      updateTask(editingTask.id, taskData);
       toast({
-        title: "Task Updated",
-        description: activeTab === "todo" ? "Your task has been updated" : "Your not-to-do item has been updated"
+        title: "Updated",
+        description: taskType === "not-todo" 
+          ? "Your item has been updated" 
+          : "Your task has been updated",
       });
     } else {
       addTask({
         ...taskData,
         status: "todo",
-        isToDoNot: isNotToDo
+        isToDoNot: taskType === "not-todo"
       });
       toast({
-        title: "Task Added",
-        description: activeTab === "todo" ? "Your task has been created" : "Your not-to-do item has been created"
+        title: "Added",
+        description: taskType === "not-todo" 
+          ? "Your item has been added" 
+          : "Your task has been created",
       });
     }
     setShowAddTaskDialog(false);
   };
-
+  
   // Priority color helper
   const getPriorityColor = (priority: string): string => {
     switch (priority) {
@@ -148,133 +170,163 @@ const ActionsContent = () => {
         return "bg-gray-500";
     }
   };
-
-  // Navigation helpers
-  const goToNextDay = () => {
-    setSelectedDay(addDays(selectedDay, 1));
-  };
   
-  const goToPrevDay = () => {
-    setSelectedDay(addDays(selectedDay, -1));
-  };
-
-  // Stats for the dashboard
-  const stats = getTasksStats(activeTab === "todo-not");
-  
-  function renderTasksContent(isNotToDo: boolean) {
+  function renderContent() {
+    // Fix type comparison by checking for strict equality with the string
     if (viewMode === "eisenhower") {
       return (
         <div>
+          <div className="mb-4 flex justify-end">
+            <div className="flex bg-muted rounded-lg p-1">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setViewMode("list")}
+                className="gap-1"
+              >
+                <ListTodo className="h-4 w-4" />
+                <span className="hidden sm:inline">List View</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => setViewMode("kanban")}
+                className="gap-1"
+              >
+                <Grid2X2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Kanban View</span>
+              </Button>
+            </div>
+          </div>
           <EisenhowerMatrix 
-            matrix={getEisenhowerMatrix(isNotToDo)} 
-            onTaskClick={handleEditTask} 
-            onTaskMove={handleTaskMove} 
-            getPriorityColor={getPriorityColor} 
-            isToDoNot={isNotToDo}
+            matrix={getEisenhowerMatrix()} 
+            onTaskClick={handleEditTask}
+            onTaskMove={handleTaskMove}
+            getPriorityColor={getPriorityColor}
+            isToDoNot={taskType === "not-todo"}
           />
         </div>
       );
     }
     
+    if (viewMode === "kanban") {
+      return (
+        <KanbanBoard
+          columns={getKanbanColumns()}
+          onTaskClick={handleEditTask}
+          onTaskMove={handleTaskMove}
+          getPriorityColor={getPriorityColor}
+          isToDoNot={taskType === "not-todo"}
+        />
+      );
+    }
+    
     return (
-      <>
-        <Card>
-          <CardHeader className="pb-2">
-            <div className="flex items-center justify-between">
-              <CardTitle>{isNotToDo ? "Today's Avoidance Progress" : "Today's Progress"}</CardTitle>
-              <div className="flex items-center gap-1">
-                <Badge variant="outline" className="font-normal">
-                  {stats.completed} / {stats.total} {isNotToDo ? "items" : "tasks"}
-                </Badge>
-              </div>
+      <Tabs defaultValue="today">
+        <TabsList className="grid grid-cols-4 mb-4">
+          <TabsTrigger value="today">
+            <div className="flex items-center gap-1">
+              <Check className="h-4 w-4" />
+              <span className="hidden sm:inline">Today</span>
+              <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">
+                {getTodayTasks().length}
+              </Badge>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm">
-                    {stats.completed === stats.total && stats.total > 0 ? "Completed!" : `${stats.completionPercentage}% Complete`}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {stats.pending} remaining
-                  </span>
-                </div>
-                <Progress value={stats.completionPercentage} className="h-2" />
-              </div>
+          </TabsTrigger>
+          
+          <TabsTrigger value="planned">
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              <span className="hidden sm:inline">Planned</span>
+              <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">
+                {getPlannedTasks().length}
+              </Badge>
             </div>
-          </CardContent>
-        </Card>
-
-        {viewMode === "kanban" && (
-          <KanbanBoard 
-            columns={getKanbanColumns(isNotToDo)} 
-            onTaskClick={handleEditTask} 
-            onTaskMove={handleTaskMove} 
-            getPriorityColor={getPriorityColor} 
-            isToDoNot={isNotToDo} 
+          </TabsTrigger>
+          
+          <TabsTrigger value="waiting">
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {taskType === "not-todo" ? "Avoiding" : "Waiting"}
+              </span>
+              <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">
+                {getWaitingForTasks().length}
+              </Badge>
+            </div>
+          </TabsTrigger>
+          
+          <TabsTrigger value="completed">
+            <div className="flex items-center gap-1">
+              <Archive className="h-4 w-4" />
+              <span className="hidden sm:inline">
+                {taskType === "not-todo" ? "Avoided" : "Completed"}
+              </span>
+              <Badge variant="secondary" className="ml-1 hidden sm:inline-flex">
+                {getCompletedTasks().length}
+              </Badge>
+            </div>
+          </TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="today" className="mt-0">
+          <TasksList 
+            tasks={getTodayTasks()} 
+            showActions={true}
+            onTaskComplete={handleTaskComplete}
+            isToDoNot={taskType === "not-todo"}
           />
-        )}
-
-        {viewMode === "list" && (
-          <Tabs defaultValue="today">
-            <TabsList>
-              <TabsTrigger value="today">{isNotToDo ? "Today's To Avoid" : "Today"}</TabsTrigger>
-              <TabsTrigger value="upcoming">{isNotToDo ? "All To Avoid" : "Upcoming"}</TabsTrigger>
-              <TabsTrigger value="completed">{isNotToDo ? "Successfully Avoided" : "Completed"}</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="today" className="mt-4">
-              <TasksList 
-                tasks={getTodayTasks(isNotToDo)} 
-                showActions={true} 
-                isToDoNot={isNotToDo} 
-              />
-            </TabsContent>
-            
-            <TabsContent value="upcoming" className="mt-4">
-              <TasksList 
-                tasks={getIncompleteTasks(isNotToDo).filter(t => t.status !== "today")} 
-                showActions={true} 
-                isToDoNot={isNotToDo} 
-              />
-            </TabsContent>
-            
-            <TabsContent value="completed" className="mt-4">
-              <TasksList 
-                tasks={getCompletedTasks(isNotToDo)} 
-                showActions={false} 
-                isToDoNot={isNotToDo} 
-              />
-            </TabsContent>
-          </Tabs>
-        )}
-      </>
+        </TabsContent>
+        
+        <TabsContent value="planned" className="mt-0">
+          <TasksList 
+            tasks={getPlannedTasks()}
+            showActions={true}
+            onTaskComplete={handleTaskComplete}
+            isToDoNot={taskType === "not-todo"}
+          />
+        </TabsContent>
+        
+        <TabsContent value="waiting" className="mt-0">
+          <TasksList 
+            tasks={getWaitingForTasks()}
+            showActions={true}
+            onTaskComplete={handleTaskComplete}
+            isToDoNot={taskType === "not-todo"}
+          />
+        </TabsContent>
+        
+        <TabsContent value="completed" className="mt-0">
+          <TasksList 
+            tasks={getCompletedTasks()} 
+            showActions={false}
+            isToDoNot={taskType === "not-todo"}
+          />
+        </TabsContent>
+      </Tabs>
     );
   }
   
   return (
-    <motion.div 
-      className="space-y-6" 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-3xl font-bold">{activeTab === "todo" ? "Actions" : "Actions to Avoid"}</h1>
+          <h2 className="text-2xl font-bold">
+            {taskType === "todo" ? "To Do" : "Not To Do"}
+          </h2>
           <p className="text-muted-foreground">
-            {activeTab === "todo" ? "Manage your daily tasks and priorities" : "Track habits and actions to avoid"}
+            {taskType === "todo" 
+              ? "Manage your tasks and priorities" 
+              : "Track habits and actions to avoid"}
           </p>
         </div>
         
         <div className="flex items-center gap-2">
-          {/* Always show view toggle buttons */}
           <div className="flex bg-muted rounded-lg p-1">
             <Button 
               variant={viewMode === "list" ? "default" : "ghost"} 
               size="sm" 
-              onClick={() => setViewMode("list")} 
+              onClick={() => setViewMode("list")}
               className="gap-1"
             >
               <ListTodo className="h-4 w-4" />
@@ -283,7 +335,7 @@ const ActionsContent = () => {
             <Button 
               variant={viewMode === "kanban" ? "default" : "ghost"} 
               size="sm" 
-              onClick={() => setViewMode("kanban")} 
+              onClick={() => setViewMode("kanban")}
               className="gap-1"
             >
               <Grid2X2 className="h-4 w-4" />
@@ -292,61 +344,75 @@ const ActionsContent = () => {
             <Button 
               variant={viewMode === "eisenhower" ? "default" : "ghost"} 
               size="sm" 
-              onClick={() => setViewMode("eisenhower")} 
+              onClick={() => setViewMode("eisenhower")}
               className="gap-1"
             >
               <CheckSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Eisenhower</span>
+              <span className="hidden sm:inline">Matrix</span>
             </Button>
           </div>
           
           <Button onClick={handleAddTask} className="gap-1">
             <PlusCircle className="h-4 w-4" />
-            <span>{activeTab === "todo" ? "Add Task" : "Add Not-To-Do"}</span>
+            <span>
+              {taskType === "todo" ? "Add Task" : "Add Item"}
+            </span>
           </Button>
         </div>
       </div>
       
-      <Tabs 
-        defaultValue="todo" 
-        value={activeTab} 
-        onValueChange={value => setActiveTab(value as "todo" | "todo-not")} 
-        className="w-full"
-      >
-        <TabsList className="mb-6">
-          <TabsTrigger value="todo" className="flex-1">To Do</TabsTrigger>
-          <TabsTrigger value="todo-not" className="flex-1">Not To Do</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="todo">
-          {renderTasksContent(false)}
-        </TabsContent>
-        
-        <TabsContent value="todo-not">
-          {renderTasksContent(true)}
-        </TabsContent>
-      </Tabs>
-
+      {renderContent()}
+      
       <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
         <DialogContent className="sm:max-w-[600px]">
-          <TaskForm 
-            task={editingTask} 
-            onSubmit={handleTaskSubmit} 
-            onCancel={() => setShowAddTaskDialog(false)} 
-            isToDoNot={activeTab === "todo-not"} 
+          <TaskForm
+            task={editingTask}
+            onSubmit={handleTaskSubmit}
+            onCancel={() => setShowAddTaskDialog(false)}
+            isToDoNot={taskType === "not-todo"}
           />
         </DialogContent>
       </Dialog>
-    </motion.div>
+    </>
   );
 };
 
-// Wrapper component that provides the GTD context
 const Actions = () => {
   return (
     <AppLayout>
       <GTDProvider>
-        <ActionsContent />
+        <motion.div 
+          className="space-y-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <div>
+            <h1 className="text-3xl font-bold mb-2">Actions</h1>
+            <p className="text-muted-foreground">
+              Organize your tasks and avoid unhelpful actions.
+            </p>
+          </div>
+          
+          <Tabs defaultValue="todo">
+            <TabsList className="w-full border-b mb-6">
+              <TabsTrigger value="todo" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
+                To Do
+              </TabsTrigger>
+              <TabsTrigger value="not-todo" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
+                Not To Do
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="todo" className="mt-0">
+              <ActionContent taskType="todo" />
+            </TabsContent>
+            
+            <TabsContent value="not-todo" className="mt-0">
+              <ActionContent taskType="not-todo" />
+            </TabsContent>
+          </Tabs>
+        </motion.div>
       </GTDProvider>
     </AppLayout>
   );
