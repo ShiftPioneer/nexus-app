@@ -19,6 +19,7 @@ const AppLayout = ({
 }: AppLayoutProps) => {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   
@@ -69,7 +70,12 @@ const AppLayout = ({
       <SidebarProvider>
         <div className="flex h-screen overflow-hidden bg-background">
           {/* Desktop Sidebar */}
-          {!isMobile && <Sidebar />}
+          {!isMobile && (
+            <Sidebar 
+              collapsed={sidebarCollapsed} 
+              setCollapsed={setSidebarCollapsed} 
+            />
+          )}
           
           {/* Mobile Sidebar - conditionally rendered */}
           {isMobile && mobileMenuOpen && (
@@ -81,7 +87,10 @@ const AppLayout = ({
                 className="fixed inset-y-0 left-0 w-64 bg-[#1A1F2C] text-white overflow-auto transform transition-transform duration-300 ease-in-out" 
                 onClick={e => e.stopPropagation()}
               >
-                <Sidebar />
+                <Sidebar 
+                  collapsed={false} 
+                  setCollapsed={() => {}} 
+                />
               </div>
             </div>
           )}

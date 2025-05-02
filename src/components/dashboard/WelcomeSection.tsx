@@ -34,7 +34,7 @@ const WelcomeSection = () => {
       } else if (user) {
         setProfileData(prev => ({
           ...prev,
-          name: user.displayName || ''
+          name: user.email?.split('@')[0] || ''
         }));
       }
     } catch (error) {
@@ -56,7 +56,7 @@ const WelcomeSection = () => {
     return () => window.removeEventListener('profileUpdated', handleProfileUpdate);
   }, [user]);
 
-  const userName = profileData.name || user?.displayName || user?.email?.split('@')[0] || 'there';
+  const userName = profileData.name || user?.email?.split('@')[0] || 'there';
   
   return (
     <Card className="col-span-2 md:col-span-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 dark:from-blue-900/20 dark:to-purple-900/20">

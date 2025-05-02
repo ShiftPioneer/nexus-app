@@ -21,9 +21,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 
-const Sidebar = ({ collapsed, setCollapsed }: { collapsed: boolean, setCollapsed: (collapsed: boolean) => void }) => {
+interface SidebarProps {
+  collapsed: boolean; 
+  setCollapsed: (collapsed: boolean) => void;
+}
+
+const Sidebar = ({ collapsed, setCollapsed }: SidebarProps) => {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const [profileData, setProfileData] = useState({
     name: "",
     email: "",
@@ -38,13 +43,13 @@ const Sidebar = ({ collapsed, setCollapsed }: { collapsed: boolean, setCollapsed
         const parsedProfile = JSON.parse(savedProfile);
         setProfileData(prev => ({
           ...prev,
-          name: parsedProfile.name || (user?.displayName || ''),
+          name: parsedProfile.name || (user?.email?.split('@')[0] || ''),
           avatar: parsedProfile.avatar || prev.avatar
         }));
       } else if (user) {
         setProfileData(prev => ({
           ...prev,
-          name: user.displayName || '',
+          name: user.email?.split('@')[0] || '',
           email: user.email || ''
         }));
       }
@@ -216,7 +221,7 @@ const Sidebar = ({ collapsed, setCollapsed }: { collapsed: boolean, setCollapsed
             variant="outline"
             size="sm"
             className="w-full justify-start"
-            onClick={logout}
+            onClick={signOut}
           >
             <LogOut className="h-4 w-4 mr-2" />
             Log out

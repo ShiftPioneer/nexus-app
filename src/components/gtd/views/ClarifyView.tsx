@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Inbox, Check, Clock, Book, Calendar, Archive } from "lucide-react";
 import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { useGTD } from "../GTDContext";
@@ -7,10 +7,13 @@ import { useToast } from "@/hooks/use-toast";
 import ClarifyCard from "./clarify/ClarifyCard";
 import InboxTasksList from "./clarify/InboxTasksList";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import TaskForm from "@/components/tasks/TaskForm";
 
 const ClarifyView = () => {
-  const { tasks, moveTask, updateTask } = useGTD();
+  const { tasks, moveTask, updateTask, addTask } = useGTD();
   const { toast } = useToast();
+  const [showAddTaskDialog, setShowAddTaskDialog] = useState(false);
   
   const inboxTasks = tasks.filter(task => task.status === "inbox");
   
@@ -84,6 +87,31 @@ const ClarifyView = () => {
     }
   };
   
+  // Handlers for InboxTasksList
+  const handleAddTask = () => {
+    setShowAddTaskDialog(true);
+  };
+  
+  const handleGoToCapture = () => {
+    // Navigate to capture view within GTD flow
+    const event = new CustomEvent('gtdNavigate', { 
+      detail: { view: 'capture' } 
+    });
+    window.dispatchEvent(event);
+  };
+  
+  const handleTaskSubmit = (taskData: any) => {
+    addTask({
+      ...taskData,
+      status: "inbox"
+    });
+    setShowAddTaskDialog(false);
+    toast({
+      title: "Task Added",
+      description: "Your task has been added to the inbox"
+    });
+  };
+  
   return (
     <div>
       <Card className="mb-6">
@@ -97,7 +125,11 @@ const ClarifyView = () => {
       </Card>
       
       <div className="grid gap-6">
-        <InboxTasksList tasks={inboxTasks} />
+        <InboxTasksList 
+          tasks={inboxTasks} 
+          onAddTask={handleAddTask} 
+          onGoToCapture={handleGoToCapture} 
+        />
         
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -153,6 +185,15 @@ const ClarifyView = () => {
           </div>
         </DragDropContext>
       </div>
+      
+      <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <TaskForm
+            onSubmit={handleTaskSubmit}
+            onCancel={() => setShowAddTaskDialog(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

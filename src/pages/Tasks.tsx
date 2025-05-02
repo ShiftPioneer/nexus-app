@@ -175,8 +175,8 @@ const TasksContent = () => {
   const stats = getTasksStats();
   
   function renderTasksContent() {
-    // Fix the type comparison using type guard function
-    if (viewMode === "eisenhower" as ViewMode) {
+    // Fix type comparison by checking for equality
+    if (viewMode === "eisenhower") {
       // When in Eisenhower mode, show navigation buttons to go back to list/kanban view
       return (
         <div>

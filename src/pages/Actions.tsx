@@ -161,95 +161,8 @@ const ActionsContent = () => {
   // Stats for the dashboard
   const stats = getTasksStats(activeTab === "todo-not");
   
-  return (
-    <motion.div 
-      className="space-y-6" 
-      initial={{ opacity: 0 }} 
-      animate={{ opacity: 1 }} 
-      transition={{ duration: 0.5 }}
-    >
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold">{activeTab === "todo" ? "Actions" : "Actions to Avoid"}</h1>
-          <p className="text-muted-foreground">
-            {activeTab === "todo" ? "Manage your daily tasks and priorities" : "Track habits and actions to avoid"}
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          {/* Always show view toggle buttons */}
-          <div className="flex bg-muted rounded-lg p-1">
-            <Button 
-              variant={viewMode === "list" ? "default" : "ghost"} 
-              size="sm" 
-              onClick={() => setViewMode("list")} 
-              className="gap-1"
-            >
-              <ListTodo className="h-4 w-4" />
-              <span className="hidden sm:inline">List</span>
-            </Button>
-            <Button 
-              variant={viewMode === "kanban" ? "default" : "ghost"} 
-              size="sm" 
-              onClick={() => setViewMode("kanban")} 
-              className="gap-1"
-            >
-              <Grid2X2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Kanban</span>
-            </Button>
-            <Button 
-              variant={viewMode === "eisenhower" ? "default" : "ghost"} 
-              size="sm" 
-              onClick={() => setViewMode("eisenhower")} 
-              className="gap-1"
-            >
-              <CheckSquare className="h-4 w-4" />
-              <span className="hidden sm:inline">Eisenhower</span>
-            </Button>
-          </div>
-          
-          <Button onClick={handleAddTask} className="gap-1">
-            <PlusCircle className="h-4 w-4" />
-            <span>{activeTab === "todo" ? "Add Task" : "Add Not-To-Do"}</span>
-          </Button>
-        </div>
-      </div>
-      
-      <Tabs 
-        defaultValue="todo" 
-        value={activeTab} 
-        onValueChange={value => setActiveTab(value as "todo" | "todo-not")} 
-        className="w-full"
-      >
-        <TabsList className="mb-6">
-          <TabsTrigger value="todo" className="flex-1">To Do</TabsTrigger>
-          <TabsTrigger value="todo-not" className="flex-1">Not To Do</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="todo">
-          {renderTasksContent(false)}
-        </TabsContent>
-        
-        <TabsContent value="todo-not">
-          {renderTasksContent(true)}
-        </TabsContent>
-      </Tabs>
-
-      <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
-        <DialogContent className="sm:max-w-[600px]">
-          <TaskForm 
-            task={editingTask} 
-            onSubmit={handleTaskSubmit} 
-            onCancel={() => setShowAddTaskDialog(false)} 
-            isToDoNot={activeTab === "todo-not"} 
-          />
-        </DialogContent>
-      </Dialog>
-    </motion.div>
-  );
-  
   function renderTasksContent(isNotToDo: boolean) {
-    if (viewMode === "eisenhower" as ViewMode) {
+    if (viewMode === "eisenhower") {
       return (
         <div>
           <EisenhowerMatrix 
@@ -339,6 +252,93 @@ const ActionsContent = () => {
       </>
     );
   }
+  
+  return (
+    <motion.div 
+      className="space-y-6" 
+      initial={{ opacity: 0 }} 
+      animate={{ opacity: 1 }} 
+      transition={{ duration: 0.5 }}
+    >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold">{activeTab === "todo" ? "Actions" : "Actions to Avoid"}</h1>
+          <p className="text-muted-foreground">
+            {activeTab === "todo" ? "Manage your daily tasks and priorities" : "Track habits and actions to avoid"}
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {/* Always show view toggle buttons */}
+          <div className="flex bg-muted rounded-lg p-1">
+            <Button 
+              variant={viewMode === "list" ? "default" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("list")} 
+              className="gap-1"
+            >
+              <ListTodo className="h-4 w-4" />
+              <span className="hidden sm:inline">List</span>
+            </Button>
+            <Button 
+              variant={viewMode === "kanban" ? "default" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("kanban")} 
+              className="gap-1"
+            >
+              <Grid2X2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Kanban</span>
+            </Button>
+            <Button 
+              variant={viewMode === "eisenhower" ? "default" : "ghost"} 
+              size="sm" 
+              onClick={() => setViewMode("eisenhower")} 
+              className="gap-1"
+            >
+              <CheckSquare className="h-4 w-4" />
+              <span className="hidden sm:inline">Eisenhower</span>
+            </Button>
+          </div>
+          
+          <Button onClick={handleAddTask} className="gap-1">
+            <PlusCircle className="h-4 w-4" />
+            <span>{activeTab === "todo" ? "Add Task" : "Add Not-To-Do"}</span>
+          </Button>
+        </div>
+      </div>
+      
+      <Tabs 
+        defaultValue="todo" 
+        value={activeTab} 
+        onValueChange={value => setActiveTab(value as "todo" | "todo-not")} 
+        className="w-full"
+      >
+        <TabsList className="mb-6">
+          <TabsTrigger value="todo" className="flex-1">To Do</TabsTrigger>
+          <TabsTrigger value="todo-not" className="flex-1">Not To Do</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="todo">
+          {renderTasksContent(false)}
+        </TabsContent>
+        
+        <TabsContent value="todo-not">
+          {renderTasksContent(true)}
+        </TabsContent>
+      </Tabs>
+
+      <Dialog open={showAddTaskDialog} onOpenChange={setShowAddTaskDialog}>
+        <DialogContent className="sm:max-w-[600px]">
+          <TaskForm 
+            task={editingTask} 
+            onSubmit={handleTaskSubmit} 
+            onCancel={() => setShowAddTaskDialog(false)} 
+            isToDoNot={activeTab === "todo-not"} 
+          />
+        </DialogContent>
+      </Dialog>
+    </motion.div>
+  );
 };
 
 // Wrapper component that provides the GTD context
