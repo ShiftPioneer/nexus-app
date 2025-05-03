@@ -18,11 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useTheme } from "@/components/ui/theme-provider";
+import { Theme, useTheme } from "@/components/ui/theme-provider";
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { user, signOut } = useAuth();
+  const { user, signOut, updateUser } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -68,10 +68,18 @@ const Settings = () => {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
+      // Update user metadata with name and avatar
+      const metadata = {
+        name: name,
+        avatar_url: avatar
+      };
+      await updateUser(metadata);
+      
       // Save profile data to localStorage
       const profile = {
         name: name,
         avatar: avatar,
+        theme: profileData?.theme || 'system'
       };
       localStorage.setItem('userProfile', JSON.stringify(profile));
       setProfileData(profile);
@@ -174,8 +182,8 @@ const Settings = () => {
                 <Label htmlFor="theme">Theme</Label>
                 <Select 
                   disabled={disabled} 
-                  value={profileData?.theme} 
-                  onValueChange={(value) => {
+                  value={profileData?.theme as Theme || "system"} 
+                  onValueChange={(value: Theme) => {
                     setTheme(value);
                     const profile = { ...profileData, theme: value };
                     localStorage.setItem('userProfile', JSON.stringify(profile));

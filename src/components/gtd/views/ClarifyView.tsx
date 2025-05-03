@@ -70,6 +70,7 @@ const ClarifyView: React.FC = () => {
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <ClarifyCard 
+              id="do-it-card"
               droppableId="do-it" 
               title="Do It" 
               description="Tasks that take less than 2 minutes"
@@ -79,6 +80,7 @@ const ClarifyView: React.FC = () => {
               icon={<CircleCheck className="h-8 w-8" />}
             />
             <ClarifyCard 
+              id="delegate-it-card"
               droppableId="delegate-it" 
               title="Delegate It" 
               description="Tasks that can be done by someone else"
@@ -88,6 +90,7 @@ const ClarifyView: React.FC = () => {
               icon={<Users className="h-8 w-8" />}
             />
             <ClarifyCard 
+              id="defer-it-card"
               droppableId="defer-it" 
               title="Defer It" 
               description="Tasks to schedule for later"
@@ -100,6 +103,7 @@ const ClarifyView: React.FC = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <ClarifyCard 
+              id="reference-card"
               droppableId="reference" 
               title="Reference" 
               description="Non-actionable information to keep"
@@ -109,6 +113,7 @@ const ClarifyView: React.FC = () => {
               icon={<Book className="h-8 w-8" />}
             />
             <ClarifyCard 
+              id="deleted-card"
               droppableId="deleted" 
               title="Delete" 
               description="Tasks that are no longer relevant"

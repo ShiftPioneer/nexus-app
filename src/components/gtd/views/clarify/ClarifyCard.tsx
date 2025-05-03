@@ -5,7 +5,7 @@ import { Droppable } from "react-beautiful-dnd";
 import { cn } from "@/lib/utils";
 
 interface ClarifyCardProps {
-  id: string; // Added id prop to match usage in ClarifyView
+  id?: string; // Changed from required to optional
   droppableId: string;
   title: string;
   description: string;
@@ -13,10 +13,11 @@ interface ClarifyCardProps {
   iconTextClass?: string;
   activeDropClass?: string;
   icon?: React.ReactNode;
-  color?: string; // Added color prop to match usage in ClarifyView
+  color?: string;
 }
 
 const ClarifyCard: React.FC<ClarifyCardProps> = ({
+  id,
   icon,
   title,
   description,
