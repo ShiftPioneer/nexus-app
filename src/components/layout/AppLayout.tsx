@@ -69,38 +69,38 @@ const AppLayout = ({
   };
   
   return (
-    <GTDProvider>
+    <div className="flex h-screen overflow-hidden bg-background w-full">
       <SidebarProvider>
-        <div className="flex h-screen overflow-hidden bg-background w-full">
-          {/* Desktop Sidebar */}
-          {!isMobile && <Sidebar />}
-          
-          {/* Mobile Sidebar - conditionally rendered */}
-          {isMobile && mobileMenuOpen && (
+        {/* Desktop Sidebar */}
+        {!isMobile && <Sidebar />}
+        
+        {/* Mobile Sidebar - conditionally rendered */}
+        {isMobile && mobileMenuOpen && (
+          <div 
+            className="fixed inset-0 z-50 bg-black bg-opacity-75 transition-opacity" 
+            onClick={() => setMobileMenuOpen(false)}
+          >
             <div 
-              className="fixed inset-0 z-50 bg-black bg-opacity-75 transition-opacity" 
-              onClick={() => setMobileMenuOpen(false)}
+              className="fixed inset-y-0 left-0 w-64 bg-[#1A1F2C] text-white overflow-auto transform transition-transform duration-300 ease-in-out" 
+              onClick={e => e.stopPropagation()}
             >
-              <div 
-                className="fixed inset-y-0 left-0 w-64 bg-[#1A1F2C] text-white overflow-auto transform transition-transform duration-300 ease-in-out" 
-                onClick={e => e.stopPropagation()}
-              >
-                <Sidebar />
-              </div>
+              <Sidebar />
             </div>
-          )}
-          
-          <div className="flex flex-col flex-1 overflow-hidden w-full">
-            <TopBar showMobileMenu={isMobile} toggleMobileMenu={toggleMobileMenu} />
-            <main className="flex-1 overflow-auto scrollbar-none transition-all duration-300">
-              <div className="container mx-auto p-3 md:p-6 transition-all duration-300 max-w-full">
-                {children}
-              </div>
-            </main>
           </div>
+        )}
+        
+        <div className="flex flex-col flex-1 overflow-hidden w-full">
+          <TopBar showMobileMenu={isMobile} toggleMobileMenu={toggleMobileMenu} />
+          <main className="flex-1 overflow-auto scrollbar-none transition-all duration-300">
+            <div className="container mx-auto p-3 md:p-6 transition-all duration-300 max-w-full">
+              <GTDProvider>
+                {children}
+              </GTDProvider>
+            </div>
+          </main>
         </div>
       </SidebarProvider>
-    </GTDProvider>
+    </div>
   );
 };
 
