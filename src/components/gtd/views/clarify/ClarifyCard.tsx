@@ -5,13 +5,15 @@ import { Droppable } from "react-beautiful-dnd";
 import { cn } from "@/lib/utils";
 
 interface ClarifyCardProps {
+  id: string; // Added id prop to match usage in ClarifyView
   droppableId: string;
   title: string;
   description: string;
-  iconBgClass: string;
-  iconTextClass: string;
-  activeDropClass: string;
-  icon: React.ReactNode;
+  iconBgClass?: string;
+  iconTextClass?: string;
+  activeDropClass?: string;
+  icon?: React.ReactNode;
+  color?: string; // Added color prop to match usage in ClarifyView
 }
 
 const ClarifyCard: React.FC<ClarifyCardProps> = ({
@@ -19,12 +21,13 @@ const ClarifyCard: React.FC<ClarifyCardProps> = ({
   title,
   description,
   droppableId,
-  iconBgClass,
-  iconTextClass,
-  activeDropClass,
+  iconBgClass = "bg-slate-800",
+  iconTextClass = "text-white",
+  activeDropClass = "bg-slate-800/20 border-slate-500",
+  color,
 }) => {
   return (
-    <Card className="bg-slate-900 border-slate-700 text-slate-200">
+    <Card className={cn("bg-slate-900 border-slate-700 text-slate-200", color && `border-${color}`)}>
       <CardContent className="p-4 space-y-2">
         <div className="flex justify-center mb-4">
           <div className={`w-16 h-16 rounded-full ${iconBgClass} ${iconTextClass} flex items-center justify-center`}>

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from "react";
+
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import AppLayout from "@/components/layout/AppLayout";
@@ -16,244 +17,20 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { Slider } from "@/components/ui/slider"
-import { Calendar } from "@/components/ui/calendar"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "@/lib/utils";
-import { format } from "date-fns"
-import { CalendarIcon } from "@radix-ui/react-icons"
-import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-} from "@/components/ui/command"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardDescription,
-  HoverCardHeader,
-  HoverCardTrigger,
-} from "@/components/ui/hover-card"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuSeparator, ContextMenuTrigger } from "@/components/ui/context-menu"
-import { AspectRatio } from "@/components/ui/aspect-ratio"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Skeleton } from "@/components/ui/skeleton"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
-import { useTheme } from "@/components/ui/theme-provider"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import {
-  CardClose,
-  CardDescriptionEdit,
-  CardFooter,
-  CardHeaderEdit,
-  CardTitleEdit,
-} from "@/components/ui/card-edit"
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-  ResizableSeparator,
-} from "@/components/ui/resizable"
-import { DataTableViewOptions } from "@/components/data-table/data-table-view-options"
-import { DataTableColumnHeader } from "@/components/data-table/data-table-column-header"
-import { DataTableFacetedFilter } from "@/components/data-table/data-table-faceted-filter"
-import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
-  flexRender,
-  getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
-import { MoreHorizontal } from "lucide-react"
-import { InputJsonValue } from "react-hook-form-json-schema"
-import {
-  ResizableHandle as ResizableHandle2,
-  ResizablePanel as ResizablePanel2,
-  ResizablePanelGroup as ResizablePanelGroup2,
-  ResizableSeparator as ResizableSeparator2,
-} from "@/components/ui/resizable"
-import {
-  Accordion as Accordion2,
-  AccordionContent as AccordionContent2,
-  AccordionItem as AccordionItem2,
-  AccordionTrigger as AccordionTrigger2,
-} from "@/components/ui/accordion"
-import {
-  AlertDialog as AlertDialog2,
-  AlertDialogAction as AlertDialogAction2,
-  AlertDialogCancel as AlertDialogCancel2,
-  AlertDialogContent as AlertDialogContent2,
-  AlertDialogDescription as AlertDialogDescription2,
-  AlertDialogFooter as AlertDialogFooter2,
-  AlertDialogHeader as AlertDialogHeader2,
-  AlertDialogTitle as AlertDialogTitle2,
-  AlertDialogTrigger as AlertDialogTrigger2,
-} from "@/components/ui/alert-dialog"
-import {
-  ContextMenu as ContextMenu2,
-  ContextMenuContent as ContextMenuContent2,
-  ContextMenuItem as ContextMenuItem2,
-  ContextMenuSeparator as ContextMenuSeparator2,
-  ContextMenuTrigger as ContextMenuTrigger2,
-} from "@/components/ui/context-menu"
-import {
-  Dialog as Dialog2,
-  DialogContent as DialogContent2,
-  DialogDescription as DialogDescription2,
-  DialogFooter as DialogFooter2,
-  DialogHeader as DialogHeader2,
-  DialogTitle as DialogTitle2,
-  DialogTrigger as DialogTrigger2,
-} from "@/components/ui/dialog"
-import {
-  Drawer as Drawer2,
-  DrawerClose as DrawerClose2,
-  DrawerContent as DrawerContent2,
-  DrawerDescription as DrawerDescription2,
-  DrawerFooter as DrawerFooter2,
-  DrawerHeader as DrawerHeader2,
-  DrawerTitle as DrawerTitle2,
-  DrawerTrigger as DrawerTrigger2,
-} from "@/components/ui/drawer"
-import {
-  HoverCard as HoverCard2,
-  HoverCardContent as HoverCardContent2,
-  HoverCardDescription as HoverCardDescription2,
-  HoverCardHeader as HoverCardHeader2,
-  HoverCardTrigger as HoverCardTrigger2,
-} from "@/components/ui/hover-card"
-import {
-  Popover as Popover2,
-  PopoverContent as PopoverContent2,
-  PopoverTrigger as PopoverTrigger2,
-} from "@/components/ui/popover"
-import {
-  Select as Select2,
-  SelectContent as SelectContent2,
-  SelectItem as SelectItem2,
-  SelectTrigger as SelectTrigger2,
-  SelectValue as SelectValue2,
-} from "@/components/ui/select"
-import {
-  Tooltip as Tooltip2,
-  TooltipContent as TooltipContent2,
-  TooltipProvider as TooltipProvider2,
-  TooltipTrigger as TooltipTrigger2,
-} from "@/components/ui/tooltip"
-import {
-  DropdownMenu as DropdownMenu2,
-  DropdownMenuCheckboxItem as DropdownMenuCheckboxItem2,
-  DropdownMenuContent as DropdownMenuContent2,
-  DropdownMenuGroup as DropdownMenuGroup2,
-  DropdownMenuItem as DropdownMenuItem2,
-  DropdownMenuLabel as DropdownMenuLabel2,
-  DropdownMenuRadioGroup as DropdownMenuRadioGroup2,
-  DropdownMenuRadioItem as DropdownMenuRadioItem2,
-  DropdownMenuSeparator as DropdownMenuSeparator2,
-  DropdownMenuShortcut as DropdownMenuShortcut2,
-  DropdownMenuSub as DropdownMenuSub2,
-  DropdownMenuSubContent as DropdownMenuSubContent2,
-  DropdownMenuSubTrigger as DropdownMenuSubTrigger2,
-  DropdownMenuTrigger as DropdownMenuTrigger2,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/select";
+import { useTheme } from "@/components/ui/theme-provider";
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { user, signOut, updateUser } = useAuth();
+  const { user, signOut } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [avatar, setAvatar] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
-  const [disabled, setDisabled] = React.useState(false)
-  const { setTheme } = useTheme()
+  const [disabled, setDisabled] = React.useState(false);
+  const { setTheme } = useTheme();
 
   useEffect(() => {
     if (user) {
@@ -291,13 +68,6 @@ const Settings = () => {
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
-      // Update user metadata with name and avatar
-      const metadata = {
-        name: name,
-        avatar_url: avatar,
-      };
-      await updateUser(metadata);
-
       // Save profile data to localStorage
       const profile = {
         name: name,
@@ -402,14 +172,18 @@ const Settings = () => {
               <h3 className="text-xl font-semibold">Appearance</h3>
               <div className="space-y-2">
                 <Label htmlFor="theme">Theme</Label>
-                <Select disabled={disabled} value={profileData?.theme} onValueChange={(value) => {
-                  setTheme(value);
-                  const profile = { ...profileData, theme: value };
-                  localStorage.setItem('userProfile', JSON.stringify(profile));
-                  setProfileData(profile);
-                  const event = new CustomEvent('profileUpdated', { detail: profile });
-                  window.dispatchEvent(event);
-                }}>
+                <Select 
+                  disabled={disabled} 
+                  value={profileData?.theme} 
+                  onValueChange={(value) => {
+                    setTheme(value);
+                    const profile = { ...profileData, theme: value };
+                    localStorage.setItem('userProfile', JSON.stringify(profile));
+                    setProfileData(profile);
+                    const event = new CustomEvent('profileUpdated', { detail: profile });
+                    window.dispatchEvent(event);
+                  }}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a theme" />
                   </SelectTrigger>
