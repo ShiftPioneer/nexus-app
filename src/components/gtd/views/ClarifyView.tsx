@@ -8,6 +8,7 @@ import GTDPrinciple from "../GTDPrinciple";
 import InboxTasksList from "./clarify/InboxTasksList";
 import ClarifyCard from "./clarify/ClarifyCard";
 import { motion } from "framer-motion";
+import { CircleCheck, Users, Clock, Book, Trash2 } from "lucide-react";
 
 const ClarifyView: React.FC = () => {
   const { tasks, moveTask } = useGTD();
@@ -69,37 +70,52 @@ const ClarifyView: React.FC = () => {
         <DragDropContext onDragEnd={handleDragEnd}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <ClarifyCard 
-              id="do-it" 
+              droppableId="do-it" 
               title="Do It" 
               description="Tasks that take less than 2 minutes"
-              color="bg-green-600" 
+              iconBgClass="bg-green-600/20"
+              iconTextClass="text-green-500"
+              activeDropClass="border-green-500/50 bg-green-500/10"
+              icon={<CircleCheck className="h-8 w-8" />}
             />
             <ClarifyCard 
-              id="delegate-it" 
+              droppableId="delegate-it" 
               title="Delegate It" 
               description="Tasks that can be done by someone else"
-              color="bg-orange-500" 
+              iconBgClass="bg-purple-600/20"
+              iconTextClass="text-purple-500"
+              activeDropClass="border-purple-500/50 bg-purple-500/10"
+              icon={<Users className="h-8 w-8" />}
             />
             <ClarifyCard 
-              id="defer-it" 
+              droppableId="defer-it" 
               title="Defer It" 
               description="Tasks to schedule for later"
-              color="bg-blue-500" 
+              iconBgClass="bg-blue-600/20"
+              iconTextClass="text-blue-500"
+              activeDropClass="border-blue-500/50 bg-blue-500/10"
+              icon={<Clock className="h-8 w-8" />}
             />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
             <ClarifyCard 
-              id="reference" 
+              droppableId="reference" 
               title="Reference" 
               description="Non-actionable information to keep"
-              color="bg-purple-500" 
+              iconBgClass="bg-amber-600/20"
+              iconTextClass="text-amber-500"
+              activeDropClass="border-amber-500/50 bg-amber-500/10"
+              icon={<Book className="h-8 w-8" />}
             />
             <ClarifyCard 
-              id="deleted" 
+              droppableId="deleted" 
               title="Delete" 
               description="Tasks that are no longer relevant"
-              color="bg-red-500" 
+              iconBgClass="bg-red-600/20"
+              iconTextClass="text-red-500"
+              activeDropClass="border-red-500/50 bg-red-500/10"
+              icon={<Trash2 className="h-8 w-8" />}
             />
           </div>
         </DragDropContext>

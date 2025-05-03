@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 const GTDPrinciple: React.FC = () => {
   const { activeView } = useGTD();
   
-  // Updated principles with new visually distinct colors
+  // Updated principles with visually distinct colors
   const principles = [
     {
       key: "capture",
@@ -37,15 +37,13 @@ const GTDPrinciple: React.FC = () => {
       title: "4. Reflect",
       description: "Review regularly. Keep your system updated and trustworthy.",
       icon: RefreshCw,
-      // Changed from orange to yellow for better visual distinction
-      color: "bg-yellow-500/20 border-yellow-500/50 text-yellow-500"
+      color: "bg-amber-500/20 border-amber-500/50 text-amber-500"
     },
     {
       key: "engage",
       title: "5. Engage",
       description: "Simply do. Choose the right action at the right time.",
       icon: Play,
-      // Changed from #FF6500 to a bright pink/red for better visual distinction from item 4
       color: "bg-rose-500/20 border-rose-500/50 text-rose-500"
     }
   ];

@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { 
+  Tabs, TabsContent, TabsList, TabsTrigger 
+} from "@/components/ui/tabs";
 import { PlusCircle, Calendar, ArrowRight, ArrowLeft, CalendarDays, CheckSquare, Grid2X2, ListTodo, Filter } from "lucide-react";
 import { format, startOfToday, addDays } from "date-fns";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
@@ -15,6 +17,7 @@ import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
 type ViewMode = "list" | "kanban" | "eisenhower";
 const ActionsContent = () => {
   const {

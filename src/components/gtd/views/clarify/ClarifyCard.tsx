@@ -5,13 +5,13 @@ import { Droppable } from "react-beautiful-dnd";
 import { cn } from "@/lib/utils";
 
 interface ClarifyCardProps {
-  icon: React.ReactNode;
+  droppableId: string;
   title: string;
   description: string;
-  droppableId: string;
   iconBgClass: string;
   iconTextClass: string;
   activeDropClass: string;
+  icon: React.ReactNode;
 }
 
 const ClarifyCard: React.FC<ClarifyCardProps> = ({

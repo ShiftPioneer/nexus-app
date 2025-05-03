@@ -17,9 +17,34 @@ const EngageView = () => {
   const { toast } = useToast();
   
   useEffect(() => {
-    // Get next actions and tasks scheduled for today
-    setNextActions(tasks.filter(task => task.status === "next-action"));
-    setTodayTasks(tasks.filter(task => task.status === "today"));
+    // Get actions scheduled for today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Today's tasks - those with status="today" or have a due date of today
+    const todayItems = tasks.filter(task => {
+      if (task.status === "today") return true;
+      if (task.dueDate) {
+        const taskDate = new Date(task.dueDate);
+        taskDate.setHours(0, 0, 0, 0);
+        return taskDate.getTime() === today.getTime();
+      }
+      return false;
+    });
+    
+    // Next actions - tasks with status="next-action" or due date in the future
+    const nextItems = tasks.filter(task => {
+      if (task.status === "next-action") return true;
+      if (task.dueDate) {
+        const taskDate = new Date(task.dueDate);
+        taskDate.setHours(0, 0, 0, 0);
+        return taskDate.getTime() > today.getTime();
+      }
+      return false;
+    });
+    
+    setTodayTasks(todayItems);
+    setNextActions(nextItems);
   }, [tasks]);
   
   const handleStartFocus = (task: any) => {
@@ -37,8 +62,8 @@ const EngageView = () => {
   const handleMoveToToday = (taskId: string) => {
     moveTask(taskId, "today");
     toast({
-      title: "Task Scheduled",
-      description: "Task moved to Today's list",
+      title: "Action Scheduled",
+      description: "Action moved to Today's list",
     });
   };
   
@@ -54,21 +79,21 @@ const EngageView = () => {
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5 text-primary" />
-              Today's Tasks
+              Today's Actions
             </CardTitle>
             <CardDescription>
-              Tasks you've scheduled for today
+              Actions you've scheduled for today
             </CardDescription>
           </CardHeader>
           <CardContent>
             {todayTasks.length === 0 ? (
               <div className="py-8 text-center text-muted-foreground">
-                <p>No tasks scheduled for today</p>
+                <p>No actions scheduled for today</p>
                 <Button 
                   variant="outline" 
                   size="sm" 
                   className="mt-2"
-                  onClick={() => navigate("/gtd")}
+                  onClick={() => navigate("/actions")}
                 >
                   Plan Your Day
                 </Button>
@@ -134,7 +159,7 @@ const EngageView = () => {
                   variant="outline" 
                   size="sm" 
                   className="mt-2"
-                  onClick={() => navigate("/gtd")}
+                  onClick={() => navigate("/actions")}
                 >
                   Process Your Inbox
                 </Button>
@@ -196,26 +221,26 @@ const EngageView = () => {
               <StatsCard 
                 title="In Inbox" 
                 value={tasks.filter(task => task.status === "inbox").length} 
-                bgClass="bg-blue-50"
-                textClass="text-blue-800"
+                bgClass="bg-blue-50 dark:bg-blue-900/20"
+                textClass="text-blue-800 dark:text-blue-300"
               />
               <StatsCard 
                 title="Next Actions" 
                 value={tasks.filter(task => task.status === "next-action").length} 
-                bgClass="bg-purple-50"
-                textClass="text-purple-800"
+                bgClass="bg-purple-50 dark:bg-purple-900/20"
+                textClass="text-purple-800 dark:text-purple-300"
               />
               <StatsCard 
                 title="Waiting For" 
                 value={tasks.filter(task => task.status === "waiting-for").length} 
-                bgClass="bg-amber-50"
-                textClass="text-amber-800"
+                bgClass="bg-amber-50 dark:bg-amber-900/20"
+                textClass="text-amber-800 dark:text-amber-300"
               />
               <StatsCard 
                 title="Completed" 
                 value={tasks.filter(task => task.status === "completed").length} 
-                bgClass="bg-green-50"
-                textClass="text-green-800"
+                bgClass="bg-green-50 dark:bg-green-900/20"
+                textClass="text-green-800 dark:text-green-300"
               />
             </div>
           </div>
