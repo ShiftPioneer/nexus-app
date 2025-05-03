@@ -4,7 +4,7 @@ import { useGTD } from "../GTDContext";
 import { Droppable } from "react-beautiful-dnd";
 import ClarifyCard from "./clarify/ClarifyCard";
 import InboxTasksList from "./clarify/InboxTasksList";
-import { AlertTriangle, CheckCircle2, Clock, List, Bookmark } from "lucide-react";
+import { CheckCircle2, Clock, List, Bookmark } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ClarifyView: React.FC = () => {
@@ -12,22 +12,6 @@ const ClarifyView: React.FC = () => {
   const { toast } = useToast();
   
   const inboxTasks = tasks.filter(task => task.status === "inbox");
-  
-  const handleDragEnd = (result: any) => {
-    if (!result.destination) return;
-    
-    const { draggableId, destination } = result;
-    let newStatus = destination.droppableId as any;
-    
-    // Move the task to the new status
-    moveTask(draggableId, newStatus);
-    
-    // Show toast notification
-    toast({
-      title: "Task moved",
-      description: `Task moved to ${newStatus.replace(/-/g, " ")}`,
-    });
-  };
   
   const handleAddTask = () => {
     setActiveView("capture");

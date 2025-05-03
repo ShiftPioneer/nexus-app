@@ -3,20 +3,37 @@ import React from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import GTDNavigation from "@/components/gtd/GTDNavigation";
 import GTDView from "@/components/gtd/GTDView";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { DragDropContext } from "react-beautiful-dnd";
+import { useGTD } from "@/components/gtd/GTDContext";
+import { useToast } from "@/hooks/use-toast";
 
 const GTDPage = () => {
+  const { moveTask } = useGTD();
+  const { toast } = useToast();
+  
   const handleDragEnd = (result: any) => {
-    // Handle drag end for GTD tasks if needed
+    const { destination, source, draggableId } = result;
+    
+    // Exit if no destination or if dropped in the same place
+    if (!destination || 
+        (destination.droppableId === source.droppableId && 
+         destination.index === source.index)) {
+      return;
+    }
+    
     console.log("Drag ended:", result);
+    console.log("Drag source:", source);
+    console.log("Drag destination:", destination);
     
-    // The actual drag end handling is done in the ClarifyView component
-    // This is just a fallback handler at the page level
-    if (!result.destination) return;
+    // Move the task to the new status based on the destination droppableId
+    moveTask(draggableId, destination.droppableId);
     
-    console.log("Drag source:", result.source);
-    console.log("Drag destination:", result.destination);
+    // Show toast notification
+    toast({
+      title: "Task moved",
+      description: `Task moved to ${destination.droppableId.replace(/-/g, " ")}`,
+    });
   };
 
   return (
