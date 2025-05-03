@@ -8,7 +8,7 @@ import { CheckCircle2, Clock, List, Bookmark } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const ClarifyView: React.FC = () => {
-  const { tasks, moveTask, addTask, setActiveView } = useGTD();
+  const { tasks, setActiveView } = useGTD();
   const { toast } = useToast();
   
   const inboxTasks = tasks.filter(task => task.status === "inbox");

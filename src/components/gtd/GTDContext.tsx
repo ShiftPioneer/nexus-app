@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
+import { DropResult } from "react-beautiful-dnd";
 
 // Define TaskPriority and TaskStatus types with all possible values
 export type TaskPriority = "Very Low" | "Low" | "Medium" | "High" | "Very High";
@@ -43,6 +44,7 @@ interface GTDContextType {
   hasUnreadNotifications: boolean;
   setHasUnreadNotifications: (value: boolean) => void;
   markNotificationsAsRead: () => void;
+  handleDragEnd: (result: DropResult) => void;
 }
 
 const GTDContext = createContext<GTDContextType | null>(null);
@@ -217,6 +219,25 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }));
   };
 
+  const handleDragEnd = (result: DropResult) => {
+    const { destination, source, draggableId } = result;
+    
+    if (!destination) return;
+    
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    ) {
+      return;
+    }
+    
+    // Parse the droppable ID to get the appropriate task status
+    const newStatus = destination.droppableId as TaskStatus;
+    
+    // Move the task
+    moveTask(draggableId, newStatus);
+  };
+
   const markNotificationsAsRead = () => {
     setHasUnreadNotifications(false);
   };
@@ -233,7 +254,8 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       getTaskById,
       hasUnreadNotifications,
       setHasUnreadNotifications,
-      markNotificationsAsRead
+      markNotificationsAsRead,
+      handleDragEnd
     }}>
       {children}
     </GTDContext.Provider>
