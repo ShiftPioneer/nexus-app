@@ -10,8 +10,7 @@ const TasksSection = () => {
   
   // Filter to get only do it tasks (equivalent to "to do" tasks)
   const todoTasks = tasks.filter(task => 
-    (task.status === "do-it" || task.status === "today" || task.status === "next-action" || task.status === "todo") 
-    && !task.isToDoNot
+    task.status === "do-it" || task.status === "today" || task.status === "next-action"
   ).slice(0, 5); // Show only top 5 tasks
   
   // Calculate completion percentage
@@ -25,7 +24,7 @@ const TasksSection = () => {
   };
   
   return (
-    <Card className="h-full mb-6">
+    <Card className="h-full">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-medium">Tasks</CardTitle>
@@ -45,7 +44,7 @@ const TasksSection = () => {
         
         <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full">
           <div 
-            className="h-full bg-green-500 rounded-full transition-all duration-500"
+            className="h-full bg-green-500 rounded-full"
             style={{ width: `${calculateCompletion()}%` }}
           />
         </div>

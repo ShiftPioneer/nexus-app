@@ -112,26 +112,6 @@ html, body {
   animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
-  .container {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-  
-  .card-content {
-    padding: 1rem !important;
-  }
-  
-  h1.text-3xl {
-    font-size: 1.5rem !important;
-  }
-  
-  .page-content {
-    padding: 1rem !important;
-  }
-}
-
 /* Fix for mobile and responsive designs */
 @media (max-width: 768px) {
   .container {
@@ -146,62 +126,4 @@ html, body {
   .lg\:grid-cols-3 {
     grid-template-columns: 1fr;
   }
-  
-  /* Ensure enough spacing on mobile */
-  .main-content {
-    padding-left: 1rem;
-    padding-right: 1rem;
-    padding-top: 4rem; /* Space for the mobile menu button */
-  }
-  
-  /* Make tables scroll horizontally on mobile */
-  .table-container {
-    overflow-x: auto;
-  }
-  
-  /* Allow cards to scroll content on mobile */
-  .card-overflow {
-    max-height: 70vh;
-    overflow-y: auto;
-  }
-  
-  /* Adjust tabs for smaller screens */
-  .tabs-container {
-    overflow-x: auto;
-    white-space: nowrap;
-    scrollbar-width: none;
-  }
-  
-  .tabs-container::-webkit-scrollbar {
-    display: none;
-  }
 }
-
-/* Specific page fixes */
-.time-design-container {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-.knowledge-page, .focus-page, .planning-page {
-  max-width: 100%;
-  overflow-x: hidden;
-}
-
-/* AppLayout fixes for mobile */
-.app-layout {
-  padding-left: 0 !important;
-}
-
-@media (min-width: 1024px) {
-  .app-layout.sidebar-expanded {
-    padding-left: 14rem !important;
-    transition: padding-left 0.3s ease;
-  }
-  
-  .app-layout.sidebar-collapsed {
-    padding-left: 4rem !important;
-    transition: padding-left 0.3s ease;
-  }
-}
-

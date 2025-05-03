@@ -21,7 +21,6 @@ interface TimeActivity {
   endTime: string;
   category: "work" | "social" | "health" | "learning";
   description?: string;
-  syncWithGoogleCalendar?: boolean;
 }
 
 interface TimeDesignCalendarProps {
@@ -99,17 +98,17 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
 
   const renderDayCalendar = () => {
     return (
-      <div className="relative min-h-[1620px] mx-2 md:mx-12">
+      <div className="relative min-h-[1620px] mx-12">
         {/* Hour lines */}
         {hours.map(hour => (
           <div key={hour} className="grid grid-cols-1 border-b min-h-[90px]">
             <div className="relative">
-              <span className="absolute -top-3 -left-8 md:-left-14 text-xs md:text-sm font-medium text-muted-foreground">
+              <span className="absolute -top-3 -left-14 text-sm font-medium text-muted-foreground">
                 {formatHour(hour)}
               </span>
               <div className="border-t h-[45px]"></div>
               <div className="relative">
-                <span className="hidden md:block absolute -left-14 -top-3 text-xs text-muted-foreground">
+                <span className="absolute -left-14 -top-3 text-xs text-muted-foreground">
                   30
                 </span>
                 <div className="border-t border-dashed h-[45px] border-gray-200 dark:border-gray-700"></div>
@@ -130,7 +129,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
         </div>
         
         {/* Activities for the day */}
-        <div className="absolute inset-0 pl-10 md:pl-0">
+        <div className="absolute inset-0">
           {filteredActivities.map(activity => {
             const { top, height, className } = getActivityStyle(activity);
             return (
@@ -143,9 +142,6 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
                 <div className="text-sm font-medium line-clamp-1">{activity.title}</div>
                 <div className="text-xs flex items-center justify-between">
                   <span>{activity.startTime} - {activity.endTime}</span>
-                  {activity.syncWithGoogleCalendar && (
-                    <span className="text-[10px] bg-blue-200 dark:bg-blue-800 px-1 rounded text-blue-800 dark:text-blue-200">G</span>
-                  )}
                 </div>
                 {parseInt(height, 10) > 80 && activity.description && (
                   <div className="text-xs mt-1 line-clamp-2">{activity.description}</div>
@@ -162,7 +158,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
     return (
       <div className="min-h-[1620px] overflow-x-auto">
         <div className="grid grid-cols-8 border-b sticky top-0 bg-background z-10">
-          <div className="w-8 md:w-12"></div>
+          <div className="w-12"></div>
           {weekDays.map((day, i) => (
             <div 
               key={i} 
@@ -170,8 +166,8 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
                 isSameDay(day, new Date()) ? "text-blue-600 dark:text-blue-400" : ""
               }`}
             >
-              <div className="text-xs md:text-sm">{format(day, "EEE")}</div>
-              <div className={`text-base md:text-lg ${
+              <div>{format(day, "EEE")}</div>
+              <div className={`text-lg ${
                 isSameDay(day, new Date()) 
                   ? "bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400 rounded-full w-8 h-8 flex items-center justify-center mx-auto" 
                   : ""
@@ -187,12 +183,12 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
           <div className="border-r">
             {hours.map(hour => (
               <div key={hour} className="h-[90px] relative">
-                <span className="absolute -top-3 w-full text-right pr-2 text-xs font-medium text-muted-foreground">
+                <span className="absolute -top-3 w-full text-right pr-2 text-sm font-medium text-muted-foreground">
                   {formatHour(hour)}
                 </span>
                 <div className="border-t h-[45px]"></div>
                 <div className="relative">
-                  <span className="absolute right-1 md:right-2 -top-3 text-xs text-muted-foreground">
+                  <span className="absolute right-2 -top-3 text-xs text-muted-foreground">
                     30
                   </span>
                   <div className="border-t border-dashed h-[45px] border-gray-200 dark:border-gray-700"></div>
@@ -236,8 +232,8 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
                         style={{ 
                           top, 
                           height,
-                          width: `calc(100% - 6px)`,
-                          left: "3px"
+                          width: `calc(100% - 8px)`,
+                          left: "4px"
                         }}
                         className={className}
                         onClick={() => onEditActivity(activity)}
@@ -245,9 +241,6 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
                         <div className="text-sm font-medium truncate">{activity.title}</div>
                         <div className="text-xs truncate flex-nowrap">
                           {activity.startTime} - {activity.endTime}
-                          {activity.syncWithGoogleCalendar && (
-                            <span className="ml-1 text-[10px] bg-blue-200 dark:bg-blue-800 px-1 rounded text-blue-800 dark:text-blue-200">G</span>
-                          )}
                         </div>
                         {parseInt(height, 10) > 80 && activity.description && (
                           <div className="text-xs mt-1 line-clamp-1">{activity.description}</div>
@@ -264,7 +257,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
   };
 
   return (
-    <div className="p-1 md:p-4 overflow-auto">
+    <div className="p-4 overflow-auto">
       <div className="bg-white dark:bg-slate-900 rounded-lg border shadow-sm p-2">
         {viewType === "day" ? renderDayCalendar() : renderWeekCalendar()}
       </div>

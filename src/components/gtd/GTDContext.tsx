@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from 'uuid';
@@ -17,20 +18,18 @@ export interface GTDTask {
   id: string;
   title: string;
   description?: string;
+  priority: TaskPriority;
   status: TaskStatus;
-  priority?: TaskPriority;
   dueDate?: Date;
   createdAt: Date;
   tags?: string[];
-  category?: TaskCategory;
   context?: string;
-  timeEstimate?: number;
   project?: string;
-  isToDoNot?: boolean;
-  goalId?: string; // Add this missing property
+  timeEstimate?: number;
+  delegatedTo?: string;
+  attachment?: TaskAttachment;
+  isToDoNot?: boolean; // Field to differentiate between to-do and not-to-do tasks
 }
-
-export type TaskCategory = "work" | "personal" | "health" | "education" | "fun" | "other";
 
 interface GTDContextType {
   tasks: GTDTask[];
@@ -66,6 +65,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         id: "1",
         title: "Review project proposal",
         description: "Need to check the details and provide feedback",
+        priority: "Medium",
         status: "inbox",
         createdAt: new Date(),
         tags: ["work", "review"],
@@ -74,6 +74,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       {
         id: "2",
         title: "Schedule dentist appointment",
+        priority: "High",
         status: "next-action",
         createdAt: new Date(),
         context: "phone"
@@ -82,6 +83,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         id: "3",
         title: "Deep work session: Complete research",
         description: "Focus on gathering key insights for the presentation",
+        priority: "Medium",
         status: "waiting-for",
         createdAt: new Date(),
         tags: ["focus", "research"],
@@ -90,6 +92,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       {
         id: "4",
         title: "Daily exercise routine",
+        priority: "High",
         status: "today",
         createdAt: new Date(),
         tags: ["health", "exercise"]
@@ -97,6 +100,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       {
         id: "5",
         title: "Scroll social media",
+        priority: "Low",
         status: "todo",
         createdAt: new Date(),
         tags: ["avoid"],
@@ -105,6 +109,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       {
         id: "6",
         title: "Eat junk food",
+        priority: "Medium",
         status: "todo",
         createdAt: new Date(),
         tags: ["health", "avoid"],
