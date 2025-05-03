@@ -1,63 +1,64 @@
 
 import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Droppable } from "react-beautiful-dnd";
-import { cn } from "@/lib/utils";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { GTDTask } from "@/components/gtd/GTDContext";
+import TaskItem from "../TaskItem";
 
-interface ClarifyCardProps {
-  id?: string; // Changed from required to optional
+export interface ClarifyCardProps {
+  id: string;
   droppableId: string;
   title: string;
   description: string;
-  iconBgClass?: string;
-  iconTextClass?: string;
-  activeDropClass?: string;
-  icon?: React.ReactNode;
-  color?: string;
+  iconBgClass: string;
+  iconTextClass: string;
+  activeDropClass: string;
+  icon: React.ReactNode;
+  tasks?: GTDTask[];
 }
 
 const ClarifyCard: React.FC<ClarifyCardProps> = ({
   id,
-  icon,
+  droppableId,
   title,
   description,
-  droppableId,
-  iconBgClass = "bg-slate-800",
-  iconTextClass = "text-white",
-  activeDropClass = "bg-slate-800/20 border-slate-500",
-  color,
+  iconBgClass,
+  iconTextClass,
+  activeDropClass,
+  icon,
+  tasks = [],
 }) => {
   return (
-    <Card className={cn("bg-slate-900 border-slate-700 text-slate-200", color && `border-${color}`)}>
-      <CardContent className="p-4 space-y-2">
-        <div className="flex justify-center mb-4">
-          <div className={`w-16 h-16 rounded-full ${iconBgClass} ${iconTextClass} flex items-center justify-center`}>
-            {icon}
-          </div>
-        </div>
-        <h3 className="text-xl font-semibold text-center">{title}</h3>
-        <p className="text-sm text-slate-400 text-center">
-          {description}
-        </p>
-        <Droppable droppableId={droppableId}>
-          {(provided, snapshot) => (
-            <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
-              className={cn(
-                "mt-4 p-4 border border-dashed rounded-md min-h-[100px] transition-colors",
-                snapshot.isDraggingOver ? activeDropClass : "border-slate-700"
-              )}
-            >
-              <p className="text-sm text-center text-slate-500">
-                {snapshot.isDraggingOver ? "Drop here!" : "Drag tasks here to categorize"}
-              </p>
-              {provided.placeholder}
+    <Droppable droppableId={droppableId}>
+      {(provided, snapshot) => (
+        <Card 
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className={`border-2 transition-colors ${snapshot.isDraggingOver ? activeDropClass : ''}`}
+        >
+          <CardHeader className="flex flex-row items-center gap-2 pb-2">
+            <div className={`rounded-full p-2 ${iconBgClass}`}>
+              <div className={iconTextClass}>{icon}</div>
             </div>
-          )}
-        </Droppable>
-      </CardContent>
-    </Card>
+            <div>
+              <h4 className="text-base font-medium">{title}</h4>
+              <p className="text-xs text-muted-foreground">{description}</p>
+            </div>
+          </CardHeader>
+          <CardContent className="min-h-[100px]">
+            {tasks.map((task, index) => (
+              <TaskItem key={task.id} task={task} index={index} />
+            ))}
+            {provided.placeholder}
+            {tasks.length === 0 && !snapshot.isDraggingOver && (
+              <div className="flex items-center justify-center h-16 text-muted-foreground text-sm">
+                Drop tasks here
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+    </Droppable>
   );
 };
 

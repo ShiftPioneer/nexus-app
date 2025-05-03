@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, Clock } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Trash } from "lucide-react";
 import { GTDTask, TaskPriority, TaskStatus } from "@/components/gtd/GTDContext";
 import { Badge } from "@/components/ui/badge";
 
@@ -31,14 +31,40 @@ interface TaskFormProps {
   task?: GTDTask | null;
   onSubmit: (data: any) => void;
   onCancel: () => void;
+  onDelete?: (id: string) => void;  // Added delete functionality
   isToDoNot?: boolean;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot = false }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ 
+  task, 
+  onSubmit, 
+  onCancel, 
+  onDelete, 
+  isToDoNot = false 
+}) => {
   const [status, setStatus] = useState<TaskStatus>(task?.status || "todo");
   const [dueDate, setDueDate] = useState<Date | undefined>(task?.dueDate);
   const [tags, setTags] = useState<string[]>(task?.tags || []);
   const [tagInput, setTagInput] = useState("");
+  const [goals, setGoals] = useState<any[]>([]);
+  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(task?.goalId);
+  
+  // Fetch goals from localStorage for linking tasks to goals
+  useEffect(() => {
+    try {
+      const savedGoals = localStorage.getItem('planningGoals');
+      if (savedGoals) {
+        const parsedGoals = JSON.parse(savedGoals);
+        // Only show active goals
+        const activeGoals = parsedGoals.filter((goal: any) => 
+          goal.status === 'active' || goal.status === 'in-progress'
+        );
+        setGoals(activeGoals);
+      }
+    } catch (error) {
+      console.error("Failed to load goals:", error);
+    }
+  }, []);
 
   const form = useForm({
     defaultValues: {
@@ -48,6 +74,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
       status: task?.status || "todo",
       context: task?.context || "",
       timeEstimate: task?.timeEstimate?.toString() || "",
+      project: task?.project || "",
     },
   });
 
@@ -69,7 +96,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
       dueDate,
       tags,
       isToDoNot,
+      goalId: selectedGoalId,  // Added goalId to link tasks to goals
     });
+  };
+
+  const handleDelete = () => {
+    if (onDelete && task) {
+      onDelete(task.id);
+    }
   };
 
   return (
@@ -200,30 +234,70 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
             />
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormItem>
+              <FormLabel>Due Date</FormLabel>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !dueDate && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={dueDate}
+                    onSelect={setDueDate}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </FormItem>
+
+            <FormField
+              control={form.control}
+              name="project"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Website Redesign"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {/* Goal Selection */}
           <FormItem>
-            <FormLabel>Due Date</FormLabel>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full justify-start text-left font-normal",
-                    !dueDate && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
-                <Calendar
-                  mode="single"
-                  selected={dueDate}
-                  onSelect={setDueDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <FormLabel>Link to Goal</FormLabel>
+            <Select
+              value={selectedGoalId}
+              onValueChange={setSelectedGoalId}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select a goal (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">None</SelectItem>
+                {goals.map((goal: any) => (
+                  <SelectItem key={goal.id} value={goal.id}>
+                    {goal.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </FormItem>
 
           <FormItem>
@@ -266,17 +340,29 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
           </FormItem>
         </div>
 
-        <div className="flex justify-end space-x-2">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={onCancel}
-          >
-            Cancel
-          </Button>
-          <Button type="submit">
-            {task ? "Update" : "Create"} {isToDoNot ? "Item" : "Task"}
-          </Button>
+        <div className="flex justify-between">
+          {task && onDelete && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={handleDelete}
+              className="gap-1"
+            >
+              <Trash className="h-4 w-4" /> Delete
+            </Button>
+          )}
+          <div className="flex space-x-2 ml-auto">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+            <Button type="submit">
+              {task ? "Update" : "Create"} {isToDoNot ? "Item" : "Task"}
+            </Button>
+          </div>
         </div>
       </form>
     </Form>

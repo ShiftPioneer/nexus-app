@@ -5,10 +5,9 @@ import { Link } from "react-router-dom";
 import { CheckCircle, Circle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
-// Let's simulate getting goals from localStorage for now
-// In a real app, this would come from a context or API
 const GoalSection = () => {
   const [goals, setGoals] = React.useState<any[]>([]);
+  const [activeGoalsCount, setActiveGoalsCount] = React.useState(0);
 
   React.useEffect(() => {
     // Try to load goals from localStorage
@@ -21,6 +20,7 @@ const GoalSection = () => {
           goal.status === 'active' || goal.status === 'in-progress'
         );
         setGoals(activeGoals);
+        setActiveGoalsCount(activeGoals.length);
       }
     } catch (error) {
       console.error("Failed to load goals:", error);
@@ -31,7 +31,7 @@ const GoalSection = () => {
     <Card className="h-full">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-medium">Active Goals</CardTitle>
+          <CardTitle className="text-lg font-medium">Active Goals ({activeGoalsCount})</CardTitle>
           <Link 
             to="/planning" 
             className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"

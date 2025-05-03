@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Target, Calendar, BarChart2 } from "lucide-react";
 
 const StatsSection = () => {
@@ -39,8 +39,8 @@ const StatsSection = () => {
   return (
     <section className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {stats.map((stat, index) => (
-        <Card key={index} className={`overflow-hidden card-hover border ${stat.color}`}>
-          <CardContent className="p-6">
+        <Card key={index} className={`overflow-hidden card-hover border ${stat.color} h-auto`}>
+          <CardContent className="p-4">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">{stat.title}</p>
@@ -51,9 +51,9 @@ const StatsSection = () => {
             </div>
             
             {/* Simple progress indicator */}
-            <div className="progress-bar-bg mt-4">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 h-1.5 rounded mt-3">
               <div 
-                className={`progress-bar-fill animate-progress`}
+                className="h-full rounded transition-all duration-500"
                 style={{ 
                   width: stat.title.includes("Progress") ? stat.value : `${Math.random() * 100}%`,
                   backgroundColor: stat.icon.props.className.includes("success") ? "#39D98A" : 
