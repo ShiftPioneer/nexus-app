@@ -71,7 +71,7 @@ const AppLayout = ({
   return (
     <GTDProvider>
       <SidebarProvider>
-        <div className="flex h-screen overflow-hidden bg-background">
+        <div className="flex h-screen overflow-hidden bg-background w-full">
           {/* Desktop Sidebar */}
           {!isMobile && <Sidebar />}
           
@@ -90,10 +90,10 @@ const AppLayout = ({
             </div>
           )}
           
-          <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex flex-col flex-1 overflow-hidden w-full">
             <TopBar showMobileMenu={isMobile} toggleMobileMenu={toggleMobileMenu} />
             <main className="flex-1 overflow-auto scrollbar-none transition-all duration-300">
-              <div className="container max-w-14xl mx-auto p-3 md:p-6 transition-all duration-300">
+              <div className="container mx-auto p-3 md:p-6 transition-all duration-300 max-w-full">
                 {children}
               </div>
             </main>

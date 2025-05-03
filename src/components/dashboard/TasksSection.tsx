@@ -10,16 +10,17 @@ const TasksSection = () => {
   
   // Filter to get only do it tasks (equivalent to "to do" tasks)
   const todoTasks = tasks.filter(task => 
-    task.status === "do-it" && !task.isToDoNot
+    task.status === "do-it" || task.status === "today" || task.status === "next-action"
   ).slice(0, 5); // Show only top 5 tasks
   
   // Calculate completion percentage
   const calculateCompletion = () => {
-    if (!tasks || tasks.length === 0) return 0;
+    const totalTasks = tasks.filter(task => !task.isToDoNot).length;
+    if (!totalTasks || totalTasks === 0) return 0;
     
-    // Count tasks that have been categorized (moved out of inbox)
-    const completedTasks = tasks.filter(task => task.status !== "inbox").length;
-    return Math.round((completedTasks / tasks.length) * 100);
+    // Count tasks that have been completed
+    const completedTasks = tasks.filter(task => task.status === "completed" && !task.isToDoNot).length;
+    return Math.round((completedTasks / totalTasks) * 100);
   };
   
   return (
@@ -38,7 +39,7 @@ const TasksSection = () => {
       <CardContent className="space-y-3">
         <div className="flex justify-between text-sm text-slate-600 dark:text-slate-300">
           <span>Progress</span>
-          <span>{calculateCompletion()}% tasks categorized</span>
+          <span>{calculateCompletion()}% tasks completed</span>
         </div>
         
         <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full">
@@ -52,7 +53,7 @@ const TasksSection = () => {
           {todoTasks.length > 0 ? (
             todoTasks.map(task => (
               <div key={task.id} className="flex items-center gap-2">
-                {task.status === "do-it" ? (
+                {task.status === "completed" ? (
                   <CheckCircle className="h-5 w-5 text-green-500" />
                 ) : (
                   <Circle className="h-5 w-5 text-slate-400" />

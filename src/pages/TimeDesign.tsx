@@ -108,30 +108,32 @@ const TimeDesign = () => {
   
   return (
     <AppLayout>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
+      <div className="space-y-4 max-w-full overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold">Time Design</h1>
+            <h1 className="text-3xl md:text-4xl font-bold">Time Design</h1>
             <p className="text-muted-foreground mt-1">
               Plan your day and visualize how you spend your time
             </p>
           </div>
-          <Button onClick={handleAddActivity} className="gap-1">
+          <Button onClick={handleAddActivity} className="w-full md:w-auto gap-1">
             <Plus size={18} />
             New Activity
           </Button>
         </div>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-background rounded-lg">
-          <TabsList className="bg-muted">
-            <TabsTrigger value="calendar">Calendar</TabsTrigger>
-            <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            <TabsTrigger value="activities">Activities</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-background rounded-lg w-full">
+          <div className="overflow-x-auto">
+            <TabsList className="bg-muted">
+              <TabsTrigger value="calendar">Calendar</TabsTrigger>
+              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+              <TabsTrigger value="activities">Activities</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
+          </div>
           
           <TabsContent value="calendar" className="mt-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
               <div className="flex items-center">
                 <Calendar className="h-5 w-5 mr-2" />
                 <h2 className="text-xl font-semibold">
@@ -141,7 +143,7 @@ const TimeDesign = () => {
                 </h2>
               </div>
               
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap justify-end">
                 <Button variant="outline" size="sm" onClick={handlePrevious}>
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
