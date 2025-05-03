@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "./Sidebar";
 import { cn } from "@/lib/utils";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -38,20 +39,22 @@ const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   }, []);
   
   return (
-    <div className="flex min-h-screen bg-background">
-      <Sidebar />
-      
-      <main 
-        className={cn(
-          "flex-1 px-4 md:px-8 py-6 transition-all duration-300 app-layout",
-          !isMobile && (isSidebarCollapsed ? "sidebar-collapsed" : "sidebar-expanded")
-        )}
-      >
-        <div className="container mx-auto max-w-7xl">
-          {children}
-        </div>
-      </main>
-    </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-background">
+        <Sidebar />
+        
+        <main 
+          className={cn(
+            "flex-1 px-4 md:px-8 py-6 transition-all duration-300 app-layout",
+            !isMobile && (isSidebarCollapsed ? "sidebar-collapsed" : "sidebar-expanded")
+          )}
+        >
+          <div className="container mx-auto max-w-7xl">
+            {children}
+          </div>
+        </main>
+      </div>
+    </SidebarProvider>
   );
 };
 
