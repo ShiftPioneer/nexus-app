@@ -10,6 +10,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<any>;
   signUp: (email: string, password: string) => Promise<any>;
   signOut: () => Promise<any>;
+  updateUser: (userData: any) => Promise<any>; // Add this method
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,8 +65,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return supabase.auth.signOut();
   };
 
+  // Add the updateUser method
+  const updateUser = (userData: any) => {
+    return supabase.auth.updateUser(userData);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
