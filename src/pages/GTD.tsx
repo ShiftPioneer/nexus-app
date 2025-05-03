@@ -10,7 +10,13 @@ const GTDPage = () => {
   const handleDragEnd = (result: any) => {
     // Handle drag end for GTD tasks if needed
     console.log("Drag ended:", result);
-    // Implement drag and drop functionality here
+    
+    // The actual drag end handling is done in the ClarifyView component
+    // This is just a fallback handler at the page level
+    if (!result.destination) return;
+    
+    console.log("Drag source:", result.source);
+    console.log("Drag destination:", result.destination);
   };
 
   return (

@@ -1,7 +1,7 @@
 
 import React from "react";
 import { useGTD } from "../GTDContext";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import { Droppable } from "react-beautiful-dnd";
 import ClarifyCard from "./clarify/ClarifyCard";
 import InboxTasksList from "./clarify/InboxTasksList";
 import { AlertTriangle, CheckCircle2, Clock, List, Bookmark } from "lucide-react";
