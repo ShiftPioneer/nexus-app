@@ -1,82 +1,80 @@
-import React, { createContext, useState, useEffect, useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 
-export interface AuthContextType {
-  user: any;
-  signIn: (email: string, password: string) => Promise<void>;
-  signOut: () => Promise<void>;
-	updateUser: (metadata: any) => Promise<void>;
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { Session, User } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
+
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
   loading: boolean;
-  error: string | null;
+  signIn: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string) => Promise<any>;
+  signOut: () => Promise<any>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any>(null);
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   useEffect(() => {
-    const session = supabase.auth.getSession();
+    const getSession = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        setSession(data?.session || null);
+        setUser(data?.session?.user || null);
+      } catch (err) {
+        console.error('Unexpected error getting session:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setUser(session?.data?.session?.user ?? null);
-    setLoading(false);
+    // Call the async function
+    getSession();
 
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
+    // Listen for auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, newSession) => {
+        setSession(newSession);
+        setUser(newSession?.user || null);
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      authListener?.subscription.unsubscribe();
+    };
   }, []);
 
-  const signIn = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) throw error;
-      navigate("/gtd");
-    } catch (error: any) {
-      setError(error.message || "Failed to sign in");
-    } finally {
-      setLoading(false);
-    }
+  const signIn = (email: string, password: string) => {
+    return supabase.auth.signInWithPassword({ email, password });
   };
 
-  const signOut = async () => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-    } catch (error: any) {
-      setError(error.message || "Failed to sign out");
-    } finally {
-      setLoading(false);
-    }
+  const signUp = (email: string, password: string) => {
+    return supabase.auth.signUp({ email, password });
   };
 
-	const updateUser = async (metadata: any) => {
-    try {
-      if (!user) return;
-      const { error } = await supabase.auth.updateUser({
-        data: metadata,
-      });
-
-      if (error) throw error;
-    } catch (error: any) {
-      setError(error.message || "Failed to update user");
-    }
+  const signOut = () => {
+    return supabase.auth.signOut();
   };
 
-  const value = { user, signIn, signOut, updateUser, loading, error };
+  return (
+    <AuthContext.Provider value={{ user, session, loading, signIn, signUp, signOut }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-};
-
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error("useAuth must be used within a AuthProvider");
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-};
+}
