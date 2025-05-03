@@ -5,10 +5,11 @@ import GTDNavigation from "@/components/gtd/GTDNavigation";
 import GTDView from "@/components/gtd/GTDView";
 import { motion } from "framer-motion";
 import { DragDropContext } from "react-beautiful-dnd";
-import { useGTD } from "@/components/gtd/GTDContext";
+import { GTDProvider, useGTD } from "@/components/gtd/GTDContext";
 import { useToast } from "@/hooks/use-toast";
 
-const GTDPage = () => {
+// This component will be wrapped with GTDProvider in AppLayout
+const GTDPageContent = () => {
   const { moveTask } = useGTD();
   const { toast } = useToast();
   
@@ -37,25 +38,32 @@ const GTDPage = () => {
   };
 
   return (
+    <DragDropContext onDragEnd={handleDragEnd}>
+      <motion.div 
+        className="animate-fade-in"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold">Getting Things Done (GTD)</h1>
+          <p className="text-muted-foreground">
+            Organize your tasks and projects with the GTD methodology
+          </p>
+        </div>
+        
+        <GTDNavigation />
+        <GTDView />
+      </motion.div>
+    </DragDropContext>
+  );
+};
+
+// Main page component that doesn't use the GTD context directly
+const GTDPage = () => {
+  return (
     <AppLayout>
-      <DragDropContext onDragEnd={handleDragEnd}>
-        <motion.div 
-          className="animate-fade-in"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="mb-6">
-            <h1 className="text-3xl font-bold">Getting Things Done (GTD)</h1>
-            <p className="text-muted-foreground">
-              Organize your tasks and projects with the GTD methodology
-            </p>
-          </div>
-          
-          <GTDNavigation />
-          <GTDView />
-        </motion.div>
-      </DragDropContext>
+      <GTDPageContent />
     </AppLayout>
   );
 };
