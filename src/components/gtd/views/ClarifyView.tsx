@@ -1,129 +1,88 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useGTD } from "../GTDContext";
-import { useToast } from "@/hooks/use-toast";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
-import GTDPrinciple from "../GTDPrinciple";
-import InboxTasksList from "./clarify/InboxTasksList";
+import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import ClarifyCard from "./clarify/ClarifyCard";
-import { motion } from "framer-motion";
-import { CircleCheck, Users, Clock, Book, Trash2 } from "lucide-react";
+import InboxTasksList from "./clarify/InboxTasksList";
+import { AlertTriangle, CheckCircle2, Clock, List, Bookmark } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const ClarifyView: React.FC = () => {
-  const { tasks, moveTask } = useGTD();
+  const { tasks, moveTask, addTask, setActiveView } = useGTD();
   const { toast } = useToast();
-  const [showHelp, setShowHelp] = useState(false);
   
   const inboxTasks = tasks.filter(task => task.status === "inbox");
   
-  const handleDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId } = result;
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
     
-    // If there's no destination or the item was dropped back in the same place, return
-    if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
-      return;
-    }
+    const { draggableId, destination } = result;
+    let newStatus = destination.droppableId as any;
     
-    // Get the status from the droppableId
-    const newStatus = destination.droppableId as "do-it" | "delegate-it" | "defer-it" | "reference" | "deleted";
-    
-    // Move the task to its new status
+    // Move the task to the new status
     moveTask(draggableId, newStatus);
     
-    // Show a toast notification
+    // Show toast notification
     toast({
-      title: "Task Moved",
-      description: `Task moved to ${newStatus.replace("-", " ")}`,
+      title: "Task moved",
+      description: `Task moved to ${newStatus.replace(/-/g, " ")}`,
     });
   };
-
+  
   const handleAddTask = () => {
-    // Navigate to the capture view
-    // This could be handled through a context method or router
-    // For now, let's just show a toast
-    toast({
-      title: "Capture Task",
-      description: "Navigate to the Capture tab to add a new task.",
-    });
+    setActiveView("capture");
   };
-
+  
   const handleGoToCapture = () => {
-    // Navigate to capture view
+    setActiveView("capture");
   };
   
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <div>
-        <h3 className="text-xl font-medium mb-4">Inbox</h3>
-        <InboxTasksList 
-          tasks={inboxTasks} 
-          onAddTask={handleAddTask}
-          onGoToCapture={handleGoToCapture}
+    <div className="space-y-8">
+      <h2 className="text-2xl font-semibold mb-4">Clarify Your Tasks</h2>
+      
+      <InboxTasksList 
+        tasks={inboxTasks} 
+        onAddTask={handleAddTask} 
+        onGoToCapture={handleGoToCapture}
+      />
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <ClarifyCard
+          droppableId="next-action"
+          title="Next Action"
+          description="Tasks that can be done immediately"
+          icon={<CheckCircle2 className="h-8 w-8" />}
+          iconBgClass="bg-green-600"
+          activeDropClass="bg-green-600/20 border-green-500"
         />
-      </div>
-      
-      <GTDPrinciple />
-      
-      <div className="md:col-span-2">
-        <h3 className="text-xl font-medium mb-4">Clarify Process</h3>
-        <DragDropContext onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <ClarifyCard 
-              id="do-it-card"
-              droppableId="do-it" 
-              title="Do It" 
-              description="Tasks that take less than 2 minutes"
-              iconBgClass="bg-green-600/20"
-              iconTextClass="text-green-500"
-              activeDropClass="border-green-500/50 bg-green-500/10"
-              icon={<CircleCheck className="h-8 w-8" />}
-            />
-            <ClarifyCard 
-              id="delegate-it-card"
-              droppableId="delegate-it" 
-              title="Delegate It" 
-              description="Tasks that can be done by someone else"
-              iconBgClass="bg-purple-600/20"
-              iconTextClass="text-purple-500"
-              activeDropClass="border-purple-500/50 bg-purple-500/10"
-              icon={<Users className="h-8 w-8" />}
-            />
-            <ClarifyCard 
-              id="defer-it-card"
-              droppableId="defer-it" 
-              title="Defer It" 
-              description="Tasks to schedule for later"
-              iconBgClass="bg-blue-600/20"
-              iconTextClass="text-blue-500"
-              activeDropClass="border-blue-500/50 bg-blue-500/10"
-              icon={<Clock className="h-8 w-8" />}
-            />
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-            <ClarifyCard 
-              id="reference-card"
-              droppableId="reference" 
-              title="Reference" 
-              description="Non-actionable information to keep"
-              iconBgClass="bg-amber-600/20"
-              iconTextClass="text-amber-500"
-              activeDropClass="border-amber-500/50 bg-amber-500/10"
-              icon={<Book className="h-8 w-8" />}
-            />
-            <ClarifyCard 
-              id="deleted-card"
-              droppableId="deleted" 
-              title="Delete" 
-              description="Tasks that are no longer relevant"
-              iconBgClass="bg-red-600/20"
-              iconTextClass="text-red-500"
-              activeDropClass="border-red-500/50 bg-red-500/10"
-              icon={<Trash2 className="h-8 w-8" />}
-            />
-          </div>
-        </DragDropContext>
+        
+        <ClarifyCard
+          droppableId="project"
+          title="Project"
+          description="Complex tasks requiring multiple actions"
+          icon={<List className="h-8 w-8" />}
+          iconBgClass="bg-purple-600"
+          activeDropClass="bg-purple-600/20 border-purple-500"
+        />
+        
+        <ClarifyCard
+          droppableId="waiting-for"
+          title="Waiting For"
+          description="Tasks delegated to others"
+          icon={<Clock className="h-8 w-8" />}
+          iconBgClass="bg-orange-600"
+          activeDropClass="bg-orange-600/20 border-orange-500"
+        />
+        
+        <ClarifyCard
+          droppableId="someday"
+          title="Someday/Maybe"
+          description="Tasks to consider in the future"
+          icon={<Bookmark className="h-8 w-8" />}
+          iconBgClass="bg-blue-600"
+          activeDropClass="bg-blue-600/20 border-blue-500"
+        />
       </div>
     </div>
   );
