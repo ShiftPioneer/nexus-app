@@ -236,6 +236,8 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     
     // Move the task
     moveTask(draggableId, newStatus);
+    
+    console.log(`Task ${draggableId} dragged from ${source.droppableId} to ${destination.droppableId}`);
   };
 
   const markNotificationsAsRead = () => {
