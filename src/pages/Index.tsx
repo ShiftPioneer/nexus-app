@@ -7,6 +7,7 @@ import TasksSection from "@/components/dashboard/TasksSection";
 import HabitsSection from "@/components/dashboard/HabitsSection";
 import GoalSection from "@/components/dashboard/GoalSection";
 import JournalSection from "@/components/dashboard/JournalSection";
+import { GTDProvider } from "@/components/gtd/GTDContext";
 
 const Dashboard = () => {
   return (
@@ -17,7 +18,9 @@ const Dashboard = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <TasksSection />
+            <GTDProvider>
+              <TasksSection />
+            </GTDProvider>
             <GoalSection />
           </div>
           <div className="space-y-6">
