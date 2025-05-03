@@ -9,25 +9,19 @@ import { useToast } from "@/hooks/use-toast";
 import { DragDropContext } from "react-beautiful-dnd";
 
 const GTDPageContent = () => {
-  const { moveTask, handleDragEnd: contextHandleDragEnd } = useGTD();
+  const { handleDragEnd } = useGTD();
   const { toast } = useToast();
   
-  const handleDragEnd = (result: any) => {
+  const onDragEnd = (result: any) => {
     // Call the context's drag end handler
-    contextHandleDragEnd(result);
+    handleDragEnd(result);
     
-    const { destination, source, draggableId } = result;
+    const { destination } = result;
     
-    // Exit if no destination or if dropped in the same place
-    if (!destination || 
-        (destination.droppableId === source.droppableId && 
-         destination.index === source.index)) {
+    // Exit if no destination
+    if (!destination) {
       return;
     }
-    
-    console.log("Drag ended:", result);
-    console.log("Drag source:", source);
-    console.log("Drag destination:", destination);
     
     // Show toast notification
     toast({
@@ -37,7 +31,7 @@ const GTDPageContent = () => {
   };
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <motion.div 
         className="animate-fade-in"
         initial={{ opacity: 0 }}
