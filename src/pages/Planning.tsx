@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -9,10 +10,9 @@ import ProjectCreationDialog from "@/components/planning/ProjectCreationDialog";
 import PlanningBoardView from "@/components/planning/PlanningBoardView";
 import PlanningListView from "@/components/planning/PlanningListView";
 import { useToast } from "@/hooks/use-toast";
+
 const Planning = () => {
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [view, setView] = useState<'list' | 'board'>('list');
   const [showGoalDialog, setShowGoalDialog] = useState(false);
   const [showProjectDialog, setShowProjectDialog] = useState(false);
@@ -20,6 +20,47 @@ const Planning = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+
+  // Load goals and projects from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedGoals = localStorage.getItem('planningGoals');
+      const savedProjects = localStorage.getItem('planningProjects');
+      
+      if (savedGoals) {
+        setGoals(JSON.parse(savedGoals));
+      }
+      
+      if (savedProjects) {
+        setProjects(JSON.parse(savedProjects));
+      }
+    } catch (error) {
+      console.error("Failed to load goals/projects:", error);
+      toast({
+        title: "Error Loading Data",
+        description: "Failed to load your goals and projects.",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  // Save goals and projects to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('planningGoals', JSON.stringify(goals));
+    } catch (error) {
+      console.error("Failed to save goals:", error);
+    }
+  }, [goals]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('planningProjects', JSON.stringify(projects));
+    } catch (error) {
+      console.error("Failed to save projects:", error);
+    }
+  }, [projects]);
+
   const handleGoalCreate = (goal: Goal) => {
     if (selectedGoal) {
       // Update existing goal
@@ -43,6 +84,7 @@ const Planning = () => {
     }
     setShowGoalDialog(false);
   };
+
   const handleProjectCreate = (project: Project) => {
     if (selectedProject) {
       // Update existing project
@@ -66,17 +108,21 @@ const Planning = () => {
     }
     setShowProjectDialog(false);
   };
+
   const handleEditGoal = (goal: Goal) => {
     setSelectedGoal(goal);
     setShowGoalDialog(true);
   };
+
   const handleEditProject = (project: Project) => {
     setSelectedProject(project);
     setShowProjectDialog(true);
   };
-  return <AppLayout>
+
+  return (
+    <AppLayout>
       <div className="animate-fade-in space-y-6 px-[20px]">
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center flex-wrap gap-2">
           <div>
             <h1 className="text-2xl font-bold">Planning</h1>
             <p className="text-muted-foreground my-[10px] mx-[10px] px-0">Set and manage your goals and projects</p>
@@ -95,7 +141,7 @@ const Planning = () => {
         </div>
         
         <Tabs defaultValue="goals">
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <TabsList>
               <TabsTrigger value="goals" className="gap-2">
                 <Target className="h-4 w-4" />
@@ -118,7 +164,8 @@ const Planning = () => {
           </div>
           
           <TabsContent value="goals" className="mt-6">
-            {goals.length === 0 ? <Card>
+            {goals.length === 0 ? (
+              <Card>
                 <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px] py-[20px] my-[10px]">
                   <Target className="h-12 w-12 text-muted-foreground opacity-50" />
                   <h3 className="mt-4 text-lg font-medium">No goals yet</h3>
@@ -130,11 +177,17 @@ const Planning = () => {
                     Create First Goal
                   </Button>
                 </CardContent>
-              </Card> : view === 'list' ? <PlanningListView goals={goals} contentType="goals" onEditItem={goal => handleEditGoal(goal as Goal)} /> : <PlanningBoardView goals={goals} contentType="goals" onEditItem={goal => handleEditGoal(goal as Goal)} />}
+              </Card>
+            ) : view === 'list' ? (
+              <PlanningListView goals={goals} contentType="goals" onEditItem={goal => handleEditGoal(goal as Goal)} />
+            ) : (
+              <PlanningBoardView goals={goals} contentType="goals" onEditItem={goal => handleEditGoal(goal as Goal)} />
+            )}
           </TabsContent>
           
           <TabsContent value="projects" className="mt-6">
-            {projects.length === 0 ? <Card>
+            {projects.length === 0 ? (
+              <Card>
                 <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px]">
                   <ClipboardList className="h-12 w-12 text-muted-foreground opacity-50" />
                   <h3 className="mt-4 text-lg font-medium">No projects yet</h3>
@@ -146,7 +199,12 @@ const Planning = () => {
                     Create First Project
                   </Button>
                 </CardContent>
-              </Card> : view === 'list' ? <PlanningListView projects={projects} contentType="projects" onEditItem={project => handleEditProject(project as Project)} /> : <PlanningBoardView projects={projects} contentType="projects" onEditItem={project => handleEditProject(project as Project)} />}
+              </Card>
+            ) : view === 'list' ? (
+              <PlanningListView projects={projects} contentType="projects" onEditItem={project => handleEditProject(project as Project)} />
+            ) : (
+              <PlanningBoardView projects={projects} contentType="projects" onEditItem={project => handleEditProject(project as Project)} />
+            )}
           </TabsContent>
         </Tabs>
       </div>
@@ -154,6 +212,8 @@ const Planning = () => {
       <GoalCreationDialog open={showGoalDialog} onOpenChange={setShowGoalDialog} onGoalCreate={handleGoalCreate} initialGoal={selectedGoal} existingGoals={goals} />
       
       <ProjectCreationDialog open={showProjectDialog} onOpenChange={setShowProjectDialog} onProjectCreate={handleProjectCreate} initialProject={selectedProject} existingProjects={projects} />
-    </AppLayout>;
+    </AppLayout>
+  );
 };
+
 export default Planning;

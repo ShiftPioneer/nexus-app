@@ -5,17 +5,26 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, XCircle, Award } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface FocusSessionHistoryProps {
   sessions: FocusSession[];
 }
 
-const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions }) => {
+const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions: propSessions }) => {
   const [selectedSession, setSelectedSession] = useState<FocusSession | null>(null);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<"all" | "today" | "week" | "month">("all");
   const { toast } = useToast();
+  const [sessions, setSessions] = useState<FocusSession[]>(propSessions);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState<boolean>(false);
+  const [sessionToDelete, setSessionToDelete] = useState<string | null>(null);
+
+  // Update local state when prop sessions change
+  useEffect(() => {
+    setSessions(propSessions);
+  }, [propSessions]);
 
   // Get unique categories from sessions
   const categories = [...new Set(sessions.map(session => session.category))];
@@ -50,12 +59,35 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions }) =
     return true;
   });
 
-  const handleDeleteSession = (id: string) => {
-    // In a real app, this would make an API call to delete the session
+  const confirmDeleteSession = (id: string) => {
+    setSessionToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleDeleteSession = () => {
+    if (!sessionToDelete) return;
+    
+    // Filter out the session to delete
+    const updatedSessions = sessions.filter(session => session.id !== sessionToDelete);
+    
+    // Update local state
+    setSessions(updatedSessions);
+    
+    // Update localStorage if available
+    try {
+      localStorage.setItem('focusSessions', JSON.stringify(updatedSessions));
+    } catch (error) {
+      console.error("Failed to save sessions to localStorage:", error);
+    }
+    
     toast({
       title: "Session Deleted",
       description: "The focus session has been removed from your history"
     });
+    
+    // Close dialog and reset state
+    setDeleteConfirmOpen(false);
+    setSessionToDelete(null);
   };
 
   const handleViewSession = (session: FocusSession) => {
@@ -152,7 +184,7 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions }) =
                       variant="ghost" 
                       size="sm"
                       className="text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteSession(session.id)}
+                      onClick={() => confirmDeleteSession(session.id)}
                     >
                       <XCircle className="h-4 w-4" />
                     </Button>
@@ -165,7 +197,7 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions }) =
       </Card>
       
       {/* Session details dialog */}
-      <Dialog open={!!selectedSession} onOpenChange={() => setSelectedSession(null)}>
+      <Dialog open={!!selectedSession} onOpenChange={(open) => !open && setSelectedSession(null)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Focus Session Details</DialogTitle>
@@ -216,6 +248,27 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions }) =
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete confirmation dialog */}
+      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete Session</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this focus session? This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex justify-end gap-3">
+            <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDeleteSession}>
+              Delete
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </>

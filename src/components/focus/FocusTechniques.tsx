@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Target, Zap, Brain, BookOpen, Flame } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 interface FocusTechniquesProps {
   onStartTechnique: (technique: FocusTechnique) => void;
@@ -72,10 +73,19 @@ const focusTechniques: FocusTechnique[] = [
 const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) => {
   const [selectedTechnique, setSelectedTechnique] = useState<FocusTechnique | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
+  const { toast } = useToast();
   
   const filteredTechniques = activeTab === "all" 
     ? focusTechniques 
     : focusTechniques.filter(t => t.difficulty.toLowerCase() === activeTab.toLowerCase());
+  
+  const handleStartTechnique = (technique: FocusTechnique) => {
+    onStartTechnique(technique);
+    toast({
+      title: `${technique.name} Started`,
+      description: `You've started a ${technique.duration} minute ${technique.name} session.`,
+    });
+  };
   
   return (
     <>
@@ -131,7 +141,7 @@ const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) =
                     variant="default" 
                     size="sm" 
                     className="flex-1"
-                    onClick={() => onStartTechnique(technique)}
+                    onClick={() => handleStartTechnique(technique)}
                   >
                     Start Now
                   </Button>
@@ -150,68 +160,70 @@ const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) =
       </Card>
       
       {/* Technique details dialog */}
-      <Dialog open={!!selectedTechnique} onOpenChange={() => setSelectedTechnique(null)}>
-        {selectedTechnique && (
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <div className="flex items-center gap-2">
-                <div className="bg-primary p-2 rounded-full text-primary-foreground">
-                  <selectedTechnique.icon className="h-5 w-5" />
+      <Dialog open={!!selectedTechnique} onOpenChange={(open) => !open && setSelectedTechnique(null)}>
+        <DialogContent className="sm:max-w-md">
+          {selectedTechnique && (
+            <>
+              <DialogHeader>
+                <div className="flex items-center gap-2">
+                  <div className="bg-primary p-2 rounded-full text-primary-foreground">
+                    <selectedTechnique.icon className="h-5 w-5" />
+                  </div>
+                  <DialogTitle>{selectedTechnique.name}</DialogTitle>
                 </div>
-                <DialogTitle>{selectedTechnique.name}</DialogTitle>
-              </div>
-              <DialogDescription>
-                {selectedTechnique.description}
-              </DialogDescription>
-            </DialogHeader>
-            
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+                <DialogDescription>
+                  {selectedTechnique.description}
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <h4 className="text-sm font-medium mb-1">Difficulty</h4>
+                    <p className="text-sm">{selectedTechnique.difficulty}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium mb-1">Duration</h4>
+                    <p className="text-sm">{selectedTechnique.duration} minutes</p>
+                  </div>
+                </div>
+                
                 <div>
-                  <h4 className="text-sm font-medium mb-1">Difficulty</h4>
-                  <p className="text-sm">{selectedTechnique.difficulty}</p>
+                  <h4 className="text-sm font-medium mb-1">Best For</h4>
+                  <p className="text-sm">{selectedTechnique.bestFor}</p>
                 </div>
+                
                 <div>
-                  <h4 className="text-sm font-medium mb-1">Duration</h4>
-                  <p className="text-sm">{selectedTechnique.duration} minutes</p>
+                  <h4 className="text-sm font-medium mb-1">Structure</h4>
+                  <p className="text-sm">{selectedTechnique.structure}</p>
+                </div>
+                
+                <div className="bg-accent/50 p-4 rounded-md">
+                  <h4 className="text-sm font-medium mb-2">How to Use</h4>
+                  <ol className="text-sm space-y-1 list-decimal list-inside">
+                    <li>Choose a specific task to focus on</li>
+                    <li>Eliminate all potential distractions</li>
+                    <li>Set a timer for {selectedTechnique.duration} minutes</li>
+                    <li>Work with full concentration until the timer ends</li>
+                    <li>Take a short break before starting another session</li>
+                  </ol>
                 </div>
               </div>
               
-              <div>
-                <h4 className="text-sm font-medium mb-1">Best For</h4>
-                <p className="text-sm">{selectedTechnique.bestFor}</p>
-              </div>
-              
-              <div>
-                <h4 className="text-sm font-medium mb-1">Structure</h4>
-                <p className="text-sm">{selectedTechnique.structure}</p>
-              </div>
-              
-              <div className="bg-accent/50 p-4 rounded-md">
-                <h4 className="text-sm font-medium mb-2">How to Use</h4>
-                <ol className="text-sm space-y-1 list-decimal list-inside">
-                  <li>Choose a specific task to focus on</li>
-                  <li>Eliminate all potential distractions</li>
-                  <li>Set a timer for {selectedTechnique.duration} minutes</li>
-                  <li>Work with full concentration until the timer ends</li>
-                  <li>Take a short break before starting another session</li>
-                </ol>
-              </div>
-            </div>
-            
-            <DialogFooter>
-              <Button 
-                onClick={() => {
-                  onStartTechnique(selectedTechnique);
-                  setSelectedTechnique(null);
-                }}
-                className="w-full"
-              >
-                Start {selectedTechnique.name} Technique
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        )}
+              <DialogFooter>
+                <Button 
+                  onClick={() => {
+                    handleStartTechnique(selectedTechnique);
+                    setSelectedTechnique(null);
+                  }}
+                  className="w-full"
+                >
+                  Start {selectedTechnique.name} Technique
+                </Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
       </Dialog>
     </>
   );
