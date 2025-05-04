@@ -2,12 +2,12 @@
 import React, { useState, useEffect } from "react";
 import { useGTD } from "../GTDContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Clock, Play, Check, Calendar } from "lucide-react";
+import { Calendar, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import TasksList from "../TasksList";
 import { useToast } from "@/hooks/use-toast";
+import TasksSection from "./engage/TasksSection";
+import StatsCard from "./engage/StatsCard";
 
 const EngageView = () => {
   const { tasks, moveTask } = useGTD();
@@ -67,6 +67,10 @@ const EngageView = () => {
     });
   };
   
+  const navigateToActions = () => {
+    navigate("/actions");
+  };
+  
   return (
     <div className="space-y-6">
       <motion.div 
@@ -75,137 +79,30 @@ const EngageView = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              Today's Actions
-            </CardTitle>
-            <CardDescription>
-              Actions you've scheduled for today
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {todayTasks.length === 0 ? (
-              <div className="py-8 text-center text-muted-foreground">
-                <p>No actions scheduled for today</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => navigate("/actions")}
-                >
-                  Plan Your Day
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {todayTasks.map(task => (
-                  <Card key={task.id} className="bg-card/50 border">
-                    <CardContent className="p-3">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="text-base font-medium">{task.title}</h4>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
-                              {task.description}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-2 ml-4 shrink-0">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleStartFocus(task)}
-                          >
-                            <Play className="h-3 w-3" />
-                            <span className="sr-only">Start Focus</span>
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleCompleteTask(task.id)}
-                          >
-                            <Check className="h-3 w-3" />
-                            <span className="sr-only">Complete</span>
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <TasksSection
+          title="Today's Actions"
+          description="Actions you've scheduled for today"
+          icon={<Calendar className="h-5 w-5 text-primary" />}
+          tasks={todayTasks}
+          emptyMessage="No actions scheduled for today"
+          emptyActionText="Plan Your Day"
+          onEmptyAction={navigateToActions}
+          onStartFocus={handleStartFocus}
+          onCompleteTask={handleCompleteTask}
+        />
         
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-primary" />
-              Next Actions
-            </CardTitle>
-            <CardDescription>
-              Ready to be scheduled or done next
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {nextActions.length === 0 ? (
-              <div className="py-8 text-center text-muted-foreground">
-                <p>No next actions available</p>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="mt-2"
-                  onClick={() => navigate("/actions")}
-                >
-                  Process Your Inbox
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {nextActions.map(task => (
-                  <Card key={task.id} className="bg-card/50 border">
-                    <CardContent className="p-3">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="text-base font-medium">{task.title}</h4>
-                          {task.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">
-                              {task.description}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex gap-2 ml-4 shrink-0">
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleMoveToToday(task.id)}
-                          >
-                            <Calendar className="h-3 w-3" />
-                            <span className="sr-only">Schedule Today</span>
-                          </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => handleStartFocus(task)}
-                          >
-                            <Play className="h-3 w-3" />
-                            <span className="sr-only">Start Focus</span>
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <TasksSection
+          title="Next Actions"
+          description="Ready to be scheduled or done next"
+          icon={<Clock className="h-5 w-5 text-primary" />}
+          tasks={nextActions}
+          emptyMessage="No next actions available"
+          emptyActionText="Process Your Inbox"
+          onEmptyAction={navigateToActions}
+          onStartFocus={handleStartFocus}
+          onCompleteTask={handleCompleteTask}
+          onMoveToToday={handleMoveToToday}
+        />
       </motion.div>
 
       <Card>
@@ -246,22 +143,6 @@ const EngageView = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
-  );
-};
-
-interface StatsCardProps {
-  title: string;
-  value: number;
-  bgClass: string;
-  textClass: string;
-}
-
-const StatsCard: React.FC<StatsCardProps> = ({ title, value, bgClass, textClass }) => {
-  return (
-    <div className={`p-4 rounded-lg ${bgClass}`}>
-      <h3 className={`text-lg font-medium ${textClass}`}>{value}</h3>
-      <p className={`text-sm ${textClass} opacity-90`}>{title}</p>
     </div>
   );
 };

@@ -1,166 +1,219 @@
 
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, BrainCircuit, LayoutGrid } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Clock, Target, Zap, Brain, BookOpen, Flame } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface FocusTechniquesProps {
   onStartTechnique: (technique: FocusTechnique) => void;
 }
 
-const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) => {
-  const techniques: FocusTechnique[] = [
-    {
-      name: "Pomodoro Technique",
-      description: "Work in focused 25-minute intervals with short breaks",
-      difficulty: "Beginner",
-      bestFor: "Avoiding procrastination",
-      structure: "25min work / 5min break",
-      duration: 25,
-      icon: Clock
-    },
-    {
-      name: "Deep Work",
-      description: "Extended period of distraction-free concentration",
-      difficulty: "Intermediate",
-      bestFor: "Complex tasks",
-      structure: "90min+ focused blocks",
-      duration: 90,
-      icon: BrainCircuit
-    },
-    {
-      name: "Time Blocking",
-      description: "Schedule specific time blocks for different tasks",
-      difficulty: "Advanced",
-      bestFor: "Managing multiple priorities",
-      structure: "Customized time blocks",
-      duration: 60,
-      icon: LayoutGrid
-    }
-  ];
+// Sample focus techniques
+const focusTechniques: FocusTechnique[] = [
+  {
+    name: "Pomodoro",
+    description: "Work for 25 minutes, then take a 5-minute break. After 4 cycles, take a longer break.",
+    difficulty: "Beginner",
+    bestFor: "Breaking down work into intervals",
+    structure: "25min work, 5min break × 4, then 15-30min break",
+    duration: 25,
+    icon: Clock
+  },
+  {
+    name: "Deep Work",
+    description: "Dedicate 50-90 minutes to distraction-free, high-concentration work on a single task.",
+    difficulty: "Intermediate",
+    bestFor: "Complex problem-solving and creative tasks",
+    structure: "50-90min of uninterrupted focus",
+    duration: 50,
+    icon: Brain
+  },
+  {
+    name: "52/17 Method",
+    description: "Work for 52 minutes with intense focus, then recover with a 17-minute break.",
+    difficulty: "Intermediate",
+    bestFor: "Maintaining high energy and productivity",
+    structure: "52min work, 17min break",
+    duration: 52,
+    icon: Zap
+  },
+  {
+    name: "Flow State",
+    description: "Create optimal conditions for achieving a state of complete immersion in your work.",
+    difficulty: "Advanced",
+    bestFor: "Creative work and deep thinking",
+    structure: "90-120min of uninterrupted focus",
+    duration: 90,
+    icon: Flame
+  },
+  {
+    name: "Timeboxing",
+    description: "Allocate a fixed time period to each task, moving on when time is up regardless of completion.",
+    difficulty: "Beginner",
+    bestFor: "Managing multiple tasks and preventing perfectionism",
+    structure: "Fixed time blocks for specific tasks",
+    duration: 30,
+    icon: Target
+  },
+  {
+    name: "Deliberate Practice",
+    description: "Focus on specific skill improvement with targeted practice and immediate feedback.",
+    difficulty: "Advanced",
+    bestFor: "Skill development and mastery",
+    structure: "45min targeted practice sessions",
+    duration: 45,
+    icon: BookOpen
+  }
+];
 
+const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) => {
+  const [selectedTechnique, setSelectedTechnique] = useState<FocusTechnique | null>(null);
+  const [activeTab, setActiveTab] = useState<string>("all");
+  
+  const filteredTechniques = activeTab === "all" 
+    ? focusTechniques 
+    : focusTechniques.filter(t => t.difficulty.toLowerCase() === activeTab.toLowerCase());
+  
   return (
-    <div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {techniques.map((technique, index) => (
-          <Card key={index}>
-            <CardContent className="p-6">
-              <div className="flex justify-center mb-6">
-                <div className={`h-16 w-16 rounded-full flex items-center justify-center ${
-                  index === 0 ? "bg-purple-100 text-purple-700" :
-                  index === 1 ? "bg-blue-100 text-blue-700" :
-                  "bg-green-100 text-green-700"
-                }`}>
-                  {/* Fix: Use React component properly */}
-                  <technique.icon className="h-8 w-8" />
-                </div>
-              </div>
-              
-              <h3 className="text-xl font-semibold text-center mb-2">{technique.name}</h3>
-              <p className="text-sm text-center text-muted-foreground mb-6">
-                {technique.description}
-              </p>
-              
-              <div className="space-y-3 mb-6">
-                <div className="flex justify-between">
-                  <span className="text-sm">Difficulty</span>
-                  <span className="text-sm">{technique.difficulty}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Best for</span>
-                  <span className="text-sm">{technique.bestFor}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Structure</span>
-                  <span className="text-sm">{technique.structure}</span>
-                </div>
-              </div>
-              
-              <Button 
-                className="w-full bg-orange-500 hover:bg-orange-600"
-                onClick={() => onStartTechnique(technique)}
-              >
-                Start Now
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-      
-      <Card className="mt-6">
-        <CardContent className="p-6">
-          <h3 className="text-xl font-semibold mb-4">Focus Environment Tips</h3>
+    <>
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-primary" />
+            Focus Techniques
+          </CardTitle>
+          <CardDescription>
+            Scientifically proven methods to enhance your focus and productivity
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
+            <TabsList>
+              <TabsTrigger value="all">All Techniques</TabsTrigger>
+              <TabsTrigger value="beginner">Beginner</TabsTrigger>
+              <TabsTrigger value="intermediate">Intermediate</TabsTrigger>
+              <TabsTrigger value="advanced">Advanced</TabsTrigger>
+            </TabsList>
+          </Tabs>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div>
-              <h4 className="font-medium mb-3">Physical Space</h4>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-purple-500"></div>
-                  <span className="text-sm">Clear your workspace of distractions</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-purple-500"></div>
-                  <span className="text-sm">Ensure proper lighting and comfortable seating</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-purple-500"></div>
-                  <span className="text-sm">Maintain comfortable temperature in your workspace</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-purple-500"></div>
-                  <span className="text-sm">Add plants or natural elements to your environment</span>
-                </li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-medium mb-3">Digital Environment</h4>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                  <span className="text-sm">Use website blockers during focus sessions</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                  <span className="text-sm">Turn off notifications on all devices</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                  <span className="text-sm">Close unnecessary tabs and applications</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-blue-500"></div>
-                  <span className="text-sm">Consider using ambient noise or focus music</span>
-                </li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-medium mb-3">Mental Preparation</h4>
-              <ul className="space-y-2">
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm">Set clear intentions before starting</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm">Practice a 2-minute mindfulness exercise</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm">Use visualization to imagine successful completion</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
-                  <span className="text-sm">Have water and healthy snacks nearby</span>
-                </li>
-              </ul>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTechniques.map((technique) => (
+              <Card key={technique.name} className="overflow-hidden border border-accent hover:border-primary transition-colors">
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-lg">{technique.name}</CardTitle>
+                      <CardDescription className="line-clamp-2 h-10">
+                        {technique.description}
+                      </CardDescription>
+                    </div>
+                    <div className="bg-muted rounded-full p-2 text-primary">
+                      <technique.icon className="h-5 w-5" />
+                    </div>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="pb-2 pt-0">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{technique.difficulty}</Badge>
+                      <Badge variant="outline">{technique.duration}min</Badge>
+                    </div>
+                  </div>
+                </CardContent>
+                
+                <CardFooter className="flex gap-2">
+                  <Button 
+                    variant="default" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => onStartTechnique(technique)}
+                  >
+                    Start Now
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => setSelectedTechnique(technique)}
+                  >
+                    Details
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
           </div>
         </CardContent>
       </Card>
-    </div>
+      
+      {/* Technique details dialog */}
+      <Dialog open={!!selectedTechnique} onOpenChange={() => setSelectedTechnique(null)}>
+        {selectedTechnique && (
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <div className="flex items-center gap-2">
+                <div className="bg-primary p-2 rounded-full text-primary-foreground">
+                  <selectedTechnique.icon className="h-5 w-5" />
+                </div>
+                <DialogTitle>{selectedTechnique.name}</DialogTitle>
+              </div>
+              <DialogDescription>
+                {selectedTechnique.description}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Difficulty</h4>
+                  <p className="text-sm">{selectedTechnique.difficulty}</p>
+                </div>
+                <div>
+                  <h4 className="text-sm font-medium mb-1">Duration</h4>
+                  <p className="text-sm">{selectedTechnique.duration} minutes</p>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium mb-1">Best For</h4>
+                <p className="text-sm">{selectedTechnique.bestFor}</p>
+              </div>
+              
+              <div>
+                <h4 className="text-sm font-medium mb-1">Structure</h4>
+                <p className="text-sm">{selectedTechnique.structure}</p>
+              </div>
+              
+              <div className="bg-accent/50 p-4 rounded-md">
+                <h4 className="text-sm font-medium mb-2">How to Use</h4>
+                <ol className="text-sm space-y-1 list-decimal list-inside">
+                  <li>Choose a specific task to focus on</li>
+                  <li>Eliminate all potential distractions</li>
+                  <li>Set a timer for {selectedTechnique.duration} minutes</li>
+                  <li>Work with full concentration until the timer ends</li>
+                  <li>Take a short break before starting another session</li>
+                </ol>
+              </div>
+            </div>
+            
+            <DialogFooter>
+              <Button 
+                onClick={() => {
+                  onStartTechnique(selectedTechnique);
+                  setSelectedTechnique(null);
+                }}
+                className="w-full"
+              >
+                Start {selectedTechnique.name} Technique
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        )}
+      </Dialog>
+    </>
   );
 };
 

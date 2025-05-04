@@ -10,18 +10,10 @@ import {
   isWithinInterval,
   parseISO,
   addHours,
+  getHours,
+  setHours,
+  setMinutes
 } from "date-fns";
-
-interface TimeActivity {
-  id: string;
-  title: string;
-  startDate: Date;
-  endDate: Date;
-  startTime: string;
-  endTime: string;
-  category: "work" | "social" | "health" | "learning";
-  description?: string;
-}
 
 interface TimeDesignCalendarProps {
   currentDate: Date;
@@ -36,8 +28,8 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
   activities,
   onEditActivity,
 }) => {
-  // Generate hours for the day (5 AM to 10 PM)
-  const hours = Array.from({ length: 18 }, (_, i) => i + 5);
+  // Generate hours for the day (12 AM to 11 PM - full 24 hours)
+  const hours = Array.from({ length: 24 }, (_, i) => i);
 
   // Generate week days starting from Sunday for the current week
   const weekStart = startOfWeek(currentDate);
@@ -54,10 +46,10 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
     const endMinute = parseInt(endParts[1], 10);
     
     // Calculate top position (start time)
-    const startPosition = ((startHour - 5) * 60 + startMinute) * 1.5; // Scale factor for better visibility
+    const startPosition = (startHour * 60 + startMinute) * 1.2; // Scale factor for better visibility
     
     // Calculate height (duration)
-    const endPosition = ((endHour - 5) * 60 + endMinute) * 1.5;
+    const endPosition = (endHour * 60 + endMinute) * 1.2;
     const height = endPosition - startPosition;
     
     // Get background color based on activity category
@@ -91,27 +83,35 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
 
   // Format hour labels nicely
   const formatHour = (hour: number) => {
-    return hour === 0 || hour === 12 
-      ? `12 ${hour === 0 ? 'AM' : 'PM'}`
-      : `${hour > 12 ? hour - 12 : hour} ${hour >= 12 ? 'PM' : 'AM'}`;
+    if (hour === 0) return "12 AM";
+    if (hour === 12) return "12 PM";
+    return hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
+  };
+
+  // Get current time indicators positions
+  const getCurrentTimePosition = () => {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    return (hours * 60 + minutes) * 1.2; // Same scale factor as activities
   };
 
   const renderDayCalendar = () => {
     return (
-      <div className="relative min-h-[1620px] mx-12">
+      <div className="relative min-h-[1728px] mx-12">
         {/* Hour lines */}
         {hours.map(hour => (
-          <div key={hour} className="grid grid-cols-1 border-b min-h-[90px]">
+          <div key={hour} className="grid grid-cols-1 border-b min-h-[72px]">
             <div className="relative">
               <span className="absolute -top-3 -left-14 text-sm font-medium text-muted-foreground">
                 {formatHour(hour)}
               </span>
-              <div className="border-t h-[45px]"></div>
+              <div className="border-t h-[36px]"></div>
               <div className="relative">
                 <span className="absolute -left-14 -top-3 text-xs text-muted-foreground">
                   30
                 </span>
-                <div className="border-t border-dashed h-[45px] border-gray-200 dark:border-gray-700"></div>
+                <div className="border-t border-dashed h-[36px] border-gray-200 dark:border-gray-700"></div>
               </div>
             </div>
           </div>
@@ -121,7 +121,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
         <div 
           className="absolute left-0 right-0 border-t-2 border-red-500 dark:border-red-400 z-10"
           style={{ 
-            top: `${((new Date().getHours() - 5) * 60 + new Date().getMinutes()) * 1.5}px`,
+            top: `${getCurrentTimePosition()}px`,
             width: '100%' 
           }}
         >
@@ -156,7 +156,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
 
   const renderWeekCalendar = () => {
     return (
-      <div className="min-h-[1620px] overflow-x-auto">
+      <div className="min-h-[1728px] overflow-x-auto">
         <div className="grid grid-cols-8 border-b sticky top-0 bg-background z-10">
           <div className="w-12"></div>
           {weekDays.map((day, i) => (
@@ -182,16 +182,16 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
           {/* Time labels column */}
           <div className="border-r">
             {hours.map(hour => (
-              <div key={hour} className="h-[90px] relative">
+              <div key={hour} className="h-[72px] relative">
                 <span className="absolute -top-3 w-full text-right pr-2 text-sm font-medium text-muted-foreground">
                   {formatHour(hour)}
                 </span>
-                <div className="border-t h-[45px]"></div>
+                <div className="border-t h-[36px]"></div>
                 <div className="relative">
                   <span className="absolute right-2 -top-3 text-xs text-muted-foreground">
                     30
                   </span>
-                  <div className="border-t border-dashed h-[45px] border-gray-200 dark:border-gray-700"></div>
+                  <div className="border-t border-dashed h-[36px] border-gray-200 dark:border-gray-700"></div>
                 </div>
               </div>
             ))}
@@ -201,9 +201,9 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
           {weekDays.map((day, dayIndex) => (
             <div key={dayIndex} className="border-r relative">
               {hours.map(hour => (
-                <div key={hour} className="border-b h-[90px] relative">
-                  <div className="border-t h-[45px]"></div>
-                  <div className="border-t border-dashed h-[45px] border-gray-200 dark:border-gray-700"></div>
+                <div key={hour} className="border-b h-[72px] relative">
+                  <div className="border-t h-[36px]"></div>
+                  <div className="border-t border-dashed h-[36px] border-gray-200 dark:border-gray-700"></div>
                 </div>
               ))}
               
@@ -212,7 +212,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
                 <div 
                   className="absolute left-0 right-0 border-t-2 border-red-500 dark:border-red-400 z-10"
                   style={{ 
-                    top: `${((new Date().getHours() - 5) * 60 + new Date().getMinutes()) * 1.5}px`,
+                    top: `${getCurrentTimePosition()}px`,
                     width: '100%' 
                   }}
                 >
