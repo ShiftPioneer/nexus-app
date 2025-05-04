@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { GTDTask, TaskStatus, TaskPriority } from '@/types/gtd';
+import { useToast } from '@/hooks/use-toast';
 
 export const useGTDTasks = () => {
   const [tasks, setTasks] = useState<GTDTask[]>(() => {
@@ -64,15 +65,60 @@ export const useGTDTasks = () => {
       }
     ];
   });
+  const { toast } = useToast();
 
   // Save tasks to local storage when they change
   useEffect(() => {
-    localStorage.setItem('gtdTasks', JSON.stringify(tasks));
+    try {
+      localStorage.setItem('gtdTasks', JSON.stringify(tasks));
+      console.log("Tasks saved to localStorage:", tasks.length);
+    } catch (error) {
+      console.error("Failed to save tasks:", error);
+    }
   }, [tasks]);
 
-  // Log task updates for debugging
+  // Update associated goals with task completion
   useEffect(() => {
-    console.log("Tasks updated:", tasks);
+    try {
+      const savedGoals = localStorage.getItem('planningGoals');
+      if (!savedGoals) return;
+      
+      const goals = JSON.parse(savedGoals);
+      let goalsUpdated = false;
+      
+      const updatedGoals = goals.map((goal: any) => {
+        // Find all tasks linked to this goal
+        const linkedTasks = tasks.filter(task => task.goalId === goal.id);
+        
+        if (linkedTasks.length === 0) return goal;
+        
+        // Calculate completion percentage based on linked tasks
+        const completedTasks = linkedTasks.filter(task => task.status === "completed").length;
+        const completionPercentage = Math.round((completedTasks / linkedTasks.length) * 100);
+        
+        // Only update if there's a significant change
+        if (Math.abs((goal.progress || 0) - completionPercentage) > 5) {
+          goalsUpdated = true;
+          return {
+            ...goal,
+            progress: completionPercentage,
+            // If all tasks are completed, mark as in-progress or completed based on milestones
+            status: completionPercentage === 100 ? 
+              (goal.milestones?.some((m: any) => !m.completed) ? 'in-progress' : 'completed') 
+              : (goal.status === 'not-started' ? 'in-progress' : goal.status)
+          };
+        }
+        
+        return goal;
+      });
+      
+      if (goalsUpdated) {
+        localStorage.setItem('planningGoals', JSON.stringify(updatedGoals));
+        console.log("Goals updated based on task completion");
+      }
+    } catch (error) {
+      console.error("Error updating goals from tasks:", error);
+    }
   }, [tasks]);
 
   const getTaskById = (id: string): GTDTask | undefined => {
@@ -87,14 +133,16 @@ export const useGTDTasks = () => {
     };
     
     setTasks(prevTasks => [...prevTasks, newTask]);
-    console.log(`New task added (${task.status}):`, newTask);
+    toast({
+      title: "Task added",
+      description: `"${task.title}" has been added successfully.`,
+    });
   };
 
   const updateTask = (id: string, updates: Partial<GTDTask>) => {
     setTasks(prevTasks => prevTasks.map(task => {
       if (task.id === id) {
         const updatedTask = { ...task, ...updates };
-        console.log(`Task updated (${task.id}):`, updatedTask);
         return updatedTask;
       }
       return task;
@@ -103,6 +151,8 @@ export const useGTDTasks = () => {
 
   const deleteTask = (id: string) => {
     const taskToDelete = tasks.find(task => task.id === id);
+    if (!taskToDelete) return;
+    
     // Instead of completely removing, mark as deleted
     setTasks(prevTasks => prevTasks.map(task => {
       if (task.id === id) {
@@ -110,16 +160,46 @@ export const useGTDTasks = () => {
       }
       return task;
     }));
-    console.log(`Task marked as deleted (${id}):`, taskToDelete);
+    
+    toast({
+      title: "Task deleted",
+      description: `"${taskToDelete.title}" has been moved to trash.`,
+    });
   };
 
   const getDeletedTasks = () => {
     return tasks.filter(task => task.status === "deleted");
   };
 
+  const restoreTask = (id: string) => {
+    const taskToRestore = tasks.find(task => task.id === id && task.status === "deleted");
+    if (!taskToRestore) return;
+    
+    setTasks(prevTasks => prevTasks.map(task => {
+      if (task.id === id) {
+        // Restore to inbox or original status if known
+        const newStatus = "inbox" as TaskStatus;
+        return { ...task, status: newStatus };
+      }
+      return task;
+    }));
+    
+    toast({
+      title: "Task restored",
+      description: `"${taskToRestore.title}" has been restored.`,
+    });
+  };
+
   const permanentlyDeleteTask = (id: string) => {
+    const taskToDelete = tasks.find(task => task.id === id);
+    if (!taskToDelete) return;
+    
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
-    console.log(`Task permanently deleted (${id})`);
+    
+    toast({
+      title: "Task permanently deleted",
+      description: `"${taskToDelete.title}" has been permanently removed.`,
+    });
   };
 
   const moveTask = (id: string, newStatus: TaskStatus, newPriority?: TaskPriority) => {
@@ -131,7 +211,6 @@ export const useGTDTasks = () => {
         }
         
         const updatedTask = { ...task, ...updates };
-        console.log(`Task moved (${id}) to ${newStatus}:`, updatedTask);
         return updatedTask;
       }
       return task;
@@ -146,6 +225,7 @@ export const useGTDTasks = () => {
     deleteTask,
     permanentlyDeleteTask,
     getDeletedTasks,
+    restoreTask,
     moveTask
   };
 };

@@ -10,19 +10,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { Zap, Star, User, Flame, Brain, BarChart3, Clock, Calendar, Target } from "lucide-react";
 
-// Updated avatars with productivity-themed icons
+// Productivity-themed avatars
 const PRODUCTIVITY_AVATARS = [
-  // Custom app-themed avatars
-  "/lovable-uploads/6bf766fd-bbfc-4672-a544-c599f8ea80fb.png",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Focus&backgroundColor=e63946",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Brain&backgroundColor=8ecae6",
-  "https://api.dicebear.com/7.x/shapes/svg?seed=Productive&backgroundColor=ffb703",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Focus&backgroundColor=ff6500",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Brain&backgroundColor=024caa",
+  "https://api.dicebear.com/7.x/bottts/svg?seed=Productive&backgroundColor=0b192c",
   "https://api.dicebear.com/7.x/identicon/svg?seed=zap&backgroundColor=ffd700",
   "https://api.dicebear.com/7.x/identicon/svg?seed=flame&backgroundColor=ff4500",
-  "https://api.dicebear.com/7.x/identicon/svg?seed=star&backgroundColor=06d6a0",
-  "https://api.dicebear.com/7.x/identicon/svg?seed=check&backgroundColor=ef476f",
-  "https://api.dicebear.com/7.x/identicon/svg?seed=rocket&backgroundColor=118ab2",
-  "https://api.dicebear.com/7.x/identicon/svg?seed=circle&backgroundColor=073b4c",
 ];
 
 const AVATAR_COLORS = [
@@ -31,11 +25,6 @@ const AVATAR_COLORS = [
   "#0B192C", // Dark blue
   "#8884d8", // Purple
   "#06d6a0", // Teal
-  "#ffb703", // Yellow
-  "#e76f51", // Coral
-  "#ef476f", // Pink
-  "#118ab2", // Blue
-  "#073b4c", // Dark navy
 ];
 
 interface AvatarSelectorProps {

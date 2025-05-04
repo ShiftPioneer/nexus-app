@@ -2,7 +2,7 @@
 import React from "react";
 import { useGTD } from "./GTDContext";
 import { Card, CardHeader, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Clock, MoreVertical, Tag, Calendar } from "lucide-react";
+import { CheckCircle, Clock, MoreVertical, Tag, Calendar, Edit, Trash } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -12,21 +12,24 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface TasksListProps {
-  tasks: any[]; // Using any type to match the existing prop type
+  tasks: any[];
   showActions?: boolean;
   onTaskComplete?: (id: string) => void;
   isToDoNot?: boolean;
+  onEdit?: (id: string) => void;
 }
 
 const TasksList: React.FC<TasksListProps> = ({ 
   tasks,
   showActions = false,
   onTaskComplete,
-  isToDoNot = false
+  isToDoNot = false,
+  onEdit
 }) => {
-  const { updateTask } = useGTD();
+  const { updateTask, deleteTask } = useGTD();
 
   if (!tasks.length) {
     return (
@@ -41,6 +44,26 @@ const TasksList: React.FC<TasksListProps> = ({
       onTaskComplete(id);
     } else {
       updateTask(id, { status: "completed" });
+    }
+  };
+
+  const handleEdit = (id: string) => {
+    if (onEdit) {
+      onEdit(id);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    deleteTask(id);
+  };
+
+  // Format date nicely
+  const formatDueDate = (date: any) => {
+    if (!date) return null;
+    try {
+      return format(new Date(date), "MMM d");
+    } catch (error) {
+      return null;
     }
   };
 
@@ -60,6 +83,7 @@ const TasksList: React.FC<TasksListProps> = ({
                   >
                     <CheckCircle className={cn(
                       "h-5 w-5", 
+                      task.status === "completed" ? "text-green-500" :
                       task.priority === "High" || task.priority === "Very High" 
                         ? "text-red-500"
                         : task.priority === "Medium"
@@ -86,10 +110,19 @@ const TasksList: React.FC<TasksListProps> = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-40">
                   <DropdownMenuItem onClick={() => handleMarkComplete(task.id)}>
-                    {isToDoNot ? "Mark as Avoided" : "Mark Complete"}
+                    {task.status === "completed" ? "Mark Incomplete" : (isToDoNot ? "Mark as Avoided" : "Mark Complete")}
                   </DropdownMenuItem>
-                  <DropdownMenuItem>Edit {isToDoNot ? "Item" : "Task"}</DropdownMenuItem>
-                  <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleEdit(task.id)}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    className="text-red-500"
+                    onClick={() => handleDelete(task.id)}
+                  >
+                    <Trash className="h-4 w-4 mr-2" />
+                    Delete
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -106,10 +139,10 @@ const TasksList: React.FC<TasksListProps> = ({
                   @ {task.context}
                 </Badge>
               )}
-              {task.dueDate && (
+              {task.dueDate && formatDueDate(task.dueDate) && (
                 <Badge variant="outline" className="text-xs py-0 flex items-center bg-slate-800 text-slate-300 border-slate-600">
                   <Calendar className="h-3 w-3 mr-1" />
-                  {task.dueDate.toLocaleDateString()}
+                  {formatDueDate(task.dueDate)}
                 </Badge>
               )}
               {task.timeEstimate && (
@@ -118,12 +151,23 @@ const TasksList: React.FC<TasksListProps> = ({
                   {task.timeEstimate} min
                 </Badge>
               )}
+              {task.goalId && (
+                <Badge variant="default" className="text-xs py-0 bg-blue-700">
+                  Linked to Goal
+                </Badge>
+              )}
             </div>
           </CardHeader>
           {showActions && (
             <CardContent className="pt-0 pb-3 px-4">
               <div className="flex justify-end gap-2 mt-3">
-                <Button size="sm" variant="outline" className="text-xs h-7">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="text-xs h-7"
+                  onClick={() => handleEdit(task.id)}
+                >
+                  <Edit className="h-3 w-3 mr-1" />
                   Edit
                 </Button>
                 <Button size="sm" className="text-xs h-7 bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white">

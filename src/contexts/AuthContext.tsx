@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -62,6 +61,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = () => {
+    // Before signing out, save all user data to localStorage
+    const saveUserData = () => {
+      try {
+        // Save tasks
+        const tasks = localStorage.getItem('gtdTasks');
+        
+        // Save goals
+        const goals = localStorage.getItem('planningGoals');
+        
+        // Save projects
+        const projects = localStorage.getItem('planningProjects');
+        
+        // Save other important data as needed
+        
+        // Save all to a user-specific key if needed
+        if (user?.id) {
+          localStorage.setItem(`userData-${user.id}`, JSON.stringify({
+            tasks,
+            goals,
+            projects,
+            // Add other data as needed
+          }));
+        }
+        
+        console.log("All user data saved before signing out");
+      } catch (error) {
+        console.error("Failed to save user data before signing out:", error);
+      }
+    };
+
+    // Call saveUserData before actually signing out
+    saveUserData();
+
     return supabase.auth.signOut();
   };
 

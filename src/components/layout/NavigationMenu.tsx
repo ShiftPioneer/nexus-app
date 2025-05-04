@@ -4,7 +4,7 @@ import { Link, useLocation } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { 
   LayoutDashboard, CheckCircle, Clock, Zap, FileText, Brain, 
-  LayoutGrid, Settings, BarChartHorizontal, Target, RefreshCw, CheckSquare, BookOpen
+  BookOpen, Settings, BarChartHorizontal, Target, RefreshCw, CheckSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -19,7 +19,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Updated menu items based on the requested sidebar order with fixed icons
+  // Updated menu items with fixed icons as requested
   const menuItems = [
     {
       title: "Dashboard",
@@ -69,7 +69,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     {
       title: "Journal",
       path: "/journal",
-      icon: FileText // Changed from BookOpen to FileText as shown in screenshot
+      icon: FileText // Changed from BookOpen to FileText
     },
     {
       title: "Energy",

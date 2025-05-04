@@ -6,6 +6,7 @@ import { useGTDTasks } from "@/hooks/use-gtd-tasks";
 import { useGTDView } from "@/hooks/use-gtd-view";
 import { useGTDDragDrop } from "@/hooks/use-gtd-drag-drop";
 import { DropResult } from "react-beautiful-dnd";
+import { useToast } from "@/hooks/use-toast";
 
 // Re-export types from the types file for backward compatibility
 export type { GTDTask, TaskPriority, TaskStatus } from "@/types/gtd";
@@ -23,6 +24,8 @@ export const useGTD = () => {
 
 export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const { 
     tasks, 
     getTaskById, 
@@ -31,6 +34,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     deleteTask,
     permanentlyDeleteTask,
     getDeletedTasks,
+    restoreTask,
     moveTask 
   } = useGTDTasks();
   
@@ -77,6 +81,23 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     syncTasksWithActions();
   }, [tasks, updateTask]);
 
+  // Save all data before unloading page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      try {
+        localStorage.setItem('gtdTasks', JSON.stringify(tasks));
+        console.log("GTD tasks saved before unload");
+      } catch (error) {
+        console.error("Failed to save GTD tasks:", error);
+      }
+    };
+    
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [tasks]);
+
   return (
     <GTDContext.Provider value={{
       tasks,
@@ -85,6 +106,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       deleteTask,
       permanentlyDeleteTask,
       getDeletedTasks,
+      restoreTask,
       moveTask,
       activeView,
       setActiveView,

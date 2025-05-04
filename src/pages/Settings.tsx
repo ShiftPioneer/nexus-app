@@ -8,9 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { useToast } from "@/hooks/use-toast";
-import { Settings as SettingsIcon, HelpCircle, CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
+import { Settings as SettingsIcon, HelpCircle } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -19,6 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Theme, useTheme } from "@/components/ui/theme-provider";
+import AvatarSelector from "@/components/settings/AvatarSelector";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -58,10 +58,27 @@ const Settings = () => {
 
   const handleSignOut = async () => {
     try {
+      // Save data to localStorage before signing out
+      saveUserData();
       await signOut();
       navigate("/auth");
     } catch (error) {
       console.error("Error signing out:", error);
+    }
+  };
+
+  // Function to save user data to localStorage
+  const saveUserData = () => {
+    try {
+      const profile = {
+        name: name,
+        avatar: avatar,
+        theme: profileData?.theme || 'system'
+      };
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+      console.log("User data saved to localStorage");
+    } catch (error) {
+      console.error("Failed to save user data:", error);
     }
   };
 
@@ -117,9 +134,21 @@ const Settings = () => {
     return user?.email?.split('@')[0] || "User";
   };
 
-  const getUserAvatar = () => {
-    return profileData?.avatar || user?.user_metadata?.avatar_url || "";
+  const handleAvatarChange = (newAvatar: string) => {
+    setAvatar(newAvatar);
   };
+
+  // Add event listener for beforeunload to save data
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      saveUserData();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [name, avatar, profileData]);
 
   return (
     <AppLayout>
@@ -133,21 +162,23 @@ const Settings = () => {
             {/* Profile Section */}
             <section className="space-y-4">
               <h3 className="text-xl font-semibold">Profile</h3>
-              <div className="flex items-center space-x-4">
-                <Avatar className="h-12 w-12">
-                  <AvatarImage src={getUserAvatar()} alt="Profile" />
-                  <AvatarFallback>{getUserName().substring(0, 2).toUpperCase()}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Your Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <div className="flex-shrink-0">
+                  <AvatarSelector 
+                    currentAvatar={avatar}
+                    onAvatarChange={handleAvatarChange}
                   />
                 </div>
+              </div>
+              <div>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Your Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                />
               </div>
               <div>
                 <Label htmlFor="email">Email</Label>
@@ -158,16 +189,6 @@ const Settings = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled
-                />
-              </div>
-              <div>
-                <Label htmlFor="avatar">Avatar URL</Label>
-                <Input
-                  id="avatar"
-                  type="url"
-                  placeholder="Avatar URL"
-                  value={avatar}
-                  onChange={(e) => setAvatar(e.target.value)}
                 />
               </div>
               <Button onClick={handleSaveProfile} disabled={isSaving}>

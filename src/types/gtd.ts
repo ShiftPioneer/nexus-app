@@ -52,6 +52,7 @@ export interface GTDContextType {
   deleteTask: (id: string) => void;
   permanentlyDeleteTask: (id: string) => void;
   getDeletedTasks: () => GTDTask[];
+  restoreTask: (id: string) => void; // Added restore functionality
   moveTask: (id: string, newStatus: TaskStatus, newPriority?: TaskPriority) => void;
   activeView: GTDView;
   setActiveView: (view: GTDView) => void;
