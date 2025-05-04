@@ -3,6 +3,7 @@ import React from "react";
 import { GTDTask } from "../../GTDContext";
 import { Button } from "@/components/ui/button";
 import DraggableTaskItem from "./DraggableTaskItem";
+import { Droppable } from "react-beautiful-dnd";
 
 interface InboxTasksListProps {
   tasks: GTDTask[];
@@ -38,11 +39,20 @@ const InboxTasksList: React.FC<InboxTasksListProps> = ({
           </Button>
         </div>
       ) : (
-        <div>
-          {tasks.map((task, index) => (
-            <DraggableTaskItem key={task.id} task={task} index={index} />
-          ))}
-        </div>
+        <Droppable droppableId="inbox-list">
+          {(provided) => (
+            <div
+              ref={provided.innerRef}
+              {...provided.droppableProps}
+              className="space-y-2"
+            >
+              {tasks.map((task, index) => (
+                <DraggableTaskItem key={task.id} task={task} index={index} />
+              ))}
+              {provided.placeholder}
+            </div>
+          )}
+        </Droppable>
       )}
     </div>
   );

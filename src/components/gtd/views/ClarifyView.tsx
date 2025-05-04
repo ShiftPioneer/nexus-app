@@ -1,10 +1,10 @@
 
-import React, { useState } from "react";
+import React from "react";
 import { useGTD } from "../GTDContext";
-import { Droppable } from "react-beautiful-dnd";
 import DraggableTaskItem from "./clarify/DraggableTaskItem";
 import InboxTasksList from "./clarify/InboxTasksList";
 import { Clock, List, Bookmark, Archive, Trash2 } from "lucide-react";
+import { Droppable } from "react-beautiful-dnd";
 
 const ClarifyView: React.FC = () => {
   const { tasks, setActiveView } = useGTD();

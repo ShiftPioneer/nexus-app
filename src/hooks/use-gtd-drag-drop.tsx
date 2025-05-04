@@ -6,12 +6,8 @@ export const useGTDDragDrop = (moveTask: (id: string, newStatus: TaskStatus) => 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
     
-    if (!destination) return;
-    
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
+    // If there's no destination or the item was dropped back to its original location, do nothing
+    if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
       return;
     }
     
@@ -20,6 +16,7 @@ export const useGTDDragDrop = (moveTask: (id: string, newStatus: TaskStatus) => 
     
     switch (destination.droppableId) {
       case "inbox":
+      case "inbox-list":
         newStatus = "inbox";
         break;
       case "nextActions":

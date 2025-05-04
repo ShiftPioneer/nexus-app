@@ -11,7 +11,7 @@ interface DraggableTaskItemProps {
 
 const DraggableTaskItem: React.FC<DraggableTaskItemProps> = ({ task, index }) => {
   return (
-    <Draggable key={task.id} draggableId={task.id} index={index}>
+    <Draggable draggableId={task.id} index={index}>
       {(provided, snapshot) => (
         <div
           ref={provided.innerRef}
