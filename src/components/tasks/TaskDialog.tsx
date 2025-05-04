@@ -36,6 +36,25 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [project, setProject] = useState("");
+  const [goalId, setGoalId] = useState<string>("");
+  const [goals, setGoals] = useState<any[]>([]);
+  
+  // Load goals for selection
+  useEffect(() => {
+    try {
+      const savedGoals = localStorage.getItem('planningGoals');
+      if (savedGoals) {
+        const parsedGoals = JSON.parse(savedGoals);
+        // Only show active and in-progress goals
+        const activeGoals = parsedGoals.filter((goal: any) => 
+          goal.status !== 'completed'
+        );
+        setGoals(activeGoals);
+      }
+    } catch (error) {
+      console.error("Failed to load goals:", error);
+    }
+  }, [open]);
   
   // Reset form when task changes
   useEffect(() => {
@@ -47,6 +66,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
       setTags(task.tags || []);
       setProject(task.project || "");
+      setGoalId(task.goalId || "");
     } else {
       // Reset form for new task
       setTitle("");
@@ -56,6 +76,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       setDueDate(undefined);
       setTags([]);
       setProject("");
+      setGoalId("");
     }
   }, [task]);
 
@@ -84,6 +105,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       dueDate,
       tags,
       project: project || undefined,
+      goalId: goalId || undefined,
     };
 
     if (task) {
@@ -169,15 +191,32 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
                   {dueDate ? format(dueDate, "PPP") : "Set due date"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" align="center">
                 <Calendar
                   mode="single"
                   selected={dueDate}
                   onSelect={setDueDate}
                   initialFocus
+                  className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
+          </div>
+          
+          <div>
+            <Select value={goalId} onValueChange={setGoalId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Link to Goal (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="">None</SelectItem>
+                {goals.map((goal) => (
+                  <SelectItem key={goal.id} value={goal.id}>
+                    {goal.title}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           
           <div>

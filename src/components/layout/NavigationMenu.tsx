@@ -3,8 +3,8 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { 
-  LayoutDashboard, CheckCircle, Clock, Zap, BookOpen, Brain, 
-  LayoutGrid, Settings, BarChartHorizontal, Target, RefreshCw, CheckSquare 
+  LayoutDashboard, CheckCircle, Clock, Zap, FileText, Brain, 
+  LayoutGrid, Settings, BarChartHorizontal, Target, RefreshCw, CheckSquare, BookOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -19,7 +19,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Updated menu items based on the requested sidebar order
+  // Updated menu items based on the requested sidebar order with fixed icons
   const menuItems = [
     {
       title: "Dashboard",
@@ -64,12 +64,12 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     {
       title: "Knowledge",
       path: "/knowledge",
-      icon: LayoutGrid
+      icon: BookOpen // Changed from LayoutGrid to BookOpen
     },
     {
       title: "Journal",
       path: "/journal",
-      icon: BookOpen
+      icon: FileText // Changed from BookOpen to FileText as shown in screenshot
     },
     {
       title: "Energy",

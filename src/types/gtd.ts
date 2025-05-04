@@ -36,6 +36,7 @@ export interface GTDTask {
   tags?: string[];
   context?: string;
   project?: string;
+  goalId?: string; // Link to a goal
   timeEstimate?: number;
   delegatedTo?: string;
   attachment?: TaskAttachment;
@@ -49,6 +50,8 @@ export interface GTDContextType {
   addTask: (task: Omit<GTDTask, "id" | "createdAt">) => void;
   updateTask: (id: string, updates: Partial<GTDTask>) => void;
   deleteTask: (id: string) => void;
+  permanentlyDeleteTask: (id: string) => void;
+  getDeletedTasks: () => GTDTask[];
   moveTask: (id: string, newStatus: TaskStatus, newPriority?: TaskPriority) => void;
   activeView: GTDView;
   setActiveView: (view: GTDView) => void;

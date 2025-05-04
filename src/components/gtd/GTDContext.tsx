@@ -28,7 +28,9 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     getTaskById, 
     addTask, 
     updateTask, 
-    deleteTask, 
+    deleteTask,
+    permanentlyDeleteTask,
+    getDeletedTasks,
     moveTask 
   } = useGTDTasks();
   
@@ -81,6 +83,8 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       addTask,
       updateTask,
       deleteTask,
+      permanentlyDeleteTask,
+      getDeletedTasks,
       moveTask,
       activeView,
       setActiveView,

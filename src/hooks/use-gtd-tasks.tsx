@@ -103,8 +103,23 @@ export const useGTDTasks = () => {
 
   const deleteTask = (id: string) => {
     const taskToDelete = tasks.find(task => task.id === id);
+    // Instead of completely removing, mark as deleted
+    setTasks(prevTasks => prevTasks.map(task => {
+      if (task.id === id) {
+        return { ...task, status: "deleted" as TaskStatus };
+      }
+      return task;
+    }));
+    console.log(`Task marked as deleted (${id}):`, taskToDelete);
+  };
+
+  const getDeletedTasks = () => {
+    return tasks.filter(task => task.status === "deleted");
+  };
+
+  const permanentlyDeleteTask = (id: string) => {
     setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
-    console.log(`Task deleted (${id}):`, taskToDelete);
+    console.log(`Task permanently deleted (${id})`);
   };
 
   const moveTask = (id: string, newStatus: TaskStatus, newPriority?: TaskPriority) => {
@@ -129,6 +144,8 @@ export const useGTDTasks = () => {
     addTask,
     updateTask,
     deleteTask,
+    permanentlyDeleteTask,
+    getDeletedTasks,
     moveTask
   };
 };

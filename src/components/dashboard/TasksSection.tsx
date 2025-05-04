@@ -24,7 +24,7 @@ const TasksSection = () => {
   };
   
   return (
-    <Card className="h-full">
+    <Card className="min-h-[150px] h-auto">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-medium">Tasks</CardTitle>
