@@ -7,6 +7,7 @@ interface FocusSession {
   duration: number; // in minutes
   category: FocusCategory;
   xpEarned: number;
+  notes?: string; // Added the optional notes property
 }
 
 interface FocusStats {
