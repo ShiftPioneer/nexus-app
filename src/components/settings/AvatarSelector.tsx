@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -11,28 +10,25 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Zap, Star, User, Flame, Brain, BarChart3, Clock, Calendar, Target } from "lucide-react";
 
 // Productivity-themed avatars
-const PRODUCTIVITY_AVATARS = [
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Focus&backgroundColor=ff6500",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Brain&backgroundColor=024caa",
-  "https://api.dicebear.com/7.x/bottts/svg?seed=Productive&backgroundColor=0b192c",
-  "https://api.dicebear.com/7.x/identicon/svg?seed=zap&backgroundColor=ffd700",
-  "https://api.dicebear.com/7.x/identicon/svg?seed=flame&backgroundColor=ff4500",
+const PRODUCTIVITY_AVATARS = ["https://api.dicebear.com/7.x/bottts/svg?seed=Focus&backgroundColor=ff6500", "https://api.dicebear.com/7.x/bottts/svg?seed=Brain&backgroundColor=024caa", "https://api.dicebear.com/7.x/bottts/svg?seed=Productive&backgroundColor=0b192c", "https://api.dicebear.com/7.x/identicon/svg?seed=zap&backgroundColor=ffd700", "https://api.dicebear.com/7.x/identicon/svg?seed=flame&backgroundColor=ff4500"];
+const AVATAR_COLORS = ["#FF6500",
+// Primary orange
+"#024CAA",
+// Secondary blue
+"#0B192C",
+// Dark blue
+"#8884d8",
+// Purple
+"#06d6a0" // Teal
 ];
-
-const AVATAR_COLORS = [
-  "#FF6500", // Primary orange
-  "#024CAA", // Secondary blue
-  "#0B192C", // Dark blue
-  "#8884d8", // Purple
-  "#06d6a0", // Teal
-];
-
 interface AvatarSelectorProps {
   currentAvatar: string;
   onAvatarChange: (avatar: string) => void;
 }
-
-const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatarChange }) => {
+const AvatarSelector: React.FC<AvatarSelectorProps> = ({
+  currentAvatar,
+  onAvatarChange
+}) => {
   const [open, setOpen] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar || PRODUCTIVITY_AVATARS[0]);
   const [customAvatar, setCustomAvatar] = useState<File | null>(null);
@@ -41,33 +37,35 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
   const [initialLetter, setInitialLetter] = useState("N");
   const [selectedColor, setSelectedColor] = useState(AVATAR_COLORS[0]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
-  const { user } = useAuth();
-
+  const {
+    toast
+  } = useToast();
+  const {
+    user
+  } = useAuth();
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
-      
+
       // Validate file type
       if (!file.type.startsWith("image/")) {
         toast({
           title: "Invalid file type",
           description: "Please upload an image file",
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
-      
+
       // Validate file size (3MB)
       if (file.size > 3 * 1024 * 1024) {
         toast({
           title: "File too large",
           description: "Please upload an image smaller than 3MB",
-          variant: "destructive",
+          variant: "destructive"
         });
         return;
       }
-      
       setCustomAvatar(file);
       const imageUrl = URL.createObjectURL(file);
       setCustomPreviewUrl(imageUrl);
@@ -75,7 +73,6 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
       setAvatarTab("custom");
     }
   };
-
   const handleInitialLetterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.value) {
       setInitialLetter(e.target.value.charAt(0).toUpperCase());
@@ -84,7 +81,6 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
     }
     setAvatarTab("initial");
   };
-
   const handleSelectAvatar = () => {
     if (avatarTab === "custom" && customAvatar) {
       // For a real app, we'd upload the file to storage/server here
@@ -99,12 +95,10 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
       // Preset avatar
       onAvatarChange(selectedAvatar);
     }
-    
     setOpen(false);
-    
     toast({
       title: "Avatar Updated",
-      description: "Your avatar has been updated successfully",
+      description: "Your avatar has been updated successfully"
     });
   };
 
@@ -134,28 +128,23 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
     if (currentAvatar?.startsWith("initial:")) {
       const parts = currentAvatar.split(":");
       if (parts.length === 3) {
-        return (
-          <Avatar className="h-20 w-20">
-            <AvatarFallback style={{ backgroundColor: parts[2] }}>
+        return <Avatar className="h-20 w-20">
+            <AvatarFallback style={{
+            backgroundColor: parts[2]
+          }}>
               {parts[1]}
             </AvatarFallback>
-          </Avatar>
-        );
+          </Avatar>;
       }
     }
-    
-    return (
-      <Avatar className="h-20 w-20">
+    return <Avatar className="h-20 w-20">
         <AvatarImage src={currentAvatar} alt="Profile" />
         <AvatarFallback>
           <User className="h-10 w-10 text-muted-foreground" />
         </AvatarFallback>
-      </Avatar>
-    );
+      </Avatar>;
   };
-
-  return (
-    <>
+  return <>
       <div className="flex items-center space-x-4">
         {getDisplayAvatar()}
         <Button variant="outline" onClick={() => setOpen(true)}>
@@ -186,39 +175,27 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
                 </Avatar>
               </div>
               
-              <RadioGroup
-                value={selectedAvatar}
-                onValueChange={setSelectedAvatar}
-                className="grid grid-cols-5 gap-3"
-              >
-                {PRODUCTIVITY_AVATARS.map((avatar, index) => (
-                  <div key={index} className="flex flex-col items-center space-y-1">
-                    <Label
-                      htmlFor={`avatar-${index}`}
-                      className="cursor-pointer rounded-md overflow-hidden border-2 transition-all duration-200"
-                      style={{ 
-                        borderColor: selectedAvatar === avatar ? 'var(--primary)' : 'transparent'
-                      }}
-                    >
+              <RadioGroup value={selectedAvatar} onValueChange={setSelectedAvatar} className="grid grid-cols-5 gap-3">
+                {PRODUCTIVITY_AVATARS.map((avatar, index) => <div key={index} className="flex flex-col items-center space-y-1">
+                    <Label htmlFor={`avatar-${index}`} className="cursor-pointer rounded-md overflow-hidden border-2 transition-all duration-200" style={{
+                  borderColor: selectedAvatar === avatar ? 'var(--primary)' : 'transparent'
+                }}>
                       <Avatar className="h-12 w-12">
                         <AvatarImage src={avatar} alt={`Avatar ${index + 1}`} />
                         <AvatarFallback>{index + 1}</AvatarFallback>
                       </Avatar>
                     </Label>
-                    <RadioGroupItem
-                      id={`avatar-${index}`}
-                      value={avatar}
-                      className="sr-only"
-                    />
-                  </div>
-                ))}
+                    <RadioGroupItem id={`avatar-${index}`} value={avatar} className="sr-only" />
+                  </div>)}
               </RadioGroup>
             </TabsContent>
             
             <TabsContent value="initial" className="space-y-6 mt-4">
               <div className="flex justify-center">
                 <Avatar className="h-24 w-24">
-                  <AvatarFallback style={{ backgroundColor: selectedColor }}>
+                  <AvatarFallback style={{
+                  backgroundColor: selectedColor
+                }}>
                     {initialLetter}
                   </AvatarFallback>
                 </Avatar>
@@ -226,29 +203,15 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
               
               <div className="space-y-3">
                 <Label htmlFor="initial-letter">Initial Letter</Label>
-                <input
-                  id="initial-letter"
-                  type="text"
-                  maxLength={1}
-                  value={initialLetter}
-                  onChange={handleInitialLetterChange}
-                  className="w-full p-2 text-center font-bold text-lg border rounded-md"
-                />
+                <input id="initial-letter" type="text" maxLength={1} value={initialLetter} onChange={handleInitialLetterChange} className="w-full p-2 text-center font-bold text-lg border rounded-md bg-gray-900" />
               </div>
               
               <div className="space-y-2">
                 <Label>Select Color</Label>
                 <div className="grid grid-cols-5 gap-2">
-                  {AVATAR_COLORS.map((color, index) => (
-                    <button
-                      key={index}
-                      type="button"
-                      onClick={() => setSelectedColor(color)}
-                      className={`w-10 h-10 rounded-full border-2 ${selectedColor === color ? 'border-primary' : 'border-transparent'}`}
-                      style={{ backgroundColor: color }}
-                      aria-label={`Color ${index + 1}`}
-                    />
-                  ))}
+                  {AVATAR_COLORS.map((color, index) => <button key={index} type="button" onClick={() => setSelectedColor(color)} className={`w-10 h-10 rounded-full border-2 ${selectedColor === color ? 'border-primary' : 'border-transparent'}`} style={{
+                  backgroundColor: color
+                }} aria-label={`Color ${index + 1}`} />)}
                 </div>
               </div>
             </TabsContent>
@@ -264,21 +227,10 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
               </div>
               
               <div className="space-y-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => fileInputRef.current?.click()}
-                >
+                <Button type="button" variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
                   {customAvatar ? "Change Image" : "Upload Image"}
                 </Button>
-                <input
-                  type="file"
-                  accept="image/*"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
+                <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
                 <p className="text-xs text-center text-muted-foreground">
                   Supported formats: JPG, PNG, GIF (max 3MB)
                 </p>
@@ -291,8 +243,6 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({ currentAvatar, onAvatar
           </div>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 export default AvatarSelector;
