@@ -38,9 +38,11 @@ const InboxTasksList: React.FC<InboxTasksListProps> = ({
           </Button>
         </div>
       ) : (
-        tasks.map((task, index) => (
-          <DraggableTaskItem key={task.id} task={task} index={index} />
-        ))
+        <div>
+          {tasks.map((task, index) => (
+            <DraggableTaskItem key={task.id} task={task} index={index} />
+          ))}
+        </div>
       )}
     </div>
   );

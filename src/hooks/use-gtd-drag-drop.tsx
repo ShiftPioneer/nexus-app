@@ -1,8 +1,9 @@
 
+import { DropResult } from "react-beautiful-dnd";
 import { TaskStatus } from "@/types/gtd";
 
 export const useGTDDragDrop = (moveTask: (id: string, newStatus: TaskStatus) => void) => {
-  const handleDragEnd = (result: any) => {
+  const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
     
     if (!destination) return;
@@ -15,12 +16,47 @@ export const useGTDDragDrop = (moveTask: (id: string, newStatus: TaskStatus) => 
     }
     
     // Parse the droppable ID to get the appropriate task status
-    const newStatus = destination.droppableId as TaskStatus;
+    let newStatus: TaskStatus;
+    
+    switch (destination.droppableId) {
+      case "inbox":
+        newStatus = "inbox";
+        break;
+      case "nextActions":
+        newStatus = "next-action";
+        break;
+      case "projects":
+        newStatus = "project";
+        break;
+      case "waitingFor":
+        newStatus = "waiting-for";
+        break;
+      case "someday":
+        newStatus = "someday";
+        break;
+      case "reference":
+        newStatus = "reference";
+        break;
+      case "do-it":
+        newStatus = "next-action";
+        break;
+      case "delegate-it":
+        newStatus = "waiting-for";
+        break;
+      case "defer-it":
+        newStatus = "someday";
+        break;
+      case "delete-it":
+        newStatus = "deleted";
+        break;
+      default:
+        newStatus = "inbox";
+    }
     
     // Move the task
     moveTask(draggableId, newStatus);
     
-    console.log(`Task ${draggableId} dragged from ${source.droppableId} to ${destination.droppableId}`);
+    console.log(`Task ${draggableId} dragged from ${source.droppableId} to ${destination.droppableId} (new status: ${newStatus})`);
   };
 
   return { handleDragEnd };

@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { DragDropContext, DropResult } from "react-beautiful-dnd";
 import { useGTD, GTDTask } from "../GTDContext";
 import { useToast } from "@/hooks/use-toast";
 import OrganizeCard from "./organize/OrganizeCard";
@@ -22,50 +21,6 @@ const OrganizeView: React.FC = () => {
     reference: tasks.filter((t) => t.status === "reference"),
   };
   
-  const handleDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId } = result;
-    
-    if (!destination) return;
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    ) {
-      return;
-    }
-    
-    let newStatus: GTDTask["status"] = "inbox";
-    
-    switch (destination.droppableId) {
-      case "inbox":
-        newStatus = "inbox";
-        break;
-      case "nextActions":
-        newStatus = "next-action";
-        break;
-      case "projects":
-        newStatus = "project";
-        break;
-      case "waitingFor":
-        newStatus = "waiting-for";
-        break;
-      case "someday":
-        newStatus = "someday";
-        break;
-      case "reference":
-        newStatus = "reference";
-        break;
-      default:
-        return;
-    }
-    
-    moveTask(draggableId, newStatus);
-    
-    toast({
-      title: "Task moved",
-      description: `Task moved to ${destination.droppableId}`,
-    });
-  };
-
   const openEditDialog = (task: GTDTask) => {
     setEditingTask(task);
     setEditDialogOpen(true);
@@ -81,39 +36,37 @@ const OrganizeView: React.FC = () => {
   };
 
   return (
-    <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <OrganizeCard
-          title="Inbox"
-          tasks={tasksByCategory.inbox}
-          droppableId="inbox"
-        />
-        <OrganizeCard
-          title="Next Actions"
-          tasks={tasksByCategory.nextActions}
-          droppableId="nextActions"
-        />
-        <OrganizeCard
-          title="Projects"
-          tasks={tasksByCategory.projects}
-          droppableId="projects"
-        />
-        <OrganizeCard
-          title="Waiting For"
-          tasks={tasksByCategory.waitingFor}
-          droppableId="waitingFor"
-        />
-        <OrganizeCard
-          title="Someday/Maybe"
-          tasks={tasksByCategory.someday}
-          droppableId="someday"
-        />
-        <OrganizeCard
-          title="Reference"
-          tasks={tasksByCategory.reference}
-          droppableId="reference"
-        />
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <OrganizeCard
+        title="Inbox"
+        tasks={tasksByCategory.inbox}
+        droppableId="inbox"
+      />
+      <OrganizeCard
+        title="Next Actions"
+        tasks={tasksByCategory.nextActions}
+        droppableId="nextActions"
+      />
+      <OrganizeCard
+        title="Projects"
+        tasks={tasksByCategory.projects}
+        droppableId="projects"
+      />
+      <OrganizeCard
+        title="Waiting For"
+        tasks={tasksByCategory.waitingFor}
+        droppableId="waitingFor"
+      />
+      <OrganizeCard
+        title="Someday/Maybe"
+        tasks={tasksByCategory.someday}
+        droppableId="someday"
+      />
+      <OrganizeCard
+        title="Reference"
+        tasks={tasksByCategory.reference}
+        droppableId="reference"
+      />
 
       <TaskEditDialog
         task={editingTask}
@@ -121,7 +74,7 @@ const OrganizeView: React.FC = () => {
         onOpenChange={setEditDialogOpen}
         onSave={saveTaskChanges}
       />
-    </DragDropContext>
+    </div>
   );
 };
 

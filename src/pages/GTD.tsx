@@ -5,8 +5,11 @@ import GTDNavigation from "@/components/gtd/GTDNavigation";
 import GTDView from "@/components/gtd/GTDView";
 import { motion } from "framer-motion";
 import { useGTD } from "@/components/gtd/GTDContext";
+import { DragDropContext } from "react-beautiful-dnd";
 
 const GTDPageContent = () => {
+  const { handleDragEnd } = useGTD();
+  
   return (
     <motion.div 
       className="animate-fade-in"
@@ -22,7 +25,9 @@ const GTDPageContent = () => {
       </div>
       
       <GTDNavigation />
-      <GTDView />
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <GTDView />
+      </DragDropContext>
     </motion.div>
   );
 };
