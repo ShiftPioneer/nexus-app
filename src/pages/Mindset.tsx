@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import AppLayout from '@/components/layout/AppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,16 +13,15 @@ import MissionSection from '@/components/mindset/MissionSection';
 import KeyBeliefsSection from '@/components/mindset/KeyBeliefsSection';
 import AffirmationsSection from '@/components/mindset/AffirmationsSection';
 import VisionBoardSection from '@/components/mindset/VisionBoardSection';
-
 const Mindset = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [activeTab, setActiveTab] = useState('core-values');
-
-  return (
-    <AppLayout>
+  return <AppLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Mindset OS</h1>
+          <h1 className="text-3xl font-bold py-[10px]">Mindset</h1>
           <p className="text-muted-foreground">Define your life philosophy and mental framework</p>
         </div>
 
@@ -57,8 +55,6 @@ const Mindset = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
-  );
+    </AppLayout>;
 };
-
 export default Mindset;
