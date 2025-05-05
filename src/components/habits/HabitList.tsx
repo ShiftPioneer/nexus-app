@@ -2,7 +2,7 @@
 import React from 'react';
 import { CheckCircle, Circle, Edit, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 
@@ -52,7 +52,7 @@ const HabitList: React.FC<HabitListProps> = ({
   return (
     <div className="space-y-4">
       {habits.map(habit => (
-        <Card key={habit.id} className="overflow-hidden">
+        <Card key={habit.id} className="overflow-hidden hover:shadow-md transition-all duration-300">
           <div className="flex flex-col sm:flex-row">
             <div className="flex-1 p-4">
               <div className="flex justify-between items-start">
