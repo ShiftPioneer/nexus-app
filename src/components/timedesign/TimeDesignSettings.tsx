@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -7,12 +6,15 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ExternalLink, Calendar, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
 const TimeDesignSettings: React.FC = () => {
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const { toast } = useToast();
-  const { user } = useAuth();
+  const {
+    toast
+  } = useToast();
+  const {
+    user
+  } = useAuth();
 
   // Check if Google Calendar is already connected
   useEffect(() => {
@@ -22,44 +24,38 @@ const TimeDesignSettings: React.FC = () => {
       setGoogleCalendarConnected(savedState === 'true');
     }
   }, []);
-
   const handleGoogleCalendarConnect = async () => {
     // In a real implementation, this would use OAuth 2.0 flow to connect to Google Calendar API
     setIsConnecting(true);
-
     try {
       // Simulate connection process
       await new Promise(resolve => setTimeout(resolve, 1500));
-      
       const newConnectionState = !googleCalendarConnected;
       setGoogleCalendarConnected(newConnectionState);
       localStorage.setItem('googleCalendarConnected', String(newConnectionState));
-      
       if (newConnectionState) {
         toast({
           title: "Google Calendar Connected",
-          description: "Your Google Calendar has been successfully connected.",
+          description: "Your Google Calendar has been successfully connected."
         });
       } else {
         toast({
           title: "Google Calendar Disconnected",
           description: "Your Google Calendar has been disconnected.",
-          variant: "destructive",
+          variant: "destructive"
         });
       }
     } catch (error) {
       toast({
         title: "Connection Failed",
         description: "Failed to connect to Google Calendar. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsConnecting(false);
     }
   };
-
-  return (
-    <Card>
+  return <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
@@ -71,51 +67,27 @@ const TimeDesignSettings: React.FC = () => {
           <div>
             <Label htmlFor="google-calendar" className="font-medium">Connect your Google Calendar to sync activities</Label>
             <p className="text-sm text-muted-foreground mt-1">
-              {googleCalendarConnected ? (
-                <span className="flex items-center gap-1 text-green-500">
+              {googleCalendarConnected ? <span className="flex items-center gap-1 text-green-500">
                   <CheckCircle className="h-4 w-4" /> Connected
-                </span>
-              ) : (
-                "Not Connected"
-              )}
+                </span> : "Not Connected"}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant={isConnecting ? "outline" : googleCalendarConnected ? "default" : "outline"}
-              size="sm"
-              onClick={handleGoogleCalendarConnect}
-              disabled={isConnecting}
-              className="min-w-[120px] flex items-center justify-center gap-2"
-            >
-              {isConnecting ? (
-                <>
+            <Button variant={isConnecting ? "outline" : googleCalendarConnected ? "default" : "outline"} size="sm" onClick={handleGoogleCalendarConnect} disabled={isConnecting} className="min-w-[120px] flex items-center justify-center gap-2">
+              {isConnecting ? <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Connecting...
-                </>
-              ) : googleCalendarConnected ? (
-                "Disconnect"
-              ) : (
-                "Connect"
-              )}
+                </> : googleCalendarConnected ? "Disconnect" : "Connect"}
             </Button>
             
-            {googleCalendarConnected && (
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="flex items-center gap-1"
-                onClick={() => window.open("https://calendar.google.com", "_blank")}
-              >
+            {googleCalendarConnected && <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={() => window.open("https://calendar.google.com", "_blank")}>
                 <ExternalLink className="h-3 w-3" />
                 Open Calendar
-              </Button>
-            )}
+              </Button>}
           </div>
         </div>
         
-        {googleCalendarConnected && (
-          <div className="mt-4 p-4 bg-muted rounded-md">
+        {googleCalendarConnected && <div className="mt-4 p-4 rounded-md bg-slate-950">
             <h4 className="font-medium mb-2">Synchronization Options</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -191,8 +163,7 @@ const TimeDesignSettings: React.FC = () => {
                 Sync Now
               </Button>
             </div>
-          </div>
-        )}
+          </div>}
         
         <div className="pt-4 border-t">
           <h3 className="font-medium mb-2">Calendar Settings</h3>
@@ -264,8 +235,6 @@ const TimeDesignSettings: React.FC = () => {
           <Button>Save Settings</Button>
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default TimeDesignSettings;
