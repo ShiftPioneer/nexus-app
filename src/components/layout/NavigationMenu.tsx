@@ -19,7 +19,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
   const location = useLocation();
   const currentPath = location.pathname;
   
-  // Updated menu items with fixed icons and renamed "Goals" to "Plans"
+  // Updated menu items with fixed icons as requested
   const menuItems = [
     {
       title: "Dashboard",
@@ -42,7 +42,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       icon: Clock
     },
     {
-      title: "Plans",
+      title: "Goals",
       path: "/planning",
       icon: Target
     },
@@ -64,12 +64,12 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     {
       title: "Knowledge",
       path: "/knowledge",
-      icon: BookOpen
+      icon: BookOpen // Changed from LayoutGrid to BookOpen
     },
     {
       title: "Journal",
       path: "/journal",
-      icon: FileText
+      icon: FileText // Changed from BookOpen to FileText
     },
     {
       title: "Energy",
@@ -80,6 +80,11 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       title: "Stats",
       path: "/stats",
       icon: BarChartHorizontal
+    },
+    {
+      title: "Settings",
+      path: "/settings",
+      icon: Settings
     }
   ];
 

@@ -19,7 +19,6 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { GTDProvider } from '@/components/gtd/GTDContext';
 
 // Protected Route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -51,109 +50,107 @@ function App() {
     <Router>
       <AuthProvider>
         <FocusTimerProvider>
-          <GTDProvider>
-            <Routes>
-              <Route path="/auth" element={<Auth />} />
-              <Route 
-                path="/" 
-                element={
-                  <ProtectedRoute>
-                    <Index />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/actions" 
-                element={
-                  <ProtectedRoute>
-                    <Actions />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/time-design" 
-                element={
-                  <ProtectedRoute>
-                    <TimeDesign />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/habits" 
-                element={
-                  <ProtectedRoute>
-                    <Habits />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/journal" 
-                element={
-                  <ProtectedRoute>
-                    <Journal />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/planning" 
-                element={
-                  <ProtectedRoute>
-                    <Planning />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/knowledge" 
-                element={
-                  <ProtectedRoute>
-                    <Knowledge />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/energy" 
-                element={
-                  <ProtectedRoute>
-                    <Energy />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/settings" 
-                element={
-                  <ProtectedRoute>
-                    <Settings />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/mindset" 
-                element={
-                  <ProtectedRoute>
-                    <Mindset />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/focus" 
-                element={
-                  <ProtectedRoute>
-                    <Focus />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route 
-                path="/gtd" 
-                element={
-                  <ProtectedRoute>
-                    <GTD />
-                  </ProtectedRoute>
-                } 
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <Toaster />
-          </GTDProvider>
+          <Routes>
+            <Route path="/auth" element={<Auth />} />
+            <Route 
+              path="/" 
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/actions" 
+              element={
+                <ProtectedRoute>
+                  <Actions />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/time-design" 
+              element={
+                <ProtectedRoute>
+                  <TimeDesign />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/habits" 
+              element={
+                <ProtectedRoute>
+                  <Habits />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/journal" 
+              element={
+                <ProtectedRoute>
+                  <Journal />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/planning" 
+              element={
+                <ProtectedRoute>
+                  <Planning />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/knowledge" 
+              element={
+                <ProtectedRoute>
+                  <Knowledge />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/energy" 
+              element={
+                <ProtectedRoute>
+                  <Energy />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/mindset" 
+              element={
+                <ProtectedRoute>
+                  <Mindset />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/focus" 
+              element={
+                <ProtectedRoute>
+                  <Focus />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/gtd" 
+              element={
+                <ProtectedRoute>
+                  <GTD />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+          <Toaster />
         </FocusTimerProvider>
       </AuthProvider>
     </Router>
