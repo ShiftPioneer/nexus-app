@@ -18,6 +18,16 @@ import { cn } from "@/lib/utils";
 import { useGTD } from "@/components/gtd/GTDContext";
 import { GTDTask } from "@/types/gtd";
 import { loadFromStorage } from "@/hooks/use-persistence";
+
+// Define TaskForm props interface here to avoid type errors
+interface TaskFormProps {
+  onSubmit: (taskData: Partial<GTDTask>) => void;
+  isToDoNot?: boolean;
+  extraFields?: React.ReactNode;
+  initialTask?: GTDTask;
+}
+
+// Import TaskForm after defining its props
 import TaskForm from './TaskForm';
 
 interface TaskDialogProps {
@@ -25,13 +35,19 @@ interface TaskDialogProps {
   onOpenChange: (open: boolean) => void;
   initialTask?: GTDTask;
   isToDoNot?: boolean;
+  onAddTask?: (task: Partial<GTDTask>) => void;
+  onUpdateTask?: (id: string, updates: Partial<GTDTask>) => void;
+  onDeleteTask?: (id: string) => void;
 }
 
-const TaskDialog = ({ 
+const TaskDialog: React.FC<TaskDialogProps> = ({ 
   open, 
   onOpenChange,
   initialTask,
-  isToDoNot = false
+  isToDoNot = false,
+  onAddTask,
+  onUpdateTask,
+  onDeleteTask
 }: TaskDialogProps) => {
   const { addTask, updateTask } = useGTD();
   const [dueDate, setDueDate] = useState<Date | undefined>(initialTask?.dueDate);
@@ -73,9 +89,17 @@ const TaskDialog = ({
     };
 
     if (initialTask) {
-      updateTask(initialTask.id, task);
+      if (onUpdateTask) {
+        onUpdateTask(initialTask.id, task);
+      } else {
+        updateTask(initialTask.id, task);
+      }
     } else {
-      addTask(task as Omit<GTDTask, "id" | "createdAt">);
+      if (onAddTask) {
+        onAddTask(task as Omit<GTDTask, "id" | "createdAt">);
+      } else {
+        addTask(task as Omit<GTDTask, "id" | "createdAt">);
+      }
     }
     
     onOpenChange(false);

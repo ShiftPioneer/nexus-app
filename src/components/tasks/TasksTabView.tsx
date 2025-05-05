@@ -152,7 +152,7 @@ const TasksTabView: React.FC<TasksTabViewProps> = ({ isToDoNot = false }) => {
       <TaskDialog
         open={showTaskDialog}
         onOpenChange={setShowTaskDialog}
-        task={selectedTask}
+        initialTask={selectedTask}
         onAddTask={handleAddTask}
         onUpdateTask={updateTask}
         onDeleteTask={deleteTask}

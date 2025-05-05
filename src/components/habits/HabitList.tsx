@@ -1,62 +1,113 @@
 
 import React from 'react';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { CheckCircle, Circle, Edit, Trash } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Check, Trash2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 
 interface HabitListProps {
-  habits: Habit[];
+  habits: Array<{
+    id: string;
+    title: string;
+    category: string;
+    streak: number;
+    target: number;
+    status: "completed" | "pending" | "missed";
+    type: "daily" | "weekly" | "monthly";
+    completedToday: boolean;
+    accountabilityScore: number;
+  }>;
   toggleHabitCompletion: (id: string) => void;
   deleteHabit: (id: string) => void;
 }
 
-const HabitList: React.FC<HabitListProps> = ({ habits, toggleHabitCompletion, deleteHabit }) => {
+const HabitList: React.FC<HabitListProps> = ({ 
+  habits, 
+  toggleHabitCompletion, 
+  deleteHabit
+}) => {
+  // Helper function to get badge color based on habit category
+  const getCategoryColor = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'health':
+        return 'bg-green-500 hover:bg-green-600';
+      case 'mindfulness':
+        return 'bg-blue-500 hover:bg-blue-600';
+      case 'learning':
+        return 'bg-purple-500 hover:bg-purple-600';
+      case 'productivity':
+        return 'bg-orange-500 hover:bg-orange-600';
+      case 'finance':
+        return 'bg-emerald-500 hover:bg-emerald-600';
+      case 'relationships':
+        return 'bg-pink-500 hover:bg-pink-600';
+      case 'religion':
+        return 'bg-indigo-500 hover:bg-indigo-600';
+      default:
+        return 'bg-gray-500 hover:bg-gray-600';
+    }
+  };
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      {habits.map((habit) => (
-        <Card key={habit.id} className={habit.completedToday ? 'border-green-500 border-2' : ''}>
-          <CardHeader className="pb-2">
-            <div className="flex justify-between items-start">
-              <CardTitle className="text-lg">{habit.title}</CardTitle>
-              <Badge variant={habit.category === 'health' ? 'default' : 'secondary'}>
-                {habit.category}
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="pb-2">
-            <div className="flex flex-col space-y-2">
-              <div className="flex justify-between text-sm">
-                <span>Accountability Score</span>
-                <span className={habit.accountabilityScore >= 0 ? 'text-green-500' : 'text-destructive'}>
-                  {habit.accountabilityScore}
-                </span>
+    <div className="space-y-4">
+      {habits.map(habit => (
+        <Card key={habit.id} className="overflow-hidden">
+          <div className="flex flex-col sm:flex-row">
+            <div className="flex-1 p-4">
+              <div className="flex justify-between items-start">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 rounded-full"
+                      onClick={() => toggleHabitCompletion(habit.id)}
+                    >
+                      {habit.completedToday ? (
+                        <CheckCircle className="h-6 w-6 text-green-500" />
+                      ) : (
+                        <Circle className="h-6 w-6 text-gray-300" />
+                      )}
+                    </Button>
+                    <h3 className="text-lg font-medium">{habit.title}</h3>
+                  </div>
+                  <div className="ml-10 mt-1 flex flex-wrap gap-2">
+                    <Badge className={`${getCategoryColor(habit.category)} text-white`}>
+                      {habit.category}
+                    </Badge>
+                    <Badge variant="outline" className="bg-background">
+                      {habit.type}
+                    </Badge>
+                    <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">
+                      {habit.streak} day streak
+                    </Badge>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm">
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={() => deleteHabit(habit.id)}>
+                    <Trash className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
               </div>
-              
-              <Progress 
-                value={habit.accountabilityScore > 0 ? Math.min(habit.accountabilityScore * 10, 100) : 0} 
-                className="h-2" 
-              />
-              
-              <div className="text-sm text-muted-foreground mt-2">
-                Status: {habit.completedToday ? 'Completed today' : 'Not completed today'}
+
+              <div className="ml-10 mt-3">
+                <div className="flex justify-between mb-1 text-sm">
+                  <span>Progress</span>
+                  <span>
+                    Accountability Score: {habit.accountabilityScore}
+                  </span>
+                </div>
+                <Progress 
+                  value={(habit.streak / habit.target) * 100} 
+                  className="h-2" 
+                />
               </div>
             </div>
-          </CardContent>
-          <CardFooter className="flex justify-between pt-0">
-            <Button
-              variant={habit.completedToday ? "outline" : "default"}
-              size="sm"
-              onClick={() => toggleHabitCompletion(habit.id)}
-            >
-              <Check className="mr-1 h-4 w-4" />
-              {habit.completedToday ? 'Mark incomplete' : 'Mark complete'}
-            </Button>
-            <Button variant="ghost" size="sm" onClick={() => deleteHabit(habit.id)}>
-              <Trash2 className="h-4 w-4 text-destructive" />
-            </Button>
-          </CardFooter>
+          </div>
         </Card>
       ))}
     </div>
