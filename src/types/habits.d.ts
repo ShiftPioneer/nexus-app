@@ -12,6 +12,8 @@ interface Habit {
   duration?: string;
   scoreValue?: number;
   penaltyValue?: number;
+  completedToday: boolean;
+  accountabilityScore: number;
 }
 
 interface HabitStatistics {
