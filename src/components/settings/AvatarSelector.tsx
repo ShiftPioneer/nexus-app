@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Check, Brain, Zap, Fire } from "lucide-react";
+import { Check, Brain, Zap, Star } from "lucide-react";
 
 // New productivity-themed avatars using Lucide icons
 const generateIconAvatar = (IconComponent: any, color: string) => {
@@ -30,7 +30,7 @@ const generateIconAvatar = (IconComponent: any, color: string) => {
 // Predefined productivity-themed avatars with motivation icons
 const predefinedAvatars = [
   { name: "Checkmark", icon: Check, color: "#22c55e", background: "bg-green-500" },
-  { name: "Fire", icon: Fire, color: "#f97316", background: "bg-orange-500" },
+  { name: "Star", icon: Star, color: "#f97316", background: "bg-orange-500" }, // Changed from Fire to Star
   { name: "Zap", icon: Zap, color: "#eab308", background: "bg-yellow-500" },
   { name: "Brain", icon: Brain, color: "#8b5cf6", background: "bg-purple-500" },
 ];
@@ -208,3 +208,4 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
 };
 
 export default AvatarSelector;
+
