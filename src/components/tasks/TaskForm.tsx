@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +23,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, Clock } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Target, ClipboardList } from "lucide-react";
 import { GTDTask, TaskPriority, TaskStatus } from "@/components/gtd/GTDContext";
 import { Badge } from "@/components/ui/badge";
 
@@ -36,9 +36,13 @@ interface TaskFormProps {
 
 const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot = false }) => {
   const [status, setStatus] = useState<TaskStatus>(task?.status || "todo");
-  const [dueDate, setDueDate] = useState<Date | undefined>(task?.dueDate);
+  const [dueDate, setDueDate] = useState<Date | undefined>(task?.dueDate ? new Date(task.dueDate) : undefined);
   const [tags, setTags] = useState<string[]>(task?.tags || []);
   const [tagInput, setTagInput] = useState("");
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(task?.goalId);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(task?.project);
 
   const form = useForm({
     defaultValues: {
@@ -50,6 +54,23 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
       timeEstimate: task?.timeEstimate?.toString() || "",
     },
   });
+
+  // Load goals and projects from localStorage
+  useEffect(() => {
+    try {
+      const savedGoals = localStorage.getItem('planningGoals');
+      if (savedGoals) {
+        setGoals(JSON.parse(savedGoals));
+      }
+      
+      const savedProjects = localStorage.getItem('planningProjects');
+      if (savedProjects) {
+        setProjects(JSON.parse(savedProjects));
+      }
+    } catch (error) {
+      console.error("Error loading goals and projects:", error);
+    }
+  }, []);
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -69,6 +90,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
       dueDate,
       tags,
       isToDoNot,
+      goalId: selectedGoalId,
+      project: selectedProjectId,
     });
   };
 
@@ -127,7 +150,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="pointer-events-auto">
                       <SelectItem value="Very High">Very High</SelectItem>
                       <SelectItem value="High">High</SelectItem>
                       <SelectItem value="Medium">Medium</SelectItem>
@@ -151,7 +174,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="pointer-events-auto">
                   <SelectItem value="todo">{isToDoNot ? "To Avoid" : "To Do"}</SelectItem>
                   <SelectItem value="today">Today</SelectItem>
                   <SelectItem value="in-progress">In Progress</SelectItem>
@@ -200,6 +223,54 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
             />
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <FormItem>
+              <FormLabel>Link to Goal</FormLabel>
+              <Select
+                value={selectedGoalId}
+                onValueChange={setSelectedGoalId}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a goal (optional)" />
+                </SelectTrigger>
+                <SelectContent className="pointer-events-auto">
+                  <SelectItem value="">None</SelectItem>
+                  {goals.map((goal) => (
+                    <SelectItem key={goal.id} value={goal.id}>
+                      <div className="flex items-center">
+                        <Target className="h-4 w-4 mr-2 text-primary" />
+                        {goal.title}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormItem>
+
+            <FormItem>
+              <FormLabel>Link to Project</FormLabel>
+              <Select
+                value={selectedProjectId}
+                onValueChange={setSelectedProjectId}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a project (optional)" />
+                </SelectTrigger>
+                <SelectContent className="pointer-events-auto">
+                  <SelectItem value="">None</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      <div className="flex items-center">
+                        <ClipboardList className="h-4 w-4 mr-2 text-secondary" />
+                        {project.title}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormItem>
+          </div>
+
           <FormItem>
             <FormLabel>Due Date</FormLabel>
             <Popover>
@@ -215,7 +286,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
                   {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0 pointer-events-auto">
                 <Calendar
                   mode="single"
                   selected={dueDate}

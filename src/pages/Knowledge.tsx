@@ -24,8 +24,8 @@ const Knowledge = () => {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="bg-card border rounded-lg overflow-x-auto mb-6">
-            <TabsList className="w-full justify-start rounded-none border-b bg-muted/50 p-0 flex-nowrap">
+          <div className="bg-card border rounded-lg overflow-x-auto mb-6 inline-flex w-auto">
+            <TabsList className="justify-start rounded-none border-b bg-muted/50 p-0 flex-nowrap">
               <TabsTrigger value="skillsets" className={cn("data-[state=active]:bg-background rounded-none border-r px-4 sm:px-8 py-3", "flex items-center gap-2 whitespace-nowrap")}>
                 <Brain className="h-4 w-4" />
                 Skillsets

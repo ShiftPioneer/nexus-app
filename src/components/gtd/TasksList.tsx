@@ -1,8 +1,9 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGTD } from "./GTDContext";
 import { Card, CardHeader, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
-import { CheckCircle, Clock, MoreVertical, Tag, Calendar, Edit, Trash } from "lucide-react";
+import { CheckCircle, Clock, MoreVertical, Tag, Calendar, Edit, Trash, Play, Target, ClipboardList } from "lucide-react";
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -13,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 interface TasksListProps {
   tasks: any[];
@@ -30,6 +32,27 @@ const TasksList: React.FC<TasksListProps> = ({
   onEdit
 }) => {
   const { updateTask, deleteTask } = useGTD();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+
+  // Load goals and projects from localStorage
+  useEffect(() => {
+    try {
+      const savedGoals = localStorage.getItem('planningGoals');
+      if (savedGoals) {
+        setGoals(JSON.parse(savedGoals));
+      }
+      
+      const savedProjects = localStorage.getItem('planningProjects');
+      if (savedProjects) {
+        setProjects(JSON.parse(savedProjects));
+      }
+    } catch (error) {
+      console.error("Error loading goals and projects:", error);
+    }
+  }, []);
 
   if (!tasks.length) {
     return (
@@ -57,6 +80,36 @@ const TasksList: React.FC<TasksListProps> = ({
     deleteTask(id);
   };
 
+  const handleStartFocus = (task: any) => {
+    try {
+      // Save current task to focus on in localStorage
+      localStorage.setItem('currentFocusTask', JSON.stringify({
+        id: task.id,
+        title: task.title,
+        timeEstimate: task.timeEstimate || 25, // Default to 25 minutes if no estimate
+        startTime: new Date().toISOString(),
+      }));
+      
+      // Update task status to in-progress
+      updateTask(task.id, { status: "in-progress" });
+      
+      // Navigate to focus page
+      navigate('/focus');
+      
+      toast({
+        title: "Focus Session Started",
+        description: `Started focus session for "${task.title}"`,
+      });
+    } catch (error) {
+      console.error("Error starting focus session:", error);
+      toast({
+        title: "Error",
+        description: "Failed to start focus session. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Format date nicely
   const formatDueDate = (date: any) => {
     if (!date) return null;
@@ -65,6 +118,17 @@ const TasksList: React.FC<TasksListProps> = ({
     } catch (error) {
       return null;
     }
+  };
+
+  // Get goal or project title by ID
+  const getGoalTitle = (goalId: string) => {
+    const goal = goals.find(g => g.id === goalId);
+    return goal ? goal.title : "Unknown Goal";
+  };
+
+  const getProjectTitle = (projectId: string) => {
+    const project = projects.find(p => p.id === projectId);
+    return project ? project.title : "Unknown Project";
   };
 
   return (
@@ -108,13 +172,17 @@ const TasksList: React.FC<TasksListProps> = ({
                     <MoreVertical className="h-4 w-4 text-slate-400" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuContent align="end" className="w-40 pointer-events-auto">
                   <DropdownMenuItem onClick={() => handleMarkComplete(task.id)}>
                     {task.status === "completed" ? "Mark Incomplete" : (isToDoNot ? "Mark as Avoided" : "Mark Complete")}
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => handleEdit(task.id)}>
                     <Edit className="h-4 w-4 mr-2" />
                     Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => handleStartFocus(task)}>
+                    <Play className="h-4 w-4 mr-2" />
+                    Start Focus
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     className="text-red-500"
@@ -152,8 +220,15 @@ const TasksList: React.FC<TasksListProps> = ({
                 </Badge>
               )}
               {task.goalId && (
-                <Badge variant="default" className="text-xs py-0 bg-blue-700">
-                  Linked to Goal
+                <Badge variant="default" className="text-xs py-0 bg-blue-700 flex items-center">
+                  <Target className="h-3 w-3 mr-1" />
+                  {getGoalTitle(task.goalId)}
+                </Badge>
+              )}
+              {task.project && (
+                <Badge variant="default" className="text-xs py-0 bg-orange-700 flex items-center">
+                  <ClipboardList className="h-3 w-3 mr-1" />
+                  {getProjectTitle(task.project)}
                 </Badge>
               )}
             </div>
@@ -170,7 +245,12 @@ const TasksList: React.FC<TasksListProps> = ({
                   <Edit className="h-3 w-3 mr-1" />
                   Edit
                 </Button>
-                <Button size="sm" className="text-xs h-7 bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white">
+                <Button 
+                  size="sm" 
+                  className="text-xs h-7 bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white"
+                  onClick={() => handleStartFocus(task)}
+                >
+                  <Play className="h-3 w-3 mr-1" />
                   {isToDoNot ? "Focus on Avoiding" : "Start Focus"}
                 </Button>
               </div>

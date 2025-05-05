@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock } from "lucide-react";
+import { Clock, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -37,6 +38,7 @@ const WelcomeSection = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
+  const navigate = useNavigate();
   
   // Get profile data from localStorage
   useEffect(() => {
@@ -115,6 +117,21 @@ const WelcomeSection = () => {
     });
   };
   
+  // Navigation handlers
+  const handleStartDay = () => {
+    navigate('/journal');
+    toast({
+      description: "Starting your day with journal entry",
+    });
+  };
+  
+  const handleViewPlan = () => {
+    navigate('/time-design');
+    toast({
+      description: "Viewing today's plan in time design",
+    });
+  };
+  
   return (
     <section className="mb-6 space-y-4">
       <Card className="overflow-hidden">
@@ -129,10 +146,17 @@ const WelcomeSection = () => {
               </p>
               
               <div className="flex flex-wrap gap-4 mt-4">
-                <Button variant="default" className="gap-2">
+                <Button variant="default" className="gap-2" onClick={handleStartDay}>
                   <span>Start Your Day</span>
                 </Button>
-                <Button variant="outline" className="text-orange-600 bg-deep-DEFAULT">View Today's Plan</Button>
+                <Button 
+                  variant="outline" 
+                  className="text-orange-600 bg-deep-DEFAULT"
+                  onClick={handleViewPlan}
+                >
+                  <Calendar className="mr-2 h-4 w-4" />
+                  View Today's Plan
+                </Button>
               </div>
             </div>
             

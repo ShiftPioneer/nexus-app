@@ -1,15 +1,26 @@
 
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -19,459 +30,446 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
-import { format, addWeeks, addMonths, addYears } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { format, addDays, addMonths, addQuarters, addYears } from "date-fns";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { CalendarIcon, Plus, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Checkbox } from "@/components/ui/checkbox";
+import { v4 as uuidv4 } from "uuid";
+import { useToast } from "@/hooks/use-toast";
+
+const formSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  category: z.string().min(1, "Category is required"),
+  timeframe: z.string().min(1, "Timeframe is required"),
+});
 
 interface GoalCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onGoalCreate: (goal: Goal) => void;
+  initialGoal: Goal | null;
   existingGoals: Goal[];
-  initialGoal?: Goal | null;
 }
-
-interface TimeframeQuestion {
-  question: string;
-  placeholder: string;
-}
-
-const timeframeQuestions: Record<string, { title: string; questions: TimeframeQuestion[] }> = {
-  lifetime: {
-    title: "🏆 LIFETIME GOAL: Defining Your Legacy",
-    questions: [
-      { question: "What do I truly want to achieve in my lifetime?", placeholder: "Think beyond money—impact, fulfillment, lifestyle" },
-      { question: "Why does this matter to me?", placeholder: "Deep reason, beyond surface motivation" },
-      { question: "Who do I need to become to make this happen?", placeholder: "Skills, mindset, discipline?" },
-      { question: "What kind of life do I want to live daily?", placeholder: "Not just at the peak—every single day" },
-      { question: "If I died today, what would I regret not doing?", placeholder: "Force clarity" },
-      { question: "What am I willing to sacrifice or endure to achieve this?", placeholder: "Nothing great comes easy" },
-    ]
-  },
-  decade: {
-    title: "🔟 10-YEAR GOAL: The Game Plan",
-    questions: [
-      { question: "What must I achieve in 10 years to be on track for my lifetime vision?", placeholder: "Be specific" },
-      { question: "What level of success will make me say, 'I'm on the right path'?", placeholder: "Key indicators of progress" },
-      { question: "What's the biggest challenge I will face, and how will I overcome it?", placeholder: "Obstacles and solutions" },
-      { question: "What are the 3 biggest milestones I must hit to reach this goal?", placeholder: "Break it down" },
-      { question: "Who can I learn from to shortcut the journey?", placeholder: "Mentors, books, courses?" },
-    ]
-  },
-  year: {
-    title: "📅 1-YEAR GOAL: Focus & Execution",
-    questions: [
-      { question: "What is the most important goal I must achieve this year?", placeholder: "Single biggest priority" },
-      { question: "If I ONLY achieved this one thing, would I be satisfied?", placeholder: "Make it count" },
-      { question: "What must I master this year to reach my 10-year goal?", placeholder: "Skills, habits, systems" },
-      { question: "What's the biggest obstacle I will face, and how will I handle it?", placeholder: "Key challenges" },
-      { question: "What are the 3 critical milestones I must hit?", placeholder: "Quarterly targets" },
-    ]
-  },
-  quarter: {
-    title: "🏁 QUARTERLY GOAL: Sprint Mode",
-    questions: [
-      { question: "What's the single most important thing to achieve in the next 90 days?", placeholder: "Biggest driver" },
-      { question: "What are the 3 biggest priorities to make it happen?", placeholder: "Actionable & measurable" },
-      { question: "What's holding me back from achieving this, and how do I remove the roadblocks?", placeholder: "Identify constraints" },
-      { question: "How will I measure success at the end of this quarter?", placeholder: "Key metrics" },
-    ]
-  },
-  month: {
-    title: "📆 MONTHLY GOAL: Micro Wins, Big Results",
-    questions: [
-      { question: "What's the #1 result I need this month?", placeholder: "Most impactful outcome" },
-      { question: "What must I focus on weekly to make sure I hit this goal?", placeholder: "Mini milestones" },
-      { question: "What specific actions should I repeat daily for momentum?", placeholder: "Daily habits" },
-      { question: "What's my biggest potential distraction, and how do I eliminate it?", placeholder: "Obstacles to overcome" },
-    ]
-  },
-  week: {
-    title: "📅 WEEKLY GOALS: Action & Accountability",
-    questions: [
-      { question: "What's the ONE thing I must achieve this week?", placeholder: "Focus on impact" },
-      { question: "What 3 key actions will move me closer to my monthly goal?", placeholder: "Prioritize" },
-      { question: "What's stopping me from executing, and how will I overcome it?", placeholder: "Execution blockers" },
-      { question: "What will I do daily to keep momentum?", placeholder: "Small, repeatable tasks" },
-    ]
-  }
-};
 
 const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   open,
   onOpenChange,
   onGoalCreate,
+  initialGoal,
   existingGoals,
-  initialGoal = null,
 }) => {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<Goal["category"]>("health");
-  const [timeframe, setTimeframe] = useState<Goal["timeframe"]>("month");
+  const { toast } = useToast();
   const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
-  const [blockingGoals, setBlockingGoals] = useState<string[]>([]);
-  const [blockedByGoals, setBlockedByGoals] = useState<string[]>([]);
-  const [answers, setAnswers] = useState<Record<number, string>>({});
-  const [startDateInputValue, setStartDateInputValue] = useState("");
-  const [endDateInputValue, setEndDateInputValue] = useState("");
+  const [endDate, setEndDate] = useState<Date>(addMonths(new Date(), 3));
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [milestoneInput, setMilestoneInput] = useState("");
+  const [milestoneDueDate, setMilestoneDueDate] = useState<Date>(new Date());
+  const isEditMode = !!initialGoal;
 
-  // If an initial goal is provided, populate the form with its values
+  // Set form defaults when initialGoal changes
   useEffect(() => {
     if (initialGoal) {
-      setTitle(initialGoal.title);
-      setDescription(initialGoal.description);
-      setCategory(initialGoal.category);
-      setTimeframe(initialGoal.timeframe);
-      setStartDate(initialGoal.startDate);
-      setEndDate(initialGoal.endDate);
-      setStartDateInputValue(format(initialGoal.startDate, "yyyy-MM-dd"));
-      setEndDateInputValue(format(initialGoal.endDate, "yyyy-MM-dd"));
-      setBlockingGoals(initialGoal.blockingGoals || []);
-      setBlockedByGoals(initialGoal.blockedByGoals || []);
+      form.reset({
+        title: initialGoal.title,
+        description: initialGoal.description,
+        category: initialGoal.category,
+        timeframe: initialGoal.timeframe,
+      });
+      
+      setStartDate(new Date(initialGoal.startDate));
+      setEndDate(new Date(initialGoal.endDate));
+      setMilestones(initialGoal.milestones || []);
     } else {
-      resetForm();
+      form.reset({
+        title: "",
+        description: "",
+        category: "career",
+        timeframe: "quarter",
+      });
+      setStartDate(new Date());
+      setEndDate(addMonths(new Date(), 3));
+      setMilestones([]);
     }
   }, [initialGoal, open]);
 
-  // Update end date based on start date and timeframe
-  const calculateEndDate = (start: Date, tf: string): Date => {
-    switch (tf) {
-      case "week":
-        return addWeeks(start, 1);
-      case "month":
-        return addMonths(start, 1);
-      case "quarter":
-        return addMonths(start, 3);
-      case "year":
-        return addYears(start, 1);
-      case "decade":
-        return addYears(start, 10);
-      case "lifetime":
-        return addYears(start, 50);
-      default:
-        return addMonths(start, 1);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: initialGoal?.title || "",
+      description: initialGoal?.description || "",
+      category: initialGoal?.category || "career",
+      timeframe: initialGoal?.timeframe || "quarter",
+    },
+  });
+
+  const handleAddMilestone = () => {
+    if (milestoneInput.trim()) {
+      const newMilestone: Milestone = {
+        id: uuidv4(),
+        title: milestoneInput.trim(),
+        completed: false,
+        dueDate: milestoneDueDate,
+      };
+      setMilestones([...milestones, newMilestone]);
+      setMilestoneInput("");
     }
   };
 
-  // When timeframe or start date changes, recalculate end date
-  useEffect(() => {
-    const newEndDate = calculateEndDate(startDate, timeframe);
-    setEndDate(newEndDate);
-    setEndDateInputValue(format(newEndDate, "yyyy-MM-dd"));
-  }, [timeframe, startDate]);
-
-  const handleStartDateChange = (date: Date) => {
-    setStartDate(date);
-    setStartDateInputValue(format(date, "yyyy-MM-dd"));
+  const handleRemoveMilestone = (id: string) => {
+    setMilestones(milestones.filter((milestone) => milestone.id !== id));
   };
 
-  const handleEndDateChange = (date: Date) => {
-    setEndDate(date);
-    setEndDateInputValue(format(date, "yyyy-MM-dd"));
+  const handleToggleMilestone = (id: string) => {
+    setMilestones(
+      milestones.map((milestone) =>
+        milestone.id === id
+          ? { ...milestone, completed: !milestone.completed }
+          : milestone
+      )
+    );
   };
 
-  const handleStartDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setStartDateInputValue(value);
-    
-    // Try to create a date from the input
-    const date = new Date(value);
-    if (!isNaN(date.getTime())) {
-      setStartDate(date);
-    }
-  };
-
-  const handleEndDateInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setEndDateInputValue(value);
-    
-    // Try to create a date from the input
-    const date = new Date(value);
-    if (!isNaN(date.getTime())) {
-      setEndDate(date);
-    }
-  };
-
-  const handleSubmit = () => {
-    const newGoal: Goal = {
-      id: initialGoal?.id || "",
-      title,
-      description,
-      category,
-      timeframe,
-      progress: initialGoal?.progress || 0,
-      startDate,
-      endDate,
-      status: initialGoal?.status || "not-started",
-      milestones: initialGoal?.milestones || [],
-      blockingGoals,
-      blockedByGoals,
-      timeframeAnswers: Object.entries(answers).map(([index, answer]) => ({
-        questionIndex: parseInt(index),
-        answer
-      }))
-    };
-    
-    onGoalCreate(newGoal);
-    resetForm();
-  };
-
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setCategory("health");
-    setTimeframe("month");
-    
+  const handleTimeframeChange = (timeframe: string) => {
+    form.setValue("timeframe", timeframe);
     const now = new Date();
-    setStartDate(now);
-    setStartDateInputValue(format(now, "yyyy-MM-dd"));
     
-    const newEndDate = calculateEndDate(now, "month");
+    let newEndDate;
+    switch (timeframe) {
+      case "week":
+        newEndDate = addDays(now, 7);
+        break;
+      case "month":
+        newEndDate = addMonths(now, 1);
+        break;
+      case "quarter":
+        newEndDate = addQuarters(now, 1);
+        break;
+      case "year":
+        newEndDate = addYears(now, 1);
+        break;
+      case "decade":
+        newEndDate = addYears(now, 10);
+        break;
+      default:
+        newEndDate = addMonths(now, 3);
+    }
+    
     setEndDate(newEndDate);
-    setEndDateInputValue(format(newEndDate, "yyyy-MM-dd"));
-    
-    setBlockingGoals([]);
-    setBlockedByGoals([]);
-    setAnswers({});
+  };
+
+  const onSubmit = (data: z.infer<typeof formSchema>) => {
+    const newGoal: Goal = {
+      id: initialGoal?.id || uuidv4(),
+      title: data.title,
+      description: data.description || "",
+      category: data.category as any,
+      timeframe: data.timeframe as any,
+      progress: initialGoal?.progress || 0,
+      startDate: startDate,
+      endDate: endDate,
+      milestones: milestones,
+      status: initialGoal?.status || "not-started",
+    };
+
+    onGoalCreate(newGoal);
+
+    // Save to localStorage as well to ensure it appears on dashboard
+    try {
+      const savedGoals = localStorage.getItem('planningGoals');
+      let updatedGoals = [];
+      
+      if (savedGoals) {
+        const existingGoals = JSON.parse(savedGoals);
+        
+        if (isEditMode) {
+          // Update existing goal
+          updatedGoals = existingGoals.map((goal: Goal) => 
+            goal.id === newGoal.id ? newGoal : goal
+          );
+        } else {
+          // Add new goal
+          updatedGoals = [...existingGoals, newGoal];
+        }
+      } else {
+        updatedGoals = [newGoal];
+      }
+      
+      localStorage.setItem('planningGoals', JSON.stringify(updatedGoals));
+      
+      toast({
+        title: isEditMode ? "Goal Updated" : "Goal Created",
+        description: `Your goal has been ${isEditMode ? 'updated' : 'created'} and saved.`
+      });
+    } catch (error) {
+      console.error("Failed to save goal to localStorage:", error);
+      
+      toast({
+        title: "Warning",
+        description: "Your goal was created but may not appear on the dashboard.",
+        variant: "destructive"
+      });
+    }
+
+    onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => {
-      if (!isOpen) resetForm();
-      onOpenChange(isOpen);
-    }}>
-      <DialogContent className="sm:max-w-[650px] max-h-[90vh] overflow-y-auto">
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{initialGoal ? 'Edit Goal' : 'Create New Goal'}</DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit Goal" : "Create New Goal"}</DialogTitle>
+          <DialogDescription>
+            Define your goal with clear milestones to track progress.
+          </DialogDescription>
         </DialogHeader>
-        
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Goal Title</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter your goal title"
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Goal Title</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter goal title" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe your goal"
-              rows={3}
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="What do you want to achieve?"
+                      className="min-h-[80px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select
-                value={category}
-                onValueChange={(val) => setCategory(val as Goal["category"])}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="health">Health</SelectItem>
-                  <SelectItem value="wealth">Wealth</SelectItem>
-                  <SelectItem value="relationships">Relationships</SelectItem>
-                  <SelectItem value="spirituality">Spirituality</SelectItem>
-                  <SelectItem value="education">Education</SelectItem>
-                  <SelectItem value="career">Career</SelectItem>
-                </SelectContent>
-              </Select>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="pointer-events-auto">
+                        <SelectItem value="wealth">Wealth & Finance</SelectItem>
+                        <SelectItem value="health">Health & Fitness</SelectItem>
+                        <SelectItem value="relationships">Relationships</SelectItem>
+                        <SelectItem value="spirituality">Spirituality</SelectItem>
+                        <SelectItem value="education">Education</SelectItem>
+                        <SelectItem value="career">Career</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="timeframe"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Timeframe</FormLabel>
+                    <Select
+                      onValueChange={(value) => handleTimeframeChange(value)}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a timeframe" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="pointer-events-auto">
+                        <SelectItem value="week">Week</SelectItem>
+                        <SelectItem value="month">Month</SelectItem>
+                        <SelectItem value="quarter">Quarter</SelectItem>
+                        <SelectItem value="year">Year</SelectItem>
+                        <SelectItem value="decade">Decade</SelectItem>
+                        <SelectItem value="lifetime">Lifetime</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="timeframe">Timeframe</Label>
-              <Select
-                value={timeframe}
-                onValueChange={(val) => setTimeframe(val as Goal["timeframe"])}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select timeframe" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="week">Week</SelectItem>
-                  <SelectItem value="month">Month</SelectItem>
-                  <SelectItem value="quarter">Quarter</SelectItem>
-                  <SelectItem value="year">Year</SelectItem>
-                  <SelectItem value="decade">Decade</SelectItem>
-                  <SelectItem value="lifetime">Lifetime</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Start Date</Label>
-              <div className="flex gap-2">
-                <Input 
-                  type="date" 
-                  value={startDateInputValue} 
-                  onChange={handleStartDateInputChange}
-                  className="flex-1"
-                />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormItem className="flex flex-col">
+                <FormLabel>Start Date</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
-                      className="px-2"
+                      className={cn(
+                        "pl-3 text-left font-normal",
+                        !startDate && "text-muted-foreground"
+                      )}
                     >
-                      <CalendarIcon className="h-4 w-4" />
+                      {startDate ? (
+                        format(startDate, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                     <Calendar
                       mode="single"
                       selected={startDate}
-                      onSelect={(date) => date && handleStartDateChange(date)}
+                      onSelect={(date) => date && setStartDate(date)}
                       initialFocus
-                      className={cn("p-3 pointer-events-auto")}
                     />
                   </PopoverContent>
                 </Popover>
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label>End Date</Label>
-              <div className="flex gap-2">
-                <Input 
-                  type="date" 
-                  value={endDateInputValue} 
-                  onChange={handleEndDateInputChange}
-                  className="flex-1"
-                />
+              </FormItem>
+
+              <FormItem className="flex flex-col">
+                <FormLabel>End Date</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
                       variant={"outline"}
-                      className="px-2"
+                      className={cn(
+                        "pl-3 text-left font-normal",
+                        !endDate && "text-muted-foreground"
+                      )}
                     >
-                      <CalendarIcon className="h-4 w-4" />
+                      {endDate ? (
+                        format(endDate, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
                     <Calendar
                       mode="single"
                       selected={endDate}
-                      onSelect={(date) => date && handleEndDateChange(date)}
+                      onSelect={(date) => date && setEndDate(date)}
                       initialFocus
-                      className={cn("p-3 pointer-events-auto")}
                     />
                   </PopoverContent>
                 </Popover>
-              </div>
+              </FormItem>
             </div>
-          </div>
 
-          {timeframeQuestions[timeframe] && (
-            <div className="space-y-4">
-              <div className="border-t pt-4">
-                <h3 className="text-lg font-semibold mb-2">{timeframeQuestions[timeframe].title}</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Answer these questions to clarify your goal and increase your chances of success.
-                </p>
-              </div>
-              
-              {timeframeQuestions[timeframe].questions.map((q, index) => (
-                <div key={index} className="space-y-2">
-                  <Label htmlFor={`question-${index}`}>{q.question}</Label>
-                  <Textarea
-                    id={`question-${index}`}
-                    value={answers[index] || ''}
-                    onChange={(e) => setAnswers({...answers, [index]: e.target.value})}
-                    placeholder={q.placeholder}
-                    rows={2}
+            <div className="space-y-2">
+              <FormLabel>Milestones</FormLabel>
+              <div className="flex space-x-2">
+                <div className="flex-1 flex space-x-2">
+                  <Input
+                    value={milestoneInput}
+                    onChange={(e) => setMilestoneInput(e.target.value)}
+                    placeholder="Add milestone"
+                    className="flex-1"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddMilestone();
+                      }
+                    }}
                   />
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant={"outline"}
+                        className={cn(
+                          "w-[130px] pl-3 text-left font-normal",
+                          !milestoneDueDate && "text-muted-foreground"
+                        )}
+                      >
+                        {milestoneDueDate ? (
+                          format(milestoneDueDate, "PP")
+                        ) : (
+                          <span>Due date</span>
+                        )}
+                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={milestoneDueDate}
+                        onSelect={(date) => date && setMilestoneDueDate(date)}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
-              ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleAddMilestone}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              <div className="space-y-2 mt-2">
+                {milestones.map((milestone) => (
+                  <div
+                    key={milestone.id}
+                    className="flex items-center justify-between bg-muted p-2 rounded-md"
+                  >
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={milestone.completed}
+                        onChange={() => handleToggleMilestone(milestone.id)}
+                        className="rounded-sm"
+                      />
+                      <span className={cn(milestone.completed && "line-through text-muted-foreground")}>
+                        {milestone.title}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {format(new Date(milestone.dueDate), "PP")}
+                      </span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveMilestone(milestone.id)}
+                      className="h-6 w-6 p-0 text-destructive"
+                    >
+                      <Trash className="h-3 w-3" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
-          )}
 
-          {existingGoals.length > 0 && (
-            <>
-              <div className="space-y-2 border-t pt-4 mt-4">
-                <h3 className="text-md font-semibold">Goal Dependencies</h3>
-                <Label>Blocking</Label>
-                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {existingGoals
-                    .filter(goal => initialGoal ? goal.id !== initialGoal.id : true)
-                    .map(goal => (
-                    <div key={`blocking-${goal.id}`} className="flex items-center space-x-2 mb-2">
-                      <Checkbox 
-                        id={`blocking-${goal.id}`}
-                        checked={blockingGoals.includes(goal.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setBlockingGoals([...blockingGoals, goal.id]);
-                          } else {
-                            setBlockingGoals(blockingGoals.filter(id => id !== goal.id));
-                          }
-                        }}
-                      />
-                      <label htmlFor={`blocking-${goal.id}`} className="text-sm">{goal.title}</label>
-                    </div>
-                  ))}
-                  {existingGoals.filter(goal => initialGoal ? goal.id !== initialGoal.id : true).length === 0 && 
-                    <p className="text-sm text-muted-foreground">No existing goals to select</p>
-                  }
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Blocked By</Label>
-                <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
-                  {existingGoals
-                    .filter(goal => initialGoal ? goal.id !== initialGoal.id : true)
-                    .map(goal => (
-                    <div key={`blockedby-${goal.id}`} className="flex items-center space-x-2 mb-2">
-                      <Checkbox 
-                        id={`blockedby-${goal.id}`}
-                        checked={blockedByGoals.includes(goal.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setBlockedByGoals([...blockedByGoals, goal.id]);
-                          } else {
-                            setBlockedByGoals(blockedByGoals.filter(id => id !== goal.id));
-                          }
-                        }}
-                      />
-                      <label htmlFor={`blockedby-${goal.id}`} className="text-sm">{goal.title}</label>
-                    </div>
-                  ))}
-                  {existingGoals.filter(goal => initialGoal ? goal.id !== initialGoal.id : true).length === 0 && 
-                    <p className="text-sm text-muted-foreground">No existing goals to select</p>
-                  }
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSubmit} disabled={!title.trim()}>
-            {initialGoal ? 'Update Goal' : 'Create Goal'}
-          </Button>
-        </DialogFooter>
+            <DialogFooter>
+              <Button type="submit">{isEditMode ? "Update Goal" : "Create Goal"}</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
