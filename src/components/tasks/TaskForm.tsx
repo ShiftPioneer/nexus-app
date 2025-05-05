@@ -91,8 +91,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, initialTask, onSubmit, onCanc
       dueDate,
       tags,
       isToDoNot,
-      goalId: linkedGoalId,
-      project: linkedProjectId,
+      goalId: linkedGoalId === "none" ? undefined : linkedGoalId,
+      project: linkedProjectId === "none" ? undefined : linkedProjectId,
     });
   };
 
@@ -255,14 +255,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, initialTask, onSubmit, onCanc
             <FormItem>
               <FormLabel>Linked Goal</FormLabel>
               <Select
-                value={linkedGoalId || ""}
-                onValueChange={(value) => setLinkedGoalId(value || undefined)}
+                value={linkedGoalId || "none"}
+                onValueChange={(value) => setLinkedGoalId(value === "none" ? undefined : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a goal" />
                 </SelectTrigger>
                 <SelectContent className="pointer-events-auto">
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {goals.map((goal) => (
                     <SelectItem key={goal.id} value={goal.id}>
                       {goal.title}
@@ -275,14 +275,14 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, initialTask, onSubmit, onCanc
             <FormItem>
               <FormLabel>Linked Project</FormLabel>
               <Select
-                value={linkedProjectId || ""}
-                onValueChange={(value) => setLinkedProjectId(value || undefined)}
+                value={linkedProjectId || "none"}
+                onValueChange={(value) => setLinkedProjectId(value === "none" ? undefined : value)}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a project" />
                 </SelectTrigger>
                 <SelectContent className="pointer-events-auto">
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.title}

@@ -33,11 +33,21 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   const handleSave = (taskData: Partial<GTDTask>) => {
     if (initialTask) {
       if (onUpdateTask) {
-        onUpdateTask(initialTask.id, taskData);
+        // For updates, we need to clean up any values to ensure they are properly processed
+        const cleanData = { ...taskData };
+        if (cleanData.goalId === "none") cleanData.goalId = undefined;
+        if (cleanData.project === "none") cleanData.project = undefined;
+        
+        onUpdateTask(initialTask.id, cleanData);
       }
     } else {
       if (onAddTask) {
-        onAddTask(taskData as Omit<GTDTask, "id" | "createdAt">);
+        // For new tasks, also clean up values
+        const cleanData = { ...taskData } as Omit<GTDTask, "id" | "createdAt">;
+        if (cleanData.goalId === "none") cleanData.goalId = undefined;
+        if (cleanData.project === "none") cleanData.project = undefined;
+        
+        onAddTask(cleanData);
       }
     }
     
