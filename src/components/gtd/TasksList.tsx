@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface TasksListProps {
   tasks: any[];
@@ -30,6 +32,8 @@ const TasksList: React.FC<TasksListProps> = ({
   onEdit
 }) => {
   const { updateTask, deleteTask } = useGTD();
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
   if (!tasks.length) {
     return (
@@ -55,6 +59,19 @@ const TasksList: React.FC<TasksListProps> = ({
 
   const handleDelete = (id: string) => {
     deleteTask(id);
+  };
+
+  const handleStartFocus = (task: any) => {
+    // Save the selected task to localStorage for the focus page to access
+    localStorage.setItem('focusTask', JSON.stringify(task));
+    
+    // Navigate to focus page
+    toast({
+      title: "Starting focus session",
+      description: `Focus session started for "${task.title}"`,
+    });
+    
+    navigate('/focus');
   };
 
   // Format date nicely
@@ -108,7 +125,7 @@ const TasksList: React.FC<TasksListProps> = ({
                     <MoreVertical className="h-4 w-4 text-slate-400" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-40">
+                <DropdownMenuContent align="end" className="w-40 pointer-events-auto">
                   <DropdownMenuItem onClick={() => handleMarkComplete(task.id)}>
                     {task.status === "completed" ? "Mark Incomplete" : (isToDoNot ? "Mark as Avoided" : "Mark Complete")}
                   </DropdownMenuItem>
@@ -156,6 +173,11 @@ const TasksList: React.FC<TasksListProps> = ({
                   Linked to Goal
                 </Badge>
               )}
+              {task.project && (
+                <Badge variant="default" className="text-xs py-0 bg-purple-700">
+                  Project
+                </Badge>
+              )}
             </div>
           </CardHeader>
           {showActions && (
@@ -170,7 +192,11 @@ const TasksList: React.FC<TasksListProps> = ({
                   <Edit className="h-3 w-3 mr-1" />
                   Edit
                 </Button>
-                <Button size="sm" className="text-xs h-7 bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white">
+                <Button 
+                  size="sm" 
+                  className="text-xs h-7 bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white"
+                  onClick={() => handleStartFocus(task)}
+                >
                   {isToDoNot ? "Focus on Avoiding" : "Start Focus"}
                 </Button>
               </div>

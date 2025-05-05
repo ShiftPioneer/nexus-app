@@ -22,20 +22,21 @@ const SidebarWrapper: React.FC<SidebarWrapperProps> = ({ children }) => {
 
   if (isMobile) {
     return (
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="fixed top-4 left-4 z-30 md:hidden"
-          >
-            <Menu size={20} />
-          </Button>
-        </SheetTrigger>
-        <SheetContent side="left" className="w-[250px] sm:w-[300px] p-0">
-          {children}
-        </SheetContent>
-      </Sheet>
+      <>
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          className="fixed top-4 left-4 z-30 md:hidden"
+          onClick={() => setOpen(true)}
+        >
+          <Menu size={20} />
+        </Button>
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetContent side="left" className="w-[250px] sm:w-[300px] p-0">
+            {children}
+          </SheetContent>
+        </Sheet>
+      </>
     );
   }
 

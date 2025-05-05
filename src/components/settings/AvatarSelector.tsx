@@ -7,22 +7,51 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { Check, Brain, Zap, Fire } from "lucide-react";
 
-// Predefined productivity-themed avatars
+// New productivity-themed avatars using Lucide icons
+const generateIconAvatar = (IconComponent: any, color: string) => {
+  const canvas = document.createElement('canvas');
+  canvas.width = 200;
+  canvas.height = 200;
+  const ctx = canvas.getContext('2d');
+  
+  if (ctx) {
+    // Draw the background
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 200, 200);
+    
+    // Add the data URL to represent this avatar
+    return canvas.toDataURL();
+  }
+  return '';
+};
+
+// Predefined productivity-themed avatars with motivation icons
 const predefinedAvatars = [
-  "/lovable-uploads/6bf766fd-bbfc-4672-a544-c599f8ea80fb.png", // Productivity icon 1
-  "/lovable-uploads/711b54f0-9fd8-47e2-b63e-704304865ed3.png", // Productivity icon 2
-  "/lovable-uploads/a004fbed-90d6-44c1-bbf8-96e82ee8c546.png", // Productivity icon 3
-  "/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png", // Productivity icon 4
-  "https://ui.shadcn.com/avatars/01.png", // Extra avatar 5
+  { name: "Checkmark", icon: Check, color: "#22c55e", background: "bg-green-500" },
+  { name: "Fire", icon: Fire, color: "#f97316", background: "bg-orange-500" },
+  { name: "Zap", icon: Zap, color: "#eab308", background: "bg-yellow-500" },
+  { name: "Brain", icon: Brain, color: "#8b5cf6", background: "bg-purple-500" },
 ];
 
-const AvatarSelector = () => {
+interface AvatarSelectorProps {
+  currentAvatar?: string;
+  onAvatarChange?: (avatar: string) => void;
+}
+
+const AvatarSelector: React.FC<AvatarSelectorProps> = ({ 
+  currentAvatar,
+  onAvatarChange
+}) => {
   const [avatarUrl, setAvatarUrl] = useState<string>(() => {
-    // Try to load from localStorage
+    // Try to load from localStorage or props
+    if (currentAvatar) return currentAvatar;
     const saved = localStorage.getItem("userAvatar");
-    return saved || predefinedAvatars[0];
+    return saved || generateIconAvatar(Check, "#22c55e");
   });
+  
+  const [activeIcon, setActiveIcon] = useState<number>(0);
   const [inputUrl, setInputUrl] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -31,6 +60,18 @@ const AvatarSelector = () => {
   const saveAvatar = (url: string) => {
     setAvatarUrl(url);
     localStorage.setItem("userAvatar", url);
+    
+    // Notify parent component if callback provided
+    if (onAvatarChange) {
+      onAvatarChange(url);
+    }
+    
+    // Dispatch an event for other components to listen to
+    const event = new CustomEvent('profileUpdated', { 
+      detail: { avatar: url } 
+    });
+    window.dispatchEvent(event);
+    
     toast({
       title: "Avatar Updated",
       description: "Your profile avatar has been updated successfully."
@@ -57,23 +98,27 @@ const AvatarSelector = () => {
     }
   };
 
-  const selectPredefined = (url: string) => {
-    saveAvatar(url);
+  const selectPredefined = (index: number) => {
+    setActiveIcon(index);
+    // We'll use the background color as the avatar when a preset is selected
+    saveAvatar(generateIconAvatar(predefinedAvatars[index].icon, predefinedAvatars[index].color));
   };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Profile Avatar</CardTitle>
-        <CardDescription>Customize your profile picture</CardDescription>
+        <CardDescription>Choose an avatar that represents your productivity style</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col md:flex-row gap-6 items-center">
           <div className="flex flex-col items-center gap-4">
             <Avatar className="h-24 w-24">
               <AvatarImage src={avatarUrl} alt="Profile Avatar" />
-              <AvatarFallback>
-                {localStorage.getItem("userName")?.charAt(0).toUpperCase() || "U"}
+              <AvatarFallback className={predefinedAvatars[activeIcon].background}>
+                {React.createElement(predefinedAvatars[activeIcon].icon, { 
+                  className: "h-12 w-12 text-white" 
+                })}
               </AvatarFallback>
             </Avatar>
             <span className="text-sm text-muted-foreground">Current Avatar</span>
@@ -88,20 +133,28 @@ const AvatarSelector = () => {
               </TabsList>
               
               <TabsContent value="preset" className="space-y-4">
-                <div className="grid grid-cols-5 gap-2">
+                <div className="grid grid-cols-4 gap-4">
                   {predefinedAvatars.map((avatar, index) => (
-                    <Avatar 
+                    <div 
                       key={index} 
-                      className={`cursor-pointer h-12 w-12 ${avatarUrl === avatar ? 'ring-2 ring-primary' : ''}`}
-                      onClick={() => selectPredefined(avatar)}
+                      className={`cursor-pointer flex flex-col items-center gap-2 p-3 rounded-lg transition-all ${
+                        activeIcon === index 
+                          ? 'bg-secondary border-2 border-primary' 
+                          : 'hover:bg-secondary/50'
+                      }`}
+                      onClick={() => selectPredefined(index)}
                     >
-                      <AvatarImage src={avatar} alt={`Avatar ${index + 1}`} />
-                      <AvatarFallback>{index + 1}</AvatarFallback>
-                    </Avatar>
+                      <Avatar className={`h-12 w-12 ${avatar.background}`}>
+                        <AvatarFallback>
+                          {React.createElement(avatar.icon, { className: "h-6 w-6 text-white" })}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-xs font-medium">{avatar.name}</span>
+                    </div>
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Click on an avatar to select it
+                  Click on an icon to select it as your avatar
                 </p>
               </TabsContent>
               

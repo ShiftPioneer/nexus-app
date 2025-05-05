@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,30 +24,52 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Calendar as CalendarIcon, Clock } from "lucide-react";
-import { GTDTask, TaskPriority, TaskStatus } from "@/components/gtd/GTDContext";
+import { GTDTask, TaskPriority, TaskStatus } from "@/types/gtd";
 import { Badge } from "@/components/ui/badge";
+import { loadFromStorage } from "@/hooks/use-persistence";
 
-interface TaskFormProps {
+export interface TaskFormProps {
   task?: GTDTask | null;
   onSubmit: (data: any) => void;
   onCancel: () => void;
   isToDoNot?: boolean;
+  extraFields?: React.ReactNode;
+  initialTask?: GTDTask | null;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot = false }) => {
-  const [status, setStatus] = useState<TaskStatus>(task?.status || "todo");
-  const [dueDate, setDueDate] = useState<Date | undefined>(task?.dueDate);
-  const [tags, setTags] = useState<string[]>(task?.tags || []);
+const TaskForm: React.FC<TaskFormProps> = ({ task, initialTask, onSubmit, onCancel, isToDoNot = false, extraFields }) => {
+  // Use initialTask if provided, otherwise fall back to task prop
+  const taskData = initialTask || task;
+  
+  const [status, setStatus] = useState<TaskStatus>(taskData?.status || "todo");
+  const [dueDate, setDueDate] = useState<Date | undefined>(taskData?.dueDate);
+  const [tags, setTags] = useState<string[]>(taskData?.tags || []);
   const [tagInput, setTagInput] = useState("");
+  const [goals, setGoals] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [linkedGoalId, setLinkedGoalId] = useState<string | undefined>(taskData?.goalId);
+  const [linkedProjectId, setLinkedProjectId] = useState<string | undefined>(taskData?.project);
+
+  useEffect(() => {
+    // Load goals and projects from localStorage
+    try {
+      const savedGoals = loadFromStorage('planningGoals', []);
+      const savedProjects = loadFromStorage('planningProjects', []);
+      setGoals(savedGoals);
+      setProjects(savedProjects);
+    } catch (error) {
+      console.error("Failed to load goals/projects:", error);
+    }
+  }, []);
 
   const form = useForm({
     defaultValues: {
-      title: task?.title || "",
-      description: task?.description || "",
-      priority: task?.priority || "Medium",
-      status: task?.status || "todo",
-      context: task?.context || "",
-      timeEstimate: task?.timeEstimate?.toString() || "",
+      title: taskData?.title || "",
+      description: taskData?.description || "",
+      priority: taskData?.priority || "Medium",
+      status: taskData?.status || "todo",
+      context: taskData?.context || "",
+      timeEstimate: taskData?.timeEstimate?.toString() || "",
     },
   });
 
@@ -69,6 +91,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
       dueDate,
       tags,
       isToDoNot,
+      goalId: linkedGoalId,
+      project: linkedProjectId,
     });
   };
 
@@ -127,7 +151,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
                         <SelectValue placeholder="Select priority" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                    <SelectContent className="pointer-events-auto">
                       <SelectItem value="Very High">Very High</SelectItem>
                       <SelectItem value="High">High</SelectItem>
                       <SelectItem value="Medium">Medium</SelectItem>
@@ -151,7 +175,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                 </FormControl>
-                <SelectContent>
+                <SelectContent className="pointer-events-auto">
                   <SelectItem value="todo">{isToDoNot ? "To Avoid" : "To Do"}</SelectItem>
                   <SelectItem value="today">Today</SelectItem>
                   <SelectItem value="in-progress">In Progress</SelectItem>
@@ -215,16 +239,59 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
                   {dueDate ? format(dueDate, "PPP") : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
                   mode="single"
                   selected={dueDate}
                   onSelect={setDueDate}
                   initialFocus
+                  className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
           </FormItem>
+
+          <div className="space-y-4">
+            <FormItem>
+              <FormLabel>Linked Goal</FormLabel>
+              <Select
+                value={linkedGoalId || ""}
+                onValueChange={(value) => setLinkedGoalId(value || undefined)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a goal" />
+                </SelectTrigger>
+                <SelectContent className="pointer-events-auto">
+                  <SelectItem value="">None</SelectItem>
+                  {goals.map((goal) => (
+                    <SelectItem key={goal.id} value={goal.id}>
+                      {goal.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormItem>
+
+            <FormItem>
+              <FormLabel>Linked Project</FormLabel>
+              <Select
+                value={linkedProjectId || ""}
+                onValueChange={(value) => setLinkedProjectId(value || undefined)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a project" />
+                </SelectTrigger>
+                <SelectContent className="pointer-events-auto">
+                  <SelectItem value="">None</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormItem>
+          </div>
 
           <FormItem>
             <FormLabel>Tags</FormLabel>
@@ -264,6 +331,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
               ))}
             </div>
           </FormItem>
+
+          {extraFields}
         </div>
 
         <div className="flex justify-end space-x-2">
@@ -275,7 +344,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
             Cancel
           </Button>
           <Button type="submit">
-            {task ? "Update" : "Create"} {isToDoNot ? "Item" : "Task"}
+            {taskData ? "Update" : "Create"} {isToDoNot ? "Item" : "Task"}
           </Button>
         </div>
       </form>

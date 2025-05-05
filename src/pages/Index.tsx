@@ -1,6 +1,5 @@
 
 import React from "react";
-import { DragDropContext } from "react-beautiful-dnd";
 import AppLayout from "@/components/layout/AppLayout";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
 import StatsSection from "@/components/dashboard/StatsSection";
@@ -11,11 +10,6 @@ import JournalSection from "@/components/dashboard/JournalSection";
 import { GTDProvider } from "@/components/gtd/GTDContext";
 
 const DashboardContent = () => {
-  const handleDragEnd = (result: any) => {
-    // Handle drag end if needed for dashboard items
-    console.log("Drag ended:", result);
-  };
-
   return (
     <div className="animate-fade-in">
       <WelcomeSection />
@@ -23,8 +17,10 @@ const DashboardContent = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <TasksSection />
-          <GoalSection />
+          <GTDProvider>
+            <TasksSection />
+            <GoalSection />
+          </GTDProvider>
         </div>
         <div className="space-y-6">
           <HabitsSection />
@@ -35,15 +31,11 @@ const DashboardContent = () => {
   );
 };
 
-// Main page component wrapped with GTDProvider
+// Main page component
 const Dashboard = () => {
   return (
     <AppLayout>
-      <GTDProvider>
-        <DragDropContext onDragEnd={() => console.log("Drag ended")}>
-          <DashboardContent />
-        </DragDropContext>
-      </GTDProvider>
+      <DashboardContent />
     </AppLayout>
   );
 };
