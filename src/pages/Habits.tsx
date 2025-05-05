@@ -1,17 +1,30 @@
-import React, { useEffect } from "react";
+
+import React, { useEffect, useState } from "react";
 import AppLayout from "@/components/layout/AppLayout";
 import { useHabitsReset } from "@/hooks/use-habits-reset";
 import HabitList from "@/components/habits/HabitList";
 import HabitForm from "@/components/habits/HabitForm";
-import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { loadFromStorage, saveToStorage } from "@/hooks/use-persistence";
 
+// Define the Habit interface
+interface Habit {
+  id: string;
+  title: string;
+  category: string;
+  streak: number;
+  target: number;
+  status: "completed" | "pending" | "missed";
+  type: "daily" | "weekly" | "monthly";
+  completedToday: boolean;
+  accountabilityScore: number;
+}
+
 const Habits = () => {
-  // Use our new habit reset hook
+  // Use our habit reset hook
   useHabitsReset();
 
   const [habits, setHabits] = useState<Habit[]>(() => loadFromStorage('habits', []));

@@ -1,31 +1,48 @@
 
-// We can't modify AppLayout.tsx directly, so let's create a new improved version
-// that wraps the original AppLayout
-
 import React from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import TopBar from './TopBar';
+import NavigationMenu from './NavigationMenu';
+import { 
+  Sidebar, 
+  SidebarContent, 
+  SidebarHeader, 
+  SidebarProvider 
+} from '@/components/ui/sidebar';
 import SidebarWrapper from './SidebarWrapper';
 
-interface ImprovedAppLayoutProps {
+interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-const ImprovedAppLayout: React.FC<ImprovedAppLayoutProps> = ({ children }) => {
+const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const isMobile = useIsMobile();
   
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      {/* We'll use the original components but with our wrapper for mobile */}
-      <div className="flex-1 overflow-auto">
-        <main className="flex-1 px-4 sm:px-6 py-4 md:py-6">
-          {/* Add padding at the top on mobile for the menu button */}
-          <div className={isMobile ? "pt-12" : ""}>
-            {children}
+    <SidebarProvider defaultOpen={!isMobile}>
+      <div className="flex h-screen overflow-hidden bg-background">
+        <SidebarWrapper>
+          <Sidebar>
+            <SidebarHeader className="py-4 flex justify-center">
+              <h1 className="text-xl font-bold text-primary">Nexus</h1>
+            </SidebarHeader>
+            <SidebarContent>
+              <NavigationMenu />
+            </SidebarContent>
+          </Sidebar>
+        </SidebarWrapper>
+        
+        <div className="flex-1 flex flex-col overflow-hidden">
+          <TopBar showMobileMenu={isMobile} />
+          <div className="flex-1 overflow-auto">
+            <main className="flex-1 p-4 md:p-6">
+              {children}
+            </main>
           </div>
-        </main>
+        </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 
-export default ImprovedAppLayout;
+export default AppLayout;

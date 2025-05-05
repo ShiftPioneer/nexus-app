@@ -9,28 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Check, Brain, Zap, Star } from "lucide-react";
 
-// New productivity-themed avatars using Lucide icons
-const generateIconAvatar = (IconComponent: any, color: string) => {
-  const canvas = document.createElement('canvas');
-  canvas.width = 200;
-  canvas.height = 200;
-  const ctx = canvas.getContext('2d');
-  
-  if (ctx) {
-    // Draw the background
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, 200, 200);
-    
-    // Add the data URL to represent this avatar
-    return canvas.toDataURL();
-  }
-  return '';
-};
-
 // Predefined productivity-themed avatars with motivation icons
 const predefinedAvatars = [
   { name: "Checkmark", icon: Check, color: "#22c55e", background: "bg-green-500" },
-  { name: "Star", icon: Star, color: "#f97316", background: "bg-orange-500" }, // Changed from Fire to Star
+  { name: "Star", icon: Star, color: "#f97316", background: "bg-orange-500" },
   { name: "Zap", icon: Zap, color: "#eab308", background: "bg-yellow-500" },
   { name: "Brain", icon: Brain, color: "#8b5cf6", background: "bg-purple-500" },
 ];
@@ -48,7 +30,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     // Try to load from localStorage or props
     if (currentAvatar) return currentAvatar;
     const saved = localStorage.getItem("userAvatar");
-    return saved || generateIconAvatar(Check, "#22c55e");
+    return saved || "";
   });
   
   const [activeIcon, setActiveIcon] = useState<number>(0);
@@ -100,8 +82,36 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
 
   const selectPredefined = (index: number) => {
     setActiveIcon(index);
-    // We'll use the background color as the avatar when a preset is selected
-    saveAvatar(generateIconAvatar(predefinedAvatars[index].icon, predefinedAvatars[index].color));
+    // We'll create a data URL that represents this selection
+    saveAvatar(`icon:${predefinedAvatars[index].name}`);
+  };
+
+  // Function to render the correct avatar
+  const renderAvatar = () => {
+    if (!avatarUrl) {
+      return (
+        <div className={`${predefinedAvatars[activeIcon].background} flex items-center justify-center h-full w-full`}>
+          {React.createElement(predefinedAvatars[activeIcon].icon, { 
+            className: "h-12 w-12 text-white" 
+          })}
+        </div>
+      );
+    }
+    
+    if (avatarUrl.startsWith('icon:')) {
+      const iconName = avatarUrl.replace('icon:', '');
+      const avatarData = predefinedAvatars.find(a => a.name === iconName) || predefinedAvatars[0];
+      return (
+        <div className={`${avatarData.background} flex items-center justify-center h-full w-full`}>
+          {React.createElement(avatarData.icon, { 
+            className: "h-12 w-12 text-white" 
+          })}
+        </div>
+      );
+    }
+    
+    // If it's a data URL or external URL
+    return <AvatarImage src={avatarUrl} alt="Profile Avatar" />;
   };
 
   return (
@@ -114,7 +124,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
         <div className="flex flex-col md:flex-row gap-6 items-center">
           <div className="flex flex-col items-center gap-4">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={avatarUrl} alt="Profile Avatar" />
+              {renderAvatar()}
               <AvatarFallback className={predefinedAvatars[activeIcon].background}>
                 {React.createElement(predefinedAvatars[activeIcon].icon, { 
                   className: "h-12 w-12 text-white" 
@@ -144,8 +154,8 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
                       }`}
                       onClick={() => selectPredefined(index)}
                     >
-                      <Avatar className={`h-12 w-12 ${avatar.background}`}>
-                        <AvatarFallback>
+                      <Avatar className="h-12 w-12">
+                        <AvatarFallback className={avatar.background}>
                           {React.createElement(avatar.icon, { className: "h-6 w-6 text-white" })}
                         </AvatarFallback>
                       </Avatar>
@@ -208,4 +218,3 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
 };
 
 export default AvatarSelector;
-
