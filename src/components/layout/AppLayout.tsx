@@ -69,34 +69,36 @@ const AppLayout = ({
   return (
     <div className="flex h-screen overflow-hidden bg-background w-full">
       <SidebarProvider>
-        <GTDProvider>
-          {/* Desktop Sidebar */}
-          {!isMobile && <Sidebar />}
-          
-          {/* Mobile Sidebar - conditionally rendered */}
-          {isMobile && mobileMenuOpen && (
-            <div 
-              className="fixed inset-0 z-50 bg-black bg-opacity-75 transition-opacity" 
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              <div 
-                className="fixed inset-y-0 left-0 w-64 bg-[#1A1F2C] text-white overflow-auto transform transition-transform duration-300 ease-in-out" 
-                onClick={e => e.stopPropagation()}
-              >
-                <Sidebar />
-              </div>
-            </div>
-          )}
-          
-          <div className="flex flex-col flex-1 overflow-hidden w-full">
-            <TopBar showMobileMenu={isMobile} toggleMobileMenu={toggleMobileMenu} />
-            <main className="flex-1 overflow-auto scrollbar-none transition-all duration-300">
-              <div className="container mx-auto p-3 md:p-6 transition-all duration-300 max-w-full">
+        <div 
+          className="flex flex-col flex-1 overflow-hidden w-full"
+        >
+          <TopBar showMobileMenu={isMobile} toggleMobileMenu={toggleMobileMenu} />
+          <main className="flex-1 overflow-auto scrollbar-none transition-all duration-300">
+            <div className="container mx-auto p-3 md:p-6 transition-all duration-300 max-w-full">
+              <GTDProvider>
                 {children}
-              </div>
-            </main>
+              </GTDProvider>
+            </div>
+          </main>
+        </div>
+        
+        {/* Desktop Sidebar */}
+        {!isMobile && <Sidebar />}
+        
+        {/* Mobile Sidebar - conditionally rendered */}
+        {isMobile && mobileMenuOpen && (
+          <div 
+            className="fixed inset-0 z-50 bg-black bg-opacity-75 transition-opacity" 
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <div 
+              className="fixed inset-y-0 left-0 w-64 bg-[#1A1F2C] text-white overflow-auto transform transition-transform duration-300 ease-in-out" 
+              onClick={e => e.stopPropagation()}
+            >
+              <Sidebar />
+            </div>
           </div>
-        </GTDProvider>
+        )}
       </SidebarProvider>
     </div>
   );
