@@ -72,7 +72,7 @@ const AppLayout = ({
           <div className="flex flex-col flex-1 overflow-hidden w-full">
             <TopBar showMobileMenu={isMobile} toggleMobileMenu={toggleMobileMenu} />
             <main className="flex-1 overflow-auto scrollbar-none transition-all duration-300">
-              <div className="container mx-auto p-5 md:p-6 transition-all duration-300 max-w-full">
+              <div className="mx-auto px-5 md:px-6 pt-5 pb-16 md:pt-6 md:pb-20 transition-all duration-300 max-w-full" style={{ paddingLeft: isMobile ? "12px" : "20px", paddingRight: isMobile ? "12px" : "20px" }}>
                 {children}
               </div>
             </main>
@@ -82,13 +82,13 @@ const AppLayout = ({
           {!isMobile && <Sidebar />}
           
           {/* Mobile Sidebar - conditionally rendered */}
-          {isMobile && mobileMenuOpen && (
+          {isMobile && (
             <div 
-              className="fixed inset-0 z-50 bg-black bg-opacity-75 transition-opacity" 
+              className={`fixed inset-0 z-50 bg-black bg-opacity-75 transition-opacity ${mobileMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               <div 
-                className="fixed inset-y-0 left-0 w-64 bg-[#1A1F2C] text-white overflow-auto transform transition-transform duration-300 ease-in-out" 
+                className={`fixed inset-y-0 left-0 w-64 bg-[#1A1F2C] text-white overflow-auto transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}
                 onClick={e => e.stopPropagation()}
               >
                 <Sidebar />

@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, X, BookOpen, Edit, Trash, Star } from "lucide-react";
+import { Plus, X, BookOpen, Edit, Trash, Star, Filter } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -15,6 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Book {
   id: string;
@@ -33,6 +35,8 @@ export const BookshelfTab = () => {
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [currentBook, setCurrentBook] = useState<Book | null>(null);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [filterStatus, setFilterStatus] = useState<"all" | "to-read" | "reading" | "completed">("all");
   
   const [newBook, setNewBook] = useState<Partial<Book>>({
     title: "",
@@ -190,17 +194,57 @@ export const BookshelfTab = () => {
     }
   };
 
+  const filteredBooks = filterStatus === "all" 
+    ? books 
+    : books.filter(book => book.status === filterStatus);
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-2xl font-bold">My Bookshelf</h2>
-        <Button onClick={() => setShowAddDialog(true)} className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Book
-        </Button>
+        
+        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex items-center gap-2 bg-muted/50 rounded-lg p-1 flex-1 sm:flex-initial">
+            <Button
+              variant={viewMode === "grid" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewMode("grid")}
+              className="flex-1"
+            >
+              Grid
+            </Button>
+            <Button
+              variant={viewMode === "list" ? "default" : "ghost"}
+              size="sm" 
+              onClick={() => setViewMode("list")}
+              className="flex-1"
+            >
+              List
+            </Button>
+          </div>
+          
+          <Button onClick={() => setShowAddDialog(true)} className="gap-2">
+            <Plus className="h-4 w-4" />
+            Add Book
+          </Button>
+        </div>
       </div>
+      
+      {/* Status Filter */}
+      <Tabs
+        value={filterStatus}
+        onValueChange={(v) => setFilterStatus(v as any)}
+        className="w-full"
+      >
+        <TabsList className="w-full grid grid-cols-4 h-auto">
+          <TabsTrigger value="all" className="py-2">All</TabsTrigger>
+          <TabsTrigger value="to-read" className="py-2">To Read</TabsTrigger>
+          <TabsTrigger value="reading" className="py-2">Reading</TabsTrigger>
+          <TabsTrigger value="completed" className="py-2">Completed</TabsTrigger>
+        </TabsList>
+      </Tabs>
 
-      {books.length === 0 ? (
+      {filteredBooks.length === 0 ? (
         <div className="text-center p-10 border border-dashed rounded-md">
           <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
           <h3 className="text-lg font-medium">Your bookshelf is empty</h3>
@@ -209,11 +253,11 @@ export const BookshelfTab = () => {
           </p>
           <Button onClick={() => setShowAddDialog(true)}>Add Your First Book</Button>
         </div>
-      ) : (
+      ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {books.map(book => (
-            <Card key={book.id} className="overflow-hidden flex flex-col h-full">
-              <div className="relative h-48 bg-muted bg-gradient-to-b from-muted-foreground/5 to-muted-foreground/20">
+          {filteredBooks.map(book => (
+            <Card key={book.id} className="flex flex-col h-full overflow-hidden">
+              <div className="relative h-48 bg-muted">
                 {book.cover ? (
                   <img 
                     src={book.cover} 
@@ -235,8 +279,8 @@ export const BookshelfTab = () => {
               
               <CardContent className="flex-grow p-4">
                 <div className="space-y-1 mb-2">
-                  <h3 className="font-bold truncate">{book.title}</h3>
-                  <p className="text-muted-foreground text-sm">by {book.author}</p>
+                  <h3 className="font-bold text-base line-clamp-2" title={book.title}>{book.title}</h3>
+                  <p className="text-muted-foreground text-sm" title={`by ${book.author}`}>by {book.author}</p>
                 </div>
                 
                 {book.rating !== undefined && book.rating > 0 && (
@@ -246,19 +290,23 @@ export const BookshelfTab = () => {
                 )}
                 
                 {book.tags && book.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-3">
-                    {book.tags.map((tag, index) => (
-                      <Badge key={index} variant="outline" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
+                  <ScrollArea className="h-10 mt-2">
+                    <div className="flex flex-wrap gap-1">
+                      {book.tags.map((tag, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                  </ScrollArea>
                 )}
                 
                 {book.notes && (
-                  <p className="mt-3 text-sm text-muted-foreground line-clamp-3">
-                    {book.notes}
-                  </p>
+                  <div className="mt-2">
+                    <p className="text-sm text-muted-foreground line-clamp-2 overflow-hidden" title={book.notes}>
+                      {book.notes}
+                    </p>
+                  </div>
                 )}
               </CardContent>
               
@@ -285,6 +333,85 @@ export const BookshelfTab = () => {
                   Remove
                 </Button>
               </CardFooter>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filteredBooks.map(book => (
+            <Card key={book.id} className="overflow-hidden">
+              <div className="flex items-center p-4">
+                <div className="h-16 w-16 flex-shrink-0 mr-4 rounded overflow-hidden bg-muted">
+                  {book.cover ? (
+                    <img 
+                      src={book.cover} 
+                      alt={`Cover of ${book.title}`}
+                      className="h-full w-full object-cover" 
+                    />
+                  ) : (
+                    <div className="h-full w-full flex items-center justify-center">
+                      <BookOpen className="h-8 w-8 text-muted-foreground/40" />
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex justify-between">
+                    <div>
+                      <h3 className="font-bold line-clamp-1" title={book.title}>{book.title}</h3>
+                      <p className="text-muted-foreground text-sm truncate" title={`by ${book.author}`}>by {book.author}</p>
+                    </div>
+                    <Badge className={getStatusColor(book.status)}>
+                      {book.status === "to-read" ? "To Read" : 
+                       book.status === "reading" ? "Reading" : 
+                       "Completed"}
+                    </Badge>
+                  </div>
+                  
+                  {book.rating !== undefined && book.rating > 0 && (
+                    <div className="flex items-center mt-1">
+                      {renderStarRating(book.rating)}
+                    </div>
+                  )}
+                  
+                  {book.tags && book.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2 overflow-hidden" style={{ maxHeight: "1.5rem" }}>
+                      {book.tags.slice(0, 3).map((tag, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {tag}
+                        </Badge>
+                      ))}
+                      {book.tags.length > 3 && (
+                        <Badge variant="outline" className="text-xs">
+                          +{book.tags.length - 3} more
+                        </Badge>
+                      )}
+                    </div>
+                  )}
+                </div>
+                
+                <div className="flex items-center gap-2 ml-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setCurrentBook(book);
+                      setShowEditDialog(true);
+                    }}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-destructive hover:text-destructive"
+                    onClick={() => handleDeleteBook(book.id)}
+                  >
+                    <Trash className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </Card>
           ))}
         </div>

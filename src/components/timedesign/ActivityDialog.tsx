@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -8,26 +8,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
 import { Calendar as CalendarIcon } from "lucide-react";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 
 interface ActivityDialogProps {
   open: boolean;
@@ -44,203 +31,199 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState<TimeActivity["category"]>("work");
-  const [color, setColor] = useState<TimeActivity["color"]>("purple");
-  const [startDate, setStartDate] = useState<Date>(new Date());
-  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [category, setCategory] = useState("work");
+  const [color, setColor] = useState("purple");
+  const [date, setDate] = useState<Date>(new Date());
   const [startTime, setStartTime] = useState("09:00");
   const [endTime, setEndTime] = useState("10:00");
-  const [syncWithGoogleCalendar, setSyncWithGoogleCalendar] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [syncWithGoogle, setSyncWithGoogle] = useState(false);
 
+  // Reset form when activity changes or dialog opens
   useEffect(() => {
     if (activity) {
       setTitle(activity.title);
       setDescription(activity.description || "");
-      setCategory(activity.category);
-      setColor(activity.color);
-      setStartDate(activity.startDate);
-      setEndDate(activity.endDate);
+      setCategory(activity.category || "work");
+      setColor(activity.color || "purple");
+      
+      const activityDate = activity.startDate instanceof Date 
+        ? activity.startDate 
+        : new Date(activity.startDate);
+      setDate(activityDate);
+      
       setStartTime(activity.startTime);
       setEndTime(activity.endTime);
-      setSyncWithGoogleCalendar(activity.syncWithGoogleCalendar || false);
+      setSyncWithGoogle(activity.syncWithGoogleCalendar || false);
     } else {
-      resetForm();
+      // Default values for new activity
+      setTitle("");
+      setDescription("");
+      setCategory("work");
+      setColor("purple");
+      setDate(new Date());
+      setStartTime("09:00");
+      setEndTime("10:00");
+      setSyncWithGoogle(false);
     }
   }, [activity, open]);
 
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setCategory("work");
-    setColor("purple");
-    setStartDate(new Date());
-    setEndDate(new Date());
-    setStartTime("09:00");
-    setEndTime("10:00");
-    setSyncWithGoogleCalendar(false);
-  };
-
   const handleSave = () => {
-    const newActivity: TimeActivity = {
-      id: activity?.id || "",
+    if (!title.trim()) {
+      return;
+    }
+
+    const updatedActivity: TimeActivity = {
+      id: activity?.id || `activity-${Date.now()}`,
       title,
       description,
       category,
       color,
-      startDate,
-      endDate,
+      startDate: date,
+      endDate: date,
       startTime,
       endTime,
-      syncWithGoogleCalendar,
+      syncWithGoogleCalendar: syncWithGoogle,
     };
-    
-    onSave(newActivity);
+
+    onSave(updatedActivity);
+    onOpenChange(false);
+  };
+
+  const categoryOptions = [
+    { value: "work", label: "Work", color: "purple" },
+    { value: "social", label: "Social", color: "orange" },
+    { value: "health", label: "Health", color: "green" },
+    { value: "study", label: "Study", color: "blue" },
+    { value: "personal", label: "Personal", color: "pink" },
+  ];
+
+  const getCategoryColor = (categoryValue: string) => {
+    return categoryOptions.find(opt => opt.value === categoryValue)?.color || "slate";
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto pointer-events-auto">
         <DialogHeader>
           <DialogTitle>{activity ? "Edit Activity" : "New Activity"}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Activity Title</Label>
+            <Label htmlFor="title">Title</Label>
             <Input
               id="title"
+              placeholder="Activity title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter activity title"
+              autoFocus
             />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="description">Description (optional)</Label>
             <Textarea
               id="description"
+              placeholder="Add details about this activity"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add more details about this activity"
               rows={3}
             />
           </div>
           
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <select
+              id="category"
+              className="w-full h-10 px-3 py-2 rounded-md border border-input bg-background"
+              value={category}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setColor(getCategoryColor(e.target.value));
+              }}
+            >
+              {categoryOptions.map(option => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select
-                value={category}
-                onValueChange={(val) => setCategory(val as TimeActivity["category"])}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="work">Work</SelectItem>
-                  <SelectItem value="social">Social</SelectItem>
-                  <SelectItem value="health">Health</SelectItem>
-                  <SelectItem value="learning">Learning</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>Date</Label>
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP") : "Select date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(date) => {
+                      if (date) {
+                        setDate(date);
+                        setCalendarOpen(false);
+                      }
+                    }}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             
             <div className="space-y-2">
-              <Label>Color</Label>
-              <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-md">
-                <div 
-                  className={`h-5 w-5 rounded-full cursor-pointer ${color === "purple" ? "ring-2 ring-offset-2 ring-primary" : ""} bg-purple-400`}
-                  onClick={() => setColor("purple")}
-                />
-                <div 
-                  className={`h-5 w-5 rounded-full cursor-pointer ${color === "blue" ? "ring-2 ring-offset-2 ring-primary" : ""} bg-blue-400`}
-                  onClick={() => setColor("blue")}
-                />
-                <div 
-                  className={`h-5 w-5 rounded-full cursor-pointer ${color === "green" ? "ring-2 ring-offset-2 ring-primary" : ""} bg-green-400`}
-                  onClick={() => setColor("green")}
-                />
-                <div 
-                  className={`h-5 w-5 rounded-full cursor-pointer ${color === "orange" ? "ring-2 ring-offset-2 ring-primary" : ""} bg-orange-400`}
-                  onClick={() => setColor("orange")}
-                />
-                <div 
-                  className={`h-5 w-5 rounded-full cursor-pointer ${color === "red" ? "ring-2 ring-offset-2 ring-primary" : ""} bg-red-400`}
-                  onClick={() => setColor("red")}
-                />
+              <Label htmlFor="color">Color</Label>
+              <div className="grid grid-cols-6 gap-2">
+                {["purple", "orange", "green", "blue", "pink", "slate"].map(
+                  colorOption => (
+                    <button
+                      key={colorOption}
+                      type="button"
+                      className={`h-10 rounded-md border ${
+                        color === colorOption ? "ring-2 ring-offset-2" : ""
+                      }`}
+                      style={{
+                        backgroundColor: 
+                          colorOption === "purple" ? "#8b5cf6" :
+                          colorOption === "orange" ? "#f97316" :
+                          colorOption === "green" ? "#10b981" :
+                          colorOption === "blue" ? "#3b82f6" :
+                          colorOption === "pink" ? "#ec4899" :
+                          "#64748b"
+                      }}
+                      onClick={() => setColor(colorOption)}
+                      aria-label={`Select ${colorOption} color`}
+                    />
+                  )
+                )}
               </div>
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Start Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !startDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={startDate}
-                    onSelect={(date) => date && setStartDate(date)}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="startTime">Start Time</Label>
+              <Label htmlFor="start-time">Start Time</Label>
               <Input
-                id="startTime"
+                id="start-time"
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
               />
             </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
+            
             <div className="space-y-2">
-              <Label>End Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant={"outline"}
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !endDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={endDate}
-                    onSelect={(date) => date && setEndDate(date)}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="endTime">End Time</Label>
+              <Label htmlFor="end-time">End Time</Label>
               <Input
-                id="endTime"
+                id="end-time"
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
@@ -248,18 +231,17 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
             </div>
           </div>
           
-          <div className="flex items-center justify-between pt-2">
-            <div>
-              <Label htmlFor="sync-calendar">Sync with Google Calendar</Label>
-              <p className="text-sm text-muted-foreground">
-                Add this activity to your Google Calendar
-              </p>
-            </div>
-            <Switch
-              id="sync-calendar"
-              checked={syncWithGoogleCalendar}
-              onCheckedChange={setSyncWithGoogleCalendar}
+          <div className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              id="sync-google"
+              checked={syncWithGoogle}
+              onChange={(e) => setSyncWithGoogle(e.target.checked)}
+              className="h-4 w-4"
             />
+            <Label htmlFor="sync-google" className="text-sm font-normal">
+              Sync with Google Calendar
+            </Label>
           </div>
         </div>
         
@@ -268,7 +250,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
             Cancel
           </Button>
           <Button onClick={handleSave}>
-            Save Activity
+            {activity ? "Update" : "Create"} Activity
           </Button>
         </DialogFooter>
       </DialogContent>

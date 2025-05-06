@@ -1,248 +1,205 @@
-import React, { useState, useRef } from "react";
+
+import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Zap, Brain, Check, Star, Fire, Trophy, Lightning, Book } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/contexts/AuthContext";
-import { Zap, Star, User, Flame, Brain, BarChart3, Clock, Calendar, Target } from "lucide-react";
 
-// Productivity-themed avatars
-const PRODUCTIVITY_AVATARS = ["https://api.dicebear.com/7.x/bottts/svg?seed=Focus&backgroundColor=ff6500", "https://api.dicebear.com/7.x/bottts/svg?seed=Brain&backgroundColor=024caa", "https://api.dicebear.com/7.x/bottts/svg?seed=Productive&backgroundColor=0b192c", "https://api.dicebear.com/7.x/identicon/svg?seed=zap&backgroundColor=ffd700", "https://api.dicebear.com/7.x/identicon/svg?seed=flame&backgroundColor=ff4500"];
-const AVATAR_COLORS = ["#FF6500",
-// Primary orange
-"#024CAA",
-// Secondary blue
-"#0B192C",
-// Dark blue
-"#8884d8",
-// Purple
-"#06d6a0" // Teal
-];
 interface AvatarSelectorProps {
   currentAvatar: string;
-  onAvatarChange: (avatar: string) => void;
+  onAvatarChange: (avatarUrl: string) => void;
 }
+
 const AvatarSelector: React.FC<AvatarSelectorProps> = ({
   currentAvatar,
-  onAvatarChange
+  onAvatarChange,
 }) => {
-  const [open, setOpen] = useState(false);
-  const [selectedAvatar, setSelectedAvatar] = useState(currentAvatar || PRODUCTIVITY_AVATARS[0]);
-  const [customAvatar, setCustomAvatar] = useState<File | null>(null);
-  const [customPreviewUrl, setCustomPreviewUrl] = useState<string | null>(null);
-  const [avatarTab, setAvatarTab] = useState<string>("preset");
-  const [initialLetter, setInitialLetter] = useState("N");
-  const [selectedColor, setSelectedColor] = useState(AVATAR_COLORS[0]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const {
-    toast
-  } = useToast();
-  const {
-    user
-  } = useAuth();
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
+  const { toast } = useToast();
+  const [avatarUrlInput, setAvatarUrlInput] = useState("");
+  const [showUrlInput, setShowUrlInput] = useState(false);
 
-      // Validate file type
-      if (!file.type.startsWith("image/")) {
-        toast({
-          title: "Invalid file type",
-          description: "Please upload an image file",
-          variant: "destructive"
-        });
-        return;
-      }
+  const avatarPresets = [
+    { name: "Default", url: "/avatar-1.png" },
+    { name: "Fire", icon: <Fire className="h-10 w-10 text-orange-500" /> },
+    { name: "Zap", icon: <Zap className="h-10 w-10 text-yellow-500" /> },
+    { name: "Check", icon: <Check className="h-10 w-10 text-green-500" /> },
+    { name: "Brain", icon: <Brain className="h-10 w-10 text-purple-500" /> },
+    { name: "Star", icon: <Star className="h-10 w-10 text-amber-500" /> },
+    { name: "Trophy", icon: <Trophy className="h-10 w-10 text-blue-500" /> },
+    { name: "Book", icon: <Book className="h-10 w-10 text-indigo-500" /> },
+  ];
 
-      // Validate file size (3MB)
-      if (file.size > 3 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Please upload an image smaller than 3MB",
-          variant: "destructive"
-        });
-        return;
-      }
-      setCustomAvatar(file);
-      const imageUrl = URL.createObjectURL(file);
-      setCustomPreviewUrl(imageUrl);
-      setSelectedAvatar(imageUrl);
-      setAvatarTab("custom");
+  const handleAvatarSelect = (preset: any) => {
+    if (preset.url) {
+      onAvatarChange(preset.url);
+    } else if (preset.icon) {
+      // For icon avatars, we'll create a data URL with the icon name
+      onAvatarChange(`icon:${preset.name.toLowerCase()}`);
     }
-  };
-  const handleInitialLetterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value) {
-      setInitialLetter(e.target.value.charAt(0).toUpperCase());
-    } else {
-      setInitialLetter("N");
-    }
-    setAvatarTab("initial");
-  };
-  const handleSelectAvatar = () => {
-    if (avatarTab === "custom" && customAvatar) {
-      // For a real app, we'd upload the file to storage/server here
-      // and then set the URL
-      if (customPreviewUrl) {
-        onAvatarChange(customPreviewUrl);
-      }
-    } else if (avatarTab === "initial") {
-      // No actual image, we'll use the AvatarFallback
-      onAvatarChange(`initial:${initialLetter}:${selectedColor}`);
-    } else {
-      // Preset avatar
-      onAvatarChange(selectedAvatar);
-    }
-    setOpen(false);
     toast({
       title: "Avatar Updated",
-      description: "Your avatar has been updated successfully"
+      description: "Your avatar has been updated.",
     });
   };
 
-  // Parse initial letter and color if the avatar string is in the format "initial:X:#color"
-  React.useEffect(() => {
-    if (currentAvatar && currentAvatar.startsWith("initial:")) {
-      const parts = currentAvatar.split(":");
-      if (parts.length === 3) {
-        setInitialLetter(parts[1]);
-        setSelectedColor(parts[2]);
-        setAvatarTab("initial");
-      }
-    } else if (currentAvatar) {
-      setSelectedAvatar(currentAvatar);
-      // Determine which tab to show based on the avatar
-      if (PRODUCTIVITY_AVATARS.includes(currentAvatar)) {
-        setAvatarTab("preset");
-      } else {
-        setAvatarTab("custom");
-        setCustomPreviewUrl(currentAvatar);
-      }
-    }
-  }, [currentAvatar]);
-
-  // Get the avatar to display
-  const getDisplayAvatar = () => {
-    if (currentAvatar?.startsWith("initial:")) {
-      const parts = currentAvatar.split(":");
-      if (parts.length === 3) {
-        return <Avatar className="h-20 w-20">
-            <AvatarFallback style={{
-            backgroundColor: parts[2]
-          }}>
-              {parts[1]}
-            </AvatarFallback>
-          </Avatar>;
-      }
-    }
-    return <Avatar className="h-20 w-20">
-        <AvatarImage src={currentAvatar} alt="Profile" />
-        <AvatarFallback>
-          <User className="h-10 w-10 text-muted-foreground" />
-        </AvatarFallback>
-      </Avatar>;
+  const handleAvatarUrlSubmit = () => {
+    if (!avatarUrlInput) return;
+    
+    onAvatarChange(avatarUrlInput);
+    toast({
+      title: "Avatar Updated",
+      description: "Your avatar has been updated from URL.",
+    });
+    setShowUrlInput(false);
+    setAvatarUrlInput("");
   };
-  return <>
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    // Validate the file is an image
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid File",
+        description: "Please select an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Use FileReader to convert the file to a data URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (e.target?.result) {
+        onAvatarChange(e.target.result.toString());
+        toast({
+          title: "Avatar Updated",
+          description: "Your avatar has been updated from uploaded image.",
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const renderIcon = (iconName: string) => {
+    switch (iconName.toLowerCase()) {
+      case 'fire': return <Fire className="h-8 w-8 text-orange-500" />;
+      case 'zap': return <Zap className="h-8 w-8 text-yellow-500" />;
+      case 'check': return <Check className="h-8 w-8 text-green-500" />;
+      case 'brain': return <Brain className="h-8 w-8 text-purple-500" />;
+      case 'star': return <Star className="h-8 w-8 text-amber-500" />;
+      case 'trophy': return <Trophy className="h-8 w-8 text-blue-500" />;
+      case 'book': return <Book className="h-8 w-8 text-indigo-500" />;
+      default: return <Zap className="h-8 w-8 text-yellow-500" />;
+    }
+  };
+
+  return (
+    <div className="space-y-4">
       <div className="flex items-center space-x-4">
-        {getDisplayAvatar()}
-        <Button variant="outline" onClick={() => setOpen(true)}>
-          Change Avatar
-        </Button>
+        <Avatar className="h-16 w-16">
+          {currentAvatar?.startsWith('icon:') ? (
+            <AvatarFallback className="bg-muted">
+              {renderIcon(currentAvatar.replace('icon:', ''))}
+            </AvatarFallback>
+          ) : (
+            <>
+              <AvatarImage src={currentAvatar} alt="Avatar" />
+              <AvatarFallback>
+                {currentAvatar ? currentAvatar.charAt(0).toUpperCase() : 'U'}
+              </AvatarFallback>
+            </>
+          )}
+        </Avatar>
+        <div>
+          <h4 className="font-medium">Profile Picture</h4>
+          <p className="text-sm text-muted-foreground">
+            Choose an avatar or upload your own
+          </p>
+        </div>
       </div>
       
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Select Avatar</DialogTitle>
-          </DialogHeader>
+      <div className="grid grid-cols-4 gap-2">
+        {avatarPresets.map((preset, index) => (
+          <button
+            key={index}
+            className={`p-2 rounded-md ${
+              (preset.url === currentAvatar || 
+               (preset.name && currentAvatar?.includes(preset.name.toLowerCase()))) 
+                ? "ring-2 ring-primary" 
+                : "hover:bg-accent"
+            }`}
+            onClick={() => handleAvatarSelect(preset)}
+          >
+            <Avatar className="h-12 w-12 mx-auto">
+              {preset.icon ? (
+                <AvatarFallback className="bg-muted">
+                  {preset.icon}
+                </AvatarFallback>
+              ) : (
+                <>
+                  <AvatarImage src={preset.url} alt={preset.name} />
+                  <AvatarFallback>{preset.name.charAt(0)}</AvatarFallback>
+                </>
+              )}
+            </Avatar>
+            <p className="text-xs text-center mt-1">{preset.name}</p>
+          </button>
+        ))}
+      </div>
+      
+      <div className="space-y-2">
+        <div className="flex gap-2">
+          <Button
+            type="button" 
+            variant="outline" 
+            className="w-full"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+          >
+            Use Image URL
+          </Button>
           
-          <Tabs value={avatarTab} onValueChange={setAvatarTab}>
-            <TabsList className="grid grid-cols-3 w-full">
-              <TabsTrigger value="preset">Preset Icons</TabsTrigger>
-              <TabsTrigger value="initial">Initial</TabsTrigger>
-              <TabsTrigger value="custom">Upload Image</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="preset" className="space-y-6 mt-4">
-              <div className="flex justify-center">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={selectedAvatar} alt="Selected Avatar" />
-                  <AvatarFallback>
-                    <User className="h-12 w-12 text-muted-foreground" />
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              
-              <RadioGroup value={selectedAvatar} onValueChange={setSelectedAvatar} className="grid grid-cols-5 gap-3">
-                {PRODUCTIVITY_AVATARS.map((avatar, index) => <div key={index} className="flex flex-col items-center space-y-1">
-                    <Label htmlFor={`avatar-${index}`} className="cursor-pointer rounded-md overflow-hidden border-2 transition-all duration-200" style={{
-                  borderColor: selectedAvatar === avatar ? 'var(--primary)' : 'transparent'
-                }}>
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={avatar} alt={`Avatar ${index + 1}`} />
-                        <AvatarFallback>{index + 1}</AvatarFallback>
-                      </Avatar>
-                    </Label>
-                    <RadioGroupItem id={`avatar-${index}`} value={avatar} className="sr-only" />
-                  </div>)}
-              </RadioGroup>
-            </TabsContent>
-            
-            <TabsContent value="initial" className="space-y-6 mt-4">
-              <div className="flex justify-center">
-                <Avatar className="h-24 w-24">
-                  <AvatarFallback style={{
-                  backgroundColor: selectedColor
-                }}>
-                    {initialLetter}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              
-              <div className="space-y-3">
-                <Label htmlFor="initial-letter">Initial Letter</Label>
-                <input id="initial-letter" type="text" maxLength={1} value={initialLetter} onChange={handleInitialLetterChange} className="w-full p-2 text-center font-bold text-lg border rounded-md bg-gray-900" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>Select Color</Label>
-                <div className="grid grid-cols-5 gap-2">
-                  {AVATAR_COLORS.map((color, index) => <button key={index} type="button" onClick={() => setSelectedColor(color)} className={`w-10 h-10 rounded-full border-2 ${selectedColor === color ? 'border-primary' : 'border-transparent'}`} style={{
-                  backgroundColor: color
-                }} aria-label={`Color ${index + 1}`} />)}
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="custom" className="space-y-6 mt-4">
-              <div className="flex justify-center">
-                <Avatar className="h-24 w-24">
-                  <AvatarImage src={customPreviewUrl || undefined} alt="Custom Avatar" />
-                  <AvatarFallback>
-                    <User className="h-12 w-12 text-muted-foreground" />
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              
-              <div className="space-y-2">
-                <Button type="button" variant="outline" className="w-full" onClick={() => fileInputRef.current?.click()}>
-                  {customAvatar ? "Change Image" : "Upload Image"}
-                </Button>
-                <input type="file" accept="image/*" ref={fileInputRef} onChange={handleFileChange} className="hidden" />
-                <p className="text-xs text-center text-muted-foreground">
-                  Supported formats: JPG, PNG, GIF (max 3MB)
-                </p>
-              </div>
-            </TabsContent>
-          </Tabs>
-          
-          <div className="flex justify-end">
-            <Button onClick={handleSelectAvatar}>Save Avatar</Button>
+          <div className="relative">
+            <Button
+              type="button" 
+              variant="outline" 
+              className="w-full"
+              onClick={() => document.getElementById('avatar-upload')?.click()}
+            >
+              Upload Image
+            </Button>
+            <input 
+              id="avatar-upload"
+              type="file" 
+              accept="image/*" 
+              className="hidden"
+              onChange={handleFileUpload}
+            />
           </div>
-        </DialogContent>
-      </Dialog>
-    </>;
+        </div>
+        
+        {showUrlInput && (
+          <div className="flex gap-2 mt-2">
+            <input
+              type="text"
+              placeholder="Enter image URL"
+              className="flex-1 px-3 py-1 border rounded-md text-sm"
+              value={avatarUrlInput}
+              onChange={(e) => setAvatarUrlInput(e.target.value)}
+            />
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleAvatarUrlSubmit}
+            >
+              <Check className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 };
+
 export default AvatarSelector;

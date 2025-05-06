@@ -1,207 +1,198 @@
-import React from "react";
-import { format, startOfWeek, addDays, startOfDay, endOfDay, isSameDay, isWithinInterval, parseISO, addHours, getHours, setHours, setMinutes } from "date-fns";
+
+import React, { useState } from "react";
+import { format, startOfWeek, addDays, isSameDay, parseISO, setHours, setMinutes } from "date-fns";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+
 interface TimeDesignCalendarProps {
   currentDate: Date;
   viewType: "day" | "week";
   activities: TimeActivity[];
   onEditActivity: (activity: TimeActivity) => void;
 }
+
 const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
   currentDate,
   viewType,
   activities,
   onEditActivity
 }) => {
-  // Generate hours for the day (12 AM to 11 PM - full 24 hours)
-  const hours = Array.from({
-    length: 24
-  }, (_, i) => i);
-
-  // Generate week days starting from Sunday for the current week
-  const weekStart = startOfWeek(currentDate);
-  const weekDays = Array.from({
-    length: 7
-  }, (_, i) => addDays(weekStart, i));
-  const getActivityStyle = (activity: TimeActivity) => {
-    // Calculate position based on start and end times
-    const startParts = activity.startTime.split(":");
-    const endParts = activity.endTime.split(":");
-    const startHour = parseInt(startParts[0], 10);
-    const startMinute = parseInt(startParts[1], 10);
-    const endHour = parseInt(endParts[0], 10);
-    const endMinute = parseInt(endParts[1], 10);
-
-    // Calculate top position (start time)
-    const startPosition = (startHour * 60 + startMinute) * 1.2; // Scale factor for better visibility
-
-    // Calculate height (duration)
-    const endPosition = (endHour * 60 + endMinute) * 1.2;
-    const height = endPosition - startPosition;
-
-    // Get background color based on activity category
-    const colorMap: Record<string, string> = {
-      work: "bg-purple-100 border-l-4 border-purple-500 text-purple-800 dark:bg-purple-900/30 dark:border-purple-600 dark:text-purple-300",
-      social: "bg-orange-100 border-l-4 border-orange-500 text-orange-800 dark:bg-orange-900/30 dark:border-orange-600 dark:text-orange-300",
-      health: "bg-green-100 border-l-4 border-green-500 text-green-800 dark:bg-green-900/30 dark:border-green-600 dark:text-green-300",
-      learning: "bg-blue-100 border-l-4 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:border-blue-600 dark:text-blue-300"
-    };
-    return {
-      top: `${startPosition}px`,
-      height: `${height}px`,
-      className: `absolute w-full ${colorMap[activity.category]} p-2 rounded-r-md shadow-sm overflow-hidden cursor-pointer hover:opacity-90 transition-opacity`
-    };
+  const { toast } = useToast();
+  const hours = Array.from({ length: 24 }, (_, i) => i);
+  const [draggedActivity, setDraggedActivity] = useState<TimeActivity | null>(null);
+  
+  // Get days to display based on view type
+  const getDaysToDisplay = () => {
+    if (viewType === "day") return [currentDate];
+    
+    const weekStart = startOfWeek(currentDate);
+    return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   };
-
-  // Filter activities for the current day or week
-  const filteredActivities = activities.filter(activity => {
-    if (viewType === "day") {
-      return isSameDay(activity.startDate, currentDate);
-    } else {
-      // For week view, check if the activity is within the week
-      const activityDate = activity.startDate;
-      return isWithinInterval(activityDate, {
-        start: startOfDay(weekStart),
-        end: endOfDay(addDays(weekStart, 6))
-      });
+  
+  const days = getDaysToDisplay();
+  
+  // Filter activities for the current view (day or week)
+  const getActivitiesForDay = (day: Date) => {
+    return activities.filter(activity => {
+      const activityDate = activity.startDate instanceof Date 
+        ? activity.startDate 
+        : typeof activity.startDate === 'string'
+        ? parseISO(activity.startDate)
+        : new Date(activity.startDate);
+      
+      return isSameDay(activityDate, day);
+    });
+  };
+  
+  const getActivitiesForHour = (day: Date, hour: number) => {
+    const activitiesForDay = getActivitiesForDay(day);
+    return activitiesForDay.filter(activity => {
+      const startHour = parseInt(activity.startTime.split(':')[0], 10);
+      return startHour === hour;
+    });
+  };
+  
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'work': return 'bg-purple-500 border-purple-600';
+      case 'social': return 'bg-orange-500 border-orange-600';
+      case 'health': return 'bg-green-500 border-green-600';
+      case 'study': return 'bg-blue-500 border-blue-600';
+      case 'personal': return 'bg-pink-500 border-pink-600';
+      default: return 'bg-slate-500 border-slate-600';
     }
-  });
-
-  // Format hour labels nicely
-  const formatHour = (hour: number) => {
-    if (hour === 0) return "12 AM";
-    if (hour === 12) return "12 PM";
-    return hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
   };
-
-  // Get current time indicators positions
-  const getCurrentTimePosition = () => {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    return (hours * 60 + minutes) * 1.2; // Same scale factor as activities
+  
+  const handleDragEnd = (result: any) => {
+    if (!result.destination) return;
+    
+    const { source, destination, draggableId } = result;
+    const activity = activities.find(a => a.id === draggableId);
+    if (!activity) return;
+    
+    // Parse source and destination IDs to get day index and hour
+    const [sourceDay, sourceHour] = source.droppableId.split('-').map(Number);
+    const [destDay, destHour] = destination.droppableId.split('-').map(Number);
+    
+    // Calculate the new day and hour
+    const newDay = days[destDay];
+    
+    // Create a new activity with updated time
+    const updatedActivity = {
+      ...activity,
+      startDate: newDay,
+      startTime: `${destHour.toString().padStart(2, '0')}:${activity.startTime.split(':')[1]}`,
+    };
+    
+    // Calculate endTime based on duration
+    const startHour = parseInt(activity.startTime.split(':')[0], 10);
+    const startMinute = parseInt(activity.startTime.split(':')[1], 10);
+    const endHour = parseInt(activity.endTime.split(':')[0], 10);
+    const endMinute = parseInt(activity.endTime.split(':')[1], 10);
+    
+    const durationMinutes = (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
+    const newEndHour = Math.floor((destHour * 60 + startMinute + durationMinutes) / 60);
+    const newEndMinute = (destHour * 60 + startMinute + durationMinutes) % 60;
+    
+    updatedActivity.endTime = `${newEndHour.toString().padStart(2, '0')}:${newEndMinute.toString().padStart(2, '0')}`;
+    
+    // Call the edit function
+    onEditActivity(updatedActivity);
+    
+    toast({
+      title: "Activity moved",
+      description: `"${activity.title}" moved to ${format(newDay, "EEE, MMM d")} at ${updatedActivity.startTime}`,
+    });
   };
-  const renderDayCalendar = () => {
-    return <div className="relative min-h-[1728px] mx-12">
-        {/* Hour lines */}
-        {hours.map(hour => <div key={hour} className="grid grid-cols-1 border-b min-h-[72px]">
-            <div className="relative">
-              <span className="absolute -top-3 -left-14 text-sm font-medium text-muted-foreground">
-                {formatHour(hour)}
-              </span>
-              <div className="border-t h-[36px]"></div>
-              <div className="relative">
-                <span className="absolute -left-14 -top-3 text-xs text-muted-foreground">
-                  30
+  
+  return (
+    <div className="h-[calc(100vh-320px)] overflow-y-auto">
+      <DragDropContext onDragEnd={handleDragEnd}>
+        <div className="min-w-full grid" style={{ gridTemplateColumns: `80px repeat(${days.length}, 1fr)` }}>
+          {/* Time column */}
+          <div className="bg-muted/30 border-r">
+            {hours.map((hour) => (
+              <div key={`hour-${hour}`} className="h-20 border-b pl-2 pr-1 flex items-center justify-end">
+                <span className="text-xs text-muted-foreground">
+                  {hour.toString().padStart(2, '0')}:00
                 </span>
-                <div className="border-t border-dashed h-[36px] border-gray-200 dark:border-gray-700"></div>
               </div>
-            </div>
-          </div>)}
-        
-        {/* Current time indicator */}
-        <div className="absolute left-0 right-0 border-t-2 border-red-500 dark:border-red-400 z-10" style={{
-        top: `${getCurrentTimePosition()}px`,
-        width: '100%'
-      }}>
-          <div className="absolute -left-3 -top-2 w-4 h-4 rounded-full bg-red-500 dark:bg-red-400"></div>
-        </div>
-        
-        {/* Activities for the day */}
-        <div className="absolute inset-0">
-          {filteredActivities.map(activity => {
-          const {
-            top,
-            height,
-            className
-          } = getActivityStyle(activity);
-          return <div key={activity.id} style={{
-            top,
-            height
-          }} className={className} onClick={() => onEditActivity(activity)}>
-                <div className="text-sm font-medium line-clamp-1">{activity.title}</div>
-                <div className="text-xs flex items-center justify-between">
-                  <span>{activity.startTime} - {activity.endTime}</span>
-                </div>
-                {parseInt(height, 10) > 80 && activity.description && <div className="text-xs mt-1 line-clamp-2">{activity.description}</div>}
-              </div>;
-        })}
-        </div>
-      </div>;
-  };
-  const renderWeekCalendar = () => {
-    return <div className="min-h-[1728px] overflow-x-auto">
-        <div className="grid grid-cols-8 border-b sticky top-0 bg-background z-10 my-[15px]">
-          <div className="w-12"></div>
-          {weekDays.map((day, i) => <div key={i} className={`text-center py-2 font-medium ${isSameDay(day, new Date()) ? "text-blue-600 dark:text-blue-400" : ""}`}>
-              <div>{format(day, "EEE")}</div>
-              <div className={`text-lg ${isSameDay(day, new Date()) ? "bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400 rounded-full w-8 h-8 flex items-center justify-center mx-auto" : ""}`}>
-                {format(day, "d")}
-              </div>
-            </div>)}
-        </div>
-        
-        <div className="grid grid-cols-8 relative">
-          {/* Time labels column */}
-          <div className="border-r">
-            {hours.map(hour => <div key={hour} className="h-[72px] relative">
-                <span className="absolute -top-3 w-full text-right pr-2 text-sm font-medium text-muted-foreground">
-                  {formatHour(hour)}
-                </span>
-                <div className="border-t h-[36px]"></div>
-                <div className="relative">
-                  <span className="absolute right-2 -top-3 text-xs text-muted-foreground">
-                    30
-                  </span>
-                  <div className="border-t border-dashed h-[36px] border-gray-200 dark:border-gray-700"></div>
-                </div>
-              </div>)}
+            ))}
           </div>
           
           {/* Day columns */}
-          {weekDays.map((day, dayIndex) => <div key={dayIndex} className="border-r relative">
-              {hours.map(hour => <div key={hour} className="border-b h-[72px] relative">
-                  <div className="border-t h-[36px]"></div>
-                  <div className="border-t border-dashed h-[36px] border-gray-200 dark:border-gray-700"></div>
-                </div>)}
-              
-              {/* Current time indicator */}
-              {isSameDay(day, new Date()) && <div className="absolute left-0 right-0 border-t-2 border-red-500 dark:border-red-400 z-10" style={{
-            top: `${getCurrentTimePosition()}px`,
-            width: '100%'
-          }}>
-                  <div className="absolute -left-1 -top-2 w-3 h-3 rounded-full bg-red-500 dark:bg-red-400"></div>
-                </div>}
-              
-              {/* Activities for this day */}
-              <div className="absolute inset-0">
-                {filteredActivities.filter(activity => isSameDay(activity.startDate, day)).map(activity => {
-              const {
-                top,
-                height,
-                className
-              } = getActivityStyle(activity);
-              return <div key={activity.id} style={{
-                top,
-                height,
-                width: `calc(100% - 8px)`,
-                left: "4px"
-              }} className={className} onClick={() => onEditActivity(activity)}>
-                        <div className="text-sm font-medium truncate">{activity.title}</div>
-                        <div className="text-xs truncate flex-nowrap">
-                          {activity.startTime} - {activity.endTime}
-                        </div>
-                        {parseInt(height, 10) > 80 && activity.description && <div className="text-xs mt-1 line-clamp-1">{activity.description}</div>}
-                      </div>;
-            })}
+          {days.map((day, dayIndex) => (
+            <div key={`day-${dayIndex}`} className="min-w-[150px]">
+              {/* Day header */}
+              <div className="h-10 bg-muted/50 border-b flex items-center justify-center sticky top-0 z-10">
+                <span className="font-medium">{format(day, "EEE, MMM d")}</span>
               </div>
-            </div>)}
+              
+              {/* Hour cells */}
+              {hours.map((hour) => (
+                <Droppable key={`${dayIndex}-${hour}`} droppableId={`${dayIndex}-${hour}`}>
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.droppableProps}
+                      className={`h-20 border-b border-r relative ${
+                        snapshot.isDraggingOver ? "bg-blue-100/30 dark:bg-blue-900/10" : ""
+                      }`}
+                    >
+                      {/* Activities for this hour */}
+                      {getActivitiesForHour(day, hour).map((activity, activityIndex) => (
+                        <Draggable
+                          key={activity.id}
+                          draggableId={activity.id}
+                          index={activityIndex}
+                        >
+                          {(provided, snapshot) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              className={`absolute p-1 rounded-md border text-white ${getCategoryColor(activity.category || 'default')} shadow-sm z-10 cursor-pointer`}
+                              style={{
+                                left: '4px',
+                                right: '4px',
+                                height: '70px',
+                                ...provided.draggableProps.style,
+                                opacity: snapshot.isDragging ? 0.7 : 1,
+                              }}
+                              onClick={() => onEditActivity(activity)}
+                            >
+                              <div className="text-xs font-medium truncate">
+                                {activity.title}
+                              </div>
+                              <div className="text-xs opacity-90 flex justify-between mt-1">
+                                <span>
+                                  {activity.startTime} - {activity.endTime}
+                                </span>
+                                <span className="bg-white/30 px-1 rounded text-[10px]">
+                                  {activity.category}
+                                </span>
+                              </div>
+                              {activity.description && (
+                                <div className="text-[10px] mt-1 opacity-90 line-clamp-2">
+                                  {activity.description}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              ))}
+            </div>
+          ))}
         </div>
-      </div>;
-  };
-  return <div className="p-4 overflow-auto">
-      <div className="bg-white dark:bg-slate-900 rounded-lg border shadow-sm p-2">
-        {viewType === "day" ? renderDayCalendar() : renderWeekCalendar()}
-      </div>
-    </div>;
+      </DragDropContext>
+    </div>
+  );
 };
+
 export default TimeDesignCalendar;
