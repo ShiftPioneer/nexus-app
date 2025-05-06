@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Zap, Brain, Check, Star, Fire, Trophy, Lightning, Book } from "lucide-react";
+import { Zap, Brain, Check, Star, Trophy, Flame, BookOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AvatarSelectorProps {
@@ -20,13 +20,13 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
 
   const avatarPresets = [
     { name: "Default", url: "/avatar-1.png" },
-    { name: "Fire", icon: <Fire className="h-10 w-10 text-orange-500" /> },
+    { name: "Flame", icon: <Flame className="h-10 w-10 text-orange-500" /> },
     { name: "Zap", icon: <Zap className="h-10 w-10 text-yellow-500" /> },
     { name: "Check", icon: <Check className="h-10 w-10 text-green-500" /> },
     { name: "Brain", icon: <Brain className="h-10 w-10 text-purple-500" /> },
     { name: "Star", icon: <Star className="h-10 w-10 text-amber-500" /> },
     { name: "Trophy", icon: <Trophy className="h-10 w-10 text-blue-500" /> },
-    { name: "Book", icon: <Book className="h-10 w-10 text-indigo-500" /> },
+    { name: "BookOpen", icon: <BookOpen className="h-10 w-10 text-indigo-500" /> },
   ];
 
   const handleAvatarSelect = (preset: any) => {
@@ -84,13 +84,13 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
 
   const renderIcon = (iconName: string) => {
     switch (iconName.toLowerCase()) {
-      case 'fire': return <Fire className="h-8 w-8 text-orange-500" />;
+      case 'flame': return <Flame className="h-8 w-8 text-orange-500" />;
       case 'zap': return <Zap className="h-8 w-8 text-yellow-500" />;
       case 'check': return <Check className="h-8 w-8 text-green-500" />;
       case 'brain': return <Brain className="h-8 w-8 text-purple-500" />;
       case 'star': return <Star className="h-8 w-8 text-amber-500" />;
       case 'trophy': return <Trophy className="h-8 w-8 text-blue-500" />;
-      case 'book': return <Book className="h-8 w-8 text-indigo-500" />;
+      case 'bookopen': return <BookOpen className="h-8 w-8 text-indigo-500" />;
       default: return <Zap className="h-8 w-8 text-yellow-500" />;
     }
   };
