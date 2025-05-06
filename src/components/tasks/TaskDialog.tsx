@@ -286,7 +286,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
                     <SelectValue placeholder="Link to Goal (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {goals.map((goal) => (
                       <SelectItem key={goal.id} value={goal.id}>
                         {goal.title}

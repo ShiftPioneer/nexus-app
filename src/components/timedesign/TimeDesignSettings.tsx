@@ -1,20 +1,25 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ExternalLink, Calendar, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+
 const TimeDesignSettings: React.FC = () => {
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
-  const {
-    toast
-  } = useToast();
-  const {
-    user
-  } = useAuth();
+  const { toast } = useToast();
+  const { user } = useAuth();
 
   // Check if Google Calendar is already connected
   useEffect(() => {
@@ -24,6 +29,7 @@ const TimeDesignSettings: React.FC = () => {
       setGoogleCalendarConnected(savedState === 'true');
     }
   }, []);
+
   const handleGoogleCalendarConnect = async () => {
     // In a real implementation, this would use OAuth 2.0 flow to connect to Google Calendar API
     setIsConnecting(true);
@@ -55,7 +61,9 @@ const TimeDesignSettings: React.FC = () => {
       setIsConnecting(false);
     }
   };
-  return <Card>
+
+  return (
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
@@ -67,27 +75,45 @@ const TimeDesignSettings: React.FC = () => {
           <div>
             <Label htmlFor="google-calendar" className="font-medium">Connect your Google Calendar to sync activities</Label>
             <p className="text-sm text-muted-foreground mt-1">
-              {googleCalendarConnected ? <span className="flex items-center gap-1 text-green-500">
+              {googleCalendarConnected ? (
+                <span className="flex items-center gap-1 text-green-500">
                   <CheckCircle className="h-4 w-4" /> Connected
-                </span> : "Not Connected"}
+                </span>
+              ) : "Not Connected"}
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant={isConnecting ? "outline" : googleCalendarConnected ? "default" : "outline"} size="sm" onClick={handleGoogleCalendarConnect} disabled={isConnecting} className="min-w-[120px] flex items-center justify-center gap-2">
-              {isConnecting ? <>
+            <Button 
+              variant={isConnecting ? "outline" : googleCalendarConnected ? "default" : "outline"} 
+              size="sm" 
+              onClick={handleGoogleCalendarConnect} 
+              disabled={isConnecting} 
+              className="min-w-[120px] flex items-center justify-center gap-2"
+            >
+              {isConnecting ? (
+                <>
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Connecting...
-                </> : googleCalendarConnected ? "Disconnect" : "Connect"}
+                </>
+              ) : googleCalendarConnected ? "Disconnect" : "Connect"}
             </Button>
             
-            {googleCalendarConnected && <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={() => window.open("https://calendar.google.com", "_blank")}>
+            {googleCalendarConnected && (
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex items-center gap-1" 
+                onClick={() => window.open("https://calendar.google.com", "_blank")}
+              >
                 <ExternalLink className="h-3 w-3" />
                 Open Calendar
-              </Button>}
+              </Button>
+            )}
           </div>
         </div>
         
-        {googleCalendarConnected && <div className="mt-4 p-4 rounded-md bg-slate-950">
+        {googleCalendarConnected && (
+          <div className="mt-4 p-4 rounded-md bg-slate-950">
             <h4 className="font-medium mb-2">Synchronization Options</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -163,45 +189,66 @@ const TimeDesignSettings: React.FC = () => {
                 Sync Now
               </Button>
             </div>
-          </div>}
+          </div>
+        )}
         
         <div className="pt-4 border-t">
           <h3 className="font-medium mb-2">Calendar Settings</h3>
           <div className="grid gap-4">
             <div className="flex items-center justify-between">
               <Label htmlFor="week-starts">Week Starts On</Label>
-              <select id="week-starts" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background">
-                <option>Sunday</option>
-                <option>Monday</option>
-              </select>
+              <Select defaultValue="Sunday">
+                <SelectTrigger id="week-starts" className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Sunday">Sunday</SelectItem>
+                  <SelectItem value="Monday">Monday</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="flex items-center justify-between">
               <Label htmlFor="time-format">Time Format</Label>
-              <select id="time-format" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background">
-                <option>12-hour (AM/PM)</option>
-                <option>24-hour</option>
-              </select>
+              <Select defaultValue="12-hour">
+                <SelectTrigger id="time-format" className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="12-hour">12-hour (AM/PM)</SelectItem>
+                  <SelectItem value="24-hour">24-hour</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="flex items-center justify-between">
               <Label htmlFor="working-hours-start">Working Hours Start</Label>
-              <select id="working-hours-start" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background">
-                <option>6:00 AM</option>
-                <option>7:00 AM</option>
-                <option>8:00 AM</option>
-                <option>9:00 AM</option>
-              </select>
+              <Select defaultValue="9:00">
+                <SelectTrigger id="working-hours-start" className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="6:00">6:00 AM</SelectItem>
+                  <SelectItem value="7:00">7:00 AM</SelectItem>
+                  <SelectItem value="8:00">8:00 AM</SelectItem>
+                  <SelectItem value="9:00">9:00 AM</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="flex items-center justify-between">
               <Label htmlFor="working-hours-end">Working Hours End</Label>
-              <select id="working-hours-end" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background">
-                <option>5:00 PM</option>
-                <option>6:00 PM</option>
-                <option>7:00 PM</option>
-                <option>8:00 PM</option>
-              </select>
+              <Select defaultValue="5:00">
+                <SelectTrigger id="working-hours-end" className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5:00">5:00 PM</SelectItem>
+                  <SelectItem value="6:00">6:00 PM</SelectItem>
+                  <SelectItem value="7:00">7:00 PM</SelectItem>
+                  <SelectItem value="8:00">8:00 PM</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
@@ -235,6 +282,8 @@ const TimeDesignSettings: React.FC = () => {
           <Button>Save Settings</Button>
         </div>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default TimeDesignSettings;
