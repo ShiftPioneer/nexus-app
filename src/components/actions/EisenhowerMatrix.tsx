@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useGTD } from "@/components/gtd/GTDContext";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -23,7 +22,7 @@ interface EisenhowerQuadrant {
 }
 
 const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ isToDoNot }) => {
-  const { tasks, updateTask, addTask } = useGTD();
+  const { tasks, updateTask, addTask, deleteTask } = useGTD();
   const [showTaskDialog, setShowTaskDialog] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any | null>(null);
   
@@ -264,6 +263,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ isToDoNot }) => {
         task={selectedTask}
         onAddTask={handleAddTask}
         onUpdateTask={updateTask}
+        onDeleteTask={deleteTask}
         isToDoNot={isToDoNot}
       />
     </div>

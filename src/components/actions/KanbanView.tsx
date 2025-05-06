@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useGTD } from "@/components/gtd/GTDContext";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
@@ -13,13 +12,14 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import TaskDialog from "@/components/tasks/TaskDialog";
+import { GTDTask } from "@/types/gtd";
 
 interface KanbanViewProps {
   isToDoNot: boolean;
 }
 
 const KanbanView: React.FC<KanbanViewProps> = ({ isToDoNot }) => {
-  const { tasks, updateTask, addTask } = useGTD();
+  const { tasks, updateTask, addTask, deleteTask } = useGTD();
   const [showTaskDialog, setShowTaskDialog] = useState(false);
   const [selectedTask, setSelectedTask] = useState<any | null>(null);
   const [columns, setColumns] = useState({
@@ -38,26 +38,23 @@ const KanbanView: React.FC<KanbanViewProps> = ({ isToDoNot }) => {
       task.isToDoNot === isToDoNot && task.status !== "deleted"
     );
 
-    // For "To Do" tasks
-    const todoColumns = {
-      "todo": filteredTasks.filter(task => task.status === "todo"),
-      "today": filteredTasks.filter(task => task.status === "today"),
-      "in-progress": filteredTasks.filter(task => task.status === "in-progress"),
-      "completed": filteredTasks.filter(task => task.status === "completed"),
-    };
-
-    // For "Not To Do" tasks
-    const notTodoColumns = {
-      "to-avoid": filteredTasks.filter(task => task.status === "todo"),
-      "avoid-today": filteredTasks.filter(task => task.status === "today"),
-      "in-progress": filteredTasks.filter(task => task.status === "in-progress"),
-      "successfully-avoided": filteredTasks.filter(task => task.status === "completed"),
-    };
-
     if (isToDoNot) {
+      // For "Not To Do" tasks
+      const notTodoColumns = {
+        "to-avoid": filteredTasks.filter(task => task.status === "todo"),
+        "avoid-today": filteredTasks.filter(task => task.status === "today"),
+        "in-progress": filteredTasks.filter(task => task.status === "in-progress"),
+        "successfully-avoided": filteredTasks.filter(task => task.status === "completed"),
+      };
       setColumns(notTodoColumns);
     } else {
-      setColumns(todoColumns);
+      // For "To Do" tasks - convert the structure to match our state structure
+      setColumns({
+        "to-avoid": filteredTasks.filter(task => task.status === "todo"),
+        "avoid-today": filteredTasks.filter(task => task.status === "today"),
+        "in-progress": filteredTasks.filter(task => task.status === "in-progress"),
+        "successfully-avoided": filteredTasks.filter(task => task.status === "completed"),
+      });
     }
 
     // Calculate completion stats
@@ -314,6 +311,8 @@ const KanbanView: React.FC<KanbanViewProps> = ({ isToDoNot }) => {
         task={selectedTask}
         onAddTask={handleAddTask}
         onUpdateTask={updateTask}
+        onDeleteTask={deleteTask}
+        isToDoNot={isToDoNot}
       />
     </div>
   );
