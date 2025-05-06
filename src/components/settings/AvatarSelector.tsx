@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Zap, Brain, Check, Star, Trophy, Flame, BookOpen } from "lucide-react";
+import { Zap, Brain, Check, Star, Flame, Trophy, BookOpen } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AvatarSelectorProps {

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import {
   Dialog,
@@ -14,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, Check, Plus } from "lucide-react";
+import { CalendarIcon, Check, Plus, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useGTD } from "@/components/gtd/GTDContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
