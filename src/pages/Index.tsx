@@ -1,6 +1,7 @@
 
 import React from "react";
 import { DragDropContext } from "react-beautiful-dnd";
+import { useNavigate } from "react-router-dom";
 import AppLayout from "@/components/layout/AppLayout";
 import WelcomeSection from "@/components/dashboard/WelcomeSection";
 import StatsSection from "@/components/dashboard/StatsSection";
@@ -10,6 +11,16 @@ import GoalSection from "@/components/dashboard/GoalSection";
 import JournalSection from "@/components/dashboard/JournalSection";
 
 const Dashboard = () => {
+  const navigate = useNavigate();
+  
+  const handleStartDay = () => {
+    navigate('/journal');
+  };
+  
+  const handleViewTodaysPlan = () => {
+    navigate('/time-design');
+  };
+
   const handleDragEnd = (result: any) => {
     // Handle drag end if needed for dashboard items
     console.log("Drag ended:", result);
@@ -19,7 +30,10 @@ const Dashboard = () => {
     <AppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="animate-fade-in">
-          <WelcomeSection />
+          <WelcomeSection 
+            onStartDay={handleStartDay}
+            onViewTodaysPlan={handleViewTodaysPlan}
+          />
           <StatsSection />
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

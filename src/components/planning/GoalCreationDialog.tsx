@@ -36,12 +36,42 @@ import { CalendarIcon, Plus, Trash } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { v4 as uuidv4 } from "uuid";
 import { useToast } from "@/hooks/use-toast";
+import TimeframeQuestions from "./TimeframeQuestions";
 
 const formSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   category: z.string().min(1, "Category is required"),
   timeframe: z.string().min(1, "Timeframe is required"),
+  // Optional timeframe-specific questions
+  weeklyQuestion1: z.string().optional(),
+  weeklyQuestion2: z.string().optional(),
+  weeklyQuestion3: z.string().optional(),
+  weeklyQuestion4: z.string().optional(),
+  monthlyQuestion1: z.string().optional(),
+  monthlyQuestion2: z.string().optional(),
+  monthlyQuestion3: z.string().optional(),
+  monthlyQuestion4: z.string().optional(),
+  quarterlyQuestion1: z.string().optional(),
+  quarterlyQuestion2: z.string().optional(),
+  quarterlyQuestion3: z.string().optional(),
+  quarterlyQuestion4: z.string().optional(),
+  yearlyQuestion1: z.string().optional(),
+  yearlyQuestion2: z.string().optional(),
+  yearlyQuestion3: z.string().optional(),
+  yearlyQuestion4: z.string().optional(),
+  yearlyQuestion5: z.string().optional(),
+  decadeQuestion1: z.string().optional(),
+  decadeQuestion2: z.string().optional(),
+  decadeQuestion3: z.string().optional(),
+  decadeQuestion4: z.string().optional(),
+  decadeQuestion5: z.string().optional(),
+  lifetimeQuestion1: z.string().optional(),
+  lifetimeQuestion2: z.string().optional(),
+  lifetimeQuestion3: z.string().optional(),
+  lifetimeQuestion4: z.string().optional(),
+  lifetimeQuestion5: z.string().optional(),
+  lifetimeQuestion6: z.string().optional(),
 });
 
 interface GoalCreationDialogProps {
@@ -66,16 +96,39 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   const [milestoneInput, setMilestoneInput] = useState("");
   const [milestoneDueDate, setMilestoneDueDate] = useState<Date>(new Date());
   const isEditMode = !!initialGoal;
+  const [showTimeframeQuestions, setShowTimeframeQuestions] = useState(true);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: initialGoal?.title || "",
+      description: initialGoal?.description || "",
+      category: initialGoal?.category || "career",
+      timeframe: initialGoal?.timeframe || "quarter",
+    },
+  });
 
   // Set form defaults when initialGoal changes
   useEffect(() => {
     if (initialGoal) {
-      form.reset({
+      const formValues: any = {
         title: initialGoal.title,
         description: initialGoal.description,
         category: initialGoal.category,
         timeframe: initialGoal.timeframe,
-      });
+      };
+      
+      // Set timeframe question answers if they exist
+      if (initialGoal.timeframeAnswers) {
+        initialGoal.timeframeAnswers.forEach(item => {
+          const fieldName = getTimeframeQuestionField(initialGoal.timeframe, item.questionIndex);
+          if (fieldName) {
+            formValues[fieldName] = item.answer;
+          }
+        });
+      }
+      
+      form.reset(formValues);
       
       setStartDate(new Date(initialGoal.startDate));
       setEndDate(new Date(initialGoal.endDate));
@@ -93,15 +146,9 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
     }
   }, [initialGoal, open]);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: initialGoal?.title || "",
-      description: initialGoal?.description || "",
-      category: initialGoal?.category || "career",
-      timeframe: initialGoal?.timeframe || "quarter",
-    },
-  });
+  const getTimeframeQuestionField = (timeframe: string, index: number): string => {
+    return `${timeframe}Question${index + 1}`;
+  };
 
   const handleAddMilestone = () => {
     if (milestoneInput.trim()) {
@@ -159,6 +206,37 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   };
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
+    // Extract timeframe-specific questions and answers
+    const timeframeAnswers: { questionIndex: number; answer: string }[] = [];
+    const timeframe = data.timeframe;
+    
+    // Determine which questions to extract based on timeframe
+    const questionFields: string[] = [];
+    if (timeframe === "week") {
+      questionFields.push("weeklyQuestion1", "weeklyQuestion2", "weeklyQuestion3", "weeklyQuestion4");
+    } else if (timeframe === "month") {
+      questionFields.push("monthlyQuestion1", "monthlyQuestion2", "monthlyQuestion3", "monthlyQuestion4");
+    } else if (timeframe === "quarter") {
+      questionFields.push("quarterlyQuestion1", "quarterlyQuestion2", "quarterlyQuestion3", "quarterlyQuestion4");
+    } else if (timeframe === "year") {
+      questionFields.push("yearlyQuestion1", "yearlyQuestion2", "yearlyQuestion3", "yearlyQuestion4", "yearlyQuestion5");
+    } else if (timeframe === "decade") {
+      questionFields.push("decadeQuestion1", "decadeQuestion2", "decadeQuestion3", "decadeQuestion4", "decadeQuestion5");
+    } else if (timeframe === "lifetime") {
+      questionFields.push("lifetimeQuestion1", "lifetimeQuestion2", "lifetimeQuestion3", "lifetimeQuestion4", "lifetimeQuestion5", "lifetimeQuestion6");
+    }
+    
+    // Extract answers for the relevant questions
+    questionFields.forEach((field, index) => {
+      const answer = data[field as keyof typeof data];
+      if (answer && typeof answer === 'string' && answer.trim() !== '') {
+        timeframeAnswers.push({
+          questionIndex: index,
+          answer: answer.trim()
+        });
+      }
+    });
+
     const newGoal: Goal = {
       id: initialGoal?.id || uuidv4(),
       title: data.title,
@@ -170,6 +248,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
       endDate: endDate,
       milestones: milestones,
       status: initialGoal?.status || "not-started",
+      timeframeAnswers: timeframeAnswers
     };
 
     onGoalCreate(newGoal);
@@ -198,15 +277,15 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
       localStorage.setItem('planningGoals', JSON.stringify(updatedGoals));
       
       toast({
-        title: isEditMode ? "Goal Updated" : "Goal Created",
-        description: `Your goal has been ${isEditMode ? 'updated' : 'created'} and saved.`
+        title: isEditMode ? "Plan Updated" : "Plan Created",
+        description: `Your plan has been ${isEditMode ? 'updated' : 'created'} and saved.`
       });
     } catch (error) {
       console.error("Failed to save goal to localStorage:", error);
       
       toast({
         title: "Warning",
-        description: "Your goal was created but may not appear on the dashboard.",
+        description: "Your plan was created but may not appear on the dashboard.",
         variant: "destructive"
       });
     }
@@ -218,9 +297,9 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditMode ? "Edit Goal" : "Create New Goal"}</DialogTitle>
+          <DialogTitle>{isEditMode ? "Edit Plan" : "Create New Plan"}</DialogTitle>
           <DialogDescription>
-            Define your goal with clear milestones to track progress.
+            Define your plan with clear milestones to track progress.
           </DialogDescription>
         </DialogHeader>
 
@@ -231,9 +310,9 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Goal Title</FormLabel>
+                  <FormLabel>Plan Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter goal title" {...field} />
+                    <Input placeholder="Enter plan title" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -344,6 +423,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
                       selected={startDate}
                       onSelect={(date) => date && setStartDate(date)}
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -374,6 +454,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
                       selected={endDate}
                       onSelect={(date) => date && setEndDate(date)}
                       initialFocus
+                      className="p-3 pointer-events-auto"
                     />
                   </PopoverContent>
                 </Popover>
@@ -381,7 +462,17 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <FormLabel>Milestones</FormLabel>
+              <div className="flex justify-between items-center">
+                <FormLabel>Milestones</FormLabel>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowTimeframeQuestions(!showTimeframeQuestions)}
+                >
+                  {showTimeframeQuestions ? "Hide Questions" : "Show Questions"}
+                </Button>
+              </div>
               <div className="flex space-x-2">
                 <div className="flex-1 flex space-x-2">
                   <Input
@@ -419,6 +510,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
                         selected={milestoneDueDate}
                         onSelect={(date) => date && setMilestoneDueDate(date)}
                         initialFocus
+                        className="p-3 pointer-events-auto"
                       />
                     </PopoverContent>
                   </Popover>
@@ -465,8 +557,12 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
               </div>
             </div>
 
+            {showTimeframeQuestions && (
+              <TimeframeQuestions timeframe={form.getValues().timeframe} form={form} />
+            )}
+
             <DialogFooter>
-              <Button type="submit">{isEditMode ? "Update Goal" : "Create Goal"}</Button>
+              <Button type="submit">{isEditMode ? "Update Plan" : "Create Plan"}</Button>
             </DialogFooter>
           </form>
         </Form>
