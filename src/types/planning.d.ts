@@ -16,8 +16,6 @@ interface Goal {
     questionIndex: number;
     answer: string;
   }[];
-  linkedProjects?: string[];
-  linkedTasks?: string[];
 }
 
 interface Project {
@@ -31,8 +29,6 @@ interface Project {
   status: "not-started" | "in-progress" | "completed";
   blockingProjects?: string[];
   blockedByProjects?: string[];
-  linkedGoals?: string[];
-  linkedTasks?: string[];
 }
 
 interface Milestone {

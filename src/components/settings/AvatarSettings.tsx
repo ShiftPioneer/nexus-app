@@ -1,189 +1,219 @@
 
-import React, { useState } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import React, { useState, useRef } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Check, Zap, Brain } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Check, Fire, Zap, Brain, Upload, Link as LinkIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AvatarSettingsProps {
-  currentAvatar: string;
+  currentAvatar?: string;
   onAvatarChange: (avatarUrl: string) => void;
 }
+
+const presetAvatars = [
+  { icon: Check, color: "#10B981", label: "Achiever" },
+  { icon: Fire, color: "#F97316", label: "Motivated" },
+  { icon: Zap, color: "#8B5CF6", label: "Energetic" },
+  { icon: Brain, color: "#3B82F6", label: "Strategic" },
+];
 
 const AvatarSettings: React.FC<AvatarSettingsProps> = ({
   currentAvatar,
   onAvatarChange,
 }) => {
+  const [selectedTab, setSelectedTab] = useState<string>("preset");
+  const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
+  const [imageUrl, setImageUrl] = useState<string>("");
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
-  const [avatarUrlInput, setAvatarUrlInput] = useState("");
-  const [showUrlInput, setShowUrlInput] = useState(false);
 
-  const avatarPresets = [
-    { name: "Default", url: "/avatar-1.png" },
-    { name: "Check", icon: <Check className="h-10 w-10 text-green-500" /> },
-    { name: "Zap", icon: <Zap className="h-10 w-10 text-yellow-500" /> },
-    { name: "Brain", icon: <Brain className="h-10 w-10 text-purple-500" /> },
-  ];
+  const handlePresetSelect = (index: number) => {
+    setSelectedPreset(index);
+    
+    // Create SVG for the selected preset
+    const { icon: Icon, color } = presetAvatars[index];
+    const iconString = `<svg width="100" height="100" viewBox="0 0 100 100" 
+      xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="50" fill="${color}" />
+      <foreignObject width="60" height="60" x="20" y="20">
+        <div xmlns="http://www.w3.org/1999/xhtml" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;">
+          <svg width="35" height="35" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" 
+          stroke-linecap="round" stroke-linejoin="round" 
+          xmlns="http://www.w3.org/2000/svg">
+            ${getIconPath(index)}
+          </svg>
+        </div>
+      </foreignObject>
+    </svg>`;
+    
+    // Convert SVG to data URL
+    const svgBlob = new Blob([iconString], { type: "image/svg+xml" });
+    const svgUrl = URL.createObjectURL(svgBlob);
+    setPreviewUrl(svgUrl);
+  };
 
-  const handleAvatarSelect = (preset: any) => {
-    if (preset.url) {
-      onAvatarChange(preset.url);
-    } else if (preset.icon) {
-      // For icon avatars, we'll create a data URL with the icon name
-      onAvatarChange(`icon:${preset.name.toLowerCase()}`);
+  const getIconPath = (index: number) => {
+    switch (index) {
+      case 0: // Check
+        return '<polyline points="20 6 9 17 4 12"></polyline>';
+      case 1: // Fire
+        return '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>';
+      case 2: // Zap
+        return '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>';
+      case 3: // Brain
+        return '<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"></path><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"></path>';
+      default:
+        return '';
     }
-    toast({
-      title: "Avatar Updated",
-      description: "Your avatar has been updated.",
-    });
   };
 
-  const handleAvatarUrlSubmit = () => {
-    if (!avatarUrlInput) return;
-    
-    onAvatarChange(avatarUrlInput);
-    toast({
-      title: "Avatar Updated",
-      description: "Your avatar has been updated from URL.",
-    });
-    setShowUrlInput(false);
-    setAvatarUrlInput("");
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    
-    // Validate the file is an image
-    if (!file.type.startsWith('image/')) {
+  const handleUrlChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImageUrl(e.target.value);
+  };
+
+  const handleUrlSubmit = () => {
+    if (imageUrl) {
+      setPreviewUrl(imageUrl);
       toast({
-        title: "Invalid File",
-        description: "Please select an image file.",
-        variant: "destructive",
+        description: "URL image preview loaded",
       });
-      return;
     }
-    
-    // Use FileReader to convert the file to a data URL
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        onAvatarChange(e.target.result.toString());
-        toast({
-          title: "Avatar Updated",
-          description: "Your avatar has been updated from uploaded image.",
-        });
-      }
-    };
-    reader.readAsDataURL(file);
+  };
+
+  const handleSaveAvatar = () => {
+    if (previewUrl) {
+      onAvatarChange(previewUrl);
+      toast({
+        description: "Avatar updated successfully",
+      });
+    }
+  };
+
+  const handleSelectFile = () => {
+    fileInputRef.current?.click();
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-4">
-        <Avatar className="h-16 w-16">
-          {currentAvatar?.startsWith('icon:') ? (
-            <AvatarFallback className="bg-primary-foreground">
-              {currentAvatar.includes('check') && <Check className="h-8 w-8 text-green-500" />}
-              {currentAvatar.includes('zap') && <Zap className="h-8 w-8 text-yellow-500" />}
-              {currentAvatar.includes('brain') && <Brain className="h-8 w-8 text-purple-500" />}
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Avatar</CardTitle>
+        <CardDescription>Personalize your profile with an avatar</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center justify-center mb-4">
+          <Avatar className="w-24 h-24">
+            <AvatarImage src={previewUrl || currentAvatar} />
+            <AvatarFallback>
+              {presetAvatars[0].label.charAt(0)}
             </AvatarFallback>
-          ) : (
-            <>
-              <AvatarImage src={currentAvatar} alt="Avatar" />
-              <AvatarFallback>
-                {currentAvatar ? currentAvatar.charAt(0).toUpperCase() : 'U'}
-              </AvatarFallback>
-            </>
-          )}
-        </Avatar>
-        <div>
-          <h4 className="font-medium">Profile Picture</h4>
-          <p className="text-sm text-muted-foreground">
-            Choose an avatar or upload your own
-          </p>
+          </Avatar>
         </div>
-      </div>
-      
-      <div className="grid grid-cols-4 gap-2">
-        {avatarPresets.map((preset, index) => (
-          <button
-            key={index}
-            className={`p-2 rounded-md ${
-              (preset.url === currentAvatar || 
-               (preset.name && currentAvatar?.includes(preset.name.toLowerCase()))) 
-                ? "ring-2 ring-primary" 
-                : "hover:bg-accent"
-            }`}
-            onClick={() => handleAvatarSelect(preset)}
-          >
-            <Avatar className="h-12 w-12 mx-auto">
-              {preset.icon ? (
-                <AvatarFallback className="bg-primary-foreground">
-                  {preset.icon}
-                </AvatarFallback>
-              ) : (
-                <>
-                  <AvatarImage src={preset.url} alt={preset.name} />
-                  <AvatarFallback>{preset.name.charAt(0)}</AvatarFallback>
-                </>
-              )}
-            </Avatar>
-            <p className="text-xs text-center mt-1">{preset.name}</p>
-          </button>
-        ))}
-      </div>
-      
-      <div className="space-y-2">
-        <div className="flex gap-2">
-          <Button
-            type="button" 
-            variant="outline" 
-            className="w-full"
-            onClick={() => setShowUrlInput(!showUrlInput)}
-          >
-            Use Image URL
-          </Button>
+
+        <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
+          <TabsList className="w-full grid grid-cols-3">
+            <TabsTrigger value="preset">Preset Icons</TabsTrigger>
+            <TabsTrigger value="upload">Upload</TabsTrigger>
+            <TabsTrigger value="url">URL</TabsTrigger>
+          </TabsList>
           
-          <div className="relative">
-            <Button
-              type="button" 
-              variant="outline" 
-              className="w-full"
-              onClick={() => document.getElementById('avatar-upload')?.click()}
-            >
-              Upload Image
-            </Button>
-            <input 
-              id="avatar-upload"
-              type="file" 
-              accept="image/*" 
-              className="hidden"
-              onChange={handleFileUpload}
-            />
-          </div>
-        </div>
-        
-        {showUrlInput && (
-          <div className="flex gap-2 mt-2">
-            <input
-              type="text"
-              placeholder="Enter image URL"
-              className="flex-1 px-3 py-1 border rounded-md text-sm"
-              value={avatarUrlInput}
-              onChange={(e) => setAvatarUrlInput(e.target.value)}
-            />
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleAvatarUrlSubmit}
-            >
-              <Check className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-      </div>
-    </div>
+          <TabsContent value="preset" className="space-y-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-4">
+              {presetAvatars.map((avatar, index) => {
+                const { icon: Icon, color, label } = avatar;
+                return (
+                  <div
+                    key={index}
+                    className={`
+                      cursor-pointer rounded-lg p-3 text-center
+                      ${selectedPreset === index ? 'border-2 border-primary' : 'border border-muted'}
+                    `}
+                    onClick={() => handlePresetSelect(index)}
+                  >
+                    <div className="flex justify-center mb-2">
+                      <div
+                        className="rounded-full p-3"
+                        style={{ backgroundColor: color }}
+                      >
+                        <Icon className="h-6 w-6 text-white" />
+                      </div>
+                    </div>
+                    <span className="text-sm">{label}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="upload" className="space-y-4">
+            <div className="flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-8">
+              <Upload className="h-10 w-10 text-muted-foreground mb-4" />
+              <h3 className="text-lg font-medium">Upload an image</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Drag and drop or click to select a file
+              </p>
+              <Button 
+                variant="outline" 
+                onClick={handleSelectFile}
+              >
+                Select File
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileUpload}
+                className="hidden"
+              />
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="url" className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="image-url">Image URL</Label>
+              <div className="flex space-x-2">
+                <Input
+                  id="image-url"
+                  placeholder="https://example.com/image.jpg"
+                  value={imageUrl}
+                  onChange={handleUrlChange}
+                />
+                <Button 
+                  variant="outline" 
+                  onClick={handleUrlSubmit}
+                >
+                  <LinkIcon className="h-4 w-4 mr-2" />
+                  Load
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+
+        <Button 
+          className="w-full" 
+          onClick={handleSaveAvatar}
+          disabled={!previewUrl}
+        >
+          Save Avatar
+        </Button>
+      </CardContent>
+    </Card>
   );
 };
 

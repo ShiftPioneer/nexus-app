@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,6 @@ export interface TaskDialogProps {
   onAddTask: (task: any) => void;
   onUpdateTask: (id: string, updates: any) => void;
   onDeleteTask: (id: string) => void;
-  isToDoNot?: boolean; // Make this optional to avoid breaking existing code
 }
 
 const TaskDialog: React.FC<TaskDialogProps> = ({
@@ -29,7 +29,6 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   onAddTask,
   onUpdateTask,
   onDeleteTask,
-  isToDoNot = false, // Default to false if not provided
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -134,7 +133,6 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       tags,
       project: project || undefined,
       goalId: goalId || undefined,
-      isToDoNot, // Include isToDoNot in the task data
     };
 
     if (task) {
@@ -288,7 +286,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
                     <SelectValue placeholder="Link to Goal (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="">None</SelectItem>
                     {goals.map((goal) => (
                       <SelectItem key={goal.id} value={goal.id}>
                         {goal.title}
