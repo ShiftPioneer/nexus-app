@@ -19,19 +19,19 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
   const { user } = useAuth();
 
   return (
-    <header className="h-14 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-4 z-30">
+    <header className="h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6 z-30 flex-shrink-0">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"
           size="icon"
           onClick={onToggleSidebar}
-          className="h-9 w-9"
+          className="h-9 w-9 hover:bg-accent/50 transition-colors"
         >
           <Menu className="h-4 w-4" />
         </Button>
         
         {!isMobile && !isCollapsed && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2 min-w-[240px]">
             <Search className="h-4 w-4 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">Search...</span>
           </div>
@@ -39,13 +39,18 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
       </div>
       
       <div className="flex items-center gap-3">
-        <Button variant="ghost" size="icon" className="h-9 w-9">
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="h-9 w-9 hover:bg-accent/50 transition-colors relative"
+        >
           <Bell className="h-4 w-4" />
+          <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full text-xs"></span>
         </Button>
         
         <Avatar className="h-8 w-8">
           <AvatarImage src={user?.user_metadata?.avatar_url} />
-          <AvatarFallback>
+          <AvatarFallback className="bg-primary/10 text-primary font-medium">
             {user?.email?.substring(0, 2).toUpperCase() || "U"}
           </AvatarFallback>
         </Avatar>

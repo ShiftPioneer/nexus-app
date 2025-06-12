@@ -1,17 +1,29 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AppLayout from "@/components/layout/AppLayout";
+import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import FocusSessionHistory from "@/components/focus/FocusSessionHistory";
 import FocusInsights from "@/components/focus/FocusInsights";
 import FocusTechniques from "@/components/focus/FocusTechniques";
 import FocusTimer from "@/components/focus/FocusTimer";
 import FocusStatsCard from "@/components/focus/FocusStatsCard";
+import FocusStats from "@/components/focus/FocusStats";
 import { useFocusTimer } from "@/components/focus/FocusTimerService";
 import { useToast } from "@/hooks/use-toast";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+
+interface FocusSession {
+  id: string;
+  date: string;
+  duration: number;
+  category: string;
+  completed: boolean;
+  xpEarned: number;
+}
 
 const Focus = () => {
-  const [activeTab, setActiveTab] = useState("history");
+  const [activeTab, setActiveTab] = useState("timer");
+  const [focusSessions, setFocusSessions] = useLocalStorage<FocusSession[]>("focusSessions", []);
   const { 
     isTimerRunning, 
     timeRemaining, 
@@ -25,52 +37,123 @@ const Focus = () => {
   } = useFocusTimer();
   const { toast } = useToast();
   
-  const [focusStats, setFocusStats] = useState<FocusStats>({
-    todayMinutes: 95,
-    weekMinutes: 430,
-    currentStreak: 5,
-    totalSessions: 43,
-    categoryStats: [
-      { category: "Deep Work", sessions: 18, percentage: 75 },
-      { category: "Study", sessions: 12, percentage: 50 },
-      { category: "Creative", sessions: 8, percentage: 33 },
-      { category: "Other", sessions: 5, percentage: 20 }
-    ],
-    longestSession: {
-      duration: 65,
-      date: new Date(2023, 4, 16) // Tuesday last week
-    },
-    weeklyImprovement: 25
+  // Calculate dynamic stats from real sessions
+  const completedToday = focusSessions.filter(session => {
+    const today = new Date().toDateString();
+    const sessionDate = new Date(session.date).toDateString();
+    return sessionDate === today && session.completed;
   });
   
-  const [sessions, setSessions] = useState<FocusSession[]>([
-    {
-      id: "1",
-      date: new Date(),
-      duration: 25,
-      category: "Deep Work",
-      xpEarned: 25
-    },
-    {
-      id: "2",
-      date: new Date(),
-      duration: 50,
-      category: "Deep Work",
-      xpEarned: 50
-    },
-    {
-      id: "3",
-      date: new Date(Date.now() - 86400000), // yesterday
-      duration: 45,
-      category: "Study",
-      xpEarned: 45
+  const completedThisWeek = focusSessions.filter(session => {
+    const weekAgo = new Date();
+    weekAgo.setDate(weekAgo.getDate() - 7);
+    const sessionDate = new Date(session.date);
+    return sessionDate >= weekAgo && session.completed;
+  });
+  
+  const todayMinutes = completedToday.reduce((sum, session) => sum + session.duration, 0);
+  const weekMinutes = completedThisWeek.reduce((sum, session) => sum + session.duration, 0);
+  const currentStreak = calculateCurrentStreak();
+  const totalSessions = focusSessions.filter(s => s.completed).length;
+  
+  function calculateCurrentStreak(): number {
+    if (focusSessions.length === 0) return 0;
+    
+    let streak = 0;
+    const today = new Date();
+    
+    for (let i = 0; i < 30; i++) {
+      const checkDate = new Date(today);
+      checkDate.setDate(today.getDate() - i);
+      const dateString = checkDate.toDateString();
+      
+      const dayHasSession = focusSessions.some(session => 
+        new Date(session.date).toDateString() === dateString && session.completed
+      );
+      
+      if (dayHasSession) {
+        streak++;
+      } else if (i > 0) {
+        break;
+      }
     }
-  ]);
+    
+    return streak;
+  }
+  
+  const [focusStats, setFocusStats] = useState<FocusStats>({
+    todayMinutes,
+    weekMinutes,
+    currentStreak,
+    totalSessions,
+    categoryStats: calculateCategoryStats(),
+    longestSession: findLongestSession(),
+    weeklyImprovement: calculateWeeklyImprovement()
+  });
+  
+  function calculateCategoryStats() {
+    const categoryTotals = focusSessions.reduce((acc, session) => {
+      if (session.completed) {
+        acc[session.category] = (acc[session.category] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+    
+    return Object.entries(categoryTotals).map(([category, sessions]) => ({
+      category: category as FocusCategory,
+      sessions,
+      percentage: Math.round((sessions / Math.max(totalSessions, 1)) * 100)
+    }));
+  }
+  
+  function findLongestSession() {
+    if (focusSessions.length === 0) {
+      return { duration: 0, date: new Date() };
+    }
+    
+    const longest = focusSessions.reduce((max, session) => 
+      session.completed && session.duration > max.duration ? session : max
+    );
+    
+    return {
+      duration: longest.duration,
+      date: new Date(longest.date)
+    };
+  }
+  
+  function calculateWeeklyImprovement(): number {
+    const thisWeekMinutes = weekMinutes;
+    const lastWeekSessions = focusSessions.filter(session => {
+      const twoWeeksAgo = new Date();
+      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const sessionDate = new Date(session.date);
+      return sessionDate >= twoWeeksAgo && sessionDate < weekAgo && session.completed;
+    });
+    
+    const lastWeekMinutes = lastWeekSessions.reduce((sum, session) => sum + session.duration, 0);
+    
+    if (lastWeekMinutes === 0) return thisWeekMinutes > 0 ? 100 : 0;
+    return Math.round(((thisWeekMinutes - lastWeekMinutes) / lastWeekMinutes) * 100);
+  }
+  
+  // Update stats when sessions change
+  useEffect(() => {
+    setFocusStats({
+      todayMinutes: completedToday.reduce((sum, session) => sum + session.duration, 0),
+      weekMinutes: completedThisWeek.reduce((sum, session) => sum + session.duration, 0),
+      currentStreak: calculateCurrentStreak(),
+      totalSessions: focusSessions.filter(s => s.completed).length,
+      categoryStats: calculateCategoryStats(),
+      longestSession: findLongestSession(),
+      weeklyImprovement: calculateWeeklyImprovement()
+    });
+  }, [focusSessions]);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isTimerRunning) {
-        // Message displayed to the user when they try to leave
         e.preventDefault();
         e.returnValue = "You have an active focus session. Are you sure you want to leave?";
         return e.returnValue;
@@ -78,10 +161,7 @@ const Focus = () => {
     };
 
     window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isTimerRunning]);
 
   const updateTimerDuration = (minutes: number) => {
@@ -93,7 +173,7 @@ const Focus = () => {
     resetTimer();
     
     let minutes = 25;
-    let newCategory = "Focus";
+    let newCategory = "Deep Work";
     if (mode === "shortBreak") {
       minutes = 5;
       newCategory = "Short Break";
@@ -131,37 +211,24 @@ const Focus = () => {
     startTimer(technique.duration, technique.name as FocusCategory);
   };
 
-  // Complete timer and record session handler
   const handleCompleteSession = () => {
     const sessionDuration = Math.round(timerProgress * timeRemaining.minutes / 100);
     
     if (sessionDuration > 0) {
       const newSession: FocusSession = {
         id: `session-${Date.now()}`,
-        date: new Date(),
+        date: new Date().toISOString(),
         duration: sessionDuration,
         category: category as FocusCategory,
+        completed: true,
         xpEarned: sessionDuration
       };
       
-      setSessions(prev => [newSession, ...prev]);
-      
-      // Update stats
-      setFocusStats(prev => ({
-        ...prev,
-        todayMinutes: prev.todayMinutes + sessionDuration,
-        weekMinutes: prev.weekMinutes + sessionDuration,
-        totalSessions: prev.totalSessions + 1,
-        categoryStats: prev.categoryStats.map(stat => 
-          stat.category === category 
-            ? { ...stat, sessions: stat.sessions + 1 } 
-            : stat
-        )
-      }));
+      setFocusSessions(prev => [newSession, ...prev]);
       
       toast({
-        title: "Session Recorded",
-        description: `Your ${sessionDuration} minute ${category} session has been recorded.`,
+        title: "Session Completed! 🎉",
+        description: `Your ${sessionDuration} minute ${category} session has been recorded. +${sessionDuration} XP earned!`,
       });
       
       resetTimer();
@@ -169,65 +236,64 @@ const Focus = () => {
   };
 
   return (
-    <AppLayout>
+    <ModernAppLayout>
       <div className="space-y-6 max-w-full animate-fade-in">
         <div>
-          <h1 className="text-4xl font-bold">Focus</h1>
+          <h1 className="text-3xl font-bold">Focus</h1>
           <p className="text-muted-foreground mt-2">Enhance your productivity with focused work sessions</p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-          {/* Left section - Timer */}
-          <FocusTimer 
-            timerMode={category === "Short Break" ? "shortBreak" : category === "Long Break" ? "longBreak" : "focus"}
-            timerDuration={timeRemaining.minutes * 60 + timeRemaining.seconds}
-            time={timeRemaining}
-            progress={timerProgress}
-            category={category as FocusCategory}
-            isRunning={isTimerRunning}
-            onModeChange={handleModeChange}
-            onDurationChange={updateTimerDuration}
-            onCategoryChange={handleCategoryChange}
-            onToggleTimer={toggleTimer}
-            onResetTimer={resetTimer}
-          />
-
-          {/* Right section - Stats */}
-          <FocusStatsCard stats={focusStats} />
         </div>
 
         {/* Completion confirmation when timer is done */}
         {timerProgress === 100 && (
-          <div className="bg-green-100 dark:bg-green-900 border border-green-500 rounded-md p-4 flex items-center justify-between">
+          <div className="bg-green-100 dark:bg-green-900 border border-green-500 rounded-lg p-4 flex items-center justify-between animate-fade-in">
             <div>
-              <h3 className="text-lg font-medium text-green-800 dark:text-green-100">Focus Session Completed!</h3>
+              <h3 className="text-lg font-medium text-green-800 dark:text-green-100">Focus Session Completed! 🎉</h3>
               <p className="text-sm text-green-600 dark:text-green-300">
                 Great job! You've completed your focus session.
               </p>
             </div>
             <button 
               onClick={handleCompleteSession}
-              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md"
+              className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-md transition-colors"
             >
               Record Session
             </button>
           </div>
         )}
 
-        {/* Tabs section */}
-        <Tabs defaultValue="history" value={activeTab} onValueChange={setActiveTab}>
+        <Tabs defaultValue="timer" value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-muted">
+            <TabsTrigger value="timer">Focus Timer</TabsTrigger>
             <TabsTrigger value="history">Session History</TabsTrigger>
             <TabsTrigger value="insights">Insights</TabsTrigger>
             <TabsTrigger value="techniques">Techniques</TabsTrigger>
           </TabsList>
           
+          <TabsContent value="timer" className="mt-6">
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              <FocusTimer 
+                timerMode={category === "Short Break" ? "shortBreak" : category === "Long Break" ? "longBreak" : "focus"}
+                timerDuration={timeRemaining.minutes * 60 + timeRemaining.seconds}
+                time={timeRemaining}
+                progress={timerProgress}
+                category={category as FocusCategory}
+                isRunning={isTimerRunning}
+                onModeChange={handleModeChange}
+                onDurationChange={updateTimerDuration}
+                onCategoryChange={handleCategoryChange}
+                onToggleTimer={toggleTimer}
+                onResetTimer={resetTimer}
+              />
+              <FocusStatsCard stats={focusStats} />
+            </div>
+          </TabsContent>
+          
           <TabsContent value="history" className="mt-6">
-            <FocusSessionHistory sessions={sessions} />
+            <FocusSessionHistory sessions={focusSessions} />
           </TabsContent>
           
           <TabsContent value="insights" className="mt-6">
-            <FocusInsights stats={focusStats} />
+            <FocusStats sessions={focusSessions} />
           </TabsContent>
           
           <TabsContent value="techniques" className="mt-6">
@@ -235,7 +301,7 @@ const Focus = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </ModernAppLayout>
   );
 };
 

@@ -63,7 +63,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     >
       {/* Logo */}
       <div className={cn(
-        "h-14 border-b border-border flex items-center transition-all duration-300 flex-shrink-0",
+        "h-16 border-b border-border flex items-center transition-all duration-300 flex-shrink-0",
         isCollapsed ? "justify-center px-2" : "justify-between px-4"
       )}>
         {!isCollapsed && (
@@ -84,9 +84,11 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               key={item.path}
               variant={location.pathname === item.path ? "secondary" : "ghost"}
               className={cn(
-                "w-full justify-start transition-all duration-200",
+                "w-full justify-start transition-all duration-200 h-10",
                 isCollapsed ? "px-2" : "px-3",
-                location.pathname === item.path && "bg-primary/10 text-primary"
+                location.pathname === item.path 
+                  ? "bg-primary/10 text-primary hover:bg-primary/15" 
+                  : "hover:bg-accent/50"
               )}
               onClick={() => handleNavigation(item.path)}
             >
@@ -95,7 +97,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                 !isCollapsed && "mr-3"
               )} />
               {!isCollapsed && (
-                <span className="truncate">{item.title}</span>
+                <span className="truncate font-medium">{item.title}</span>
               )}
             </Button>
           ))}
@@ -112,7 +114,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           isCollapsed ? "justify-center" : "gap-3"
         )}>
           <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-            <span className="text-sm font-medium">U</span>
+            <span className="text-sm font-medium text-primary">U</span>
           </div>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">

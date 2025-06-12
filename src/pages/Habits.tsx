@@ -1,12 +1,13 @@
+
 import React, { useState, useEffect } from "react";
-import AppLayout from "@/components/layout/AppLayout";
+import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, CheckCircle2, Award, BarChart2, LineChart, Calendar, Filter, Clock, CheckCircle } from "lucide-react";
+import { Plus, CheckCircle2, Award, BarChart2, Calendar, Filter, Clock, CheckCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { useLocalStorage } from "@/hooks/use-local-storage";
 import HabitStatisticsOverview from "@/components/habits/HabitStatisticsOverview";
 import HabitStatisticsTrends from "@/components/habits/HabitStatisticsTrends";
 import HabitStatisticsCategories from "@/components/habits/HabitStatisticsCategories";
@@ -19,9 +20,9 @@ const Habits = () => {
   const [statisticsTab, setStatisticsTab] = useState("overview");
   const [showHabitDialog, setShowHabitDialog] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
-  const [accountabilityScore, setAccountabilityScore] = useState(0);
   
-  const [habits, setHabits] = useState<Habit[]>([
+  // Use localStorage for data persistence
+  const [habits, setHabits] = useLocalStorage<Habit[]>("userHabits", [
     {
       id: "1",
       title: "Morning Meditation",
@@ -57,47 +58,46 @@ const Habits = () => {
       duration: "20 pages",
       scoreValue: 3,
       penaltyValue: 5
-    },
-    {
-      id: "3",
-      title: "Workout",
-      category: "health",
-      streak: 0,
-      target: 5,
-      status: "missed" as const,
-      completionDates: [],
-      type: "daily",
-      createdAt: new Date(Date.now() - 5 * 86400000),
-      duration: "30 minutes",
-      scoreValue: 10,
-      penaltyValue: 15
-    },
-    {
-      id: "4",
-      title: "Drink 2L water",
-      category: "health",
-      streak: 12,
-      target: 30,
-      status: "completed" as const,
-      completionDates: Array.from({ length: 12 }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        return date;
-      }),
-      type: "daily",
-      createdAt: new Date(Date.now() - 20 * 86400000),
-      duration: "2 liters",
-      scoreValue: 2,
-      penaltyValue: 4
     }
   ]);
 
+  const [accountabilityScore, setAccountabilityScore] = useLocalStorage("accountabilityScore", 0);
+
+  // Calculate real accountability score based on streaks and completions
   useEffect(() => {
     const score = habits.reduce((total, habit) => {
-      return total + (habit.streak * (habit.scoreValue || 5));
+      const streakBonus = habit.streak * (habit.scoreValue || 5);
+      const completionBonus = habit.completionDates.length * 2;
+      const penaltyDeduction = habit.status === "missed" ? (habit.penaltyValue || 10) : 0;
+      return total + streakBonus + completionBonus - penaltyDeduction;
     }, 0);
-    setAccountabilityScore(score);
-  }, [habits]);
+    setAccountabilityScore(Math.max(0, score));
+  }, [habits, setAccountabilityScore]);
+
+  // Check and update habit statuses daily
+  useEffect(() => {
+    const today = new Date().toDateString();
+    const lastCheck = localStorage.getItem('lastHabitCheck');
+    
+    if (lastCheck !== today) {
+      // Reset daily habits that haven't been completed
+      setHabits(prevHabits => 
+        prevHabits.map(habit => {
+          if (habit.type === "daily" && habit.status === "completed") {
+            const lastCompletion = habit.completionDates[0];
+            const lastCompletionDate = lastCompletion ? new Date(lastCompletion).toDateString() : '';
+            
+            if (lastCompletionDate !== today) {
+              return { ...habit, status: "pending" as const };
+            }
+          }
+          return habit;
+        })
+      );
+      
+      localStorage.setItem('lastHabitCheck', today);
+    }
+  }, [setHabits]);
   
   const handleCreateHabit = (habit: Habit) => {
     if (selectedHabit) {
@@ -113,7 +113,8 @@ const Habits = () => {
         id: `habit-${Date.now()}`,
         createdAt: new Date(),
         streak: 0,
-        completionDates: []
+        completionDates: [],
+        status: "pending"
       };
       setHabits([...habits, newHabit]);
       toast({
@@ -130,16 +131,29 @@ const Habits = () => {
   };
   
   const completeHabit = (id: string) => {
+    const today = new Date();
     setHabits(habits.map(habit => {
       if (habit.id === id) {
+        // Check if already completed today
+        const completedToday = habit.completionDates.some(date => 
+          new Date(date).toDateString() === today.toDateString()
+        );
+        
+        if (completedToday) {
+          toast({
+            title: "Already Completed",
+            description: `${habit.title} has already been completed today.`,
+            variant: "default",
+          });
+          return habit;
+        }
+        
         const updatedHabit: Habit = { 
           ...habit, 
           status: "completed" as const,
           streak: habit.streak + 1,
-          completionDates: [...habit.completionDates, new Date()]
+          completionDates: [today, ...habit.completionDates]
         };
-        
-        setAccountabilityScore(prev => prev + (habit.scoreValue || 5));
         
         return updatedHabit;
       }
@@ -149,7 +163,7 @@ const Habits = () => {
     const habit = habits.find(h => h.id === id);
     if (habit) {
       toast({
-        title: "Habit Completed!",
+        title: "Habit Completed! 🎉",
         description: `${habit.title} completed for today. +${habit.scoreValue || 5} points!`,
       });
       
@@ -157,7 +171,7 @@ const Habits = () => {
       if (updatedStreak === habit.target) {
         setTimeout(() => {
           toast({
-            title: "Achievement Unlocked!",
+            title: "Achievement Unlocked! 🏆",
             description: `You've reached your streak goal of ${habit.target} days for ${habit.title}!`,
             variant: "default",
           });
@@ -175,8 +189,6 @@ const Habits = () => {
           streak: 0
         };
         
-        setAccountabilityScore(prev => Math.max(0, prev - (habit.penaltyValue || 10)));
-        
         return updatedHabit;
       }
       return habit;
@@ -191,17 +203,15 @@ const Habits = () => {
       });
     }
   };
+
+  const deleteHabit = (id: string) => {
+    setHabits(habits.filter(h => h.id !== id));
+    toast({
+      title: "Habit Deleted",
+      description: "The habit has been removed from your list.",
+    });
+  };
   
-  const todayCompleted = habits.filter(h => h.status === "completed").length;
-  const totalHabits = habits.length;
-  const completionRate = Math.round((habits.reduce((acc, habit) => 
-    acc + habit.completionDates.length, 0) / (Math.max(1, habits.length) * 30)) * 100);
-  const longestStreak = habits.length > 0 ? Math.max(...habits.map(h => h.streak)) : 0;
-
-  const pendingHabits = habits.filter(habit => habit.status === "pending");
-  const completedHabits = habits.filter(habit => habit.status === "completed");
-  const missedHabits = habits.filter(habit => habit.status === "missed");
-
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'health':
@@ -244,10 +254,10 @@ const Habits = () => {
       for (let i = 0; i < 7; i++) {
         const date = new Date();
         date.setDate(date.getDate() - i);
-        const dateString = date.toISOString().split('T')[0];
+        const dateString = date.toDateString();
         
         const completed = habit.completionDates.some(d => 
-          new Date(d).toISOString().split('T')[0] === dateString
+          new Date(d).toDateString() === dateString
         );
         
         weekData.completions[6-i] = completed;
@@ -262,15 +272,15 @@ const Habits = () => {
   const weeklyActivityData = generateWeeklyCompletionData();
 
   return (
-    <AppLayout>
+    <ModernAppLayout>
       <div className="animate-fade-in space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              <CheckCircle2 className="h-6 w-6 text-primary" />
+            <h1 className="text-3xl font-bold flex items-center gap-2">
+              <CheckCircle2 className="h-7 w-7 text-primary" />
               Habits
             </h1>
-            <p className="text-muted-foreground">Track your daily habits and build streaks</p>
+            <p className="text-muted-foreground mt-2">Track your daily habits and build lasting streaks</p>
           </div>
           <Button onClick={() => {setSelectedHabit(null); setShowHabitDialog(true);}} className="gap-2">
             <Plus size={18} />
@@ -306,12 +316,12 @@ const Habits = () => {
                     </Button>
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {habits.map((habit) => (
                       <Card 
                         key={habit.id} 
                         className={cn(
-                          "border overflow-hidden hover:border-primary/30 transition-colors cursor-pointer",
+                          "border overflow-hidden hover:border-primary/30 transition-all duration-200 cursor-pointer group",
                           habit.status === "completed" && "border-success/30 bg-success/5",
                           habit.status === "missed" && "border-destructive/30 bg-destructive/5"
                         )}
@@ -322,14 +332,14 @@ const Habits = () => {
                             <div className="flex items-center gap-3">
                               <div 
                                 className={cn(
-                                  "h-12 w-12 rounded-full flex items-center justify-center",
+                                  "h-12 w-12 rounded-full flex items-center justify-center transition-all",
                                   habit.status === "completed" ? "bg-success/20" : 
                                   habit.status === "missed" ? "bg-destructive/20" : "bg-muted"
                                 )}
                               >
                                 <CheckCircle 
                                   className={cn(
-                                    "h-6 w-6",
+                                    "h-6 w-6 transition-all",
                                     habit.status === "completed" ? "text-success" : 
                                     habit.status === "missed" ? "text-destructive" : "text-muted-foreground/50"
                                   )}
@@ -355,12 +365,12 @@ const Habits = () => {
                             </div>
                             
                             <div className="flex items-center gap-2">
-                              <div className={cn("px-2 py-1 rounded-full text-xs", getCategoryColor(habit.category))}>
+                              <div className={cn("px-2 py-1 rounded-full text-xs font-medium", getCategoryColor(habit.category))}>
                                 {habit.category}
                               </div>
                               
                               {habit.status === "pending" && (
-                                <div className="flex gap-2">
+                                <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                   <Button 
                                     size="sm"
                                     onClick={(e) => {
@@ -385,14 +395,14 @@ const Habits = () => {
                               )}
                               
                               {habit.status === "completed" && (
-                                <span className="px-2 py-1 text-xs rounded-full bg-success/20 text-success">
-                                  Completed
+                                <span className="px-3 py-1 text-xs rounded-full bg-success/20 text-success font-medium">
+                                  ✓ Completed
                                 </span>
                               )}
                               
                               {habit.status === "missed" && (
-                                <span className="px-2 py-1 text-xs rounded-full bg-destructive/20 text-destructive">
-                                  Missed
+                                <span className="px-3 py-1 text-xs rounded-full bg-destructive/20 text-destructive font-medium">
+                                  ✗ Missed
                                 </span>
                               )}
                             </div>
@@ -402,10 +412,10 @@ const Habits = () => {
                             <div className="h-2 bg-muted/30 rounded-full w-full overflow-hidden">
                               <div 
                                 className={cn(
-                                  "h-full rounded-full",
+                                  "h-full rounded-full transition-all duration-700",
                                   habit.status === "missed" ? "bg-destructive/50" : "bg-primary"
                                 )}
-                                style={{ width: `${(habit.streak / habit.target) * 100}%` }}
+                                style={{ width: `${Math.min((habit.streak / habit.target) * 100, 100)}%` }}
                               ></div>
                             </div>
                             <div className="mt-1 flex justify-between text-xs text-muted-foreground">
@@ -449,14 +459,14 @@ const Habits = () => {
           </div>
           
           <div className="space-y-6">
-            <Card className="bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-800">
               <CardContent className="pt-6">
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="text-sm text-muted-foreground">Accountability Score</p>
-                    <h2 className="text-3xl font-bold">{accountabilityScore}</h2>
+                    <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-400">{accountabilityScore}</h2>
                     <p className="text-xs text-green-600 mt-1 flex items-center">
-                      <span className="mr-1">Earn points by completing habits</span>
+                      <span className="mr-1">+{habits.reduce((sum, h) => sum + (h.scoreValue || 5), 0)} potential today</span>
                     </p>
                   </div>
                   <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
@@ -482,8 +492,10 @@ const Habits = () => {
                     .map((habit, index) => (
                       <div key={habit.id} className="flex items-center justify-between py-2">
                         <div className="flex items-center gap-3">
-                          <div className={`h-8 w-8 rounded-full ${getCategoryColor(habit.category)}`} />
-                          <span>{habit.title}</span>
+                          <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs ${getCategoryColor(habit.category)}`}>
+                            {index + 1}
+                          </div>
+                          <span className="font-medium">{habit.title}</span>
                         </div>
                         <div className={`px-3 py-1 rounded-full text-xs font-medium ${habit.streak > 0 ? "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400" : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"}`}>
                           {habit.streak} days
@@ -530,7 +542,7 @@ const Habits = () => {
                             <td key={i} className="text-center">
                               <div className="flex justify-center">
                                 <div className={cn(
-                                  "h-7 w-7 rounded-full flex items-center justify-center",
+                                  "h-7 w-7 rounded-full flex items-center justify-center transition-colors",
                                   completed ? "bg-primary/20 text-primary" : "bg-muted/30 text-muted-foreground/30"
                                 )}>
                                   <CheckCircle className="h-4 w-4" />
@@ -555,7 +567,7 @@ const Habits = () => {
         onHabitCreate={handleCreateHabit}
         initialHabit={selectedHabit}
       />
-    </AppLayout>
+    </ModernAppLayout>
   );
 };
 

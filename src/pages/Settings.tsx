@@ -1,15 +1,19 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import AppLayout from "@/components/layout/AppLayout";
+import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-import { Settings as SettingsIcon, HelpCircle } from 'lucide-react';
+import { 
+  User, Bell, Brain, Trophy, Shield, Smartphone,
+  Palette, Volume2, Moon, Sun, Globe, Lock, 
+  Database, Trash2, Download, ChevronDown, ChevronRight
+} from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -19,6 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Theme, useTheme } from "@/components/ui/theme-provider";
 import AvatarSelector from "@/components/settings/AvatarSelector";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -29,8 +34,67 @@ const Settings = () => {
   const [avatar, setAvatar] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
-  const [disabled, setDisabled] = React.useState(false);
   const { setTheme } = useTheme();
+
+  // Settings state
+  const [settings, setSettings] = useState({
+    notifications: {
+      dailyReminders: true,
+      habitReminders: true,
+      focusBreaks: true,
+      goalDeadlines: true,
+      emailNotifications: false,
+      pushNotifications: true
+    },
+    ai: {
+      enabled: true,
+      suggestionsFrequency: 'daily',
+      personalizedTips: true,
+      autoGoalSuggestions: true
+    },
+    gamification: {
+      enabled: true,
+      showXP: true,
+      showBadges: true,
+      showLeaderboard: false,
+      streakNotifications: true
+    },
+    appearance: {
+      theme: 'system',
+      accentColor: 'blue',
+      compactMode: false,
+      animationsEnabled: true
+    },
+    privacy: {
+      analyticsTracking: true,
+      performanceData: true,
+      crashReports: true,
+      personalizedAds: false
+    },
+    device: {
+      soundEffects: true,
+      hapticFeedback: true,
+      autoSave: true,
+      offlineMode: true
+    }
+  });
+
+  const [expandedSections, setExpandedSections] = useState({
+    personalization: true,
+    notifications: false,
+    ai: false,
+    gamification: false,
+    privacy: false,
+    account: false,
+    device: false
+  });
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
 
   useEffect(() => {
     if (user) {
@@ -40,7 +104,6 @@ const Settings = () => {
 
   useEffect(() => {
     try {
-      // Load profile data from localStorage
       const savedProfile = localStorage.getItem('userProfile');
       if (savedProfile) {
         const parsedProfile = JSON.parse(savedProfile);
@@ -58,7 +121,6 @@ const Settings = () => {
 
   const handleSignOut = async () => {
     try {
-      // Save data to localStorage before signing out
       saveUserData();
       await signOut();
       navigate("/auth");
@@ -150,92 +212,347 @@ const Settings = () => {
     };
   }, [name, avatar, profileData]);
 
-  return (
-    <AppLayout>
-      <div className="container max-w-4xl mx-auto p-4">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold">Settings</CardTitle>
-            <CardDescription>Manage your account settings and preferences.</CardDescription>
+  const SettingSection = ({ 
+    title, 
+    icon: Icon, 
+    children, 
+    sectionKey 
+  }: { 
+    title: string; 
+    icon: any; 
+    children: React.ReactNode; 
+    sectionKey: string; 
+  }) => (
+    <Card className="overflow-hidden">
+      <Collapsible
+        open={expandedSections[sectionKey]}
+        onOpenChange={() => toggleSection(sectionKey)}
+      >
+        <CollapsibleTrigger className="w-full">
+          <CardHeader className="hover:bg-muted/50 transition-colors">
+            <CardTitle className="flex items-center justify-between text-lg">
+              <div className="flex items-center gap-3">
+                <Icon className="h-5 w-5 text-primary" />
+                {title}
+              </div>
+              {expandedSections[sectionKey] ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Profile Section */}
-            <section className="space-y-4">
-              <h3 className="text-xl font-semibold">Profile</h3>
-              <div className="flex flex-col md:flex-row md:items-center gap-4">
-                <div className="flex-shrink-0">
-                  <AvatarSelector 
-                    currentAvatar={avatar}
-                    onAvatarChange={handleAvatarChange}
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent className="space-y-4">
+            {children}
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  );
+
+  return (
+    <ModernAppLayout>
+      <div className="space-y-6 max-w-4xl mx-auto animate-fade-in">
+        <div>
+          <h1 className="text-3xl font-bold">Settings</h1>
+          <p className="text-muted-foreground mt-2">Customize your NEXUS experience</p>
+        </div>
+
+        <div className="space-y-4">
+          {/* Personalization */}
+          <SettingSection title="Personalization" icon={User} sectionKey="personalization">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="name">Display Name</Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Your Name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
                   />
                 </div>
+                <div>
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    disabled
+                  />
+                </div>
+                <Button onClick={handleSaveProfile} disabled={isSaving} className="w-full">
+                  {isSaving ? "Saving..." : "Save Profile"}
+                </Button>
               </div>
               <div>
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  type="text"
-                  placeholder="Your Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                <Label>Avatar</Label>
+                <AvatarSelector 
+                  currentAvatar={avatar}
+                  onAvatarChange={handleAvatarChange}
                 />
               </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="Your Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled
-                />
-              </div>
-              <Button onClick={handleSaveProfile} disabled={isSaving}>
-                {isSaving ? "Saving..." : "Save Profile"}
-              </Button>
-            </section>
-
-            {/* Appearance Section */}
-            <section className="space-y-4">
-              <h3 className="text-xl font-semibold">Appearance</h3>
+            </div>
+            
+            <div className="space-y-4 border-t pt-4">
               <div className="space-y-2">
-                <Label htmlFor="theme">Theme</Label>
+                <Label>Theme</Label>
                 <Select 
-                  disabled={disabled} 
                   value={profileData?.theme as Theme || "system"} 
                   onValueChange={(value: Theme) => {
                     setTheme(value);
                     const profile = { ...profileData, theme: value };
                     localStorage.setItem('userProfile', JSON.stringify(profile));
                     setProfileData(profile);
-                    const event = new CustomEvent('profileUpdated', { detail: profile });
-                    window.dispatchEvent(event);
                   }}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a theme" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
+                    <SelectItem value="light">
+                      <div className="flex items-center gap-2">
+                        <Sun className="h-4 w-4" />
+                        Light
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="dark">
+                      <div className="flex items-center gap-2">
+                        <Moon className="h-4 w-4" />
+                        Dark
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="system">
+                      <div className="flex items-center gap-2">
+                        <Smartphone className="h-4 w-4" />
+                        System
+                      </div>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </section>
+              
+              <div className="space-y-2">
+                <Label>Accent Color</Label>
+                <Select value={settings.appearance.accentColor}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="blue">Blue</SelectItem>
+                    <SelectItem value="green">Green</SelectItem>
+                    <SelectItem value="purple">Purple</SelectItem>
+                    <SelectItem value="orange">Orange</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </SettingSection>
 
-            {/* Account Actions Section */}
-            <section className="space-y-4">
-              <h3 className="text-xl font-semibold">Account Actions</h3>
-              <Button variant="destructive" onClick={handleSignOut}>
-                Sign Out
-              </Button>
-            </section>
-          </CardContent>
-        </Card>
+          {/* Notifications */}
+          <SettingSection title="Notifications" icon={Bell} sectionKey="notifications">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Daily Reminders</Label>
+                  <p className="text-sm text-muted-foreground">Get reminded of your daily goals</p>
+                </div>
+                <Switch checked={settings.notifications.dailyReminders} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Habit Reminders</Label>
+                  <p className="text-sm text-muted-foreground">Notifications for habit tracking</p>
+                </div>
+                <Switch checked={settings.notifications.habitReminders} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Focus Break Alerts</Label>
+                  <p className="text-sm text-muted-foreground">Alerts during focus sessions</p>
+                </div>
+                <Switch checked={settings.notifications.focusBreaks} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Goal Deadlines</Label>
+                  <p className="text-sm text-muted-foreground">Reminders for approaching deadlines</p>
+                </div>
+                <Switch checked={settings.notifications.goalDeadlines} />
+              </div>
+            </div>
+          </SettingSection>
+
+          {/* AI Assistant */}
+          <SettingSection title="AI Assistant" icon={Brain} sectionKey="ai">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Enable AI Assistant</Label>
+                  <p className="text-sm text-muted-foreground">Get AI-powered productivity suggestions</p>
+                </div>
+                <Switch checked={settings.ai.enabled} />
+              </div>
+              
+              <div className="space-y-2">
+                <Label>Suggestion Frequency</Label>
+                <Select value={settings.ai.suggestionsFrequency}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="realtime">Real-time</SelectItem>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="never">Never</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Personalized Tips</Label>
+                  <p className="text-sm text-muted-foreground">AI learns from your behavior patterns</p>
+                </div>
+                <Switch checked={settings.ai.personalizedTips} />
+              </div>
+            </div>
+          </SettingSection>
+
+          {/* Gamification */}
+          <SettingSection title="Gamification" icon={Trophy} sectionKey="gamification">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Enable Gamification</Label>
+                  <p className="text-sm text-muted-foreground">XP, badges, and achievements</p>
+                </div>
+                <Switch checked={settings.gamification.enabled} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Show XP Points</Label>
+                  <p className="text-sm text-muted-foreground">Display experience points</p>
+                </div>
+                <Switch checked={settings.gamification.showXP} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Show Badges</Label>
+                  <p className="text-sm text-muted-foreground">Display earned badges</p>
+                </div>
+                <Switch checked={settings.gamification.showBadges} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Streak Notifications</Label>
+                  <p className="text-sm text-muted-foreground">Celebrate streak milestones</p>
+                </div>
+                <Switch checked={settings.gamification.streakNotifications} />
+              </div>
+            </div>
+          </SettingSection>
+
+          {/* Privacy */}
+          <SettingSection title="Privacy & Data" icon={Shield} sectionKey="privacy">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Analytics Tracking</Label>
+                  <p className="text-sm text-muted-foreground">Help improve the app with usage data</p>
+                </div>
+                <Switch checked={settings.privacy.analyticsTracking} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Performance Data</Label>
+                  <p className="text-sm text-muted-foreground">Share performance metrics</p>
+                </div>
+                <Switch checked={settings.privacy.performanceData} />
+              </div>
+              
+              <div className="space-y-3 border-t pt-4">
+                <Button variant="outline" className="w-full justify-start">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export My Data
+                </Button>
+                <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive">
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete All Data
+                </Button>
+              </div>
+            </div>
+          </SettingSection>
+
+          {/* Account */}
+          <SettingSection title="Account" icon={Lock} sectionKey="account">
+            <div className="space-y-4">
+              <div className="p-4 bg-muted/50 rounded-lg">
+                <h4 className="font-medium mb-2">Account Status</h4>
+                <p className="text-sm text-muted-foreground mb-3">Pro Plan - All features unlocked</p>
+                <Button variant="outline" size="sm">Manage Subscription</Button>
+              </div>
+              
+              <div className="space-y-3 border-t pt-4">
+                <Button variant="outline" className="w-full">
+                  Change Password
+                </Button>
+                <Button variant="destructive" onClick={handleSignOut} className="w-full">
+                  Sign Out
+                </Button>
+              </div>
+            </div>
+          </SettingSection>
+
+          {/* Device Settings */}
+          <SettingSection title="Device & Preferences" icon={Smartphone} sectionKey="device">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Sound Effects</Label>
+                  <p className="text-sm text-muted-foreground">Audio feedback for actions</p>
+                </div>
+                <Switch checked={settings.device.soundEffects} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Auto-save</Label>
+                  <p className="text-sm text-muted-foreground">Automatically save your progress</p>
+                </div>
+                <Switch checked={settings.device.autoSave} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Animations</Label>
+                  <p className="text-sm text-muted-foreground">Enable smooth transitions</p>
+                </div>
+                <Switch checked={settings.appearance.animationsEnabled} />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label>Offline Mode</Label>
+                  <p className="text-sm text-muted-foreground">Work without internet connection</p>
+                </div>
+                <Switch checked={settings.device.offlineMode} />
+              </div>
+            </div>
+          </SettingSection>
+        </div>
       </div>
-    </AppLayout>
+    </ModernAppLayout>
   );
 };
 

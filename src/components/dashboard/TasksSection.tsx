@@ -5,34 +5,62 @@ import { useGTD } from "@/components/gtd/GTDContext";
 import { CheckCircle, Circle, Clock, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
+import { format, isToday, parseISO } from "date-fns";
 
 const TasksSection = () => {
   const { tasks } = useGTD();
   
-  // Filter to get only do it tasks (equivalent to "to do" tasks)
-  const todoTasks = tasks.filter(task => 
-    task.status === "do-it" || task.status === "today" || task.status === "next-action" || task.status === "todo"
-  ).slice(0, 5); // Show only top 5 tasks
+  // Filter to get only today's tasks
+  const todayTasks = tasks.filter(task => {
+    if (!task.dueDate) return false;
+    try {
+      const taskDate = typeof task.dueDate === 'string' ? parseISO(task.dueDate) : task.dueDate;
+      return isToday(taskDate) && (
+        task.status === "do-it" || 
+        task.status === "today" || 
+        task.status === "next-action" || 
+        task.status === "todo"
+      );
+    } catch (error) {
+      return false;
+    }
+  }).slice(0, 5);
   
-  // Calculate completion percentage
-  const calculateCompletion = () => {
-    const totalTasks = tasks.filter(task => !task.isToDoNot).length;
-    if (!totalTasks || totalTasks === 0) return 0;
+  // Calculate today's completion percentage
+  const calculateTodayCompletion = () => {
+    const totalTodayTasks = tasks.filter(task => {
+      if (!task.dueDate) return false;
+      try {
+        const taskDate = typeof task.dueDate === 'string' ? parseISO(task.dueDate) : task.dueDate;
+        return isToday(taskDate) && !task.isToDoNot;
+      } catch (error) {
+        return false;
+      }
+    }).length;
     
-    // Count tasks that have been completed
-    const completedTasks = tasks.filter(task => task.status === "completed" && !task.isToDoNot).length;
-    return Math.round((completedTasks / totalTasks) * 100);
+    if (!totalTodayTasks || totalTodayTasks === 0) return 0;
+    
+    const completedTodayTasks = tasks.filter(task => {
+      if (!task.dueDate) return false;
+      try {
+        const taskDate = typeof task.dueDate === 'string' ? parseISO(task.dueDate) : task.dueDate;
+        return isToday(taskDate) && task.status === "completed" && !task.isToDoNot;
+      } catch (error) {
+        return false;
+      }
+    }).length;
+    
+    return Math.round((completedTodayTasks / totalTodayTasks) * 100);
   };
   
   return (
     <Card className="min-h-[100px] h-auto mb-6">
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-medium">Tasks</CardTitle>
+          <CardTitle className="text-lg font-medium">Today's Tasks</CardTitle>
           <Link 
             to="/actions" 
-            className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+            className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
           >
             View All
           </Link>
@@ -40,20 +68,20 @@ const TasksSection = () => {
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex justify-between text-sm text-slate-600 dark:text-slate-300">
-          <span>Progress</span>
-          <span>{calculateCompletion()}% tasks completed</span>
+          <span>Today's Progress</span>
+          <span>{calculateTodayCompletion()}% completed</span>
         </div>
         
         <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full">
           <div 
-            className="h-full bg-green-500 rounded-full transition-all duration-700 ease-in-out"
-            style={{ width: `${calculateCompletion()}%` }}
+            className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-700 ease-in-out"
+            style={{ width: `${calculateTodayCompletion()}%` }}
           />
         </div>
         
         <div className="space-y-2 pt-2">
-          {todoTasks.length > 0 ? (
-            todoTasks.map(task => (
+          {todayTasks.length > 0 ? (
+            todayTasks.map(task => (
               <div key={task.id} className="flex items-start gap-2 p-2 rounded-md hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                 <div className="pt-0.5">
                   {task.status === "completed" ? (
@@ -78,12 +106,10 @@ const TasksSection = () => {
                     )}
                   </div>
                   <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
-                    {task.dueDate && (
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {format(new Date(task.dueDate), "MMM d")}
-                      </span>
-                    )}
+                    <span className="flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      Today
+                    </span>
                     {task.timeEstimate && (
                       <span className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
@@ -96,9 +122,9 @@ const TasksSection = () => {
             ))
           ) : (
             <div className="text-center py-4">
-              <p className="text-sm text-slate-500">No tasks available</p>
-              <Link to="/actions" className="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block">
-                Add a task
+              <p className="text-sm text-slate-500">No tasks scheduled for today</p>
+              <Link to="/actions" className="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block font-medium">
+                Add a task for today
               </Link>
             </div>
           )}
