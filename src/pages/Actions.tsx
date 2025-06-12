@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AppLayout from "@/components/layout/AppLayout";
+import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import TasksTabView from "@/components/tasks/TasksTabView";
 import KanbanBoard from "@/components/tasks/KanbanBoard";
 import EisenhowerMatrix from "@/components/tasks/EisenhowerMatrix";
@@ -12,10 +12,10 @@ const Actions = () => {
   const [viewMode, setViewMode] = React.useState<"list" | "kanban" | "matrix">("list");
   
   return (
-    <AppLayout>
-      <div className="animate-fade-in space-y-6">
+    <ModernAppLayout>
+      <div className="animate-fade-in p-6 space-y-6">
         <div>
-          <h1 className="text-4xl font-bold">Actions</h1>
+          <h1 className="text-3xl font-bold">Actions</h1>
           <p className="text-muted-foreground mt-2">Manage your to-do list and track what not to do</p>
         </div>
 
@@ -81,7 +81,7 @@ const Actions = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </ModernAppLayout>
   );
 };
 

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,8 @@ import { TabsContent, Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarIcon, X, Check, Trash, AlertTriangle } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import GoalSelector from "./GoalSelector";
+import ProjectSelector from "./ProjectSelector";
 
 export interface TaskDialogProps {
   open: boolean;
@@ -40,8 +41,6 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   const [tagInput, setTagInput] = useState("");
   const [project, setProject] = useState("");
   const [goalId, setGoalId] = useState<string>("none");
-  const [goals, setGoals] = useState<any[]>([]);
-  const [projects, setProjects] = useState<any[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
   
@@ -83,7 +82,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       setPriority(task.priority || "Medium");
       setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
       setTags(task.tags || []);
-      setProject(task.project || "");
+      setProject(task.project || "none");
       setGoalId(task.goalId || "none");
     } else {
       // Reset form for new task
@@ -93,7 +92,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       setPriority("Medium");
       setDueDate(undefined);
       setTags([]);
-      setProject("");
+      setProject("none");
       setGoalId("none");
     }
     
@@ -132,7 +131,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       priority,
       dueDate,
       tags,
-      project: project || undefined,
+      project: project === "none" ? undefined : project,
       goalId: goalId === "none" ? undefined : goalId,
     };
 
@@ -282,19 +281,10 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
             <TabsContent value="planning" className="space-y-4 pt-4">
               <div>
                 <label className="text-sm font-medium mb-1 block">Link to Goal</label>
-                <Select value={goalId} onValueChange={setGoalId}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Link to Goal (optional)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    {goals.map((goal) => (
-                      <SelectItem key={goal.id} value={goal.id}>
-                        {goal.title}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <GoalSelector
+                  value={goalId}
+                  onValueChange={setGoalId}
+                />
                 
                 {goalId && goalId !== "none" && (
                   <div className="mt-2 text-xs text-muted-foreground">
@@ -304,11 +294,10 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               </div>
               
               <div>
-                <label className="text-sm font-medium mb-1 block">Project</label>
-                <Input
-                  placeholder="Project name"
+                <label className="text-sm font-medium mb-1 block">Link to Project</label>
+                <ProjectSelector
                   value={project}
-                  onChange={(e) => setProject(e.target.value)}
+                  onValueChange={setProject}
                 />
               </div>
             </TabsContent>

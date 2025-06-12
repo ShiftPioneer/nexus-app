@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -23,9 +22,11 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { Calendar as CalendarIcon, Clock, Target, ClipboardList } from "lucide-react";
+import { Calendar as CalendarIcon, Clock } from "lucide-react";
 import { GTDTask, TaskPriority, TaskStatus } from "@/components/gtd/GTDContext";
 import { Badge } from "@/components/ui/badge";
+import GoalSelector from "./GoalSelector";
+import ProjectSelector from "./ProjectSelector";
 
 interface TaskFormProps {
   task?: GTDTask | null;
@@ -39,10 +40,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
   const [dueDate, setDueDate] = useState<Date | undefined>(task?.dueDate ? new Date(task.dueDate) : undefined);
   const [tags, setTags] = useState<string[]>(task?.tags || []);
   const [tagInput, setTagInput] = useState("");
-  const [goals, setGoals] = useState<Goal[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(task?.goalId || "none");
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(task?.project || "none");
+  const [selectedGoalId, setSelectedGoalId] = useState<string>(task?.goalId || "none");
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(task?.project || "none");
 
   const form = useForm({
     defaultValues: {
@@ -54,23 +53,6 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
       timeEstimate: task?.timeEstimate?.toString() || "",
     },
   });
-
-  // Load goals and projects from localStorage
-  useEffect(() => {
-    try {
-      const savedGoals = localStorage.getItem('planningGoals');
-      if (savedGoals) {
-        setGoals(JSON.parse(savedGoals));
-      }
-      
-      const savedProjects = localStorage.getItem('planningProjects');
-      if (savedProjects) {
-        setProjects(JSON.parse(savedProjects));
-      }
-    } catch (error) {
-      console.error("Error loading goals and projects:", error);
-    }
-  }, []);
 
   const handleAddTag = () => {
     if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -226,48 +208,18 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormItem>
               <FormLabel>Link to Goal</FormLabel>
-              <Select
+              <GoalSelector
                 value={selectedGoalId}
                 onValueChange={setSelectedGoalId}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a goal (optional)" />
-                </SelectTrigger>
-                <SelectContent className="pointer-events-auto">
-                  <SelectItem value="none">None</SelectItem>
-                  {goals.map((goal) => (
-                    <SelectItem key={goal.id} value={goal.id}>
-                      <div className="flex items-center">
-                        <Target className="h-4 w-4 mr-2 text-primary" />
-                        {goal.title}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </FormItem>
 
             <FormItem>
               <FormLabel>Link to Project</FormLabel>
-              <Select
+              <ProjectSelector
                 value={selectedProjectId}
                 onValueChange={setSelectedProjectId}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a project (optional)" />
-                </SelectTrigger>
-                <SelectContent className="pointer-events-auto">
-                  <SelectItem value="none">None</SelectItem>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      <div className="flex items-center">
-                        <ClipboardList className="h-4 w-4 mr-2 text-secondary" />
-                        {project.title}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </FormItem>
           </div>
 
