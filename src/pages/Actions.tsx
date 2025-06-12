@@ -125,13 +125,7 @@ const Actions = () => {
           
           <TabsContent value="todo" className="mt-6">
             {viewMode === "list" && (
-              <TasksTabView 
-                isToDoNot={false} 
-                tasks={tasks}
-                onTaskUpdate={handleTaskUpdate}
-                onTaskClick={handleTaskClick}
-                onAddTask={handleAddTask}
-              />
+              <TasksTabView isToDoNot={false} />
             )}
             {viewMode === "kanban" && (
               <DragDropKanban 
@@ -152,13 +146,7 @@ const Actions = () => {
           
           <TabsContent value="not-todo" className="mt-6">
             {viewMode === "list" && (
-              <TasksTabView 
-                isToDoNot={true} 
-                tasks={notToDoTasks}
-                onTaskUpdate={handleTaskUpdate}
-                onTaskClick={handleTaskClick}
-                onAddTask={handleAddTask}
-              />
+              <TasksTabView isToDoNot={true} />
             )}
             {viewMode === "kanban" && (
               <DragDropKanban 
