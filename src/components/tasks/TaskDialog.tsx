@@ -39,7 +39,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const [project, setProject] = useState("");
-  const [goalId, setGoalId] = useState<string>("");
+  const [goalId, setGoalId] = useState<string>("none");
   const [goals, setGoals] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -84,7 +84,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       setDueDate(task.dueDate ? new Date(task.dueDate) : undefined);
       setTags(task.tags || []);
       setProject(task.project || "");
-      setGoalId(task.goalId || "");
+      setGoalId(task.goalId || "none");
     } else {
       // Reset form for new task
       setTitle("");
@@ -94,7 +94,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       setDueDate(undefined);
       setTags([]);
       setProject("");
-      setGoalId("");
+      setGoalId("none");
     }
     
     // Always reset the delete confirmation when dialog opens/closes
@@ -133,7 +133,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       dueDate,
       tags,
       project: project || undefined,
-      goalId: goalId || undefined,
+      goalId: goalId === "none" ? undefined : goalId,
     };
 
     if (task) {
@@ -287,7 +287,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
                     <SelectValue placeholder="Link to Goal (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
                     {goals.map((goal) => (
                       <SelectItem key={goal.id} value={goal.id}>
                         {goal.title}
@@ -296,7 +296,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
                   </SelectContent>
                 </Select>
                 
-                {goalId && (
+                {goalId && goalId !== "none" && (
                   <div className="mt-2 text-xs text-muted-foreground">
                     This task will contribute to your selected goal's progress.
                   </div>

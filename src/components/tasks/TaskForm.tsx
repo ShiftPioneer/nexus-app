@@ -41,8 +41,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
   const [tagInput, setTagInput] = useState("");
   const [goals, setGoals] = useState<Goal[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
-  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(task?.goalId);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(task?.project);
+  const [selectedGoalId, setSelectedGoalId] = useState<string | undefined>(task?.goalId || "none");
+  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>(task?.project || "none");
 
   const form = useForm({
     defaultValues: {
@@ -90,8 +90,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
       dueDate,
       tags,
       isToDoNot,
-      goalId: selectedGoalId,
-      project: selectedProjectId,
+      goalId: selectedGoalId === "none" ? undefined : selectedGoalId,
+      project: selectedProjectId === "none" ? undefined : selectedProjectId,
     });
   };
 
@@ -234,7 +234,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
                   <SelectValue placeholder="Select a goal (optional)" />
                 </SelectTrigger>
                 <SelectContent className="pointer-events-auto">
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {goals.map((goal) => (
                     <SelectItem key={goal.id} value={goal.id}>
                       <div className="flex items-center">
@@ -257,7 +257,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ task, onSubmit, onCancel, isToDoNot
                   <SelectValue placeholder="Select a project (optional)" />
                 </SelectTrigger>
                 <SelectContent className="pointer-events-auto">
-                  <SelectItem value="">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       <div className="flex items-center">
