@@ -6,64 +6,19 @@ import TopBar from "./TopBar";
 import Sidebar from "./Sidebar";
 import { useAuth } from "@/contexts/AuthContext";
 import { GTDProvider } from "@/components/gtd/GTDContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface AppLayoutProps {
   children: React.ReactNode;
 }
 
-const AppLayout = ({
-  children
-}: AppLayoutProps) => {
+const AppLayout = ({ children }: AppLayoutProps) => {
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { user } = useAuth();
-  const [profileData, setProfileData] = useState<any>(null);
-  
-  useEffect(() => {
-    try {
-      // Load profile data from localStorage
-      const savedProfile = localStorage.getItem('userProfile');
-      if (savedProfile) {
-        setProfileData(JSON.parse(savedProfile));
-      }
-    } catch (error) {
-      console.error("Failed to load profile data:", error);
-    }
-
-    // Listen for profile updates
-    const handleProfileUpdate = (e: any) => {
-      setProfileData(e.detail);
-    };
-    
-    window.addEventListener('profileUpdated', handleProfileUpdate);
-    return () => {
-      window.removeEventListener('profileUpdated', handleProfileUpdate);
-    };
-  }, []);
   
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
-  };
-  
-  const getUserName = () => {
-    if (profileData?.name) {
-      return profileData.name;
-    }
-    
-    if (user?.user_metadata?.name) {
-      return user.user_metadata.name;
-    }
-    
-    if (user?.user_metadata?.full_name) {
-      return user.user_metadata.full_name;
-    }
-    
-    return user?.email?.split('@')[0] || "User";
-  };
-  
-  const getUserAvatar = () => {
-    return profileData?.avatar || user?.user_metadata?.avatar_url || "";
   };
   
   return (
@@ -71,7 +26,11 @@ const AppLayout = ({
       <SidebarProvider>
         <GTDProvider>
           {/* Desktop Sidebar */}
-          {!isMobile && <Sidebar />}
+          {!isMobile && (
+            <Sidebar 
+              onCollapsedChange={setSidebarCollapsed}
+            />
+          )}
           
           {/* Mobile Sidebar - conditionally rendered */}
           {isMobile && mobileMenuOpen && (
@@ -90,8 +49,14 @@ const AppLayout = ({
           
           <div className="flex flex-col flex-1 overflow-hidden w-full">
             <TopBar showMobileMenu={isMobile} toggleMobileMenu={toggleMobileMenu} />
-            <main className="flex-1 overflow-auto scrollbar-none transition-all duration-300">
-              <div className="container mx-auto p-3 md:p-6 transition-all duration-300 max-w-full">
+            <main 
+              className={`flex-1 overflow-auto scrollbar-none transition-all duration-300 ${
+                !isMobile && sidebarCollapsed ? 'ml-16' : !isMobile ? 'ml-56' : 'ml-0'
+              }`}
+            >
+              <div className={`container mx-auto transition-all duration-300 max-w-full ${
+                isMobile ? 'p-3' : 'p-5'
+              } ${isMobile ? 'mt-3 mb-3' : 'mt-5 mb-5'}`}>
                 {children}
               </div>
             </main>

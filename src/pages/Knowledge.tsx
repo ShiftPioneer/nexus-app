@@ -24,17 +24,17 @@ const Knowledge = () => {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="bg-card border rounded-lg overflow-x-auto mb-6 inline-flex w-auto">
-            <TabsList className="justify-start rounded-none border-b bg-muted/50 p-0 flex-nowrap">
-              <TabsTrigger value="skillsets" className={cn("data-[state=active]:bg-background rounded-none border-r px-4 sm:px-8 py-3", "flex items-center gap-2 whitespace-nowrap")}>
+          <div className="bg-card border rounded-lg overflow-x-auto mb-6 w-fit">
+            <TabsList className="justify-start rounded-none border-b bg-muted/50 p-0 w-fit">
+              <TabsTrigger value="skillsets" className={cn("data-[state=active]:bg-background rounded-none border-r px-6 py-3", "flex items-center gap-2 whitespace-nowrap")}>
                 <Brain className="h-4 w-4" />
                 Skillsets
               </TabsTrigger>
-              <TabsTrigger value="resources" className={cn("data-[state=active]:bg-background rounded-none border-r px-4 sm:px-8 py-3", "flex items-center gap-2 whitespace-nowrap")}>
+              <TabsTrigger value="resources" className={cn("data-[state=active]:bg-background rounded-none border-r px-6 py-3", "flex items-center gap-2 whitespace-nowrap")}>
                 <LayoutGrid className="h-4 w-4" />
                 Resources
               </TabsTrigger>
-              <TabsTrigger value="bookshelf" className={cn("data-[state=active]:bg-background rounded-none px-4 sm:px-8 py-3", "flex items-center gap-2 whitespace-nowrap")}>
+              <TabsTrigger value="bookshelf" className={cn("data-[state=active]:bg-background rounded-none px-6 py-3", "flex items-center gap-2 whitespace-nowrap")}>
                 <BookOpen className="h-4 w-4" />
                 Bookshelf
               </TabsTrigger>

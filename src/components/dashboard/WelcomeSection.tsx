@@ -6,7 +6,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -40,11 +39,9 @@ const WelcomeSection = () => {
   const [profileData, setProfileData] = useState<any>(null);
   const navigate = useNavigate();
   
-  // Get profile data from localStorage
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
-        // Get from localStorage
         const savedProfile = localStorage.getItem('userProfile');
         if (savedProfile) {
           const profile = JSON.parse(savedProfile);
@@ -57,7 +54,6 @@ const WelcomeSection = () => {
     
     fetchProfileData();
     
-    // Listen for profile updates
     const handleProfileUpdate = (e: any) => {
       setProfileData(e.detail);
     };
@@ -69,19 +65,15 @@ const WelcomeSection = () => {
     };
   }, [user]);
   
-  // Get user's name from profile data, user metadata or email
   const getUserName = () => {
-    // First priority: name from profile settings
     if (profileData?.name) {
       return profileData.name;
     }
     
-    // Second priority: user metadata name
     if (user?.user_metadata?.name) {
       return user.user_metadata.name;
     }
     
-    // Fallback: email username or generic "User"
     return user?.email?.split('@')[0] || "User";
   };
   
@@ -117,7 +109,6 @@ const WelcomeSection = () => {
     });
   };
   
-  // Navigation handlers
   const handleStartDay = () => {
     navigate('/journal');
     toast({
