@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -14,12 +13,13 @@ export interface BookDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSave: (book: Book) => void;
+  onDelete?: (bookId: string) => void;
   book: Book | null;
   coverImage: string | null;
   onCoverImageChange: (url: string | null) => void;
 }
 
-export function BookDialog({ open, onOpenChange, onSave, book, coverImage, onCoverImageChange }: BookDialogProps) {
+export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverImage, onCoverImageChange }: BookDialogProps) {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
