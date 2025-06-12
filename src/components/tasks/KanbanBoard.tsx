@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { PlusCircle, Calendar, ClipboardCheck, Timer, CheckCircle2, ArrowRight, 
 import { useGTD } from "@/components/gtd/GTDContext";
 import TaskDialog from "./TaskDialog";
 import { format } from "date-fns";
+import { TaskStatus } from "@/types/gtd";
 
 interface KanbanBoardProps {
   isToDoNot?: boolean;
@@ -63,7 +63,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ isToDoNot = false }) => {
     }
   };
 
-  const getNextStatus = (currentStatus: string) => {
+  const getNextStatus = (currentStatus: string): TaskStatus => {
     switch (currentStatus) {
       case "todo": return "today";
       case "today": return "in-progress";
@@ -91,12 +91,12 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ isToDoNot = false }) => {
       addTask({
         ...task,
         isToDoNot,
-        status: selectedColumn || "todo"
+        status: selectedColumn as TaskStatus || "todo"
       });
     }
   };
 
-  const handleTaskMove = (taskId: string, newStatus: string) => {
+  const handleTaskMove = (taskId: string, newStatus: TaskStatus) => {
     updateTask(taskId, { status: newStatus });
   };
 

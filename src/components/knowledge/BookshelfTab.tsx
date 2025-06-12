@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, BookOpen, Clock, Calendar, Grid, List, Star } from "lucide-react";
-import BookDialog from "./BookDialog";
+import { BookDialog } from "./BookDialog";
 
 interface Book {
   id: string;

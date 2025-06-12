@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Check, Fire, Zap, Brain, Upload, Link as LinkIcon } from "lucide-react";
+import { Check, Flame, Zap, Brain, Upload, Link as LinkIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AvatarSettingsProps {
@@ -16,7 +16,7 @@ interface AvatarSettingsProps {
 
 const presetAvatars = [
   { icon: Check, color: "#10B981", label: "Achiever" },
-  { icon: Fire, color: "#F97316", label: "Motivated" },
+  { icon: Flame, color: "#F97316", label: "Motivated" },
   { icon: Zap, color: "#8B5CF6", label: "Energetic" },
   { icon: Brain, color: "#3B82F6", label: "Strategic" },
 ];

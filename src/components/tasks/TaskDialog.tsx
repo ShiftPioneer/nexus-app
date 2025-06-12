@@ -20,6 +20,7 @@ export interface TaskDialogProps {
   onAddTask: (task: any) => void;
   onUpdateTask: (id: string, updates: any) => void;
   onDeleteTask: (id: string) => void;
+  isToDoNot?: boolean;
 }
 
 const TaskDialog: React.FC<TaskDialogProps> = ({
