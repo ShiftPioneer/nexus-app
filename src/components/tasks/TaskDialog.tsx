@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -43,35 +44,6 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   const [goalId, setGoalId] = useState<string>("none");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { toast } = useToast();
-  
-  // Load goals and projects for selection
-  useEffect(() => {
-    try {
-      // Load goals
-      const savedGoals = localStorage.getItem('planningGoals');
-      if (savedGoals) {
-        const parsedGoals = JSON.parse(savedGoals);
-        // Only show active goals
-        const activeGoals = parsedGoals.filter((goal: any) => 
-          goal.status !== 'completed'
-        );
-        setGoals(activeGoals);
-      }
-      
-      // Load projects
-      const savedProjects = localStorage.getItem('planningProjects');
-      if (savedProjects) {
-        const parsedProjects = JSON.parse(savedProjects);
-        // Only show active projects
-        const activeProjects = parsedProjects.filter((project: any) => 
-          project.status !== 'completed'
-        );
-        setProjects(activeProjects);
-      }
-    } catch (error) {
-      console.error("Failed to load goals or projects:", error);
-    }
-  }, [open]);
   
   // Reset form when task changes
   useEffect(() => {
