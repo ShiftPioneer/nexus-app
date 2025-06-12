@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,20 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, BookOpen, Clock, Calendar, Grid, List, Star } from "lucide-react";
 import { BookDialog } from "./BookDialog";
-
-interface Book {
-  id: string;
-  title: string;
-  author: string;
-  category: string;
-  status: "want-to-read" | "reading" | "completed";
-  progress: number;
-  startDate?: Date;
-  completedDate?: Date;
-  rating?: number;
-  notes?: string;
-  coverUrl?: string;
-}
+import { Book } from "@/types/knowledge";
 
 const BookshelfTab = () => {
   const [books, setBooks] = useState<Book[]>([
@@ -27,28 +15,34 @@ const BookshelfTab = () => {
       id: "1",
       title: "Atomic Habits",
       author: "James Clear",
-      category: "Self-Help",
-      status: "completed",
-      progress: 100,
+      readingStatus: "Finished",
       rating: 5,
-      completedDate: new Date("2024-01-15"),
+      description: "A comprehensive guide to building good habits and breaking bad ones.",
+      relatedSkillsets: ["Self-Improvement", "Productivity"],
+      summary: "Small changes can make a big difference over time.",
+      keyLessons: "Focus on systems rather than goals, make habits obvious, attractive, easy, and satisfying.",
     },
     {
       id: "2", 
       title: "The 7 Habits of Highly Effective People",
       author: "Stephen Covey",
-      category: "Business",
-      status: "reading",
-      progress: 65,
-      startDate: new Date("2024-01-20"),
+      readingStatus: "Reading Now",
+      rating: 4,
+      description: "Timeless principles for personal and professional effectiveness.",
+      relatedSkillsets: ["Leadership", "Business"],
+      summary: "Character-based approach to personal and interpersonal effectiveness.",
+      keyLessons: "Be proactive, begin with the end in mind, put first things first.",
     },
     {
       id: "3",
       title: "Deep Work",
       author: "Cal Newport", 
-      category: "Productivity",
-      status: "want-to-read",
-      progress: 0,
+      readingStatus: "Not Yet Read",
+      rating: 0,
+      description: "Rules for focused success in a distracted world.",
+      relatedSkillsets: ["Productivity", "Focus"],
+      summary: "The ability to focus without distraction on cognitively demanding tasks.",
+      keyLessons: "Cultivate deep work habits, eliminate shallow work, embrace boredom.",
     }
   ]);
   
@@ -57,11 +51,12 @@ const BookshelfTab = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [coverImage, setCoverImage] = useState<string | null>(null);
 
   const filteredBooks = books.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          book.author.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = activeFilter === "all" || book.status === activeFilter;
+    const matchesFilter = activeFilter === "all" || book.readingStatus === activeFilter;
     return matchesSearch && matchesFilter;
   });
 
@@ -73,6 +68,7 @@ const BookshelfTab = () => {
     }
     setSelectedBook(null);
     setShowBookDialog(false);
+    setCoverImage(null);
   };
 
   const handleDeleteBook = (bookId: string) => {
@@ -81,9 +77,9 @@ const BookshelfTab = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "completed": return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
-      case "reading": return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
-      case "want-to-read": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
+      case "Finished": return "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+      case "Reading Now": return "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300";
+      case "Not Yet Read": return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300";
       default: return "bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300";
     }
   };
@@ -128,38 +124,36 @@ const BookshelfTab = () => {
           
           <CardContent className="pt-0 space-y-3">
             <div className="flex items-center justify-between">
-              <Badge className={getStatusColor(book.status)} variant="secondary">
-                {book.status.replace("-", " ")}
+              <Badge className={getStatusColor(book.readingStatus)} variant="secondary">
+                {book.readingStatus}
               </Badge>
-              <span className="text-xs text-muted-foreground">{book.category}</span>
             </div>
             
-            {book.status === "reading" && (
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span>Progress</span>
-                  <span>{book.progress}%</span>
-                </div>
-                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                  <div 
-                    className="bg-primary h-1.5 rounded-full transition-all" 
-                    style={{ width: `${book.progress}%` }}
-                  />
-                </div>
-              </div>
-            )}
-            
-            {book.rating && (
+            {book.rating > 0 && (
               <div className="flex items-center gap-2">
                 {renderStars(book.rating)}
                 <span className="text-xs text-muted-foreground">({book.rating}/5)</span>
               </div>
             )}
             
-            {book.completedDate && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3" />
-                Completed {book.completedDate.toLocaleDateString()}
+            {book.description && (
+              <p className="text-xs text-muted-foreground line-clamp-2">
+                {book.description}
+              </p>
+            )}
+            
+            {book.relatedSkillsets && book.relatedSkillsets.length > 0 && (
+              <div className="flex gap-1 flex-wrap">
+                {book.relatedSkillsets.slice(0, 2).map(skillset => (
+                  <Badge key={skillset} variant="outline" className="text-xs">
+                    {skillset}
+                  </Badge>
+                ))}
+                {book.relatedSkillsets.length > 2 && (
+                  <Badge variant="outline" className="text-xs">
+                    +{book.relatedSkillsets.length - 2}
+                  </Badge>
+                )}
               </div>
             )}
           </CardContent>
@@ -189,21 +183,17 @@ const BookshelfTab = () => {
                 <h3 className="font-semibold truncate">{book.title}</h3>
                 <p className="text-sm text-muted-foreground truncate">{book.author}</p>
                 <div className="flex items-center gap-2 mt-1">
-                  <Badge className={getStatusColor(book.status)} variant="secondary">
-                    {book.status.replace("-", " ")}
+                  <Badge className={getStatusColor(book.readingStatus)} variant="secondary">
+                    {book.readingStatus}
                   </Badge>
-                  <span className="text-xs text-muted-foreground">{book.category}</span>
                 </div>
               </div>
               
               <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                {book.status === "reading" && (
-                  <div className="text-xs text-muted-foreground">{book.progress}%</div>
-                )}
-                {book.rating && renderStars(book.rating)}
-                {book.completedDate && (
-                  <div className="text-xs text-muted-foreground">
-                    {book.completedDate.toLocaleDateString()}
+                {book.rating > 0 && renderStars(book.rating)}
+                {book.description && (
+                  <div className="text-xs text-muted-foreground max-w-xs text-right line-clamp-1">
+                    {book.description}
                   </div>
                 )}
               </div>
@@ -257,14 +247,14 @@ const BookshelfTab = () => {
       <Tabs value={activeFilter} onValueChange={setActiveFilter}>
         <TabsList className="w-fit">
           <TabsTrigger value="all">All Books ({books.length})</TabsTrigger>
-          <TabsTrigger value="want-to-read">
-            Want to Read ({books.filter(b => b.status === "want-to-read").length})
+          <TabsTrigger value="Not Yet Read">
+            Want to Read ({books.filter(b => b.readingStatus === "Not Yet Read").length})
           </TabsTrigger>
-          <TabsTrigger value="reading">
-            Reading ({books.filter(b => b.status === "reading").length})
+          <TabsTrigger value="Reading Now">
+            Reading ({books.filter(b => b.readingStatus === "Reading Now").length})
           </TabsTrigger>
-          <TabsTrigger value="completed">
-            Completed ({books.filter(b => b.status === "completed").length})
+          <TabsTrigger value="Finished">
+            Completed ({books.filter(b => b.readingStatus === "Finished").length})
           </TabsTrigger>
         </TabsList>
         
@@ -303,6 +293,8 @@ const BookshelfTab = () => {
         book={selectedBook}
         onSave={handleSaveBook}
         onDelete={handleDeleteBook}
+        coverImage={coverImage}
+        onCoverImageChange={setCoverImage}
       />
     </div>
   );

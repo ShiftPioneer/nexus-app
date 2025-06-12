@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,10 +25,10 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ isToDoNot = false }
 
   const getQuadrantTasks = (urgent: boolean, important: boolean) => {
     return filteredTasks.filter(task => {
-      // Check if task is urgent based on priority being "high" or "very-high"
-      const taskUrgent = task.priority === "high" || task.priority === "very-high";
-      // Check if task is important based on having a due date soon or being linked to goals
-      const taskImportant = task.goalId || task.priority === "high" || task.priority === "very-high";
+      // Check if task is urgent based on priority being "urgent" or having a soon due date
+      const taskUrgent = task.priority === "urgent" || (task.dueDate && new Date(task.dueDate) <= new Date(Date.now() + 24 * 60 * 60 * 1000));
+      // Check if task is important based on having a goal link or high priority
+      const taskImportant = task.goalId || task.priority === "urgent" || task.priority === "important";
       return taskUrgent === urgent && taskImportant === important;
     });
   };
@@ -83,9 +84,9 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ isToDoNot = false }
       updateTask(selectedTask.id, task);
     } else {
       const quadrantConfig = {
-        "urgent-important": { priority: "high" },
-        "not-urgent-important": { priority: "medium" },
-        "urgent-not-important": { priority: "high" },
+        "urgent-important": { priority: "urgent" },
+        "not-urgent-important": { priority: "important" },
+        "urgent-not-important": { priority: "urgent" },
         "not-urgent-not-important": { priority: "low" }
       };
       
