@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Target, ClipboardList } from "lucide-react";
-import GoalCreationDialog from "@/components/planning/GoalCreationDialog";
+import EnhancedGoalForm from "@/components/planning/EnhancedGoalForm";
 import ProjectCreationDialog from "@/components/planning/ProjectCreationDialog";
 import PlanningBoardView from "@/components/planning/PlanningBoardView";
 import PlanningListView from "@/components/planning/PlanningListView";
@@ -192,12 +192,11 @@ const Planning = () => {
         </Tabs>
       </div>
       
-      <GoalCreationDialog 
+      <EnhancedGoalForm 
         open={showGoalDialog} 
         onOpenChange={setShowGoalDialog} 
         onGoalCreate={handleGoalCreate} 
         initialGoal={selectedGoal} 
-        existingGoals={goals} 
       />
       
       <ProjectCreationDialog 

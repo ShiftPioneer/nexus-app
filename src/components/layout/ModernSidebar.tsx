@@ -49,7 +49,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   return (
     <aside
       className={cn(
-        "bg-card border-r border-border transition-all duration-300 ease-in-out z-50",
+        "bg-card border-r border-border transition-all duration-300 ease-in-out z-50 flex flex-col",
         isMobile 
           ? cn(
               "fixed left-0 top-0 h-full",
@@ -61,67 +61,65 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
             )
       )}
     >
-      <div className="flex flex-col h-full">
-        {/* Logo */}
-        <div className={cn(
-          "h-14 border-b border-border flex items-center transition-all duration-300",
-          isCollapsed ? "justify-center px-2" : "justify-between px-4"
-        )}>
-          {!isCollapsed && (
-            <h1 className="text-xl font-bold text-primary">NEXUS</h1>
-          )}
-          {isCollapsed && (
-            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">N</span>
-            </div>
-          )}
+      {/* Logo */}
+      <div className={cn(
+        "h-14 border-b border-border flex items-center transition-all duration-300 flex-shrink-0",
+        isCollapsed ? "justify-center px-2" : "justify-between px-4"
+      )}>
+        {!isCollapsed && (
+          <h1 className="text-xl font-bold text-primary">NEXUS</h1>
+        )}
+        {isCollapsed && (
+          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+            <span className="text-primary-foreground font-bold text-sm">N</span>
+          </div>
+        )}
+      </div>
+      
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto py-4">
+        <div className="space-y-1 px-2">
+          {menuItems.map((item) => (
+            <Button
+              key={item.path}
+              variant={location.pathname === item.path ? "secondary" : "ghost"}
+              className={cn(
+                "w-full justify-start transition-all duration-200",
+                isCollapsed ? "px-2" : "px-3",
+                location.pathname === item.path && "bg-primary/10 text-primary"
+              )}
+              onClick={() => handleNavigation(item.path)}
+            >
+              <item.icon className={cn(
+                "h-4 w-4 flex-shrink-0",
+                !isCollapsed && "mr-3"
+              )} />
+              {!isCollapsed && (
+                <span className="truncate">{item.title}</span>
+              )}
+            </Button>
+          ))}
         </div>
-        
-        {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4">
-          <div className="space-y-1 px-2">
-            {menuItems.map((item) => (
-              <Button
-                key={item.path}
-                variant={location.pathname === item.path ? "secondary" : "ghost"}
-                className={cn(
-                  "w-full justify-start transition-all duration-200",
-                  isCollapsed ? "px-2" : "px-3",
-                  location.pathname === item.path && "bg-primary/10 text-primary"
-                )}
-                onClick={() => handleNavigation(item.path)}
-              >
-                <item.icon className={cn(
-                  "h-4 w-4 flex-shrink-0",
-                  !isCollapsed && "mr-3"
-                )} />
-                {!isCollapsed && (
-                  <span className="truncate">{item.title}</span>
-                )}
-              </Button>
-            ))}
-          </div>
-        </nav>
-        
-        {/* User Section */}
+      </nav>
+      
+      {/* User Section */}
+      <div className={cn(
+        "border-t border-border p-4 flex-shrink-0",
+        isCollapsed && "px-2"
+      )}>
         <div className={cn(
-          "border-t border-border p-4",
-          isCollapsed && "px-2"
+          "flex items-center",
+          isCollapsed ? "justify-center" : "gap-3"
         )}>
-          <div className={cn(
-            "flex items-center",
-            isCollapsed ? "justify-center" : "gap-3"
-          )}>
-            <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-              <span className="text-sm font-medium">U</span>
-            </div>
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">User</p>
-                <p className="text-xs text-muted-foreground">Pro Plan</p>
-              </div>
-            )}
+          <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
+            <span className="text-sm font-medium">U</span>
           </div>
+          {!isCollapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">User</p>
+              <p className="text-xs text-muted-foreground">Pro Plan</p>
+            </div>
+          )}
         </div>
       </div>
     </aside>

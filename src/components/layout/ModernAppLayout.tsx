@@ -14,7 +14,7 @@ const ModernAppLayout = ({ children }: ModernAppLayoutProps) => {
   const { isCollapsed, isMobile, toggleSidebar } = useSidebar();
   
   return (
-    <div className="flex h-screen overflow-hidden bg-background w-full">
+    <div className="flex h-screen w-full overflow-hidden bg-background">
       <SidebarProvider>
         <GTDProvider>
           {/* Sidebar */}
