@@ -12,15 +12,6 @@ import { useFocusTimer } from "@/components/focus/FocusTimerService";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
-interface FocusSession {
-  id: string;
-  date: string;
-  duration: number;
-  category: string;
-  completed: boolean;
-  xpEarned: number;
-}
-
 const Focus = () => {
   const [activeTab, setActiveTab] = useState("timer");
   const [focusSessions, setFocusSessions] = useLocalStorage<FocusSession[]>("focusSessions", []);
@@ -41,20 +32,20 @@ const Focus = () => {
   const completedToday = focusSessions.filter(session => {
     const today = new Date().toDateString();
     const sessionDate = new Date(session.date).toDateString();
-    return sessionDate === today && session.completed;
+    return sessionDate === today;
   });
   
   const completedThisWeek = focusSessions.filter(session => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const sessionDate = new Date(session.date);
-    return sessionDate >= weekAgo && session.completed;
+    return sessionDate >= weekAgo;
   });
   
   const todayMinutes = completedToday.reduce((sum, session) => sum + session.duration, 0);
   const weekMinutes = completedThisWeek.reduce((sum, session) => sum + session.duration, 0);
   const currentStreak = calculateCurrentStreak();
-  const totalSessions = focusSessions.filter(s => s.completed).length;
+  const totalSessions = focusSessions.length;
   
   function calculateCurrentStreak(): number {
     if (focusSessions.length === 0) return 0;
@@ -68,7 +59,7 @@ const Focus = () => {
       const dateString = checkDate.toDateString();
       
       const dayHasSession = focusSessions.some(session => 
-        new Date(session.date).toDateString() === dateString && session.completed
+        new Date(session.date).toDateString() === dateString
       );
       
       if (dayHasSession) {
@@ -93,9 +84,7 @@ const Focus = () => {
   
   function calculateCategoryStats() {
     const categoryTotals = focusSessions.reduce((acc, session) => {
-      if (session.completed) {
-        acc[session.category] = (acc[session.category] || 0) + 1;
-      }
+      acc[session.category] = (acc[session.category] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     
@@ -112,7 +101,7 @@ const Focus = () => {
     }
     
     const longest = focusSessions.reduce((max, session) => 
-      session.completed && session.duration > max.duration ? session : max
+      session.duration > max.duration ? session : max
     );
     
     return {
@@ -129,7 +118,7 @@ const Focus = () => {
       const weekAgo = new Date();
       weekAgo.setDate(weekAgo.getDate() - 7);
       const sessionDate = new Date(session.date);
-      return sessionDate >= twoWeeksAgo && sessionDate < weekAgo && session.completed;
+      return sessionDate >= twoWeeksAgo && sessionDate < weekAgo;
     });
     
     const lastWeekMinutes = lastWeekSessions.reduce((sum, session) => sum + session.duration, 0);
@@ -144,7 +133,7 @@ const Focus = () => {
       todayMinutes: completedToday.reduce((sum, session) => sum + session.duration, 0),
       weekMinutes: completedThisWeek.reduce((sum, session) => sum + session.duration, 0),
       currentStreak: calculateCurrentStreak(),
-      totalSessions: focusSessions.filter(s => s.completed).length,
+      totalSessions: focusSessions.length,
       categoryStats: calculateCategoryStats(),
       longestSession: findLongestSession(),
       weeklyImprovement: calculateWeeklyImprovement()
@@ -217,11 +206,11 @@ const Focus = () => {
     if (sessionDuration > 0) {
       const newSession: FocusSession = {
         id: `session-${Date.now()}`,
-        date: new Date().toISOString(),
+        date: new Date(),
         duration: sessionDuration,
         category: category as FocusCategory,
-        completed: true,
-        xpEarned: sessionDuration
+        xpEarned: sessionDuration,
+        notes: `${category} session completed`
       };
       
       setFocusSessions(prev => [newSession, ...prev]);
@@ -234,6 +223,18 @@ const Focus = () => {
       resetTimer();
     }
   };
+
+  // Convert sessions for components that expect string dates
+  const sessionsForHistory = focusSessions.map(session => ({
+    ...session,
+    date: typeof session.date === 'string' ? session.date : session.date.toISOString()
+  }));
+
+  const sessionsForStats = focusSessions.map(session => ({
+    ...session,
+    date: typeof session.date === 'string' ? session.date : session.date.toISOString(),
+    completed: true
+  }));
 
   return (
     <ModernAppLayout>
@@ -289,11 +290,11 @@ const Focus = () => {
           </TabsContent>
           
           <TabsContent value="history" className="mt-6">
-            <FocusSessionHistory sessions={focusSessions} />
+            <FocusSessionHistory sessions={sessionsForHistory} />
           </TabsContent>
           
           <TabsContent value="insights" className="mt-6">
-            <FocusStats sessions={focusSessions} />
+            <FocusStats sessions={sessionsForStats} />
           </TabsContent>
           
           <TabsContent value="techniques" className="mt-6">
