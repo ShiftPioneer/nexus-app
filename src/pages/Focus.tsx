@@ -12,17 +12,6 @@ import { useFocusTimer } from "@/components/focus/FocusTimerService";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
-// Local interface for transformed sessions that components expect
-interface TransformedFocusSession {
-  id: string;
-  date: string;
-  duration: number;
-  category: FocusCategory;
-  xpEarned: number;
-  notes?: string;
-  completed?: boolean;
-}
-
 const Focus = () => {
   const [activeTab, setActiveTab] = useState("timer");
   const [focusSessions, setFocusSessions] = useLocalStorage<FocusSession[]>("focusSessions", []);
@@ -235,17 +224,22 @@ const Focus = () => {
     }
   };
 
-  // Convert sessions for components that expect string dates
-  const sessionsForHistory: TransformedFocusSession[] = focusSessions.map(session => ({
-    ...session,
-    date: typeof session.date === 'string' ? session.date : session.date.toISOString()
-  }));
+  // Prepare sessions for components - convert Date objects to required format
+  const prepareSessionsForHistory = () => {
+    return focusSessions.map(session => ({
+      ...session,
+      date: typeof session.date === 'string' ? session.date : session.date.toISOString(),
+      completed: true
+    }));
+  };
 
-  const sessionsForStats: TransformedFocusSession[] = focusSessions.map(session => ({
-    ...session,
-    date: typeof session.date === 'string' ? session.date : session.date.toISOString(),
-    completed: true
-  }));
+  const prepareSessionsForStats = () => {
+    return focusSessions.map(session => ({
+      ...session,
+      date: typeof session.date === 'string' ? session.date : session.date.toISOString(),
+      completed: true
+    }));
+  };
 
   return (
     <ModernAppLayout>
@@ -301,11 +295,11 @@ const Focus = () => {
           </TabsContent>
           
           <TabsContent value="history" className="mt-6">
-            <FocusSessionHistory sessions={sessionsForHistory} />
+            <FocusSessionHistory sessions={prepareSessionsForHistory()} />
           </TabsContent>
           
           <TabsContent value="insights" className="mt-6">
-            <FocusStats sessions={sessionsForStats} />
+            <FocusStats sessions={prepareSessionsForStats()} />
           </TabsContent>
           
           <TabsContent value="techniques" className="mt-6">
