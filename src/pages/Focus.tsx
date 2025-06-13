@@ -12,6 +12,17 @@ import { useFocusTimer } from "@/components/focus/FocusTimerService";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
+// Local interface for transformed sessions that components expect
+interface TransformedFocusSession {
+  id: string;
+  date: string;
+  duration: number;
+  category: FocusCategory;
+  xpEarned: number;
+  notes?: string;
+  completed?: boolean;
+}
+
 const Focus = () => {
   const [activeTab, setActiveTab] = useState("timer");
   const [focusSessions, setFocusSessions] = useLocalStorage<FocusSession[]>("focusSessions", []);
@@ -225,12 +236,12 @@ const Focus = () => {
   };
 
   // Convert sessions for components that expect string dates
-  const sessionsForHistory = focusSessions.map(session => ({
+  const sessionsForHistory: TransformedFocusSession[] = focusSessions.map(session => ({
     ...session,
     date: typeof session.date === 'string' ? session.date : session.date.toISOString()
   }));
 
-  const sessionsForStats = focusSessions.map(session => ({
+  const sessionsForStats: TransformedFocusSession[] = focusSessions.map(session => ({
     ...session,
     date: typeof session.date === 'string' ? session.date : session.date.toISOString(),
     completed: true
