@@ -45,6 +45,15 @@ export interface GTDTask {
 
 export type GTDView = "capture" | "clarify" | "organize" | "reflect" | "engage";
 
+export interface GTDState {
+  inboxItems: GTDTask[];
+  projects: GTDTask[];
+  contexts: string[];
+  nextActions: GTDTask[];
+  waitingFor: GTDTask[];
+  reference: GTDTask[];
+}
+
 export interface GTDContextType {
   tasks: GTDTask[];
   addTask: (task: Omit<GTDTask, "id" | "createdAt">) => void;
@@ -52,7 +61,7 @@ export interface GTDContextType {
   deleteTask: (id: string) => void;
   permanentlyDeleteTask: (id: string) => void;
   getDeletedTasks: () => GTDTask[];
-  restoreTask: (id: string) => void; // Added restore functionality
+  restoreTask: (id: string) => void;
   moveTask: (id: string, newStatus: TaskStatus, newPriority?: TaskPriority) => void;
   activeView: GTDView;
   setActiveView: (view: GTDView) => void;
@@ -61,4 +70,5 @@ export interface GTDContextType {
   setHasUnreadNotifications: (value: boolean) => void;
   markNotificationsAsRead: () => void;
   handleDragEnd: (result: any) => void;
+  state: GTDState;
 }

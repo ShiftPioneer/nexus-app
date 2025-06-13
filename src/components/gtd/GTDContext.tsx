@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { GTDTask, TaskStatus, TaskPriority, GTDContextType } from "@/types/gtd";
@@ -47,6 +46,16 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   } = useGTDView();
 
   const { handleDragEnd } = useGTDDragDrop(moveTask);
+
+  // Create state object for backward compatibility
+  const state = {
+    inboxItems: tasks.filter(task => task.status === "inbox"),
+    projects: tasks.filter(task => task.status === "project"),
+    contexts: [...new Set(tasks.map(task => task.context).filter(Boolean))],
+    nextActions: tasks.filter(task => task.status === "next-action"),
+    waitingFor: tasks.filter(task => task.status === "waiting-for"),
+    reference: tasks.filter(task => task.status === "reference"),
+  };
 
   // Add synchronization effect for task status changes
   useEffect(() => {
@@ -114,7 +123,8 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       hasUnreadNotifications,
       setHasUnreadNotifications,
       markNotificationsAsRead,
-      handleDragEnd
+      handleDragEnd,
+      state
     }}>
       {children}
     </GTDContext.Provider>

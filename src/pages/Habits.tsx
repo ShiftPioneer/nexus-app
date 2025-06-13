@@ -431,8 +431,8 @@ const Habits = () => {
       <HabitCreationDialog 
         open={showHabitDialog}
         onOpenChange={setShowHabitDialog}
-        onSave={handleCreateHabit}
-        habit={selectedHabit}
+        onHabitCreate={handleCreateHabit}
+        initialHabit={selectedHabit}
       />
     </ModernAppLayout>
   );
