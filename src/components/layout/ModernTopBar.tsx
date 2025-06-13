@@ -21,11 +21,7 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
       <div className="flex items-center gap-4">
         {/* Show logo when sidebar is collapsed */}
         {isCollapsed && <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="h-9 w-9 hover:bg-accent/50 transition-colors text-primary">
-              <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-xs">N</span>
-              </div>
-            </Button>
+            
             <span className="text-xl font-bold text-primary">NEXUS</span>
           </div>}
         
