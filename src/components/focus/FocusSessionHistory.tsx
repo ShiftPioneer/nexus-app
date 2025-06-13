@@ -2,16 +2,17 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, XCircle, Award } from "lucide-react";
+import { Calendar, Clock, XCircle, Award, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 interface FocusSessionHistoryProps {
   sessions: FocusSession[];
+  onDeleteSession?: (sessionId: string) => void;
 }
 
-const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions }) => {
+const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onDeleteSession }) => {
   const [selectedSession, setSelectedSession] = useState<FocusSession | null>(null);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<"all" | "today" | "week" | "month">("all");
@@ -51,11 +52,14 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions }) =
   });
 
   const handleDeleteSession = (id: string) => {
-    // In a real app, this would make an API call to delete the session
-    toast({
-      title: "Session Deleted",
-      description: "The focus session has been removed from your history"
-    });
+    if (onDeleteSession) {
+      onDeleteSession(id);
+    } else {
+      toast({
+        title: "Session Deleted",
+        description: "The focus session has been removed from your history"
+      });
+    }
   };
 
   const handleViewSession = (session: FocusSession) => {
@@ -151,10 +155,10 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions }) =
                     <Button 
                       variant="ghost" 
                       size="sm"
-                      className="text-destructive hover:text-destructive"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={() => handleDeleteSession(session.id)}
                     >
-                      <XCircle className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

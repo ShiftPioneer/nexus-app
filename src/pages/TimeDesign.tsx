@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import AppLayout from "@/components/layout/AppLayout";
+import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,6 +12,8 @@ import TimeDesignActivities from "@/components/timedesign/TimeDesignActivities";
 import TimeDesignSettings from "@/components/timedesign/TimeDesignSettings";
 import ActivityDialog from "@/components/timedesign/ActivityDialog";
 import { DragDropContext } from "react-beautiful-dnd";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useToast } from "@/hooks/use-toast";
 
 const TimeDesign = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -19,44 +21,10 @@ const TimeDesign = () => {
   const [activeTab, setActiveTab] = useState("calendar");
   const [showActivityDialog, setShowActivityDialog] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TimeActivity | null>(null);
+  const { toast } = useToast();
   
-  // Mock data - In a real app, this would come from a backend
-  const [activities, setActivities] = useState<TimeActivity[]>([
-    {
-      id: "1",
-      title: "Team Meeting",
-      description: "Weekly team sync",
-      category: "work",
-      color: "purple",
-      startDate: new Date(),
-      endDate: new Date(),
-      startTime: "10:00",
-      endTime: "11:00",
-      syncWithGoogleCalendar: true
-    },
-    {
-      id: "2",
-      title: "Lunch with Alex",
-      description: "Discuss new project ideas",
-      category: "social",
-      color: "orange",
-      startDate: new Date(),
-      endDate: new Date(),
-      startTime: "12:30",
-      endTime: "13:30"
-    },
-    {
-      id: "3",
-      title: "Gym Workout",
-      description: "Cardio and strength training",
-      category: "health",
-      color: "green",
-      startDate: new Date(),
-      endDate: new Date(),
-      startTime: "15:00",
-      endTime: "16:00"
-    }
-  ]);
+  // Store activities in localStorage for persistence
+  const [activities, setActivities] = useLocalStorage<TimeActivity[]>("timeDesignActivities", []);
 
   const handlePrevious = () => {
     if (viewType === "day") {
@@ -84,18 +52,27 @@ const TimeDesign = () => {
   };
 
   const handleSaveActivity = (activity: TimeActivity) => {
-    if (activity.id) {
+    if (activity.id && activities.find(a => a.id === activity.id)) {
       // Update existing activity
       setActivities(activities.map(a => a.id === activity.id ? activity : a));
+      toast({
+        title: "Activity Updated",
+        description: "Your activity has been updated successfully!",
+      });
     } else {
       // Add new activity
       const newActivity = {
         ...activity,
-        id: `activity-${Date.now()}`
+        id: activity.id || `activity-${Date.now()}`
       };
       setActivities([...activities, newActivity]);
+      toast({
+        title: "Activity Created",
+        description: "Your new activity has been added to the calendar!",
+      });
     }
     setShowActivityDialog(false);
+    setEditingActivity(null);
   };
 
   const handleEditActivity = (activity: TimeActivity) => {
@@ -105,6 +82,10 @@ const TimeDesign = () => {
 
   const handleDeleteActivity = (id: string) => {
     setActivities(activities.filter(a => a.id !== id));
+    toast({
+      title: "Activity Deleted",
+      description: "The activity has been removed from your calendar.",
+    });
   };
   
   const handleDragEnd = (result: any) => {
@@ -114,7 +95,7 @@ const TimeDesign = () => {
   };
   
   return (
-    <AppLayout>
+    <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="space-y-4 max-w-full overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -220,7 +201,7 @@ const TimeDesign = () => {
           onSave={handleSaveActivity}
         />
       </DragDropContext>
-    </AppLayout>
+    </ModernAppLayout>
   );
 };
 

@@ -30,6 +30,7 @@ const Focus = () => {
     toggleTimer,
     startTechnique,
     handleCompleteSession,
+    deleteSession,
     resetTimer
   } = useFocusHandlers(focusSessions, setFocusSessions);
 
@@ -87,7 +88,10 @@ const Focus = () => {
           </TabsContent>
           
           <TabsContent value="history" className="mt-6">
-            <FocusSessionHistory sessions={prepareSessionsForHistory(focusSessions)} />
+            <FocusSessionHistory 
+              sessions={prepareSessionsForHistory(focusSessions)} 
+              onDeleteSession={deleteSession}
+            />
           </TabsContent>
           
           <TabsContent value="insights" className="mt-6">

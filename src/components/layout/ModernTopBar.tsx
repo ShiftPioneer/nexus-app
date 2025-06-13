@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, Bell, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Bell, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
@@ -25,10 +25,24 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
           variant="ghost"
           size="icon"
           onClick={onToggleSidebar}
-          className="h-9 w-9 hover:bg-accent/50 transition-colors"
+          className="h-9 w-9 hover:bg-accent/50 transition-colors text-primary"
         >
-          <Menu className="h-4 w-4" />
+          {isCollapsed ? (
+            <ChevronRight className="h-5 w-5" />
+          ) : (
+            <ChevronLeft className="h-5 w-5" />
+          )}
         </Button>
+        
+        {/* Show logo when sidebar is collapsed */}
+        {isCollapsed && (
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
+              <span className="text-primary-foreground font-bold text-sm">N</span>
+            </div>
+            <span className="text-xl font-bold text-primary">NEXUS</span>
+          </div>
+        )}
         
         {!isMobile && !isCollapsed && (
           <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2 min-w-[240px]">

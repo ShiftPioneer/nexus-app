@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -148,10 +147,19 @@ const Habits = () => {
           return habit;
         }
         
+        // Calculate new streak
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const completedYesterday = habit.completionDates.some(date => 
+          new Date(date).toDateString() === yesterday.toDateString()
+        );
+        
+        const newStreak = completedYesterday || habit.completionDates.length === 0 ? habit.streak + 1 : 1;
+        
         const updatedHabit: Habit = { 
           ...habit, 
           status: "completed" as const,
-          streak: habit.streak + 1,
+          streak: newStreak,
           completionDates: [today, ...habit.completionDates]
         };
         
@@ -232,44 +240,6 @@ const Habits = () => {
         return 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
     }
   };
-
-  const getWeekDays = () => {
-    const days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-    const today = new Date().getDay();
-    const orderedDays = [...days.slice(today + 1), ...days.slice(0, today + 1)];
-    return orderedDays;
-  };
-
-  const generateWeeklyCompletionData = () => {
-    const result = [];
-    const habitSubset = habits.slice(0, 5);
-    
-    for (const habit of habitSubset) {
-      const weekData = {
-        name: habit.title,
-        category: habit.category,
-        completions: Array(7).fill(false),
-      };
-      
-      for (let i = 0; i < 7; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        const dateString = date.toDateString();
-        
-        const completed = habit.completionDates.some(d => 
-          new Date(d).toDateString() === dateString
-        );
-        
-        weekData.completions[6-i] = completed;
-      }
-      
-      result.push(weekData);
-    }
-    
-    return result;
-  };
-  
-  const weeklyActivityData = generateWeeklyCompletionData();
 
   return (
     <ModernAppLayout>
@@ -393,34 +363,6 @@ const Habits = () => {
                                   </Button>
                                 </div>
                               )}
-                              
-                              {habit.status === "completed" && (
-                                <span className="px-3 py-1 text-xs rounded-full bg-success/20 text-success font-medium">
-                                  ✓ Completed
-                                </span>
-                              )}
-                              
-                              {habit.status === "missed" && (
-                                <span className="px-3 py-1 text-xs rounded-full bg-destructive/20 text-destructive font-medium">
-                                  ✗ Missed
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <div className="mt-3">
-                            <div className="h-2 bg-muted/30 rounded-full w-full overflow-hidden">
-                              <div 
-                                className={cn(
-                                  "h-full rounded-full transition-all duration-700",
-                                  habit.status === "missed" ? "bg-destructive/50" : "bg-primary"
-                                )}
-                                style={{ width: `${Math.min((habit.streak / habit.target) * 100, 100)}%` }}
-                              ></div>
-                            </div>
-                            <div className="mt-1 flex justify-between text-xs text-muted-foreground">
-                              <span>Streak: {habit.streak}</span>
-                              <span>Goal: {habit.target} days</span>
                             </div>
                           </div>
                         </CardContent>
@@ -430,142 +372,67 @@ const Habits = () => {
                 )}
               </CardContent>
             </Card>
-            
-            <Card>
-              <CardHeader>
-                <div className="flex items-center justify-between flex-wrap gap-3">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <BarChart2 className="h-5 w-5" />
-                    Habit Statistics
-                  </CardTitle>
-                  
-                  <Tabs defaultValue="overview" value={statisticsTab} onValueChange={setStatisticsTab}>
-                    <TabsList className="overflow-x-auto">
-                      <TabsTrigger value="overview">Overview</TabsTrigger>
-                      <TabsTrigger value="trends">Trends</TabsTrigger>
-                      <TabsTrigger value="categories">Categories</TabsTrigger>
-                      <TabsTrigger value="streaks">Streaks</TabsTrigger>
-                    </TabsList>
-                  </Tabs>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {statisticsTab === "overview" && <HabitStatisticsOverview habits={habits} />}
-                {statisticsTab === "trends" && <HabitStatisticsTrends habits={habits} />}
-                {statisticsTab === "categories" && <HabitStatisticsCategories habits={habits} />}
-                {statisticsTab === "streaks" && <HabitStatisticsStreaks habits={habits} />}
-              </CardContent>
-            </Card>
           </div>
           
           <div className="space-y-6">
-            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30 border-blue-200 dark:border-blue-800">
-              <CardContent className="pt-6">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Accountability Score</p>
-                    <h2 className="text-3xl font-bold text-blue-600 dark:text-blue-400">{accountabilityScore}</h2>
-                    <p className="text-xs text-green-600 mt-1 flex items-center">
-                      <span className="mr-1">+{habits.reduce((sum, h) => sum + (h.scoreValue || 5), 0)} potential today</span>
-                    </p>
-                  </div>
-                  <div className="bg-blue-100 dark:bg-blue-900 p-3 rounded-full">
-                    <Award className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card>
+            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 border-orange-200 dark:border-orange-800">
               <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-orange-500" />
-                  <CardTitle className="text-lg">Streaks</CardTitle>
-                </div>
-                <CardDescription>Your longest streaks</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {habits.length > 0 ? (
-                  habits
-                    .sort((a, b) => b.streak - a.streak)
-                    .slice(0, 5)
-                    .map((habit, index) => (
-                      <div key={habit.id} className="flex items-center justify-between py-2">
-                        <div className="flex items-center gap-3">
-                          <div className={`h-8 w-8 rounded-full flex items-center justify-center text-xs ${getCategoryColor(habit.category)}`}>
-                            {index + 1}
-                          </div>
-                          <span className="font-medium">{habit.title}</span>
-                        </div>
-                        <div className={`px-3 py-1 rounded-full text-xs font-medium ${habit.streak > 0 ? "bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400" : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400"}`}>
-                          {habit.streak} days
-                        </div>
-                      </div>
-                    ))
-                ) : (
-                  <p className="text-center text-muted-foreground py-4">
-                    No habits yet. Start building your streaks!
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-2">
-                <div className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-blue-500" />
-                  <CardTitle className="text-lg">Weekly Activity</CardTitle>
-                </div>
-                <CardDescription>This week's habit completion</CardDescription>
+                <CardTitle className="text-orange-800 dark:text-orange-200 flex items-center gap-2">
+                  <Award className="h-5 w-5" />
+                  Accountability Score
+                </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr>
-                        <th className="text-left font-medium text-muted-foreground text-sm py-2">Habit</th>
-                        {getWeekDays().map((day, i) => (
-                          <th key={i} className="text-center font-medium text-muted-foreground text-sm py-2 px-1">{day}</th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {weeklyActivityData.map((habit, index) => (
-                        <tr key={index} className="border-t">
-                          <td className="py-2">
-                            <div className="flex items-center gap-2">
-                              <div className={`h-2 w-2 rounded-full ${getCategoryColor(habit.category)}`} />
-                              <span className="text-sm truncate max-w-[120px]">{habit.name}</span>
-                            </div>
-                          </td>
-                          {habit.completions.map((completed, i) => (
-                            <td key={i} className="text-center">
-                              <div className="flex justify-center">
-                                <div className={cn(
-                                  "h-7 w-7 rounded-full flex items-center justify-center transition-colors",
-                                  completed ? "bg-primary/20 text-primary" : "bg-muted/30 text-muted-foreground/30"
-                                )}>
-                                  <CheckCircle className="h-4 w-4" />
-                                </div>
-                              </div>
-                            </td>
-                          ))}
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                <div className="text-center">
+                  <div className="text-4xl font-bold text-orange-600 dark:text-orange-400 mb-2">
+                    {accountabilityScore}
+                  </div>
+                  <p className="text-sm text-orange-700 dark:text-orange-300">
+                    Keep building your habits to increase your score!
+                  </p>
+                  <div className="mt-3 w-full bg-orange-200 dark:bg-orange-800 h-2 rounded-full">
+                    <div 
+                      className="bg-orange-500 h-2 rounded-full transition-all duration-500"
+                      style={{ width: `${Math.min(100, (accountabilityScore / 500) * 100)}%` }}
+                    />
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart2 className="h-5 w-5 text-primary" />
+                  Statistics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs value={statisticsTab} onValueChange={setStatisticsTab}>
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="overview">Overview</TabsTrigger>
+                    <TabsTrigger value="trends">Trends</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="overview" className="mt-4">
+                    <HabitStatisticsOverview habits={habits} />
+                  </TabsContent>
+                  
+                  <TabsContent value="trends" className="mt-4">
+                    <HabitStatisticsTrends habits={habits} />
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
       
-      <HabitCreationDialog
+      <HabitCreationDialog 
         open={showHabitDialog}
         onOpenChange={setShowHabitDialog}
-        onHabitCreate={handleCreateHabit}
-        initialHabit={selectedHabit}
+        onSave={handleCreateHabit}
+        habit={selectedHabit}
       />
     </ModernAppLayout>
   );

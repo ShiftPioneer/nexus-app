@@ -90,6 +90,14 @@ export const useFocusHandlers = (
     }
   };
 
+  const deleteSession = (sessionId: string) => {
+    setFocusSessions(prev => prev.filter(session => session.id !== sessionId));
+    toast({
+      title: "Session Deleted",
+      description: "Focus session has been removed from your history",
+    });
+  };
+
   return {
     isTimerRunning,
     timeRemaining,
@@ -101,6 +109,7 @@ export const useFocusHandlers = (
     toggleTimer,
     startTechnique,
     handleCompleteSession,
+    deleteSession,
     resetTimer
   };
 };
