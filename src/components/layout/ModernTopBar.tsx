@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Bell, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ThemeToggle from "@/components/theme/ThemeToggle";
 
 interface ModernTopBarProps {
   onToggleSidebar: () => void;
@@ -53,6 +54,8 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
       </div>
       
       <div className="flex items-center gap-3">
+        <ThemeToggle />
+        
         <Button 
           variant="ghost" 
           size="icon" 

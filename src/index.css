@@ -57,6 +57,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  html {
+    @apply dark;
+  }
 }
 
 /* Hide all scrollbars */
