@@ -1,60 +1,41 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Bell, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ThemeToggle from "@/components/theme/ThemeToggle";
-
 interface ModernTopBarProps {
   onToggleSidebar: () => void;
   isCollapsed: boolean;
   isMobile: boolean;
 }
-
-const ModernTopBar: React.FC<ModernTopBarProps> = ({ 
-  onToggleSidebar, 
-  isCollapsed, 
-  isMobile 
+const ModernTopBar: React.FC<ModernTopBarProps> = ({
+  onToggleSidebar,
+  isCollapsed,
+  isMobile
 }) => {
-  const { user } = useAuth();
-
-  return (
-    <header className="h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6 z-30 flex-shrink-0">
+  const {
+    user
+  } = useAuth();
+  return <header className="h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6 z-30 flex-shrink-0">
       <div className="flex items-center gap-4">
         {/* Show logo when sidebar is collapsed */}
-        {isCollapsed && (
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggleSidebar}
-              className="h-9 w-9 hover:bg-accent/50 transition-colors text-primary"
-            >
+        {isCollapsed && <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="h-9 w-9 hover:bg-accent/50 transition-colors text-primary">
               <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-xs">N</span>
               </div>
             </Button>
             <span className="text-xl font-bold text-primary">NEXUS</span>
-          </div>
-        )}
+          </div>}
         
-        {!isMobile && !isCollapsed && (
-          <div className="flex items-center gap-2 bg-muted/50 rounded-lg px-3 py-2 min-w-[240px]">
-            <Search className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Search...</span>
-          </div>
-        )}
+        {!isMobile && !isCollapsed}
       </div>
       
       <div className="flex items-center gap-3">
         <ThemeToggle />
         
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          className="h-9 w-9 hover:bg-accent/50 transition-colors relative"
-        >
+        <Button variant="ghost" size="icon" className="h-9 w-9 hover:bg-accent/50 transition-colors relative">
           <Bell className="h-4 w-4" />
           <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full text-xs"></span>
         </Button>
@@ -66,8 +47,6 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
           </AvatarFallback>
         </Avatar>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default ModernTopBar;
