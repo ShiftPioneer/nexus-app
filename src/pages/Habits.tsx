@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, CheckCircle2, Award, BarChart2, Calendar, Filter, Clock, CheckCircle } from "lucide-react";
+import { Plus, CheckCircle2, Award, BarChart2, Calendar, Filter, Clock, CheckCircle, Flame } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -12,13 +13,14 @@ import HabitStatisticsTrends from "@/components/habits/HabitStatisticsTrends";
 import HabitStatisticsCategories from "@/components/habits/HabitStatisticsCategories";
 import HabitStatisticsStreaks from "@/components/habits/HabitStatisticsStreaks";
 import HabitCreationDialog from "@/components/habits/HabitCreationDialog";
+import { Badge } from "@/components/ui/badge";
 
 const Habits = () => {
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState("active");
   const [statisticsTab, setStatisticsTab] = useState("overview");
   const [showHabitDialog, setShowHabitDialog] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
+  const [filterCategory, setFilterCategory] = useState<string>("all");
   
   // Use localStorage for data persistence
   const [habits, setHabits] = useLocalStorage<Habit[]>("userHabits", [
@@ -241,6 +243,14 @@ const Habits = () => {
     }
   };
 
+  // Filter habits based on category
+  const filteredHabits = habits.filter(habit => 
+    filterCategory === "all" || habit.category === filterCategory
+  );
+
+  // Get unique categories
+  const categories = ["all", ...Array.from(new Set(habits.map(h => h.category)))];
+
   return (
     <ModernAppLayout>
       <div className="animate-fade-in space-y-6">
@@ -261,20 +271,29 @@ const Habits = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <Card>
-              <CardHeader className="pb-2">
+              <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Your Habits</CardTitle>
+                    <CardTitle className="text-xl">Your Habits</CardTitle>
                     <CardDescription>Track your consistency and build momentum</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm" className="gap-1">
-                    <Filter className="h-4 w-4" />
-                    <span>Filter</span>
-                  </Button>
+                  <div className="flex gap-2">
+                    <select 
+                      value={filterCategory} 
+                      onChange={(e) => setFilterCategory(e.target.value)}
+                      className="px-3 py-1 border rounded-md bg-background text-sm"
+                    >
+                      {categories.map(cat => (
+                        <option key={cat} value={cat}>
+                          {cat === "all" ? "All Categories" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </CardHeader>
               <CardContent>
-                {habits.length === 0 ? (
+                {filteredHabits.length === 0 ? (
                   <div className="text-center py-12">
                     <CheckCircle2 className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
                     <h3 className="mt-4 text-lg font-medium">No habits yet</h3>
@@ -287,7 +306,7 @@ const Habits = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {habits.map((habit) => (
+                    {filteredHabits.map((habit) => (
                       <Card 
                         key={habit.id} 
                         className={cn(
@@ -327,7 +346,7 @@ const Habits = () => {
                                     <span>{habit.type}</span>
                                   </span>
                                   <span className="flex items-center gap-1 text-sm text-orange-500 font-medium">
-                                    <Award className="h-4 w-4" />
+                                    <Flame className="h-4 w-4" />
                                     <span>{habit.streak} day streak</span>
                                   </span>
                                 </div>
@@ -335,9 +354,9 @@ const Habits = () => {
                             </div>
                             
                             <div className="flex items-center gap-2">
-                              <div className={cn("px-2 py-1 rounded-full text-xs font-medium", getCategoryColor(habit.category))}>
+                              <Badge variant="outline" className={cn("text-xs", getCategoryColor(habit.category))}>
                                 {habit.category}
-                              </div>
+                              </Badge>
                               
                               {habit.status === "pending" && (
                                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -404,14 +423,16 @@ const Habits = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart2 className="h-5 w-5 text-primary" />
-                  Statistics
+                  Habit Statistics
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Tabs value={statisticsTab} onValueChange={setStatisticsTab}>
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-4 mb-4">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="trends">Trends</TabsTrigger>
+                    <TabsTrigger value="categories">Categories</TabsTrigger>
+                    <TabsTrigger value="streaks">Streaks</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="overview" className="mt-4">
@@ -420,6 +441,14 @@ const Habits = () => {
                   
                   <TabsContent value="trends" className="mt-4">
                     <HabitStatisticsTrends habits={habits} />
+                  </TabsContent>
+                  
+                  <TabsContent value="categories" className="mt-4">
+                    <HabitStatisticsCategories habits={habits} />
+                  </TabsContent>
+                  
+                  <TabsContent value="streaks" className="mt-4">
+                    <HabitStatisticsStreaks habits={habits} />
                   </TabsContent>
                 </Tabs>
               </CardContent>

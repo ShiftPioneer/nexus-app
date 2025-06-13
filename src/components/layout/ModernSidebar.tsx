@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import {
   Brain, Zap, BookOpen, FileText, BarChartHorizontal, 
   Settings, CheckSquare, ChevronLeft
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ModernSidebarProps {
   isCollapsed: boolean;
@@ -22,6 +24,28 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
+  const [profileData, setProfileData] = useState<any>(null);
+  
+  useEffect(() => {
+    try {
+      const savedProfile = localStorage.getItem('userProfile');
+      if (savedProfile) {
+        setProfileData(JSON.parse(savedProfile));
+      }
+    } catch (error) {
+      console.error("Failed to load profile data:", error);
+    }
+
+    const handleProfileUpdate = (e: any) => {
+      setProfileData(e.detail);
+    };
+    
+    window.addEventListener('profileUpdated', handleProfileUpdate);
+    return () => {
+      window.removeEventListener('profileUpdated', handleProfileUpdate);
+    };
+  }, []);
   
   const menuItems = [
     { title: "Dashboard", path: "/", icon: LayoutDashboard },
@@ -44,6 +68,17 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     if (isMobile) {
       onToggle();
     }
+  };
+
+  const getUserName = () => {
+    if (profileData?.name) return profileData.name;
+    if (user?.user_metadata?.name) return user.user_metadata.name;
+    if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
+    return user?.email?.split('@')[0] || "User";
+  };
+
+  const getUserAvatar = () => {
+    return profileData?.avatar || user?.user_metadata?.avatar_url || "";
   };
 
   return (
@@ -80,9 +115,18 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           </>
         )}
         {isCollapsed && (
-          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">N</span>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggle}
+            className="h-8 w-8 hover:bg-accent/50 transition-colors"
+          >
+            <img 
+              alt="Nexus Logo" 
+              src="/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png" 
+              className="h-6 w-6 object-contain" 
+            />
+          </Button>
         )}
       </div>
       
@@ -120,15 +164,20 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         isCollapsed && "px-2"
       )}>
         <div className={cn(
-          "flex items-center",
+          "flex items-center cursor-pointer hover:bg-accent/50 rounded-lg p-2 transition-colors",
           isCollapsed ? "justify-center" : "gap-3"
-        )}>
-          <div className="w-8 h-8 bg-primary/20 rounded-full flex items-center justify-center">
-            <span className="text-sm font-medium text-primary">U</span>
-          </div>
+        )}
+        onClick={() => navigate("/settings")}
+        >
+          <Avatar className="h-8 w-8">
+            <AvatarImage src={getUserAvatar()} />
+            <AvatarFallback className="bg-primary/20 text-primary font-medium">
+              {getUserName().substring(0, 2).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">User</p>
+              <p className="text-sm font-medium truncate">{getUserName()}</p>
               <p className="text-xs text-muted-foreground">Pro Plan</p>
             </div>
           )}

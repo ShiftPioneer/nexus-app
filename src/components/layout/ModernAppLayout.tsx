@@ -33,7 +33,7 @@ const ModernAppLayout = ({ children }: ModernAppLayoutProps) => {
             />
             
             <main className="flex-1 overflow-auto bg-background">
-              <div className="h-full w-full p-4">
+              <div className="h-full w-full p-6">
                 {children}
               </div>
             </main>
