@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Bell, Search } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ThemeToggle from "@/components/theme/ThemeToggle";
@@ -22,25 +22,19 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
   return (
     <header className="h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6 z-30 flex-shrink-0">
       <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onToggleSidebar}
-          className="h-9 w-9 hover:bg-accent/50 transition-colors text-primary"
-        >
-          {isCollapsed ? (
-            <ChevronRight className="h-5 w-5" />
-          ) : (
-            <ChevronLeft className="h-5 w-5" />
-          )}
-        </Button>
-        
         {/* Show logo when sidebar is collapsed */}
         {isCollapsed && (
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-              <span className="text-primary-foreground font-bold text-sm">N</span>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggleSidebar}
+              className="h-9 w-9 hover:bg-accent/50 transition-colors text-primary"
+            >
+              <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-xs">N</span>
+              </div>
+            </Button>
             <span className="text-xl font-bold text-primary">NEXUS</span>
           </div>
         )}

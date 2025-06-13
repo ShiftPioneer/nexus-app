@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, CheckCircle, Clock, Target, RefreshCw, 
   Brain, Zap, BookOpen, FileText, BarChartHorizontal, 
-  Settings, CheckSquare
+  Settings, CheckSquare, ChevronLeft
 } from "lucide-react";
 
 interface ModernSidebarProps {
@@ -49,7 +49,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   return (
     <aside
       className={cn(
-        "bg-card border-r border-border transition-all duration-300 ease-in-out z-50 flex flex-col",
+        "bg-card border-r border-border transition-all duration-500 ease-in-out z-50 flex flex-col sidebar-transition",
         isMobile 
           ? cn(
               "fixed left-0 top-0 h-full",
@@ -63,11 +63,21 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     >
       {/* Logo */}
       <div className={cn(
-        "h-16 border-b border-border flex items-center transition-all duration-300 flex-shrink-0",
+        "h-16 border-b border-border flex items-center transition-all duration-500 flex-shrink-0",
         isCollapsed ? "justify-center px-2" : "justify-between px-4"
       )}>
         {!isCollapsed && (
-          <h1 className="text-xl font-bold text-primary">NEXUS</h1>
+          <>
+            <h1 className="text-xl font-bold text-primary">NEXUS</h1>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={onToggle}
+              className="h-8 w-8 hover:bg-accent/50 transition-colors text-primary"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+          </>
         )}
         {isCollapsed && (
           <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">

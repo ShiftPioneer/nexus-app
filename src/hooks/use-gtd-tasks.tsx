@@ -67,10 +67,16 @@ export const useGTDTasks = () => {
   });
   const { toast } = useToast();
 
+  // Helper function to trigger custom event
+  const triggerTaskUpdate = () => {
+    window.dispatchEvent(new CustomEvent('tasksUpdated'));
+  };
+
   // Save tasks to local storage when they change
   useEffect(() => {
     try {
       localStorage.setItem('gtdTasks', JSON.stringify(tasks));
+      triggerTaskUpdate();
       console.log("Tasks saved to localStorage:", tasks.length);
     } catch (error) {
       console.error("Failed to save tasks:", error);
