@@ -15,7 +15,7 @@ const OrganizeCard: React.FC<OrganizeCardProps> = ({
   tasks,
   droppableId
 }) => <Card className="bg-slate-900 border-slate-700 text-slate-200">
-    <CardHeader className="p-4 pb-2 bg-slate-950">
+    <CardHeader className="p-4 pb-2 bg-slate-950 rounded-lg">
       <div className="flex justify-between items-center">
         <CardTitle className="text-lg">{title}</CardTitle>
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-[#FF5722]">
@@ -29,7 +29,7 @@ const OrganizeCard: React.FC<OrganizeCardProps> = ({
         </Button>
       </div>
     </CardHeader>
-    <CardContent className="p-4 pt-2 bg-slate-950">
+    <CardContent className="p-4 pt-2 bg-slate-950 rounded-lg">
       <TaskList tasks={tasks} droppableId={droppableId} />
     </CardContent>
   </Card>;
