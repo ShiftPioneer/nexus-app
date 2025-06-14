@@ -23,7 +23,7 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
   const { user } = useAuth();
 
   return (
-    <header className="h-20 border-b border-slate-700 backdrop-blur-xl flex items-center justify-between px-6 z-30 flex-shrink-0 shadow-sm bg-slate-950">
+    <header className="h-20 border-b border-slate-300 backdrop-blur-xl flex items-center justify-between px-6 z-30 flex-shrink-0 shadow-sm bg-slate-950">
       <div className="flex items-center gap-4">
         {/* Enhanced logo when sidebar is collapsed */}
         {isCollapsed && (
@@ -32,7 +32,7 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
             onClick={onToggleSidebar}
             className="flex items-center gap-3 hover:bg-primary/10 px-3 py-2 rounded-xl transition-all duration-200 group"
           >
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-primary/10 backdrop-blur-sm border border-primary/20">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-primary/10 backdrop-blur-sm border border-slate-300">
               <img 
                 src={LOGO_URL} 
                 alt="NEXUS" 
@@ -79,7 +79,7 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
         
         {/* Enhanced user avatar */}
         <div className="flex items-center gap-3 pl-2">
-          <Avatar className="h-10 w-10 border-2 border-primary/20 shadow-md hover:border-primary/40 transition-all duration-200">
+          <Avatar className="h-10 w-10 border-2 border-slate-300 shadow-md hover:border-primary/40 transition-all duration-200">
             <AvatarImage src={user?.user_metadata?.avatar_url} />
             <AvatarFallback className="bg-primary/10 text-primary-600 font-semibold text-sm">
               {user?.email?.substring(0, 2).toUpperCase() || "U"}

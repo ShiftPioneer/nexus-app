@@ -14,7 +14,7 @@ const LOGO_URL = "https://nexus-plaform.lovable.app/lovable-uploads/e401f047-a5a
 const SidebarHeader: React.FC<SidebarHeaderProps> = ({ isCollapsed, onToggle }) => {
   return (
     <div className={cn(
-      "flex items-center border-b border-slate-700 bg-slate-950 flex-shrink-0 h-20",
+      "flex items-center border-b border-slate-300 bg-slate-950 flex-shrink-0 h-20",
       isCollapsed ? "justify-center px-2" : "gap-3 px-4"
     )}>
       {isCollapsed ? (
@@ -33,7 +33,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({ isCollapsed, onToggle }) 
       ) : (
         <>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg bg-primary/20 border border-primary/30">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center shadow-lg bg-primary/20 border border-slate-300">
               <img src={LOGO_URL} alt="NEXUS" className="w-5 h-5 object-contain" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent">

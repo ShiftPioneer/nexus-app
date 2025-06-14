@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -196,7 +195,7 @@
   transform: translateY(0);
 }
 
-/* Status indicators - UPDATED TO USE LIME INSTEAD OF YELLOW */
+/* Status indicators - using lime and emerald, no yellow */
 .status-dot {
   display: inline-block;
   width: 8px;
@@ -220,10 +219,10 @@
   background-color: rgb(5 150 105); /* emerald-600 */
 }
 
-/* Card enhancements - FIXED TO USE SLATE-950 */
+/* Card enhancements - using slate-950 */
 .card-enhanced {
-  background-color: #020617; /* slate-950 instead of brown/dull colors */
-  border: 1px solid #334155; /* slate-700 */
+  background-color: #020617; /* slate-950 */
+  border: 1px solid #cbd5e1; /* slate-300 instead of slate-700 */
   border-radius: 12px;
   box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
   transition: all 300ms ease;
@@ -248,25 +247,18 @@
 .glass {
   backdrop-filter: blur(12px);
   background-color: rgba(2, 6, 23, 0.8); /* slate-950 with transparency */
-  border: 1px solid rgba(51, 65, 85, 0.5); /* slate-700 with transparency */
+  border: 1px solid #cbd5e1; /* slate-300 */
 }
 
-/* COMPREHENSIVE COLOR FIXES */
+/* COMPREHENSIVE COLOR FIXES - ALL YELLOW/AMBER REMOVED */
 
-/* Replace ALL brown/dull backgrounds with slate-950 */
+/* Replace ALL yellow/amber backgrounds with slate-950 */
 .bg-yellow-50, .bg-yellow-100, .bg-yellow-200, .bg-yellow-300,
 .bg-yellow-400, .bg-yellow-500, .bg-yellow-600, .bg-yellow-700,
 .bg-yellow-800, .bg-yellow-900, .bg-yellow-950,
 .bg-amber-50, .bg-amber-100, .bg-amber-200, .bg-amber-300,
 .bg-amber-400, .bg-amber-500, .bg-amber-600, .bg-amber-700,
-.bg-amber-800, .bg-amber-900, .bg-amber-950,
-.bg-orange-50, .bg-orange-100, .bg-orange-200,
-.bg-stone-50, .bg-stone-100, .bg-stone-200, .bg-stone-300,
-.bg-stone-400, .bg-stone-500, .bg-stone-600, .bg-stone-700,
-.bg-stone-800, .bg-stone-900, .bg-stone-950,
-.bg-neutral-50, .bg-neutral-100, .bg-neutral-200, .bg-neutral-300,
-.bg-neutral-400, .bg-neutral-500, .bg-neutral-600, .bg-neutral-700,
-.bg-neutral-800, .bg-neutral-900, .bg-neutral-950 {
+.bg-amber-800, .bg-amber-900, .bg-amber-950 {
   background-color: #020617 !important; /* slate-950 */
   color: #f8fafc !important; /* white text for contrast */
 }
@@ -304,7 +296,7 @@
   --tw-ring-color: #cbd5e1 !important; /* slate-300 */
 }
 
-/* Fix warning colors to use lime, with slate-300 for borders */
+/* Fix warning colors to use lime text but slate-300 for borders */
 .text-warning {
   color: #84cc16 !important; /* lime-500 */
 }
@@ -331,7 +323,7 @@
 input, textarea, select {
   background-color: #1e293b !important; /* slate-800 */
   color: #f8fafc !important; /* white text */
-  border-color: #475569 !important; /* slate-600 */
+  border-color: #cbd5e1 !important; /* slate-300 instead of slate-600 */
 }
 
 input::placeholder, textarea::placeholder {
