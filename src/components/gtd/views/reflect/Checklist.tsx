@@ -1,14 +1,11 @@
-
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ReactNode } from "react";
-
 interface ChecklistItems {
   [key: string]: boolean;
 }
-
 interface ChecklistProps {
   title: string;
   icon: ReactNode;
@@ -18,7 +15,6 @@ interface ChecklistProps {
   description?: string;
   showActions?: boolean;
 }
-
 const Checklist: React.FC<ChecklistProps> = ({
   title,
   icon,
@@ -26,12 +22,13 @@ const Checklist: React.FC<ChecklistProps> = ({
   setItems,
   itemLabels,
   description,
-  showActions = false,
+  showActions = false
 }) => {
   const handleCheckChange = (key: string) => {
-    setItems({ [key]: !items[key] });
+    setItems({
+      [key]: !items[key]
+    });
   };
-
   const handleMarkAllComplete = () => {
     const updatedItems: ChecklistItems = {};
     Object.keys(items).forEach(key => {
@@ -39,7 +36,6 @@ const Checklist: React.FC<ChecklistProps> = ({
     });
     setItems(updatedItems);
   };
-
   const handleResetAll = () => {
     const updatedItems: ChecklistItems = {};
     Object.keys(items).forEach(key => {
@@ -47,60 +43,35 @@ const Checklist: React.FC<ChecklistProps> = ({
     });
     setItems(updatedItems);
   };
-
-  return (
-    <Card className="bg-slate-900 border-slate-700 text-slate-200 h-full">
-      <CardHeader className="pb-2">
+  return <Card className="bg-slate-900 border-slate-700 text-slate-200 h-full">
+      <CardHeader className="pb-2 bg-slate-950">
         <CardTitle className="text-lg text-slate-200 flex items-center">
           {icon}
           {title}
         </CardTitle>
         {description && <CardDescription className="text-slate-400">{description}</CardDescription>}
       </CardHeader>
-      <CardContent>
+      <CardContent className="bg-slate-950">
         <div className="space-y-4">
           <div className="space-y-2">
-            {Object.entries(items).map(([key, checked]) => (
-              <div
-                key={key}
-                className="flex items-center space-x-2 hover:bg-slate-800 p-2 rounded-md cursor-pointer"
-                onClick={() => handleCheckChange(key)}
-              >
+            {Object.entries(items).map(([key, checked]) => <div key={key} className="flex items-center space-x-2 hover:bg-slate-800 p-2 rounded-md cursor-pointer" onClick={() => handleCheckChange(key)}>
                 <Checkbox id={key} checked={checked} />
-                <label
-                  htmlFor={key}
-                  className="flex-grow cursor-pointer text-sm font-medium text-slate-300"
-                >
+                <label htmlFor={key} className="flex-grow cursor-pointer text-sm font-medium text-slate-300">
                   {itemLabels[key]}
                 </label>
-              </div>
-            ))}
+              </div>)}
           </div>
 
-          {showActions && (
-            <div className="flex justify-between pt-4">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleResetAll} 
-                className="text-slate-400"
-              >
+          {showActions && <div className="flex justify-between pt-4">
+              <Button variant="outline" size="sm" onClick={handleResetAll} className="text-cyan-600 bg-background-DEFAULT">
                 Reset
               </Button>
-              <Button 
-                variant="default" 
-                size="sm" 
-                onClick={handleMarkAllComplete}
-                className="bg-[#0FA0CE] hover:bg-[#0D8CB4] text-white"
-              >
+              <Button variant="default" size="sm" onClick={handleMarkAllComplete} className="text-cyan-50 bg-cyan-600 hover:bg-cyan-500">
                 Mark All Complete
               </Button>
-            </div>
-          )}
+            </div>}
         </div>
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default Checklist;
