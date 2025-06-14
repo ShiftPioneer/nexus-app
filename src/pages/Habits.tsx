@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -256,11 +255,11 @@ const Habits = () => {
       <div className="animate-fade-in space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold flex items-center gap-2">
-              <CheckCircle2 className="h-7 w-7 text-primary" />
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <CheckCircle2 className="h-6 w-6 text-primary" />
               Habits
             </h1>
-            <p className="text-muted-foreground mt-2">Track your daily habits and build lasting streaks</p>
+            <p className="text-muted-foreground">Track your daily habits and build lasting streaks</p>
           </div>
           <Button onClick={() => {setSelectedHabit(null); setShowHabitDialog(true);}} className="gap-2">
             <Plus size={18} />
@@ -271,7 +270,35 @@ const Habits = () => {
         {/* Main Grid Layout */}
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Habits List - Takes 3 columns */}
-          <div className="xl:col-span-3 space-y-6">
+          <div className="xl:col-span-3 space-y-4">
+            {/* Accountability Score */}
+            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 border-orange-200 dark:border-orange-800">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-orange-800 dark:text-orange-200 flex items-center gap-2 text-lg">
+                  <Award className="h-5 w-5" />
+                  Accountability Score
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-4">
+                  <div className="text-3xl font-bold text-orange-600 dark:text-orange-400">
+                    {accountabilityScore}
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-orange-700 dark:text-orange-300 mb-2">
+                      Keep building your habits to increase your score!
+                    </p>
+                    <div className="w-full bg-orange-200 dark:bg-orange-800 h-2 rounded-full">
+                      <div 
+                        className="bg-orange-500 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${Math.min(100, (accountabilityScore / 500) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
@@ -313,8 +340,8 @@ const Habits = () => {
                         key={habit.id} 
                         className={cn(
                           "border overflow-hidden hover:border-primary/30 transition-all duration-200 cursor-pointer group",
-                          habit.status === "completed" && "border-success/30 bg-success/5",
-                          habit.status === "missed" && "border-destructive/30 bg-destructive/5"
+                          habit.status === "completed" && "border-green-500/30 bg-green-50 dark:bg-green-950/30",
+                          habit.status === "missed" && "border-red-500/30 bg-red-50 dark:bg-red-950/30"
                         )}
                         onClick={() => handleEditHabit(habit)}
                       >
@@ -324,15 +351,15 @@ const Habits = () => {
                               <div 
                                 className={cn(
                                   "h-12 w-12 rounded-full flex items-center justify-center transition-all",
-                                  habit.status === "completed" ? "bg-success/20" : 
-                                  habit.status === "missed" ? "bg-destructive/20" : "bg-muted"
+                                  habit.status === "completed" ? "bg-green-500/20" : 
+                                  habit.status === "missed" ? "bg-red-500/20" : "bg-muted"
                                 )}
                               >
                                 <CheckCircle 
                                   className={cn(
                                     "h-6 w-6 transition-all",
-                                    habit.status === "completed" ? "text-success" : 
-                                    habit.status === "missed" ? "text-destructive" : "text-muted-foreground/50"
+                                    habit.status === "completed" ? "text-green-500" : 
+                                    habit.status === "missed" ? "text-red-500" : "text-muted-foreground/50"
                                   )}
                                 />
                               </div>
@@ -396,37 +423,10 @@ const Habits = () => {
           </div>
           
           {/* Right Sidebar - Statistics */}
-          <div className="xl:col-span-1 space-y-6">
-            {/* Accountability Score */}
-            <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 border-orange-200 dark:border-orange-800">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-orange-800 dark:text-orange-200 flex items-center gap-2">
-                  <Award className="h-5 w-5" />
-                  Accountability Score
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-orange-600 dark:text-orange-400 mb-2">
-                    {accountabilityScore}
-                  </div>
-                  <p className="text-sm text-orange-700 dark:text-orange-300">
-                    Keep building your habits to increase your score!
-                  </p>
-                  <div className="mt-3 w-full bg-orange-200 dark:bg-orange-800 h-2 rounded-full">
-                    <div 
-                      className="bg-orange-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(100, (accountabilityScore / 500) * 100)}%` }}
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            {/* Habit Statistics */}
+          <div className="xl:col-span-1 space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-lg">
                   <BarChart2 className="h-5 w-5 text-primary" />
                   Statistics
                 </CardTitle>

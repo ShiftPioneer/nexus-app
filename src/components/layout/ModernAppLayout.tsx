@@ -32,7 +32,7 @@ const ModernAppLayout = ({ children }: ModernAppLayoutProps) => {
               isMobile={isMobile}
             />
             
-            <main className="flex-1 overflow-auto bg-background">
+            <main className="flex-1 overflow-y-auto bg-background scrollbar-none">
               <div className="h-full w-full p-4">
                 {children}
               </div>

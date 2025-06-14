@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import AppLayout from "@/components/layout/AppLayout";
+import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ const Energy = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
 
   return (
-    <AppLayout>
+    <ModernAppLayout>
       <div className="animate-fade-in space-y-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -28,12 +28,12 @@ const Energy = () => {
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <div className="bg-card border rounded-lg overflow-hidden mb-6">
-            <TabsList className="w-full justify-start rounded-none border-b bg-muted/50 p-0">
+          <div className="bg-card border rounded-lg overflow-x-auto mb-6 w-fit">
+            <TabsList className="justify-start rounded-none border-b bg-muted/50 p-0 w-fit">
               <TabsTrigger 
                 value="dashboard"
                 className={cn(
-                  "data-[state=active]:bg-background rounded-none border-r px-8 py-3",
+                  "data-[state=active]:bg-background rounded-none border-r px-6 py-3",
                   "flex items-center gap-2"
                 )}
               >
@@ -43,7 +43,7 @@ const Energy = () => {
               <TabsTrigger 
                 value="workouts"
                 className={cn(
-                  "data-[state=active]:bg-background rounded-none border-r px-8 py-3",
+                  "data-[state=active]:bg-background rounded-none border-r px-6 py-3",
                   "flex items-center gap-2"
                 )}
               >
@@ -53,7 +53,7 @@ const Energy = () => {
               <TabsTrigger 
                 value="analytics"
                 className={cn(
-                  "data-[state=active]:bg-background rounded-none px-8 py-3",
+                  "data-[state=active]:bg-background rounded-none px-6 py-3",
                   "flex items-center gap-2"
                 )}
               >
@@ -76,7 +76,7 @@ const Energy = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </ModernAppLayout>
   );
 };
 
