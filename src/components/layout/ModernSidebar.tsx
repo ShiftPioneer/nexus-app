@@ -156,9 +156,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
               
-              if (isCollapsed) {
-                return (
-                  <Link key={item.path} to={item.path} className="block">
+              return (
+                <Link key={item.path} to={item.path} className="block">
+                  {isCollapsed ? (
                     <div
                       className={cn(
                         "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-200 relative group mx-auto",
@@ -172,41 +172,37 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                       )}
                     </div>
-                  </Link>
-                );
-              }
-
-              return (
-                <Link key={item.path} to={item.path} className="block">
-                  <div
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
-                      isActive 
-                        ? "bg-primary/20 text-white shadow-sm border border-primary/30" 
-                        : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
-                    )}
-                  >
-                    <div className={cn(
-                      "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200",
-                      isActive ? "text-primary" : "group-hover:text-primary"
-                    )}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="flex flex-col min-w-0 flex-1">
-                      <span className={cn(
-                        "text-sm font-medium leading-tight",
-                        isActive ? "text-white" : "text-slate-200 group-hover:text-white"
+                  ) : (
+                    <div
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
+                        isActive 
+                          ? "bg-primary/20 text-white shadow-sm border border-primary/30" 
+                          : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
+                      )}
+                    >
+                      <div className={cn(
+                        "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200",
+                        isActive ? "text-primary" : "group-hover:text-primary"
                       )}>
-                        {item.name}
-                      </span>
-                      <span className="text-xs text-slate-400 leading-tight">
-                        {item.description}
-                      </span>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className={cn(
+                          "text-sm font-medium leading-tight",
+                          isActive ? "text-white" : "text-slate-200 group-hover:text-white"
+                        )}>
+                          {item.name}
+                        </span>
+                        <span className="text-xs text-slate-400 leading-tight">
+                          {item.description}
+                        </span>
+                      </div>
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
+                      )}
                     </div>
-                    {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
-                    )}
-                  </div>
+                  )}
                 </Link>
               );
             })}
@@ -218,8 +214,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           "border-t border-slate-700 bg-slate-950",
           isCollapsed ? "p-3" : "px-4 py-3"
         )}>
-          {isCollapsed ? (
-            <Link to={settingsItem.path} className="block">
+          <Link to={settingsItem.path} className="block">
+            {isCollapsed ? (
               <div
                 className={cn(
                   "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-200 relative group mx-auto",
@@ -233,9 +229,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                 )}
               </div>
-            </Link>
-          ) : (
-            <Link to={settingsItem.path} className="block">
+            ) : (
               <div
                 className={cn(
                   "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
@@ -265,8 +259,8 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
                 )}
               </div>
-            </Link>
-          )}
+            )}
+          </Link>
         </div>
       </div>
     </aside>
