@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,6 @@ import { CheckCircle, Plus, Award, Clock, Calendar } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
-
 interface Habit {
   id: string;
   title: string;
@@ -17,11 +15,12 @@ interface Habit {
   duration?: string;
   completionDates: Date[];
 }
-
 const HabitsSection = () => {
   const [habits, setHabits] = useState<Habit[]>([]);
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Load habits from localStorage
   useEffect(() => {
@@ -47,51 +46,42 @@ const HabitsSection = () => {
         console.error("Failed to load updated habits:", error);
       }
     };
-
     window.addEventListener('storage', handleHabitsUpdate);
     return () => {
       window.removeEventListener('storage', handleHabitsUpdate);
     };
   }, []);
-
   const completeHabit = (id: string) => {
     const today = new Date();
     const updatedHabits = habits.map(habit => {
       if (habit.id === id) {
         // Check if already completed today
-        const completedToday = habit.completionDates.some(date => 
-          new Date(date).toDateString() === today.toDateString()
-        );
-        
+        const completedToday = habit.completionDates.some(date => new Date(date).toDateString() === today.toDateString());
         if (completedToday) {
           toast({
             title: "Already Completed",
-            description: `${habit.title} has already been completed today.`,
+            description: `${habit.title} has already been completed today.`
           });
           return habit;
         }
-
         const updatedHabit = {
           ...habit,
           status: "completed" as const,
           streak: habit.streak + 1,
           completionDates: [today, ...habit.completionDates]
         };
-
         return updatedHabit;
       }
       return habit;
     });
-
     setHabits(updatedHabits);
-    
+
     // Save to localStorage
     try {
       localStorage.setItem('userHabits', JSON.stringify(updatedHabits));
     } catch (error) {
       console.error("Failed to save habits:", error);
     }
-
     const habit = habits.find(h => h.id === id);
     if (habit) {
       toast({
@@ -105,17 +95,15 @@ const HabitsSection = () => {
         setTimeout(() => {
           toast({
             title: "Achievement Unlocked! 🏆",
-            description: `You've reached your streak goal of ${habit.target} days for ${habit.title}!`,
+            description: `You've reached your streak goal of ${habit.target} days for ${habit.title}!`
           });
         }, 1000);
       }
     }
   };
-
   const navigateToHabits = () => {
     navigate("/habits");
   };
-
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'health':
@@ -134,11 +122,9 @@ const HabitsSection = () => {
         return 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
     }
   };
-
-  return (
-    <section className="mb-6">
+  return <section className="mb-6">
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 bg-slate-950">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>Habits</CardTitle>
@@ -150,30 +136,16 @@ const HabitsSection = () => {
             </Button>
           </div>
         </CardHeader>
-        <CardContent>
-          {habits.length === 0 ? (
-            <div className="text-center py-8">
+        <CardContent className="bg-slate-900">
+          {habits.length === 0 ? <div className="text-center py-8">
               <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
               <p className="text-muted-foreground mb-2">No habits created yet</p>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={navigateToHabits}
-              >
+              <Button variant="outline" size="sm" onClick={navigateToHabits}>
                 Create Your First Habit
               </Button>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {habits.slice(0, 3).map(habit => (
-                <Card 
-                  key={habit.id} 
-                  className={cn(
-                    "border overflow-hidden group hover:border-primary/30 transition-colors",
-                    habit.status === "completed" && "border-success/30 bg-success/5"
-                  )}
-                >
-                  <CardContent className="p-3 py-[14px]">
+            </div> : <div className="space-y-2">
+              {habits.slice(0, 3).map(habit => <Card key={habit.id} className={cn("border overflow-hidden group hover:border-primary/30 transition-colors", habit.status === "completed" && "border-success/30 bg-success/5")}>
+                  <CardContent className="p-3 py-[14px] bg-slate-950 border-lime-500 ">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
                         <div className={`h-10 w-10 rounded-full flex items-center justify-center
@@ -197,26 +169,16 @@ const HabitsSection = () => {
                       </div>
 
                       <div>
-                        {habit.status === "pending" ? (
-                          <Button 
-                            size="sm" 
-                            onClick={() => completeHabit(habit.id)} 
-                            className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
+                        {habit.status === "pending" ? <Button size="sm" onClick={() => completeHabit(habit.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
                             Complete
-                          </Button>
-                        ) : (
-                          <span className="px-2 py-1 text-xs rounded-full bg-success/20 text-success">
+                          </Button> : <span className="px-2 py-1 text-xs rounded-full bg-success/20 text-success">
                             Completed
-                          </span>
-                        )}
+                          </span>}
                       </div>
                     </div>
                   </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
+                </Card>)}
+            </div>}
 
           <div className="mt-4 flex justify-center">
             <Button variant="outline" onClick={navigateToHabits}>
@@ -225,8 +187,6 @@ const HabitsSection = () => {
           </div>
         </CardContent>
       </Card>
-    </section>
-  );
+    </section>;
 };
-
 export default HabitsSection;

@@ -1,4 +1,3 @@
-
 import React from "react";
 import { DragDropContext } from "react-beautiful-dnd";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
@@ -8,14 +7,11 @@ import TasksSection from "@/components/dashboard/TasksSection";
 import HabitsSection from "@/components/dashboard/HabitsSection";
 import GoalSection from "@/components/dashboard/GoalSection";
 import JournalSection from "@/components/dashboard/JournalSection";
-
 const Dashboard = () => {
   const handleDragEnd = (result: any) => {
     console.log("Drag ended:", result);
   };
-
-  return (
-    <ModernAppLayout>
+  return <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="animate-fade-in p-6 space-y-6">
           <WelcomeSection />
@@ -26,15 +22,13 @@ const Dashboard = () => {
               <TasksSection />
               <GoalSection />
             </div>
-            <div className="space-y-6">
+            <div className="space-y-6 bg-slate-950">
               <HabitsSection />
               <JournalSection />
             </div>
           </div>
         </div>
       </DragDropContext>
-    </ModernAppLayout>
-  );
+    </ModernAppLayout>;
 };
-
 export default Dashboard;
