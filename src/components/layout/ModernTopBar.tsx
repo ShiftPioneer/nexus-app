@@ -4,44 +4,31 @@ import { Bell, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ThemeToggle from "@/components/theme/ThemeToggle";
-
 interface ModernTopBarProps {
   onToggleSidebar: () => void;
   isCollapsed: boolean;
   isMobile: boolean;
 }
-
 const LOGO_URL = "https://nexus-plaform.lovable.app/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png";
-
 const ModernTopBar: React.FC<ModernTopBarProps> = ({
   onToggleSidebar,
   isCollapsed,
   isMobile
 }) => {
-  const { user } = useAuth();
-  
-  return (
-    <header className="h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6 z-30 flex-shrink-0">
+  const {
+    user
+  } = useAuth();
+  return <header className="h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6 z-30 flex-shrink-0">
       <div className="flex items-center gap-4">
         {/* Show logo when sidebar is collapsed */}
-        {isCollapsed && (
-          <Button
-            variant="ghost"
-            onClick={onToggleSidebar}
-            className="flex items-center gap-2 hover:bg-accent/50 px-2 py-1 rounded-lg transition-colors"
-          >
+        {isCollapsed && <Button variant="ghost" onClick={onToggleSidebar} className="flex items-center gap-2 hover:bg-accent/50 px-2 py-1 rounded-lg transition-colors">
             <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-lg bg-transparent">
-              <img
-                src={LOGO_URL}
-                alt="NEXUS"
-                className="w-8 h-8 object-contain"
-              />
+              <img src={LOGO_URL} alt="NEXUS" className="w-8 h-8 object-fill" />
             </div>
             <span className="text-xl font-bold text-[#FF6500]">
               NEXUS
             </span>
-          </Button>
-        )}
+          </Button>}
       </div>
       
       <div className="flex items-center gap-3">
@@ -59,8 +46,6 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
           </AvatarFallback>
         </Avatar>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default ModernTopBar;
