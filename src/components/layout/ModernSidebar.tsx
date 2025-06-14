@@ -18,7 +18,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   onToggle
 }) => {
   const { user } = useAuth();
-  const sidebarWidth = isCollapsed ? "w-20" : "w-72";
+  const sidebarWidth = isCollapsed ? "w-16" : "w-56"; // Reduced from w-20/w-72 to w-16/w-56 (20% reduction)
 
   return (
     <aside className={cn(
@@ -28,7 +28,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     )}>
       <SidebarHeader isCollapsed={isCollapsed} onToggle={onToggle} />
       
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 overflow-hidden">
         <SidebarNavigation isCollapsed={isCollapsed} />
         <SidebarFooter isCollapsed={isCollapsed} />
       </div>
