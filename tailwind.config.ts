@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -24,20 +23,105 @@ export default {
     },
     extend: {
       colors: {
-        // Primary colors (Energy & Motivation)
+        // NEXUS Primary Brand Colors
         primary: {
           DEFAULT: '#FF6500',
-          foreground: '#FFFFFF',
-          light: '#FF8533',
-          dark: '#E65C00'
-        },
-        energy: {
-          DEFAULT: '#FFC83D',
-          light: '#FFDA85',
-          dark: '#FFBA00'
+          50: '#FFF7ED',
+          100: '#FFEDD5',
+          200: '#FED7AA',
+          300: '#FDBA74',
+          400: '#FB923C',
+          500: '#FF6500',
+          600: '#EA580C',
+          700: '#C2410C',
+          800: '#9A3412',
+          900: '#7C2D12',
+          950: '#431407',
+          foreground: '#FFFFFF'
         },
         
-        // Secondary colors (Depth & Professionalism)
+        // Semantic Color System
+        success: {
+          DEFAULT: '#10B981',
+          50: '#ECFDF5',
+          100: '#D1FAE5',
+          200: '#A7F3D0',
+          300: '#6EE7B7',
+          400: '#34D399',
+          500: '#10B981',
+          600: '#059669',
+          700: '#047857',
+          800: '#065F46',
+          900: '#064E3B',
+          foreground: '#FFFFFF'
+        },
+        
+        warning: {
+          DEFAULT: '#F59E0B',
+          50: '#FFFBEB',
+          100: '#FEF3C7',
+          200: '#FDE68A',
+          300: '#FCD34D',
+          400: '#FBBF24',
+          500: '#F59E0B',
+          600: '#D97706',
+          700: '#B45309',
+          800: '#92400E',
+          900: '#78350F',
+          foreground: '#FFFFFF'
+        },
+        
+        error: {
+          DEFAULT: '#EF4444',
+          50: '#FEF2F2',
+          100: '#FEE2E2',
+          200: '#FECACA',
+          300: '#FCA5A5',
+          400: '#F87171',
+          500: '#EF4444',
+          600: '#DC2626',
+          700: '#B91C1C',
+          800: '#991B1B',
+          900: '#7F1D1D',
+          foreground: '#FFFFFF'
+        },
+        
+        // Enhanced Background System
+        background: {
+          DEFAULT: '#FFFFFF',
+          secondary: '#F8FAFC',
+          tertiary: '#F1F5F9',
+          dark: {
+            DEFAULT: '#0F172A',
+            secondary: '#1E293B',
+            tertiary: '#334155'
+          }
+        },
+        
+        // Text Color Hierarchy
+        text: {
+          primary: '#0F172A',
+          secondary: '#475569',
+          tertiary: '#64748B',
+          muted: '#94A3B8',
+          inverse: '#FFFFFF',
+          dark: {
+            primary: '#F8FAFC',
+            secondary: '#CBD5E1',
+            tertiary: '#94A3B8',
+            muted: '#64748B'
+          }
+        },
+        
+        // Status Colors
+        status: {
+          active: '#10B981',
+          pending: '#F59E0B',
+          inactive: '#6B7280',
+          completed: '#059669'
+        },
+        
+        // Legacy colors (keeping for compatibility)
         secondary: {
           DEFAULT: '#024CAA',
           foreground: '#FFFFFF',
@@ -49,26 +133,12 @@ export default {
           light: '#12284A',
           dark: '#060F1A'
         },
-        
-        // Accent colors (Gamification & Interactivity)
         accent: {
           DEFAULT: '#00D4FF',
           foreground: '#FFFFFF',
           light: '#4DE2FF',
           dark: '#00A3C9'
         },
-        success: {
-          DEFAULT: '#39D98A',
-          light: '#5FE1A2',
-          dark: '#2CB873'
-        },
-        warning: {
-          DEFAULT: '#FF3B30',
-          light: '#FF6E66',
-          dark: '#E53529'
-        },
-        
-        // Neutral colors (Balance & Readability)
         neutral: {
           DEFAULT: '#F5F7FA',
           foreground: '#1E1E1E',
@@ -83,13 +153,11 @@ export default {
         },
         muted: '#D1D5DB',
         
-        // System colors (inherited)
+        // System colors (shadcn compatibility)
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
         ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
-        
         destructive: {
           DEFAULT: 'hsl(var(--destructive))',
           foreground: 'hsl(var(--destructive-foreground))'
@@ -113,12 +181,54 @@ export default {
           ring: 'hsl(var(--sidebar-ring))'
         }
       },
-      borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)'
+      
+      // Enhanced Typography Scale
+      fontSize: {
+        'display-2xl': ['4.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        'display-xl': ['3.75rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+        'display-lg': ['3rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
+        'display-md': ['2.25rem', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
+        'display-sm': ['1.875rem', { lineHeight: '1.3', letterSpacing: '-0.01em' }],
+        'xl': ['1.25rem', { lineHeight: '1.4' }],
+        'lg': ['1.125rem', { lineHeight: '1.5' }],
+        'md': ['1rem', { lineHeight: '1.5' }],
+        'sm': ['0.875rem', { lineHeight: '1.5' }],
+        'xs': ['0.75rem', { lineHeight: '1.6' }],
+        'caption': ['0.6875rem', { lineHeight: '1.6' }]
       },
+      
+      // Enhanced Spacing Scale
+      spacing: {
+        '18': '4.5rem',
+        '88': '22rem',
+        '112': '28rem',
+        '128': '32rem'
+      },
+      
+      // Enhanced Border Radius
+      borderRadius: {
+        'lg': '0.75rem',
+        'xl': '1rem',
+        '2xl': '1.5rem',
+        '3xl': '2rem',
+        'md': 'calc(var(--radius) - 2px)',
+        'sm': 'calc(var(--radius) - 4px)'
+      },
+      
+      // Enhanced Shadows
+      boxShadow: {
+        'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+        'sm': '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1)',
+        'md': '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
+        'lg': '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
+        'xl': '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+        '2xl': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        'glow': '0 0 20px rgba(255, 101, 0, 0.3)',
+        'glow-lg': '0 0 40px rgba(255, 101, 0, 0.2)'
+      },
+      
       keyframes: {
+        // Enhanced animations
         'accordion-down': {
           from: { height: '0' },
           to: { height: 'var(--radix-accordion-content-height)' }
@@ -128,49 +238,44 @@ export default {
           to: { height: '0' }
         },
         'fade-in': {
-          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' }
         },
         'fade-out': {
           '0%': { opacity: '1', transform: 'translateY(0)' },
-          '100%': { opacity: '0', transform: 'translateY(10px)' }
+          '100%': { opacity: '0', transform: 'translateY(8px)' }
+        },
+        'slide-in-right': {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' }
+        },
+        'slide-out-right': {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(100%)' }
         },
         'scale-in': {
           '0%': { transform: 'scale(0.95)', opacity: '0' },
           '100%': { transform: 'scale(1)', opacity: '1' }
         },
-        'scale-out': {
-          from: { transform: 'scale(1)', opacity: '1' },
-          to: { transform: 'scale(0.95)', opacity: '0' }
+        'glow-pulse': {
+          '0%, 100%': { boxShadow: '0 0 20px rgba(255, 101, 0, 0.3)' },
+          '50%': { boxShadow: '0 0 40px rgba(255, 101, 0, 0.6)' }
         },
-        'slide-in': {
-          '0%': { transform: 'translateX(-100%)' },
-          '100%': { transform: 'translateX(0)' }
-        },
-        'slide-out': {
-          '0%': { transform: 'translateX(0)' },
-          '100%': { transform: 'translateX(-100%)' }
-        },
-        'pulse': {
-          '0%, 100%': { opacity: '1' },
-          '50%': { opacity: '0.5' }
-        },
-        'progress': {
-          '0%': { width: '0%' },
-          '100%': { width: '100%' }
+        'float': {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-4px)' }
         }
       },
       animation: {
-        'accordion-down': 'accordion-down 0.2s ease-out',
-        'accordion-up': 'accordion-up 0.2s ease-out',
-        'fade-in': 'fade-in 0.3s ease-out',
-        'fade-out': 'fade-out 0.3s ease-out',
-        'scale-in': 'scale-in 0.2s ease-out',
-        'scale-out': 'scale-out 0.2s ease-out',
-        'slide-in': 'slide-in 0.3s ease-out',
-        'slide-out': 'slide-out 0.3s ease-out',
-        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'progress': 'progress 1s ease-out forwards',
+        'accordion-down': 'accordion-down 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+        'accordion-up': 'accordion-up 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+        'fade-in': 'fade-in 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+        'fade-out': 'fade-out 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+        'slide-in-right': 'slide-in-right 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+        'slide-out-right': 'slide-out-right 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+        'scale-in': 'scale-in 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+        'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+        'float': 'float 3s ease-in-out infinite'
       }
     }
   },

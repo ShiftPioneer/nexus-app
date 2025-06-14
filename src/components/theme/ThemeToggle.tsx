@@ -41,22 +41,24 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ sidebarTheme = false }) => {
 
   return (
     <Button
-      variant={sidebarTheme ? "ghost" : "outline"}
-      size="icon"
+      variant={sidebarTheme ? "ghost" : "ghost"}
+      size={sidebarTheme ? "default" : "icon"}
       onClick={toggleTheme}
       className={cn(
-        "rounded-full",
-        sidebarTheme && "w-full justify-start px-3 py-2"
+        "transition-all duration-200",
+        sidebarTheme 
+          ? "w-full justify-start px-3 py-2 hover:bg-background-dark-tertiary text-text-dark-secondary hover:text-text-dark-primary" 
+          : "h-11 w-11 rounded-xl hover:bg-background-secondary text-text-secondary hover:text-text-primary"
       )}
     >
       {theme === "light" ? (
         <>
-          <Sun className="h-5 w-5" />
+          <Moon className="h-5 w-5" />
           {sidebarTheme && <span className="ml-3">Dark Mode</span>}
         </>
       ) : (
         <>
-          <Moon className="h-5 w-5" />
+          <Sun className="h-5 w-5" />
           {sidebarTheme && <span className="ml-3">Light Mode</span>}
         </>
       )}
