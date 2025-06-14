@@ -92,7 +92,7 @@ const GoalSection = () => {
       return false;
     }
   };
-  return <Card className="min-h-[100px] h-auto rounded-md border-slate-300">
+  return <Card className="min-h-[100px] h-auto rounded-md border-slate-300 bg-slate-950">
       <CardHeader className="pb-2 bg-slate-950 rounded-md">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-medium">Active Goals</CardTitle>
