@@ -177,41 +177,38 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           </nav>
         ) : (
           <ScrollArea className="flex-1 bg-slate-950 px-3">
-            <nav className="space-y-2 py-4">
+            <nav className="space-y-1 py-4">
               {navigationItems.map(item => {
                 const isActive = location.pathname === item.path;
                 const Icon = item.icon;
                 return (
-                  <Link key={item.path} to={item.path} className="w-full" tabIndex={0}>
-                    <Button
-                      variant="ghost"
+                  <Link key={item.path} to={item.path} className="block">
+                    <div
                       className={cn(
-                        "w-full transition-all duration-200 group relative flex items-center h-16 px-4 justify-start rounded-xl",
+                        "flex items-center px-3 py-3 rounded-lg transition-all duration-200 group relative",
                         isActive 
-                          ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30" 
+                          ? "bg-primary/20 text-primary shadow-sm" 
                           : "text-slate-300 hover:bg-slate-800 hover:text-white"
                       )}
                     >
-                      <div className="flex items-center w-full gap-4">
-                        <div className={cn(
-                          "flex-shrink-0 p-2 rounded-lg transition-all duration-200",
-                          isActive ? "bg-primary/30" : "group-hover:bg-slate-700"
-                        )}>
-                          <Icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                        </div>
-                        <div className="flex flex-col items-start flex-1 min-w-0">
-                          <span className="text-sm font-semibold truncate w-full text-left">
-                            {item.name}
-                          </span>
-                          <span className="text-xs text-slate-400 truncate w-full text-left">
-                            {item.description}
-                          </span>
-                        </div>
+                      <div className={cn(
+                        "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200",
+                        isActive ? "bg-primary/30" : "group-hover:bg-slate-700"
+                      )}>
+                        <Icon className="h-5 w-5" />
+                      </div>
+                      <div className="ml-3 flex flex-col min-w-0 flex-1">
+                        <span className="text-sm font-semibold text-white">
+                          {item.name}
+                        </span>
+                        <span className="text-xs text-slate-400">
+                          {item.description}
+                        </span>
                       </div>
                       {isActive && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-primary rounded-r-full" />
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                       )}
-                    </Button>
+                    </div>
                   </Link>
                 );
               })}
@@ -242,36 +239,33 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               </Button>
             </Link>
           ) : (
-            <Link to={settingsItem.path} className="w-full" tabIndex={0}>
-              <Button
-                variant="ghost"
+            <Link to={settingsItem.path} className="block">
+              <div
                 className={cn(
-                  "w-full transition-all duration-200 group relative flex items-center h-16 px-4 justify-start rounded-xl",
+                  "flex items-center px-3 py-3 rounded-lg transition-all duration-200 group relative",
                   location.pathname === settingsItem.path
-                    ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30" 
+                    ? "bg-primary/20 text-primary shadow-sm" 
                     : "text-slate-300 hover:bg-slate-800 hover:text-white"
                 )}
               >
-                <div className="flex items-center w-full gap-4">
-                  <div className={cn(
-                    "flex-shrink-0 p-2 rounded-lg transition-all duration-200",
-                    location.pathname === settingsItem.path ? "bg-primary/30" : "group-hover:bg-slate-700"
-                  )}>
-                    <Settings className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                  </div>
-                  <div className="flex flex-col items-start flex-1 min-w-0">
-                    <span className="text-sm font-semibold truncate w-full text-left">
-                      {settingsItem.name}
-                    </span>
-                    <span className="text-xs text-slate-400 truncate w-full text-left">
-                      {settingsItem.description}
-                    </span>
-                  </div>
+                <div className={cn(
+                  "flex-shrink-0 w-10 h-10 flex items-center justify-center rounded-lg transition-all duration-200",
+                  location.pathname === settingsItem.path ? "bg-primary/30" : "group-hover:bg-slate-700"
+                )}>
+                  <Settings className="h-5 w-5" />
+                </div>
+                <div className="ml-3 flex flex-col min-w-0 flex-1">
+                  <span className="text-sm font-semibold text-white">
+                    {settingsItem.name}
+                  </span>
+                  <span className="text-xs text-slate-400">
+                    {settingsItem.description}
+                  </span>
                 </div>
                 {location.pathname === settingsItem.path && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-primary rounded-r-full" />
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                 )}
-              </Button>
+              </div>
             </Link>
           )}
         </div>
