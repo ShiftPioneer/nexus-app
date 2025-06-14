@@ -124,7 +124,7 @@ const HabitsSection = () => {
   };
   return <section className="mb-6">
       <Card>
-        <CardHeader className="pb-2 bg-slate-950">
+        <CardHeader className="pb-2 bg-slate-950 rounded-lg">
           <div className="flex justify-between items-center">
             <div>
               <CardTitle>Habits</CardTitle>
@@ -133,7 +133,7 @@ const HabitsSection = () => {
             
           </div>
         </CardHeader>
-        <CardContent className="bg-slate-950">
+        <CardContent className="bg-slate-950 rounded-lg">
           {habits.length === 0 ? <div className="text-center py-8">
               <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
               <p className="text-muted-foreground mb-2">No habits created yet</p>
