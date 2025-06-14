@@ -39,7 +39,7 @@ export default {
           950: '#431407',
           foreground: '#FFFFFF'
         },
-        
+
         // Semantic Color System
         success: {
           DEFAULT: '#10B981',
@@ -55,22 +55,23 @@ export default {
           900: '#064E3B',
           foreground: '#FFFFFF'
         },
-        
+
+        // CHANGED: Warning is now lime, not yellow/orange!
         warning: {
-          DEFAULT: '#F59E0B',
-          50: '#FFFBEB',
-          100: '#FEF3C7',
-          200: '#FDE68A',
-          300: '#FCD34D',
-          400: '#FBBF24',
-          500: '#F59E0B',
-          600: '#D97706',
-          700: '#B45309',
-          800: '#92400E',
-          900: '#78350F',
+          DEFAULT: '#84cc16', // lime-500
+          50: '#f7fee7',     // lime-50
+          100: '#ecfccb',    // lime-100
+          200: '#d9f99d',    // lime-200
+          300: '#bef264',    // lime-300
+          400: '#a3e635',    // lime-400
+          500: '#84cc16',    // lime-500
+          600: '#65a30d',    // lime-600
+          700: '#4d7c0f',    // lime-700
+          800: '#3f6212',    // lime-800
+          900: '#365314',    // lime-900
           foreground: '#FFFFFF'
         },
-        
+
         error: {
           DEFAULT: '#EF4444',
           50: '#FEF2F2',
@@ -85,19 +86,22 @@ export default {
           900: '#7F1D1D',
           foreground: '#FFFFFF'
         },
-        
+
         // Enhanced Background System
         background: {
           DEFAULT: '#FFFFFF',
           secondary: '#F8FAFC',
           tertiary: '#F1F5F9',
+          // CHANGED: Add slate950
           dark: {
             DEFAULT: '#0F172A',
             secondary: '#1E293B',
-            tertiary: '#334155'
+            tertiary: '#334155',
+            // Add custom key for slate950, or use direct Tailwind class where needed
+            ultra: '#020617'
           }
         },
-        
+
         // Text Color Hierarchy
         text: {
           primary: '#0F172A',
@@ -112,7 +116,7 @@ export default {
             muted: '#64748B'
           }
         },
-        
+
         // Status Colors
         status: {
           active: '#10B981',
@@ -120,7 +124,7 @@ export default {
           inactive: '#6B7280',
           completed: '#059669'
         },
-        
+
         // Legacy colors (keeping for compatibility)
         secondary: {
           DEFAULT: '#024CAA',
@@ -152,7 +156,7 @@ export default {
           dark: '#111111'
         },
         muted: '#D1D5DB',
-        
+
         // System colors (shadcn compatibility)
         border: 'hsl(var(--border))',
         input: 'hsl(var(--input))',
@@ -179,9 +183,39 @@ export default {
           'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))'
+        },
+        
+        // Make sure lime exists in base palette (for utility use also)
+        lime: {
+          50: '#f7fee7',
+          100: '#ecfccb',
+          200: '#d9f99d',
+          300: '#bef264',
+          400: '#a3e635',
+          500: '#84cc16',
+          600: '#65a30d',
+          700: '#4d7c0f',
+          800: '#3f6212',
+          900: '#365314',
+          950: '#1a2e05'
+        },
+
+        slate: {
+          // normal tailwind slate palette (make sure 950 is defined)
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+          950: '#020617', // This is slate-950
         }
       },
-      
+
       // Enhanced Typography Scale
       fontSize: {
         'display-2xl': ['4.5rem', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
@@ -196,7 +230,7 @@ export default {
         'xs': ['0.75rem', { lineHeight: '1.6' }],
         'caption': ['0.6875rem', { lineHeight: '1.6' }]
       },
-      
+
       // Enhanced Spacing Scale
       spacing: {
         '18': '4.5rem',
@@ -204,7 +238,7 @@ export default {
         '112': '28rem',
         '128': '32rem'
       },
-      
+
       // Enhanced Border Radius
       borderRadius: {
         'lg': '0.75rem',
@@ -214,7 +248,7 @@ export default {
         'md': 'calc(var(--radius) - 2px)',
         'sm': 'calc(var(--radius) - 4px)'
       },
-      
+
       // Enhanced Shadows
       boxShadow: {
         'xs': '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
@@ -226,7 +260,7 @@ export default {
         'glow': '0 0 20px rgba(255, 101, 0, 0.3)',
         'glow-lg': '0 0 40px rgba(255, 101, 0, 0.2)'
       },
-      
+
       keyframes: {
         // Enhanced animations
         'accordion-down': {

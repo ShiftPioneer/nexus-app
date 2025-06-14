@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -306,4 +305,22 @@
     opacity: 0;
     transform: translateY(8px);
   }
+}
+
+/* Replace any colors similar to the tan shown in the screenshot with slate-950 */
+.bg-tan, .bg-[#c49b6c], .bg-[rgb(196,155,108)], .bg-[hsl(32,44%,60%)] {
+  background-color: #020617 !important; /* slate-950 */
+}
+
+/* If there are any direct uses of tailwind bg-yellow-* or colors close to the tan, override to slate-950 */
+.bg-yellow-50, .bg-yellow-100, .bg-yellow-200, .bg-yellow-300, .bg-yellow-400, .bg-yellow-500, 
+.bg-yellow-600, .bg-yellow-700, .bg-yellow-800, .bg-yellow-900,
+.bg-amber-50, .bg-amber-100, .bg-amber-200, .bg-amber-300, .bg-amber-400, .bg-amber-500, 
+.bg-amber-600, .bg-amber-700, .bg-amber-800, .bg-amber-900 {
+  background-color: #84cc16 !important; /* lime-500 as primary */
+}
+
+/* If text uses yellow, adjust as well */
+.text-yellow-400, .text-yellow-500, .text-amber-400, .text-amber-500, .text-[#c49b6c] {
+  color: #84cc16 !important; /* lime-500 */
 }
