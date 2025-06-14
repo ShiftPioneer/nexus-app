@@ -43,7 +43,7 @@ const GTDPrinciple: React.FC = () => {
   }];
   return <Card className="border-slate-700 text-slate-200 bg-slate-950">
       <CardHeader>
-        <CardTitle>GTD Principles</CardTitle>
+        <CardTitle className="text-cyan-500">GTD Principles</CardTitle>
         <CardDescription className="text-slate-400">Effective task management workflow</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 bg-slate-950">

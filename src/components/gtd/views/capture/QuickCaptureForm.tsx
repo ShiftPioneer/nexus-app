@@ -52,20 +52,20 @@ const QuickCaptureForm = () => {
   };
   return <Card className="bg-slate-950">
       <CardHeader className="bg-slate-950">
-        <CardTitle className="text-xl">Quick Capture</CardTitle>
+        <CardTitle className="text-xl text-cyan-500">Quick Capture</CardTitle>
       </CardHeader>
       <CardContent className="bg-slate-950">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <Input placeholder="What's on your mind?" value={title} onChange={e => setTitle(e.target.value)} className="focus:ring-2 focus:ring-primary" />
+            <Input placeholder="What's on your mind?" value={title} onChange={e => setTitle(e.target.value)} className="focus:ring-2 focus:ring-primary bg-slate-900" />
           </div>
           
           <div>
-            <Textarea placeholder="Add details (optional)" value={description} onChange={e => setDescription(e.target.value)} className="min-h-[100px] focus:ring-2 focus:ring-primary" />
+            <Textarea placeholder="Add details (optional)" value={description} onChange={e => setDescription(e.target.value)} className="min-h-[100px] focus:ring-2 focus:ring-primary bg-slate-900" />
           </div>
           
           <div className="space-y-3">
-            <label className="text-sm font-medium">Priority</label>
+            <label className="text-sm font-medium bg-background-DEFAULT text-cyan-500">Priority</label>
             <div className="flex flex-wrap gap-2">
               {["Very Low", "Low", "Medium", "High", "Very High"].map(p => <Button key={p} type="button" size="sm" variant={priority === p ? "default" : "outline"} onClick={() => setPriority(p as TaskPriority)} className={priority === p ? "bg-primary text-primary-foreground" : ""}>
                   {p}
@@ -75,15 +75,15 @@ const QuickCaptureForm = () => {
           </div>
           
           <div className="space-y-3">
-            <label className="text-sm font-medium">Type</label>
+            <label className="text-sm font-medium text-cyan-600">Type</label>
             <RadioGroup defaultValue="todo" className="flex flex-col space-y-1">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="todo" id="todo" checked={!isToDoNot} onClick={() => setIsToDoNot(false)} />
-                <Label htmlFor="todo">To Do</Label>
+                <Label htmlFor="todo" className="text-slate-300">To Do</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="nottodo" id="nottodo" checked={isToDoNot} onClick={() => setIsToDoNot(true)} />
-                <Label htmlFor="nottodo">Not To Do</Label>
+                <Label htmlFor="nottodo" className="bg-deep-DEFAULT text-slate-300">Not To Do</Label>
               </div>
             </RadioGroup>
           </div>
