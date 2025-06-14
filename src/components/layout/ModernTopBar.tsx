@@ -19,7 +19,7 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
   const {
     user
   } = useAuth();
-  return <header className="h-20 border-b border-border backdrop-blur-xl flex items-center justify-between px-6 z-30 flex-shrink-0 shadow-sm bg-slate-950">
+  return <header className="h-20 border-b border-border backdrop-blur-xl flex items-center justify-between px-6 z-30 flex-shrink-0 shadow-sm bg-slate-950 ">
       <div className="flex items-center gap-4">
         {/* Enhanced logo when sidebar is collapsed */}
         {isCollapsed && <Button variant="ghost" onClick={onToggleSidebar} className="flex items-center gap-3 hover:bg-primary/10 px-3 py-2 rounded-xl transition-all duration-200 group">
