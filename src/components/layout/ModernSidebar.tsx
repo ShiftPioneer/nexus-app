@@ -158,35 +158,26 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               
               return (
                 <Link key={item.path} to={item.path} className="block">
-                  {isCollapsed ? (
-                    <div
-                      className={cn(
-                        "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-200 relative group mx-auto",
-                        isActive 
-                          ? "bg-primary/20 text-primary shadow-lg" 
-                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                      )}
-                    >
-                      <Icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                      {isActive && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
-                      )}
+                  <div
+                    className={cn(
+                      "flex items-center transition-all duration-200 group relative rounded-xl",
+                      isCollapsed 
+                        ? "w-12 h-12 justify-center mx-auto"
+                        : "gap-3 px-3 py-3",
+                      isActive 
+                        ? "bg-primary/20 text-primary shadow-lg" 
+                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                    )}
+                  >
+                    <div className={cn(
+                      "flex-shrink-0 flex items-center justify-center transition-all duration-200",
+                      isCollapsed ? "w-5 h-5" : "w-8 h-8 rounded-lg",
+                      isActive ? "text-primary" : "group-hover:text-primary"
+                    )}>
+                      <Icon className="h-5 w-5" />
                     </div>
-                  ) : (
-                    <div
-                      className={cn(
-                        "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
-                        isActive 
-                          ? "bg-primary/20 text-white shadow-sm border border-primary/30" 
-                          : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
-                      )}
-                    >
-                      <div className={cn(
-                        "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200",
-                        isActive ? "text-primary" : "group-hover:text-primary"
-                      )}>
-                        <Icon className="h-5 w-5" />
-                      </div>
+                    
+                    {!isCollapsed && (
                       <div className="flex flex-col min-w-0 flex-1">
                         <span className={cn(
                           "text-sm font-medium leading-tight",
@@ -198,11 +189,12 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                           {item.description}
                         </span>
                       </div>
-                      {isActive && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
-                      )}
-                    </div>
-                  )}
+                    )}
+                    
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
+                    )}
+                  </div>
                 </Link>
               );
             })}
@@ -215,35 +207,26 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           isCollapsed ? "p-3" : "px-4 py-3"
         )}>
           <Link to={settingsItem.path} className="block">
-            {isCollapsed ? (
-              <div
-                className={cn(
-                  "w-12 h-12 flex items-center justify-center rounded-xl transition-all duration-200 relative group mx-auto",
-                  location.pathname === settingsItem.path
-                    ? "bg-primary/20 text-primary shadow-lg" 
-                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                )}
-              >
-                <Settings className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                {location.pathname === settingsItem.path && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
-                )}
+            <div
+              className={cn(
+                "flex items-center transition-all duration-200 group relative rounded-xl",
+                isCollapsed 
+                  ? "w-12 h-12 justify-center mx-auto"
+                  : "gap-3 px-3 py-3",
+                location.pathname === settingsItem.path
+                  ? "bg-primary/20 text-primary shadow-lg" 
+                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
+              )}
+            >
+              <div className={cn(
+                "flex-shrink-0 flex items-center justify-center transition-all duration-200",
+                isCollapsed ? "w-5 h-5" : "w-8 h-8 rounded-lg",
+                location.pathname === settingsItem.path ? "text-primary" : "group-hover:text-primary"
+              )}>
+                <Settings className="h-5 w-5" />
               </div>
-            ) : (
-              <div
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative",
-                  location.pathname === settingsItem.path
-                    ? "bg-primary/20 text-white shadow-sm border border-primary/30" 
-                    : "text-slate-300 hover:bg-slate-800/50 hover:text-white"
-                )}
-              >
-                <div className={cn(
-                  "flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-200",
-                  location.pathname === settingsItem.path ? "text-primary" : "group-hover:text-primary"
-                )}>
-                  <Settings className="h-5 w-5" />
-                </div>
+              
+              {!isCollapsed && (
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className={cn(
                     "text-sm font-medium leading-tight",
@@ -255,11 +238,12 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                     {settingsItem.description}
                   </span>
                 </div>
-                {location.pathname === settingsItem.path && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
-                )}
-              </div>
-            )}
+              )}
+              
+              {location.pathname === settingsItem.path && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
+              )}
+            </div>
           </Link>
         </div>
       </div>
