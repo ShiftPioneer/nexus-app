@@ -22,7 +22,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({ isCollapsed, onToggle }) 
           variant="ghost"
           onClick={onToggle}
           aria-label="Expand sidebar"
-          className="w-10 h-10 p-0 rounded transition-all duration-200 hover:bg-primary/20 hover:scale-105 group text-slate-300 hover:text-white"
+          className="w-10 h-10 p-0 rounded transition-all duration-200 hover:bg-primary/20 hover:scale-105 group text-slate-300 hover:text-white border-0"
         >
           <img 
             src={LOGO_URL} 
@@ -33,7 +33,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({ isCollapsed, onToggle }) 
       ) : (
         <>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded flex items-center justify-center shadow-sm bg-primary/20 border border-slate-300">
+            <div className="w-8 h-8 rounded flex items-center justify-center shadow-sm bg-primary/20">
               <img src={LOGO_URL} alt="NEXUS" className="w-6 h-6 object-contain" />
             </div>
             <span className="text-lg font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent">
@@ -44,7 +44,7 @@ const SidebarHeader: React.FC<SidebarHeaderProps> = ({ isCollapsed, onToggle }) 
             variant="ghost"
             size="icon"
             onClick={onToggle}
-            className="ml-auto h-8 w-8 hover:bg-slate-800 transition-all duration-200 text-primary hover:text-primary-400"
+            className="ml-auto h-8 w-8 hover:bg-slate-800 transition-all duration-200 text-primary hover:text-primary-400 border-0"
             aria-label="Collapse sidebar"
           >
             <ChevronLeft className="h-5 w-5" />
