@@ -5,14 +5,14 @@ import { cn } from "@/lib/utils";
 import {
   Home,
   CheckSquare,
-  Repeat,
-  BookOpen,
-  Target,
   Clock,
-  DollarSign,
-  Dumbbell,
+  Target,
+  Repeat,
   Brain,
   Zap,
+  BookOpen,
+  FileText,
+  Dumbbell,
   ListTodo
 } from "lucide-react";
 
@@ -28,34 +28,16 @@ const navigationItems = [
     description: "Overview & insights"
   },
   {
+    name: "GTD",
+    path: "/gtd",
+    icon: ListTodo,
+    description: "Getting Things Done"
+  },
+  {
     name: "Actions",
     path: "/actions",
     icon: CheckSquare,
-    description: "To Do / Not To Do"
-  },
-  {
-    name: "Habits",
-    path: "/habits",
-    icon: Repeat,
-    description: "Track daily habits"
-  },
-  {
-    name: "Journal",
-    path: "/journal",
-    icon: BookOpen,
-    description: "Reflect & grow"
-  },
-  {
-    name: "Planning",
-    path: "/planning",
-    icon: Target,
-    description: "Goals & projects"
-  },
-  {
-    name: "Tasks",
-    path: "/tasks",
-    icon: ListTodo,
-    description: "Task management"
+    description: "Tasks & todos"
   },
   {
     name: "Time Design",
@@ -64,40 +46,46 @@ const navigationItems = [
     description: "Schedule & matrix"
   },
   {
-    name: "Finance",
-    path: "/finance",
-    icon: DollarSign,
-    description: "Track expenses"
+    name: "Planning",
+    path: "/planning",
+    icon: Target,
+    description: "Goals & projects"
   },
   {
-    name: "Energy Hub",
-    path: "/energy",
-    icon: Dumbbell,
-    description: "Fitness & nutrition"
+    name: "Habits",
+    path: "/habits",
+    icon: Repeat,
+    description: "Track habits"
+  },
+  {
+    name: "Focus",
+    path: "/focus",
+    icon: Brain,
+    description: "Deep work sessions"
   },
   {
     name: "Mindset",
     path: "/mindset",
     icon: Brain,
-    description: "Vision & beliefs"
+    description: "Values & beliefs"
   },
   {
     name: "Knowledge",
     path: "/knowledge",
-    icon: Zap,
-    description: "Learning hub"
+    icon: BookOpen,
+    description: "Learning & notes"
   },
   {
-    name: "Focus",
-    path: "/focus",
-    icon: Target,
-    description: "Focus sessions"
+    name: "Journal",
+    path: "/journal",
+    icon: FileText,
+    description: "Thoughts & reflections"
   },
   {
-    name: "GTD",
-    path: "/gtd",
-    icon: ListTodo,
-    description: "Getting Things Done"
+    name: "Energy",
+    path: "/energy",
+    icon: Dumbbell,
+    description: "Fitness & wellness"
   }
 ];
 
