@@ -83,17 +83,17 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
   const renderDayCalendar = () => {
     return <div className="relative min-h-[1728px] mx-12">
         {/* Hour lines */}
-        {hours.map(hour => <div key={hour} className="grid grid-cols-1 border-b min-h-[72px]">
+        {hours.map(hour => <div key={hour} className="grid grid-cols-1 border-b border-slate-700 min-h-[72px]">
             <div className="relative">
               <span className="absolute -top-3 -left-14 text-sm font-medium text-muted-foreground">
                 {formatHour(hour)}
               </span>
-              <div className="border-t h-[36px]"></div>
+              <div className="border-t border-slate-700 h-[36px]"></div>
               <div className="relative">
                 <span className="absolute -left-14 -top-3 text-xs text-muted-foreground">
                   30
                 </span>
-                <div className="border-t border-dashed h-[36px] border-gray-200 dark:border-gray-700"></div>
+                <div className="border-t border-dashed h-[36px] border-slate-700"></div>
               </div>
             </div>
           </div>)}
@@ -130,7 +130,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
   };
   const renderWeekCalendar = () => {
     return <div className="min-h-[1728px] overflow-x-auto">
-        <div className="grid grid-cols-8 border-b sticky top-0 bg-background z-10 my-[15px]">
+        <div className="grid grid-cols-8 border-b border-slate-700 sticky top-0 bg-background z-10 my-[15px]">
           <div className="w-12"></div>
           {weekDays.map((day, i) => <div key={i} className={`text-center py-2 font-medium ${isSameDay(day, new Date()) ? "text-blue-600 dark:text-blue-400" : ""}`}>
               <div>{format(day, "EEE")}</div>
@@ -142,26 +142,26 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
         
         <div className="grid grid-cols-8 relative">
           {/* Time labels column */}
-          <div className="border-r">
+          <div className="border-r border-slate-700">
             {hours.map(hour => <div key={hour} className="h-[72px] relative">
                 <span className="absolute -top-3 w-full text-right pr-2 text-sm font-medium text-muted-foreground">
                   {formatHour(hour)}
                 </span>
-                <div className="border-t h-[36px]"></div>
+                <div className="border-t border-slate-700 h-[36px]"></div>
                 <div className="relative">
                   <span className="absolute right-2 -top-3 text-xs text-muted-foreground">
                     30
                   </span>
-                  <div className="border-t border-dashed h-[36px] border-gray-200 dark:border-gray-700"></div>
+                  <div className="border-t border-dashed h-[36px] border-slate-700"></div>
                 </div>
               </div>)}
           </div>
           
           {/* Day columns */}
-          {weekDays.map((day, dayIndex) => <div key={dayIndex} className="border-r relative">
-              {hours.map(hour => <div key={hour} className="border-b h-[72px] relative">
-                  <div className="border-t h-[36px]"></div>
-                  <div className="border-t border-dashed h-[36px] border-gray-200 dark:border-gray-700"></div>
+          {weekDays.map((day, dayIndex) => <div key={dayIndex} className="border-r border-slate-700 relative">
+              {hours.map(hour => <div key={hour} className="border-b border-slate-700 h-[72px] relative">
+                  <div className="border-t border-slate-700 h-[36px]"></div>
+                  <div className="border-t border-dashed h-[36px] border-slate-700"></div>
                 </div>)}
               
               {/* Current time indicator */}
@@ -199,7 +199,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
       </div>;
   };
   return <div className="p-4 overflow-auto">
-      <div className="bg-white dark:bg-slate-900 rounded-lg border shadow-sm p-2">
+      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-700 shadow-sm p-2">
         {viewType === "day" ? renderDayCalendar() : renderWeekCalendar()}
       </div>
     </div>;
