@@ -72,6 +72,7 @@ export default {
           foreground: '#FFFFFF'
         },
 
+        // Remove any yellow/amber leftovers
         error: {
           DEFAULT: '#EF4444',
           50: '#FEF2F2',
