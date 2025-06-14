@@ -7,13 +7,14 @@ import {
   CheckSquare,
   Clock,
   Target,
-  Repeat,
   Brain,
-  Zap,
   BookOpen,
-  FileText,
-  Dumbbell,
-  ListTodo
+  ListTodo,
+  BarChart3,
+  Crosshair,
+  FilePenLine,
+  Zap,
+  Settings,
 } from "lucide-react";
 
 interface SidebarNavigationProps {
@@ -54,13 +55,13 @@ const navigationItems = [
   {
     name: "Habits",
     path: "/habits",
-    icon: Repeat,
+    icon: BarChart3,
     description: "Track habits"
   },
   {
     name: "Focus",
     path: "/focus",
-    icon: Brain,
+    icon: Crosshair,
     description: "Deep work sessions"
   },
   {
@@ -78,14 +79,20 @@ const navigationItems = [
   {
     name: "Journal",
     path: "/journal",
-    icon: FileText,
+    icon: FilePenLine,
     description: "Thoughts & reflections"
   },
   {
     name: "Energy",
     path: "/energy",
-    icon: Dumbbell,
+    icon: Zap,
     description: "Fitness & wellness"
+  },
+  {
+    name: "Settings",
+    path: "/settings",
+    icon: Settings,
+    description: "App preferences"
   }
 ];
 
