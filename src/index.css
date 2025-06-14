@@ -1,252 +1,173 @@
-/* Global styles for scrollbars and animations */
 
-/* Hide all scrollbars */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+ 
+@layer base {
+  :root {
+    /* Light theme variables */
+    --background: 255 255 255;
+    --foreground: 15 23 42;
+    --card: 248 250 252;
+    --card-foreground: 15 23 42;
+    --popover: 255 255 255;
+    --popover-foreground: 15 23 42;
+    --primary: 255 101 0;
+    --primary-foreground: 255 255 255;
+    --secondary: 241 245 249;
+    --secondary-foreground: 71 85 105;
+    --muted: 241 245 249;
+    --muted-foreground: 100 116 139;
+    --accent: 241 245 249;
+    --accent-foreground: 15 23 42;
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+    --border: 226 232 240;
+    --input: 226 232 240;
+    --ring: 255 101 0;
+    --radius: 0.75rem;
+    
+    /* Sidebar variables */
+    --sidebar-background: 241 245 249;
+    --sidebar-foreground: 15 23 42;
+    --sidebar-primary: 255 101 0;
+    --sidebar-primary-foreground: 255 255 255;
+    --sidebar-accent: 226 232 240;
+    --sidebar-accent-foreground: 15 23 42;
+    --sidebar-border: 226 232 240;
+    --sidebar-ring: 255 101 0;
+  }
+ 
+  .dark {
+    /* Dark theme variables */
+    --background: 15 23 42;
+    --foreground: 248 250 252;
+    --card: 2 6 23;
+    --card-foreground: 248 250 252;
+    --popover: 15 23 42;
+    --popover-foreground: 248 250 252;
+    --primary: 255 101 0;
+    --primary-foreground: 255 255 255;
+    --secondary: 51 65 85;
+    --secondary-foreground: 203 213 225;
+    --muted: 51 65 85;
+    --muted-foreground: 148 163 184;
+    --accent: 51 65 85;
+    --accent-foreground: 248 250 252;
+    --destructive: 239 68 68;
+    --destructive-foreground: 255 255 255;
+    --border: 51 65 85;
+    --input: 51 65 85;
+    --ring: 255 101 0;
+    
+    /* Dark sidebar variables */
+    --sidebar-background: 2 6 23;
+    --sidebar-foreground: 248 250 252;
+    --sidebar-primary: 255 101 0;
+    --sidebar-primary-foreground: 255 255 255;
+    --sidebar-accent: 51 65 85;
+    --sidebar-accent-foreground: 248 250 252;
+    --sidebar-border: 51 65 85;
+    --sidebar-ring: 255 101 0;
+  }
+}
+ 
+@layer base {
+  * {
+    border-color: hsl(var(--border));
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  html.dark {
+    color-scheme: dark;
+  }
+  
+  /* Enhanced typography scale */
+  h1 {
+    font-size: 2.25rem;
+    line-height: 1.2;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  
+  h2 {
+    font-size: 1.875rem;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+  
+  h3 {
+    font-size: 1.25rem;
+    line-height: 1.4;
+    font-weight: 600;
+  }
+  
+  h4 {
+    font-size: 1.125rem;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  
+  h5 {
+    font-size: 1rem;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  
+  h6 {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    font-weight: 500;
+  }
+  
+  p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+  
+  small {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+  }
+}
+
+/* Enhanced scrollbar styling */
 .scrollbar-none {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .scrollbar-none::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+  display: none;
 }
 
-/* Make all scrollbars thin and styled */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-  display: none; /* Hide all scrollbars by default */
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: hsl(var(--muted));
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(156, 163, 175, 0.3);
-  border-radius: 3px;
+  background: hsl(var(--muted-foreground));
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(156, 163, 175, 0.5);
-}
-
-/* Apply to all main content areas */
-main, .scrollable-content, [class*="overflow-auto"], [class*="overflow-y-auto"] {
-  @apply scrollbar-none;
-}
-
-/* Ensure smooth scrolling everywhere */
-html, body {
-  @apply scroll-smooth scrollbar-none;
-}
-
-/* Animations for page transitions */
-.animate-fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Navbar animation */
-.sidebar-transition {
-  transition: all 0.5s ease-in-out;
-}
-
-/* Hover animations for cards */
-.hover-shadow-effect {
-  transition: box-shadow 0.3s ease, transform 0.3s ease;
-}
-
-.hover-shadow-effect:hover {
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  transform: translateY(-2px);
-}
-
-/* Button hover effects */
-.btn-hover-effect {
-  transition: transform 0.2s ease;
-}
-
-.btn-hover-effect:hover {
-  transform: translateY(-1px);
-}
-
-/* Focus highlight effect */
-.focus-highlight {
-  transition: outline 0.2s ease;
-}
-
-.focus-highlight:focus {
-  outline: 2px solid rgba(59, 130, 246, 0.5);
-  outline-offset: 2px;
-}
-
-/* Futuristic background for cards */
-.futuristic-bg {
-  background: linear-gradient(135deg, rgba(26, 32, 44, 0.8) 0%, rgba(17, 24, 39, 0.9) 100%);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Custom animations */
-@keyframes pulse-slow {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.7;
-  }
-}
-
-.pulse-slow {
-  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Fix for mobile and responsive designs */
-@media (max-width: 768px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  .md\:grid-cols-2 {
-    grid-template-columns: 1fr;
-  }
-  
-  .lg\:grid-cols-3 {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Replace yellow/amber text and background with lime-500 everywhere */
-.text-yellow-50, .text-yellow-100, .text-yellow-200, .text-yellow-300, 
-.text-yellow-400, .text-yellow-500, .text-yellow-600, .text-yellow-700, 
-.text-yellow-800, .text-yellow-900, .text-yellow-950,
-.text-amber-50, .text-amber-100, .text-amber-200, .text-amber-300,
-.text-amber-400, .text-amber-500, .text-amber-600, .text-amber-700,
-.text-amber-800, .text-amber-900, .text-amber-950 {
-  color: #84cc16 !important; /* lime-500 for ALL yellow/amber text */
-}
-.bg-yellow-50, .bg-yellow-100, .bg-yellow-200, .bg-yellow-300,
-.bg-yellow-400, .bg-yellow-500, .bg-yellow-600, .bg-yellow-700,
-.bg-yellow-800, .bg-yellow-900, .bg-yellow-950,
-.bg-amber-50, .bg-amber-100, .bg-amber-200, .bg-amber-300,
-.bg-amber-400, .bg-amber-500, .bg-amber-600, .bg-amber-700,
-.bg-amber-800, .bg-amber-900, .bg-amber-950 {
-  background-color: #84cc16 !important; /* lime-500 for ALL yellow/amber backgrounds */
-}
-
-/* Universal fix: force all brown-like cards, boxes, and dull dark backgrounds to bg-slate-950 for a modern dark look */
-.bg-brown, .bg-[#915a09], .bg-amber-100, .bg-amber-200, .bg-yellow-200, .bg-yellow-500, .bg-yellow-600, .bg-yellow-700, .bg-yellow-800, .bg-yellow-900, .bg-yellow-950, .bg-amber-400, .bg-amber-500, .bg-amber-600, .bg-amber-700, .bg-amber-800, .bg-amber-900, .bg-amber-950, .bg-[#fad33c], .bg-[#fbbf24] {
-  background-color: #020617 !important; /* slate-950 */
-}
-
-/* Fix for dark backgrounds: ensure text is white or nearly so */
-.bg-slate-950, .bg-dark, .card-enhanced, .sidebar-dark-bg, html.dark body {
-  background-color: #020617 !important; /* slate-950 */
-  color: #f8fafc !important; /* slate-50 for contrast */
-}
-
-/* On dark backgrounds, use white or slate-100 for main text, slate-300 secondary, lime-500 for accent/warnings */
-.bg-slate-950 label,
-.bg-slate-950 h1, .bg-slate-950 h2, .bg-slate-950 h3, .bg-slate-950 h4, .bg-slate-950 h5, .bg-slate-950 h6,
-.bg-slate-950 p,
-.bg-slate-950 span,
-.bg-slate-950 strong,
-.bg-dark label, .bg-dark h1, .bg-dark h2, .bg-dark h3, .bg-dark h4, .bg-dark h5, .bg-dark h6,
-.bg-dark p, .bg-dark span, .bg-dark strong {
-  color: #f1f5f9 !important; /* slate-100 */
-}
-
-/* For secondary text */
-.bg-slate-950 .text-muted-foreground, 
-.bg-slate-950 .text-secondary, 
-.bg-dark .text-muted-foreground, 
-.bg-dark .text-secondary {
-  color: #94a3b8 !important; /* slate-400 */
-}
-
-/* Button fix: no yellow backgrounds, use primary or lime-500 for warning/alert */
-.btn-warning, .btn-amber, .btn-yellow {
-  background-color: #84cc16 !important;
-  color: #fff !important;
-  border-color: #84cc16 !important;
-}
-
-.btn-warning:hover, .btn-amber:hover, .btn-yellow:hover {
-  background-color: #65a30d !important; /* Lime-600 */
-}
-
-/* Button text contrast */
-button, .btn, .shadcn-btn, .btn-primary {
-  color: #f8fafc !important; /* slate-50 on dark bg */
-}
-
-/* General improvement for all main app wrappers */
-body, main, .app-main, .bg-main, .dashboard-main, .sidebar-dark-bg {
-  background-color: #020617 !important; /* slate-950 */
-}
-
-a, .link, .nav-link {
-  color: #84cc16 !important; /* lime-500 for accent links */
-}
-a:hover, .link:hover, .nav-link:hover {
-  color: #c7f942 !important; /* lighter lime for interactivity */
-}
-
-/* Improve form field contrast */
-input, textarea, select {
-  background-color: #1e293b !important; /* slate-800 */
-  color: #f8fafc !important; /* slate-50 */
-  border-color: #475569 !important; /* slate-600 */
-}
-
-label, h1, h2, h3, h4, h5, h6, p {
-  color: inherit;
-}
-
-/* For all text on slate-950 if not overridden */
-.bg-slate-950 * {
-  color: #f8fafc !important;
-}
-
-/* Keep existing styles for responsiveness and focus */
-
-/* Ensure smooth scrolling everywhere */
-html, body {
-  scroll-behavior: smooth;
-}
-
-/* Animations for page transitions */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(8px);
-  }
+  background: hsl(var(--foreground));
 }
 
 /* Focus management */
@@ -361,6 +282,29 @@ html, body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+/* Additional keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(8px);
   }
 }
 
