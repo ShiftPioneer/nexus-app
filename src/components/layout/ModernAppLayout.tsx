@@ -25,7 +25,7 @@ const ModernAppLayout = ({
           <div className="flex flex-col flex-1 overflow-hidden transition-all duration-500 ease-in-out">
             <ModernTopBar onToggleSidebar={toggleSidebar} isCollapsed={isCollapsed} isMobile={isMobile} />
             
-            <main className="flex-1 overflow-y-auto scrollbar-none bg-slate-950">
+            <main className="flex-1 overflow-y-auto scrollbar-none bg-slate-900">
               <div className="h-full w-full p-4 text-white bg-slate-900">
                 {children}
               </div>
