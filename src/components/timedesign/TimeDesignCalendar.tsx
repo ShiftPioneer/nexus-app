@@ -140,29 +140,28 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
             </div>)}
         </div>
         
-        <div className="grid grid-cols-8 relative">
-          {/* Time labels column */}
-          <div className="border-r border-slate-700">
-            {hours.map(hour => <div key={hour} className="h-[72px] relative">
-                <span className="absolute -top-3 w-full text-right pr-2 text-sm font-medium text-muted-foreground">
-                  {formatHour(hour)}
+        {/* Time labels column */}
+        <div className="border-r border-slate-700">
+          {hours.map(hour => <div key={hour} className="h-[72px] relative">
+              <span className="absolute -top-3 w-full text-right pr-2 text-sm font-medium text-muted-foreground">
+                {formatHour(hour)}
+              </span>
+              <div className="border-t border-slate-700 h-[36px]"></div>
+              <div className="relative">
+                <span className="absolute right-2 -top-3 text-xs text-muted-foreground">
+                  30
                 </span>
+                <div className="border-t border-dashed h-[36px] border-slate-700"></div>
+              </div>
+            </div>)}
+        </div>
+        
+        {/* Day columns */}
+        {weekDays.map((day, dayIndex) => <div key={dayIndex} className="border-r border-slate-700 relative">
+            {hours.map(hour => <div key={hour} className="border-b border-slate-700 h-[72px] relative">
                 <div className="border-t border-slate-700 h-[36px]"></div>
-                <div className="relative">
-                  <span className="absolute right-2 -top-3 text-xs text-muted-foreground">
-                    30
-                  </span>
-                  <div className="border-t border-dashed h-[36px] border-slate-700"></div>
-                </div>
+                <div className="border-t border-dashed h-[36px] border-slate-700"></div>
               </div>)}
-          </div>
-          
-          {/* Day columns */}
-          {weekDays.map((day, dayIndex) => <div key={dayIndex} className="border-r border-slate-700 relative">
-              {hours.map(hour => <div key={hour} className="border-b border-slate-700 h-[72px] relative">
-                  <div className="border-t border-slate-700 h-[36px]"></div>
-                  <div className="border-t border-dashed h-[36px] border-slate-700"></div>
-                </div>)}
               
               {/* Current time indicator */}
               {isSameDay(day, new Date()) && <div className="absolute left-0 right-0 border-t-2 border-red-500 dark:border-red-400 z-10" style={{
