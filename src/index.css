@@ -28,23 +28,23 @@
     --radius: 0.75rem;
     
     /* Sidebar variables */
-    --sidebar-background: 241 245 249;
-    --sidebar-foreground: 15 23 42;
+    --sidebar-background: 2 6 23;
+    --sidebar-foreground: 248 250 252;
     --sidebar-primary: 255 101 0;
     --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 226 232 240;
-    --sidebar-accent-foreground: 15 23 42;
-    --sidebar-border: 226 232 240;
+    --sidebar-accent: 51 65 85;
+    --sidebar-accent-foreground: 248 250 252;
+    --sidebar-border: 51 65 85;
     --sidebar-ring: 255 101 0;
   }
  
   .dark {
     /* Dark theme variables */
-    --background: 15 23 42;
+    --background: 2 6 23;
     --foreground: 248 250 252;
     --card: 2 6 23;
     --card-foreground: 248 250 252;
-    --popover: 15 23 42;
+    --popover: 2 6 23;
     --popover-foreground: 248 250 252;
     --primary: 255 101 0;
     --primary-foreground: 255 255 255;
@@ -98,6 +98,7 @@
     line-height: 1.2;
     font-weight: 700;
     letter-spacing: -0.02em;
+    color: #f8fafc; /* Always white for headers on dark backgrounds */
   }
   
   h2 {
@@ -105,40 +106,46 @@
     line-height: 1.3;
     font-weight: 600;
     letter-spacing: -0.01em;
+    color: #f8fafc; /* Always white for headers on dark backgrounds */
   }
   
   h3 {
     font-size: 1.25rem;
     line-height: 1.4;
     font-weight: 600;
+    color: #f8fafc; /* Always white for headers on dark backgrounds */
   }
   
   h4 {
     font-size: 1.125rem;
     line-height: 1.5;
     font-weight: 500;
+    color: #f8fafc; /* Always white for headers on dark backgrounds */
   }
   
   h5 {
     font-size: 1rem;
     line-height: 1.5;
     font-weight: 500;
+    color: #f8fafc; /* Always white for headers on dark backgrounds */
   }
   
   h6 {
     font-size: 0.875rem;
     line-height: 1.5;
     font-weight: 500;
+    color: #f8fafc; /* Always white for headers on dark backgrounds */
   }
   
   p {
     font-size: 1rem;
     line-height: 1.6;
+    color: #cbd5e1; /* Light gray for paragraph text */
   }
   
   small {
     font-size: 0.875rem;
-    color: hsl(var(--muted-foreground));
+    color: #94a3b8; /* Muted foreground */
   }
 }
 
@@ -158,16 +165,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
+  background: #1e293b; /* slate-800 */
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground));
+  background: #475569; /* slate-600 */
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--foreground));
+  background: #64748b; /* slate-500 */
 }
 
 /* Focus management */
@@ -189,7 +196,7 @@
   transform: translateY(0);
 }
 
-/* Status indicators */
+/* Status indicators - UPDATED TO USE LIME INSTEAD OF YELLOW */
 .status-dot {
   display: inline-block;
   width: 8px;
@@ -198,32 +205,33 @@
 }
 
 .status-dot.active {
-  background-color: rgb(16 185 129);
+  background-color: rgb(16 185 129); /* emerald-500 */
 }
 
 .status-dot.pending {
-  background-color: rgb(132 204 22); /* lime-500 */
+  background-color: #84cc16; /* lime-500 instead of yellow */
 }
 
 .status-dot.inactive {
-  background-color: rgb(107 114 128);
+  background-color: rgb(107 114 128); /* gray-500 */
 }
 
 .status-dot.completed {
-  background-color: rgb(5 150 105);
+  background-color: rgb(5 150 105); /* emerald-600 */
 }
 
-/* Card enhancements */
+/* Card enhancements - FIXED TO USE SLATE-950 */
 .card-enhanced {
-  background-color: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
+  background-color: #020617; /* slate-950 instead of brown/dull colors */
+  border: 1px solid #334155; /* slate-700 */
   border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3);
   transition: all 300ms ease;
+  color: #f8fafc; /* white text */
 }
 
 .card-enhanced:hover {
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
   transform: translateY(-4px);
 }
 
@@ -239,8 +247,100 @@
 /* Glass effect utility */
 .glass {
   backdrop-filter: blur(12px);
-  background-color: hsl(var(--background) / 0.8);
-  border: 1px solid hsl(var(--border) / 0.5);
+  background-color: rgba(2, 6, 23, 0.8); /* slate-950 with transparency */
+  border: 1px solid rgba(51, 65, 85, 0.5); /* slate-700 with transparency */
+}
+
+/* COMPREHENSIVE COLOR FIXES */
+
+/* Replace ALL brown/dull backgrounds with slate-950 */
+.bg-yellow-50, .bg-yellow-100, .bg-yellow-200, .bg-yellow-300,
+.bg-yellow-400, .bg-yellow-500, .bg-yellow-600, .bg-yellow-700,
+.bg-yellow-800, .bg-yellow-900, .bg-yellow-950,
+.bg-amber-50, .bg-amber-100, .bg-amber-200, .bg-amber-300,
+.bg-amber-400, .bg-amber-500, .bg-amber-600, .bg-amber-700,
+.bg-amber-800, .bg-amber-900, .bg-amber-950,
+.bg-orange-50, .bg-orange-100, .bg-orange-200,
+.bg-stone-50, .bg-stone-100, .bg-stone-200, .bg-stone-300,
+.bg-stone-400, .bg-stone-500, .bg-stone-600, .bg-stone-700,
+.bg-stone-800, .bg-stone-900, .bg-stone-950,
+.bg-neutral-50, .bg-neutral-100, .bg-neutral-200, .bg-neutral-300,
+.bg-neutral-400, .bg-neutral-500, .bg-neutral-600, .bg-neutral-700,
+.bg-neutral-800, .bg-neutral-900, .bg-neutral-950 {
+  background-color: #020617 !important; /* slate-950 */
+  color: #f8fafc !important; /* white text for contrast */
+}
+
+/* Replace ALL yellow/amber text with lime-500 */
+.text-yellow-50, .text-yellow-100, .text-yellow-200, .text-yellow-300, 
+.text-yellow-400, .text-yellow-500, .text-yellow-600, .text-yellow-700, 
+.text-yellow-800, .text-yellow-900, .text-yellow-950,
+.text-amber-50, .text-amber-100, .text-amber-200, .text-amber-300,
+.text-amber-400, .text-amber-500, .text-amber-600, .text-amber-700,
+.text-amber-800, .text-amber-900, .text-amber-950 {
+  color: #84cc16 !important; /* lime-500 for ALL yellow/amber text */
+}
+
+/* Fix warning colors to use lime instead of yellow */
+.text-warning, .bg-warning, .border-warning {
+  color: #84cc16 !important;
+  background-color: #84cc16 !important;
+  border-color: #84cc16 !important;
+}
+
+/* Ensure all dark backgrounds use slate-950 */
+.bg-slate-950, .bg-dark, .sidebar-dark-bg {
+  background-color: #020617 !important; /* slate-950 */
+  color: #f8fafc !important; /* white text for contrast */
+}
+
+/* Fix all card and container backgrounds */
+[class*="bg-card"], [class*="bg-background"], .card {
+  background-color: #020617 !important; /* slate-950 */
+  color: #f8fafc !important; /* white text */
+}
+
+/* Fix input fields for readability on dark backgrounds */
+input, textarea, select {
+  background-color: #1e293b !important; /* slate-800 */
+  color: #f8fafc !important; /* white text */
+  border-color: #475569 !important; /* slate-600 */
+}
+
+input::placeholder, textarea::placeholder {
+  color: #94a3b8 !important; /* slate-400 for placeholders */
+}
+
+/* Fix button text visibility */
+button {
+  color: inherit;
+}
+
+/* Ensure all text appears clearly on dark backgrounds */
+.text-primary, .text-foreground {
+  color: #f8fafc !important; /* white */
+}
+
+.text-secondary {
+  color: #cbd5e1 !important; /* slate-300 */
+}
+
+.text-muted, .text-muted-foreground {
+  color: #94a3b8 !important; /* slate-400 */
+}
+
+/* Fix specific component text colors */
+label, span, div {
+  color: inherit;
+}
+
+/* Ensure proper contrast for all interactive elements */
+a, button, [role="button"] {
+  transition: all 200ms ease-out;
+}
+
+a:hover, button:hover, [role="button"]:hover {
+  color: #f8fafc; /* ensure white text on hover */
 }
 
 /* Responsive utilities */
@@ -306,72 +406,4 @@
     opacity: 0;
     transform: translateY(8px);
   }
-}
-
-/* Global color fixes for consistent design */
-.text-warning,
-.bg-warning {
-  color: #84cc16 !important;       /* lime-500 */
-  background-color: #84cc16 !important; /* lime-500 */
-}
-
-.border-warning { 
-  border-color: #84cc16 !important; 
-}
-
-/* Replace ALL yellow/amber text colors with lime-500 */
-.text-yellow-50, .text-yellow-100, .text-yellow-200, .text-yellow-300, 
-.text-yellow-400, .text-yellow-500, .text-yellow-600, .text-yellow-700, 
-.text-yellow-800, .text-yellow-900, .text-yellow-950,
-.text-amber-50, .text-amber-100, .text-amber-200, .text-amber-300,
-.text-amber-400, .text-amber-500, .text-amber-600, .text-amber-700,
-.text-amber-800, .text-amber-900, .text-amber-950 {
-  color: #84cc16 !important; /* lime-500 for ALL yellow/amber text */
-}
-
-/* Replace ALL yellow/amber background colors with lime-500 */
-.bg-yellow-50, .bg-yellow-100, .bg-yellow-200, .bg-yellow-300,
-.bg-yellow-400, .bg-yellow-500, .bg-yellow-600, .bg-yellow-700,
-.bg-yellow-800, .bg-yellow-900, .bg-yellow-950,
-.bg-amber-50, .bg-amber-100, .bg-amber-200, .bg-amber-300,
-.bg-amber-400, .bg-amber-500, .bg-amber-600, .bg-amber-700,
-.bg-amber-800, .bg-amber-900, .bg-amber-950 {
-  background-color: #84cc16 !important; /* lime-500 for ALL yellow/amber backgrounds */
-}
-
-/* Ensure all dark backgrounds use slate-950 */
-.bg-slate-950,
-.bg-dark,
-.card-enhanced,
-.sidebar-dark-bg,
-html.dark body {
-  background-color: #020617 !important; /* slate-950 */
-  color: #f8fafc !important; /* slate-50 for contrast */
-}
-
-/* Fix input fields for readability on dark backgrounds */
-input,
-textarea,
-select {
-  background-color: #1e293b !important; /* slate-800 */
-  color: #f8fafc !important; /* slate-50 */
-  border-color: #475569 !important; /* slate-600 */
-}
-
-/* Ensure all text appears clearly on dark backgrounds */
-label, h1, h2, h3, h4, h5, h6, p {
-  color: inherit;
-}
-
-/* Fix specific dark mode text visibility */
-.dark label, .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark p {
-  color: #f8fafc !important; /* slate-50 */
-}
-
-.dark .text-muted-foreground {
-  color: #94a3b8 !important; /* slate-400 */
-}
-
-.dark .text-secondary {
-  color: #cbd5e1 !important; /* slate-300 */
 }

@@ -1,8 +1,10 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import TaskCard from "./TaskCard";
 import { GTDTask } from "../../GTDContext";
+
 interface TasksSectionProps {
   title: string;
   description: string;
@@ -15,6 +17,7 @@ interface TasksSectionProps {
   onCompleteTask: (taskId: string) => void;
   onMoveToToday?: (taskId: string) => void;
 }
+
 const TasksSection: React.FC<TasksSectionProps> = ({
   title,
   description,
@@ -27,26 +30,46 @@ const TasksSection: React.FC<TasksSectionProps> = ({
   onCompleteTask,
   onMoveToToday
 }) => {
-  return <Card className="bg-slate-950">
+  return (
+    <Card className="bg-slate-950 border-slate-700 text-white">
       <CardHeader className="pb-2 bg-slate-950">
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-white">
           {icon}
           {title}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-slate-300">
           {description}
         </CardDescription>
       </CardHeader>
       <CardContent className="bg-slate-950">
-        {tasks.length === 0 ? <div className="py-8 text-center text-muted-foreground">
+        {tasks.length === 0 ? (
+          <div className="py-8 text-center text-slate-400">
             <p>{emptyMessage}</p>
-            <Button variant="outline" size="sm" className="mt-2" onClick={onEmptyAction}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2 border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white" 
+              onClick={onEmptyAction}
+            >
               {emptyActionText}
             </Button>
-          </div> : <div className="space-y-4">
-            {tasks.map(task => <TaskCard key={task.id} task={task} onStartFocus={onStartFocus} onComplete={onCompleteTask} onMoveToToday={onMoveToToday} />)}
-          </div>}
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {tasks.map(task => (
+              <TaskCard 
+                key={task.id} 
+                task={task} 
+                onStartFocus={onStartFocus} 
+                onComplete={onCompleteTask} 
+                onMoveToToday={onMoveToToday} 
+              />
+            ))}
+          </div>
+        )}
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default TasksSection;

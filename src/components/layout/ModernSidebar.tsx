@@ -89,14 +89,15 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       path: "/energy",
       icon: Zap,
       description: "Fitness & wellness"
-    },
-    {
-      name: "Settings",
-      path: "/settings",
-      icon: Settings,
-      description: "App preferences"
     }
   ];
+
+  const settingsItem = {
+    name: "Settings",
+    path: "/settings",
+    icon: Settings,
+    description: "App preferences"
+  };
 
   const sidebarWidth = isCollapsed ? "w-20" : "w-72";
 
@@ -148,74 +149,133 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       </div>
 
       {/* Navigation */}
-      {isCollapsed ? (
-        <nav className="flex flex-col flex-1 items-center py-4 px-2 space-y-2">
-          {navigationItems.map(item => {
-            const isActive = location.pathname === item.path;
-            const Icon = item.icon;
-            return (
-              <Link key={item.path} to={item.path} className="w-full flex justify-center group">
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200 relative group",
-                    isActive 
-                      ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30" 
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                  )}
-                >
-                  <Icon className="h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
-                  {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
-                  )}
-                </Button>
-              </Link>
-            );
-          })}
-        </nav>
-      ) : (
-        <ScrollArea className="flex-1 bg-slate-950 px-3">
-          <nav className="space-y-2 py-4">
+      <div className="flex flex-col flex-1">
+        {isCollapsed ? (
+          <nav className="flex flex-col flex-1 items-center py-4 px-2 space-y-2">
             {navigationItems.map(item => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
               return (
-                <Link key={item.path} to={item.path} className="w-full" tabIndex={0}>
+                <Link key={item.path} to={item.path} className="w-full flex justify-center group">
                   <Button
                     variant="ghost"
                     className={cn(
-                      "w-full transition-all duration-200 group relative flex items-center h-16 px-4 justify-start rounded-xl",
+                      "w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200 relative group",
                       isActive 
                         ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30" 
                         : "text-slate-300 hover:bg-slate-800 hover:text-white"
                     )}
                   >
-                    <div className="flex items-center w-full gap-4">
-                      <div className={cn(
-                        "flex-shrink-0 p-2 rounded-lg transition-all duration-200",
-                        isActive ? "bg-primary/30" : "group-hover:bg-slate-700"
-                      )}>
-                        <Icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
-                      </div>
-                      <div className="flex flex-col items-start flex-1 min-w-0">
-                        <span className="text-sm font-semibold truncate w-full text-left">
-                          {item.name}
-                        </span>
-                        <span className="text-xs text-slate-400 truncate w-full text-left">
-                          {item.description}
-                        </span>
-                      </div>
-                    </div>
+                    <Icon className="h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
                     {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-primary rounded-r-full" />
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                     )}
                   </Button>
                 </Link>
               );
             })}
           </nav>
-        </ScrollArea>
-      )}
+        ) : (
+          <ScrollArea className="flex-1 bg-slate-950 px-3">
+            <nav className="space-y-2 py-4">
+              {navigationItems.map(item => {
+                const isActive = location.pathname === item.path;
+                const Icon = item.icon;
+                return (
+                  <Link key={item.path} to={item.path} className="w-full" tabIndex={0}>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "w-full transition-all duration-200 group relative flex items-center h-16 px-4 justify-start rounded-xl",
+                        isActive 
+                          ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30" 
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      )}
+                    >
+                      <div className="flex items-center w-full gap-4">
+                        <div className={cn(
+                          "flex-shrink-0 p-2 rounded-lg transition-all duration-200",
+                          isActive ? "bg-primary/30" : "group-hover:bg-slate-700"
+                        )}>
+                          <Icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                        </div>
+                        <div className="flex flex-col items-start flex-1 min-w-0">
+                          <span className="text-sm font-semibold truncate w-full text-left">
+                            {item.name}
+                          </span>
+                          <span className="text-xs text-slate-400 truncate w-full text-left">
+                            {item.description}
+                          </span>
+                        </div>
+                      </div>
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-primary rounded-r-full" />
+                      )}
+                    </Button>
+                  </Link>
+                );
+              })}
+            </nav>
+          </ScrollArea>
+        )}
+
+        {/* Settings Button - Fixed at Bottom */}
+        <div className={cn(
+          "border-t border-slate-700 bg-slate-950",
+          isCollapsed ? "p-2" : "p-3"
+        )}>
+          {isCollapsed ? (
+            <Link to={settingsItem.path} className="w-full flex justify-center group">
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200 relative group",
+                  location.pathname === settingsItem.path
+                    ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30" 
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                )}
+              >
+                <Settings className="h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
+                {location.pathname === settingsItem.path && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
+                )}
+              </Button>
+            </Link>
+          ) : (
+            <Link to={settingsItem.path} className="w-full" tabIndex={0}>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full transition-all duration-200 group relative flex items-center h-16 px-4 justify-start rounded-xl",
+                  location.pathname === settingsItem.path
+                    ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30" 
+                    : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                )}
+              >
+                <div className="flex items-center w-full gap-4">
+                  <div className={cn(
+                    "flex-shrink-0 p-2 rounded-lg transition-all duration-200",
+                    location.pathname === settingsItem.path ? "bg-primary/30" : "group-hover:bg-slate-700"
+                  )}>
+                    <Settings className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                  </div>
+                  <div className="flex flex-col items-start flex-1 min-w-0">
+                    <span className="text-sm font-semibold truncate w-full text-left">
+                      {settingsItem.name}
+                    </span>
+                    <span className="text-xs text-slate-400 truncate w-full text-left">
+                      {settingsItem.description}
+                    </span>
+                  </div>
+                </div>
+                {location.pathname === settingsItem.path && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-primary rounded-r-full" />
+                )}
+              </Button>
+            </Link>
+          )}
+        </div>
+      </div>
     </aside>
   );
 };
