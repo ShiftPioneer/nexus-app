@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -280,13 +281,16 @@
   color: #84cc16 !important; /* lime-500 for ALL yellow/amber text */
 }
 
-/* Replace ALL yellow/amber borders with slate-300 */
+/* Replace ALL yellow/amber/lime borders with slate-300 */
 .border-yellow-50, .border-yellow-100, .border-yellow-200, .border-yellow-300, 
 .border-yellow-400, .border-yellow-500, .border-yellow-600, .border-yellow-700, 
 .border-yellow-800, .border-yellow-900, .border-yellow-950,
 .border-amber-50, .border-amber-100, .border-amber-200, .border-amber-300,
 .border-amber-400, .border-amber-500, .border-amber-600, .border-amber-700,
-.border-amber-800, .border-amber-900, .border-amber-950 {
+.border-amber-800, .border-amber-900, .border-amber-950,
+.border-lime-50, .border-lime-100, .border-lime-200, .border-lime-300,
+.border-lime-400, .border-lime-500, .border-lime-600, .border-lime-700,
+.border-lime-800, .border-lime-900, .border-lime-950 {
   border-color: #cbd5e1 !important; /* slate-300 */
 }
 
@@ -300,11 +304,15 @@
   --tw-ring-color: #cbd5e1 !important; /* slate-300 */
 }
 
-/* Fix warning colors to use lime instead of yellow */
-.text-warning, .bg-warning, .border-warning {
-  color: #84cc16 !important;
-  background-color: #84cc16 !important;
-  border-color: #84cc16 !important;
+/* Fix warning colors to use lime, with slate-300 for borders */
+.text-warning {
+  color: #84cc16 !important; /* lime-500 */
+}
+.bg-warning {
+  background-color: #84cc16 !important; /* lime-500 */
+}
+.border-warning {
+  border-color: #cbd5e1 !important; /* slate-300 */
 }
 
 /* Ensure all dark backgrounds use slate-950 */
