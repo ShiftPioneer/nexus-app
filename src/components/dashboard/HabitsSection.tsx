@@ -130,10 +130,7 @@ const HabitsSection = () => {
               <CardTitle>Habits</CardTitle>
               <CardDescription>Track your daily habits and build streaks</CardDescription>
             </div>
-            <Button onClick={navigateToHabits} size="sm" className="gap-1">
-              <Plus className="h-4 w-4" />
-              <span>View All</span>
-            </Button>
+            
           </div>
         </CardHeader>
         <CardContent className="bg-slate-950">
@@ -181,7 +178,7 @@ const HabitsSection = () => {
             </div>}
 
           <div className="mt-4 flex justify-center">
-            <Button variant="outline" onClick={navigateToHabits}>
+            <Button variant="outline" onClick={navigateToHabits} className="bg-orange-600 hover:bg-orange-500">
               View All Habits
             </Button>
           </div>
