@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -116,9 +115,14 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     },
   ];
   // Collapsed sidebar width
-  const SIDEBAR_COLLAPSED_WIDTH = "w-16"; // 64px, matches icon+padding
+  const SIDEBAR_COLLAPSED_WIDTH = "w-16"; // 64px
   const SIDEBAR_FULL_WIDTH = "w-64";
   const sidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_FULL_WIDTH;
+
+  // NEW: Calculate fixed icon height to keep all visible when collapsed
+  // We have 12 main items + 1 bottom item = 13. We'll fit in 100vh.
+  const COLLAPSED_ICON_HEIGHT = "h-12"; // 48px per icon button suffices (max 13*48=624px)
+  const COLLAPSED_ICON_PADDING = "p-0"; // Remove excess padding
 
   return (
     <>
@@ -186,46 +190,57 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         {/* Navigation */}
         <ScrollArea
           className={cn(
-            "flex-1 py-2 bg-slate-950",
-            isCollapsed && "px-0 flex justify-center"
+            "flex-1 bg-slate-950", // removed py-2 (vertical padding) to maximize space
+            isCollapsed && "px-0"
           )}
+          style={isCollapsed ? { overflow: "visible", maxHeight: "none" } : undefined}
         >
           <nav
             className={cn(
               "space-y-1",
-              isCollapsed ? "px-0 flex flex-col items-center gap-2" : "px-2"
+              isCollapsed
+                ? "flex flex-col items-center gap-0" // remove gap for collapsed mode!
+                : "px-2"
             )}
           >
             {navigationItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
               return (
-                <Link key={item.path} to={item.path} className={cn(
-                  "w-full", isCollapsed && "flex items-center justify-center"
-                )}>
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={cn("w-full", isCollapsed && "flex items-center justify-center")}
+                  tabIndex={0}
+                >
                   <Button
                     variant="ghost"
                     className={cn(
                       "transition-all duration-200 group relative flex items-center",
                       isCollapsed
-                        ? "h-14 w-14 p-0 justify-center items-center rounded-xl"
+                        ? [
+                            COLLAPSED_ICON_HEIGHT,
+                            COLLAPSED_ICON_PADDING,
+                            "w-14 justify-center items-center rounded-xl", // w-14 = 56px
+                            "overflow-hidden", // ensure no spillage
+                          ].join(" ")
                         : "h-14 px-3 justify-start w-full",
                       isActive
                         ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30"
                         : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
                     )}
-                    style={{
-                      minWidth: isCollapsed ? 56 : undefined,
-                      maxWidth: isCollapsed ? 56 : undefined,
-                    }}
+                    style={
+                      isCollapsed
+                        ? { minWidth: 56, maxWidth: 56 } // exact width for tight fit
+                        : undefined
+                    }
                   >
                     <div
                       className={cn(
                         "flex items-center w-full",
-                        isCollapsed ? "justify-center" : ""
+                        isCollapsed ? "justify-center" : "gap-3"
                       )}
                     >
-                      {/* Set icon size identical for collapsed/expanded */}
                       <Icon className="h-6 w-6 flex-shrink-0" />
                       {!isCollapsed && (
                         <div className="flex flex-col items-start flex-1 min-w-0">
@@ -249,7 +264,10 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           </nav>
         </ScrollArea>
         {/* Bottom section */}
-        <div className="border-t border-[#1e293b] p-2 bg-slate-950">
+        <div className={cn(
+          "border-t border-[#1e293b] p-2 bg-slate-950",
+          isCollapsed && "flex items-center justify-center p-0" // align tight for collapsed
+        )}>
           {bottomItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
@@ -260,19 +278,24 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                   className={cn(
                     "transition-all duration-200 group relative flex items-center",
                     isCollapsed
-                      ? "h-14 w-14 p-0 justify-center items-center rounded-xl"
+                      ? [
+                          COLLAPSED_ICON_HEIGHT,
+                          COLLAPSED_ICON_PADDING,
+                          "w-14 justify-center items-center rounded-xl",
+                          "overflow-hidden",
+                        ].join(" ")
                       : "h-14 px-3 justify-start w-full",
                     isActive
                       ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30"
                       : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
                   )}
-                  style={{
-                    minWidth: isCollapsed ? 56 : undefined,
-                    maxWidth: isCollapsed ? 56 : undefined,
-                  }}
+                  style={isCollapsed ? { minWidth: 56, maxWidth: 56 } : undefined}
                 >
                   <div
-                    className={cn("flex items-center w-full", isCollapsed ? "justify-center" : "")}
+                    className={cn(
+                      "flex items-center w-full",
+                      isCollapsed ? "justify-center" : "gap-3"
+                    )}
                   >
                     <Icon className="h-6 w-6 flex-shrink-0" />
                     {!isCollapsed && (
