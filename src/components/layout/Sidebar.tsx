@@ -75,7 +75,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
       <ShadcnSidebar 
         variant="sidebar" 
         className={cn(
-          "transition-all duration-300 ease-in-out bg-[#1A1F2C] text-white border-r border-[#2A2F3C]",
+          "transition-all duration-300 ease-in-out bg-slate-950 text-white border-r border-slate-800",
           isCollapsed ? 'collapsed w-16' : 'w-56',
           "[&_[data-sidebar=content]]:scrollbar-none"
         )} 
@@ -100,20 +100,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                 >
-                  <h1 className="text-xl font-bold text-[#FF5722]">NEXUS</h1>
+                  <h1 className="text-xl font-bold text-primary">NEXUS</h1>
                   <motion.span 
-                    className="p-1 cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors"
+                    className="p-1 cursor-pointer hover:bg-slate-800 rounded-md transition-colors"
                     onClick={handleToggleCollapse}
                     whileHover={{ scale: 1.2 }}
                     whileTap={{ scale: 0.9 }}
                   >
-                    <ChevronLeft className="h-5 w-5 text-[#FF6500] bg-transparent" />
+                    <ChevronLeft className="h-5 w-5 text-primary bg-transparent" />
                   </motion.span>
                 </motion.div>
               ) : (
                 <motion.div 
                   key="collapsed"
-                  className="cursor-pointer hover:bg-[#2A2F3C] rounded-md transition-colors p-1"
+                  className="cursor-pointer hover:bg-slate-800 rounded-md transition-colors p-1"
                   onClick={handleToggleCollapse}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -135,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
           <NavigationMenu isCollapsed={isCollapsed} />
         </SidebarContent>
         
-        <SidebarFooter className="border-t border-[#2A2F3C] p-3 bg-slate-950">
+        <SidebarFooter className="border-t border-slate-800 p-3 bg-slate-950">
           <div 
             className={cn(
               "flex items-center mb-2",
@@ -144,7 +144,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
             onClick={handleProfileClick}
             style={{ cursor: 'pointer' }}
           >
-            <Avatar className="h-8 w-8 bg-[#FF5722]/20 text-[#FF5722]">
+            <Avatar className="h-8 w-8 bg-primary/20 text-primary">
               <AvatarImage src={getUserAvatar()} alt="User Profile" />
               <AvatarFallback>{getUserName().substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
@@ -159,7 +159,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
                   transition={{ duration: 0.2, ease: "easeInOut" }}
                 >
                   <span className="text-sm font-medium truncate">{getUserName()}</span>
-                  <span className="text-xs text-[#0FA0CE]">Pro Plan</span>
+                  <span className="text-xs text-secondary">Pro Plan</span>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -169,7 +169,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCollapsedChange }) => {
 
       {isCollapsed && (
         <motion.div 
-          className="absolute top-1/2 -translate-y-1/2 left-[3.8rem] h-12 w-1 bg-[#2A2F3C] rounded-r cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
+          className="absolute top-1/2 -translate-y-1/2 left-[3.8rem] h-12 w-1 bg-slate-800 rounded-r cursor-pointer opacity-50 hover:opacity-100 transition-opacity"
           onClick={handleToggleCollapse}
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.5 }}

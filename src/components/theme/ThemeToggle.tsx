@@ -47,8 +47,8 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ sidebarTheme = false }) => {
       className={cn(
         "transition-all duration-200",
         sidebarTheme 
-          ? "w-full justify-start px-3 py-2 hover:bg-background-dark-tertiary text-text-dark-secondary hover:text-text-dark-primary" 
-          : "h-11 w-11 rounded-xl hover:bg-background-secondary text-text-secondary hover:text-text-primary"
+          ? "w-full justify-start px-3 py-2 hover:bg-slate-800 text-slate-300 hover:text-white" 
+          : "h-11 w-11 rounded-xl hover:bg-slate-100 text-slate-600 hover:text-slate-900 dark:hover:bg-slate-800 dark:text-slate-400 dark:hover:text-slate-100"
       )}
     >
       {theme === "light" ? (

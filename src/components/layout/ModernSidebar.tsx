@@ -105,13 +105,13 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
 
   return (
     <aside className={cn(
-      "bg-background-dark-secondary border-r border-border transition-all duration-300 ease-out flex-shrink-0 relative h-full flex flex-col shadow-lg",
+      "bg-slate-950 border-r border-slate-800 transition-all duration-300 ease-out flex-shrink-0 relative h-full flex flex-col shadow-lg",
       sidebarWidth,
       isMobile ? (isCollapsed ? "-translate-x-full" : "fixed inset-y-0 left-0 z-50") : "relative"
     )}>
       {/* Enhanced Header */}
       <div className={cn(
-        "flex items-center border-b border-border bg-background-dark-secondary backdrop-blur-sm",
+        "flex items-center border-b border-slate-800 bg-slate-950 backdrop-blur-sm",
         isCollapsed ? "justify-center py-6 px-2" : "py-5 gap-3 px-6 min-h-[80px]"
       )}>
         {isCollapsed ? (
@@ -119,7 +119,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
             variant="ghost"
             onClick={onToggle}
             aria-label="Expand sidebar"
-            className="w-14 h-14 p-0 rounded-xl transition-all duration-200 hover:bg-primary/10 hover:scale-105 group"
+            className="w-14 h-14 p-0 rounded-xl transition-all duration-200 hover:bg-primary/10 hover:scale-105 group text-slate-300 hover:text-white"
           >
             <img 
               src={LOGO_URL} 
@@ -141,7 +141,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               variant="ghost"
               size="icon"
               onClick={onToggle}
-              className="ml-auto h-9 w-9 hover:bg-background-dark-tertiary transition-all duration-200 text-primary-500 hover:text-primary-400"
+              className="ml-auto h-9 w-9 hover:bg-slate-800 transition-all duration-200 text-primary-500 hover:text-primary-400"
               aria-label="Collapse sidebar"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -165,7 +165,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                       "w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200 relative group",
                       isActive 
                         ? "bg-primary/20 text-primary-500 shadow-glow hover:bg-primary/30" 
-                        : "text-text-dark-tertiary hover:bg-background-dark-tertiary hover:text-text-dark-secondary"
+                        : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
                     )}
                   >
                     <Icon className="h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
@@ -178,7 +178,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
             })}
           </div>
           
-          <div className="w-full pt-4 border-t border-border">
+          <div className="w-full pt-4 border-t border-slate-800">
             {bottomItems.map(item => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
@@ -190,7 +190,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                       "w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200 relative group",
                       isActive 
                         ? "bg-primary/20 text-primary-500 shadow-glow hover:bg-primary/30" 
-                        : "text-text-dark-tertiary hover:bg-background-dark-tertiary hover:text-text-dark-secondary"
+                        : "text-slate-400 hover:bg-slate-800 hover:text-slate-200"
                     )}
                   >
                     <Icon className="h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
@@ -205,7 +205,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         </nav>
       ) : (
         <div className="flex flex-1 flex-col h-full">
-          <ScrollArea className="flex-1 bg-background-dark-secondary px-3">
+          <ScrollArea className="flex-1 bg-slate-950 px-3">
             <nav className="space-y-2 py-4">
               {navigationItems.map(item => {
                 const isActive = location.pathname === item.path;
@@ -218,13 +218,13 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                         "w-full transition-all duration-200 group relative flex items-center h-16 px-4 justify-start rounded-xl",
                         isActive 
                           ? "bg-primary/20 text-primary-500 shadow-lg hover:bg-primary/30" 
-                          : "text-text-dark-secondary hover:bg-background-dark-tertiary hover:text-text-dark-primary"
+                          : "text-slate-300 hover:bg-slate-800 hover:text-white"
                       )}
                     >
                       <div className="flex items-center w-full gap-4">
                         <div className={cn(
                           "flex-shrink-0 p-2 rounded-lg transition-all duration-200",
-                          isActive ? "bg-primary/30" : "group-hover:bg-background-dark-tertiary"
+                          isActive ? "bg-primary/30" : "group-hover:bg-slate-800"
                         )}>
                           <Icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
                         </div>
@@ -232,7 +232,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                           <span className="text-sm font-semibold truncate w-full text-left">
                             {item.name}
                           </span>
-                          <span className="text-xs text-text-dark-muted truncate w-full text-left">
+                          <span className="text-xs text-slate-400 truncate w-full text-left">
                             {item.description}
                           </span>
                         </div>
@@ -248,7 +248,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           </ScrollArea>
           
           {/* Enhanced Settings Section */}
-          <div className="w-full px-3 py-4 border-t border-border bg-background-dark-secondary">
+          <div className="w-full px-3 py-4 border-t border-slate-800 bg-slate-950">
             {bottomItems.map(item => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
@@ -260,13 +260,13 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                       "w-full transition-all duration-200 group relative flex items-center h-14 px-4 rounded-xl",
                       isActive 
                         ? "bg-primary/20 text-primary-500 shadow-lg hover:bg-primary/30" 
-                        : "text-text-dark-secondary hover:bg-background-dark-tertiary hover:text-text-dark-primary"
+                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
                     )}
                   >
                     <div className="flex items-center w-full gap-4">
                       <div className={cn(
                         "flex-shrink-0 p-2 rounded-lg transition-all duration-200",
-                        isActive ? "bg-primary/30" : "group-hover:bg-background-dark-tertiary"
+                        isActive ? "bg-primary/30" : "group-hover:bg-slate-800"
                       )}>
                         <Icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
                       </div>
@@ -274,7 +274,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                         <span className="text-sm font-semibold truncate w-full text-left">
                           {item.name}
                         </span>
-                        <span className="text-xs text-text-dark-muted truncate w-full text-left">
+                        <span className="text-xs text-slate-400 truncate w-full text-left">
                           {item.description}
                         </span>
                       </div>

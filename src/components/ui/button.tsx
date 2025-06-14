@@ -12,12 +12,12 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary-600 active:bg-primary-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
         destructive: "bg-error text-error-foreground hover:bg-error-600 active:bg-error-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        outline: "border border-border bg-background-secondary hover:bg-background-tertiary hover:text-text-primary text-text-secondary shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        secondary: "bg-background-secondary text-text-primary hover:bg-background-tertiary border border-border shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        ghost: "hover:bg-background-secondary hover:text-text-primary text-text-secondary",
+        outline: "border border-border bg-white hover:bg-slate-50 hover:text-slate-900 text-slate-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 dark:bg-slate-950 dark:hover:bg-slate-900 dark:text-slate-200 dark:hover:text-white",
+        secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:border-slate-700",
+        ghost: "hover:bg-slate-100 hover:text-slate-900 text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-100 dark:text-slate-400",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary-600",
         success: "bg-success text-success-foreground hover:bg-success-600 active:bg-success-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        warning: "bg-warning text-warning-foreground hover:bg-warning-600 active:bg-warning-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
+        warning: "bg-lime-500 text-white hover:bg-lime-600 active:bg-lime-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
       },
       size: {
         default: "h-11 px-6 py-2.5",
