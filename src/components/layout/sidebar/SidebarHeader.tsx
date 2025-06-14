@@ -14,8 +14,8 @@ const LOGO_URL = "https://nexus-plaform.lovable.app/lovable-uploads/e401f047-a5a
 const SidebarHeader: React.FC<SidebarHeaderProps> = ({ isCollapsed, onToggle }) => {
   return (
     <div className={cn(
-      "flex items-center border-b border-slate-700 bg-slate-950 flex-shrink-0",
-      isCollapsed ? "justify-center py-4 px-2" : "py-4 gap-3 px-4 min-h-[72px]"
+      "flex items-center border-b border-slate-700 bg-slate-950 flex-shrink-0 h-20",
+      isCollapsed ? "justify-center px-2" : "gap-3 px-4"
     )}>
       {isCollapsed ? (
         <Button
