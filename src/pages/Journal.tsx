@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import AppLayout from "@/components/layout/AppLayout";
+import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -102,7 +102,7 @@ const Journal = () => {
   };
 
   return (
-    <AppLayout>
+    <ModernAppLayout>
       <div className="animate-fade-in space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
@@ -292,7 +292,7 @@ const Journal = () => {
           </div>
         )}
       </div>
-    </AppLayout>
+    </ModernAppLayout>
   );
 };
 

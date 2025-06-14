@@ -1,150 +1,223 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import { 
+  Home, 
+  CheckSquare, 
+  Target, 
+  Calendar, 
+  BookOpen, 
+  Zap, 
+  Brain, 
+  Settings,
+  BarChart3,
+  Clock,
+  NotebookPen,
+  Timer,
+  Users
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, CheckCircle, Clock, Target, RefreshCw, Brain, Zap, BookOpen, FileText, BarChartHorizontal, Settings, CheckSquare, ChevronLeft } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 interface ModernSidebarProps {
   isCollapsed: boolean;
   isMobile: boolean;
   onToggle: () => void;
 }
+
 const ModernSidebar: React.FC<ModernSidebarProps> = ({
   isCollapsed,
   isMobile,
   onToggle
 }) => {
-  const navigate = useNavigate();
   const location = useLocation();
-  const {
-    user
-  } = useAuth();
-  const [profileData, setProfileData] = useState<any>(null);
-  useEffect(() => {
-    try {
-      const savedProfile = localStorage.getItem('userProfile');
-      if (savedProfile) {
-        setProfileData(JSON.parse(savedProfile));
-      }
-    } catch (error) {
-      console.error("Failed to load profile data:", error);
+  const { user } = useAuth();
+
+  const navigationItems = [
+    { 
+      name: "Dashboard", 
+      path: "/", 
+      icon: Home,
+      description: "Overview & insights"
+    },
+    { 
+      name: "Actions", 
+      path: "/actions", 
+      icon: CheckSquare,
+      description: "Tasks & todos"
+    },
+    { 
+      name: "Habits", 
+      path: "/habits", 
+      icon: Target,
+      description: "Track habits"
+    },
+    { 
+      name: "Planning", 
+      path: "/planning", 
+      icon: Calendar,
+      description: "Goals & projects"
+    },
+    { 
+      name: "GTD", 
+      path: "/gtd", 
+      icon: BarChart3,
+      description: "Getting Things Done"
+    },
+    { 
+      name: "Time Design", 
+      path: "/timedesign", 
+      icon: Clock,
+      description: "Schedule & matrix"
+    },
+    { 
+      name: "Focus", 
+      path: "/focus", 
+      icon: Timer,
+      description: "Deep work sessions"
+    },
+    { 
+      name: "Journal", 
+      path: "/journal", 
+      icon: NotebookPen,
+      description: "Thoughts & reflections"
+    },
+    { 
+      name: "Knowledge", 
+      path: "/knowledge", 
+      icon: BookOpen,
+      description: "Learning & notes"
+    },
+    { 
+      name: "Energy", 
+      path: "/energy", 
+      icon: Zap,
+      description: "Fitness & wellness"
+    },
+    { 
+      name: "Mindset", 
+      path: "/mindset", 
+      icon: Brain,
+      description: "Values & beliefs"
     }
-    const handleProfileUpdate = (e: any) => {
-      setProfileData(e.detail);
-    };
-    window.addEventListener('profileUpdated', handleProfileUpdate);
-    return () => {
-      window.removeEventListener('profileUpdated', handleProfileUpdate);
-    };
-  }, []);
-  const menuItems = [{
-    title: "Dashboard",
-    path: "/",
-    icon: LayoutDashboard
-  }, {
-    title: "GTD",
-    path: "/gtd",
-    icon: CheckSquare
-  }, {
-    title: "Actions",
-    path: "/actions",
-    icon: CheckCircle
-  }, {
-    title: "Time Design",
-    path: "/time-design",
-    icon: Clock
-  }, {
-    title: "Plans",
-    path: "/planning",
-    icon: Target
-  }, {
-    title: "Habits",
-    path: "/habits",
-    icon: RefreshCw
-  }, {
-    title: "Focus",
-    path: "/focus",
-    icon: Brain
-  }, {
-    title: "Mindset",
-    path: "/mindset",
-    icon: Zap
-  }, {
-    title: "Knowledge",
-    path: "/knowledge",
-    icon: BookOpen
-  }, {
-    title: "Journal",
-    path: "/journal",
-    icon: FileText
-  }, {
-    title: "Energy",
-    path: "/energy",
-    icon: Zap
-  }, {
-    title: "Stats",
-    path: "/stats",
-    icon: BarChartHorizontal
-  }, {
-    title: "Settings",
-    path: "/settings",
-    icon: Settings
-  }];
-  const handleNavigation = (path: string) => {
-    navigate(path);
-    if (isMobile) {
-      onToggle();
+  ];
+
+  const bottomItems = [
+    { 
+      name: "Settings", 
+      path: "/settings", 
+      icon: Settings,
+      description: "App preferences"
     }
-  };
-  const getUserName = () => {
-    if (profileData?.name) return profileData.name;
-    if (user?.user_metadata?.name) return user.user_metadata.name;
-    if (user?.user_metadata?.full_name) return user.user_metadata.full_name;
-    return user?.email?.split('@')[0] || "User";
-  };
-  const getUserAvatar = () => {
-    return profileData?.avatar || user?.user_metadata?.avatar_url || "";
-  };
-  return <aside className={cn("bg-card border-r border-border transition-all duration-500 ease-in-out z-50 flex flex-col sidebar-transition", isMobile ? cn("fixed left-0 top-0 h-full", isCollapsed ? "-translate-x-full" : "translate-x-0 w-64") : cn("relative h-full", isCollapsed ? "w-16" : "w-64"))}>
-      {/* Logo */}
-      <div className={cn("h-16 border-b border-border flex items-center transition-all duration-500 flex-shrink-0", isCollapsed ? "justify-center px-2" : "justify-between px-4")}>
-        {!isCollapsed && <>
-            <h1 className="text-xl font-bold text-primary">NEXUS</h1>
-            <Button variant="ghost" size="icon" onClick={onToggle} className="h-8 w-8 hover:bg-cyan600/50 transition-colors text-primary bg-accent-DEFAULT">
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-          </>}
-        {isCollapsed && <Button variant="ghost" size="icon" onClick={onToggle} className="h-8 w-8 hover:bg-accent/50 transition-colors">
-            <img alt="Nexus Logo" src="/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png" className="h-6 w-6 object-contain" />
-          </Button>}
-      </div>
-      
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto py-4">
-        <div className="space-y-1 px-2">
-          {menuItems.map(item => <Button key={item.path} variant={location.pathname === item.path ? "secondary" : "ghost"} className={cn("w-full justify-start transition-all duration-200 h-10", isCollapsed ? "px-2" : "px-3", location.pathname === item.path ? "bg-primary/10 text-primary hover:bg-primary/15" : "hover:bg-accent/50")} onClick={() => handleNavigation(item.path)}>
-              <item.icon className={cn("h-4 w-4 flex-shrink-0", !isCollapsed && "mr-3")} />
-              {!isCollapsed && <span className="truncate font-medium">{item.title}</span>}
-            </Button>)}
+  ];
+
+  const sidebarWidth = isCollapsed ? "w-16" : "w-56"; // Reduced from w-72 to w-56 (about 80% of original)
+
+  return (
+    <>
+      {/* Sidebar */}
+      <aside className={cn(
+        "bg-card border-r border-border transition-all duration-500 ease-in-out flex-shrink-0",
+        sidebarWidth,
+        isMobile ? (isCollapsed ? "-translate-x-full" : "fixed inset-y-0 left-0 z-50") : "relative"
+      )}>
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className={cn(
+            "flex items-center gap-2 px-4 py-4 border-b border-border",
+            isCollapsed && "justify-center px-2"
+          )}>
+            {!isCollapsed && (
+              <>
+                <div className="flex items-center gap-2">
+                  <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
+                    <span className="text-primary-foreground font-bold text-sm">N</span>
+                  </div>
+                  <span className="text-lg font-bold text-primary">NEXUS</span>
+                </div>
+              </>
+            )}
+            {isCollapsed && (
+              <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
+                <span className="text-primary-foreground font-bold text-sm">N</span>
+              </div>
+            )}
+          </div>
+
+          {/* Navigation */}
+          <ScrollArea className="flex-1 px-2 py-4">
+            <nav className="space-y-1">
+              {navigationItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                const Icon = item.icon;
+                
+                return (
+                  <Link key={item.path} to={item.path}>
+                    <Button
+                      variant={isActive ? "secondary" : "ghost"}
+                      className={cn(
+                        "w-full justify-start gap-3 h-10 transition-all duration-200",
+                        isCollapsed ? "px-2" : "px-3",
+                        isActive && "bg-primary/10 text-primary hover:bg-primary/15",
+                        !isActive && "hover:bg-accent/50"
+                      )}
+                    >
+                      <Icon className={cn(
+                        "flex-shrink-0",
+                        isCollapsed ? "h-5 w-5" : "h-4 w-4"
+                      )} />
+                      {!isCollapsed && (
+                        <div className="flex flex-col items-start overflow-hidden">
+                          <span className="text-sm font-medium truncate">{item.name}</span>
+                          <span className="text-xs text-muted-foreground truncate">{item.description}</span>
+                        </div>
+                      )}
+                    </Button>
+                  </Link>
+                );
+              })}
+            </nav>
+          </ScrollArea>
+
+          {/* Bottom section */}
+          <div className="px-2 py-4 border-t border-border">
+            {bottomItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              const Icon = item.icon;
+              
+              return (
+                <Link key={item.path} to={item.path}>
+                  <Button
+                    variant={isActive ? "secondary" : "ghost"}
+                    className={cn(
+                      "w-full justify-start gap-3 h-10 transition-all duration-200",
+                      isCollapsed ? "px-2" : "px-3",
+                      isActive && "bg-primary/10 text-primary hover:bg-primary/15",
+                      !isActive && "hover:bg-accent/50"
+                    )}
+                  >
+                    <Icon className={cn(
+                      "flex-shrink-0",
+                      isCollapsed ? "h-5 w-5" : "h-4 w-4"
+                    )} />
+                    {!isCollapsed && (
+                      <div className="flex flex-col items-start overflow-hidden">
+                        <span className="text-sm font-medium truncate">{item.name}</span>
+                        <span className="text-xs text-muted-foreground truncate">{item.description}</span>
+                      </div>
+                    )}
+                  </Button>
+                </Link>
+              );
+            })}
+          </div>
         </div>
-      </nav>
-      
-      {/* User Section */}
-      <div className={cn("border-t border-border p-4 flex-shrink-0", isCollapsed && "px-2")}>
-        <div className={cn("flex items-center cursor-pointer hover:bg-accent/50 rounded-lg p-2 transition-colors", isCollapsed ? "justify-center" : "gap-3")} onClick={() => navigate("/settings")}>
-          <Avatar className="h-8 w-8">
-            <AvatarImage src={getUserAvatar()} />
-            <AvatarFallback className="bg-primary/20 text-primary font-medium">
-              {getUserName().substring(0, 2).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          {!isCollapsed && <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium truncate">{getUserName()}</p>
-              <p className="text-xs text-muted-foreground">Pro Plan</p>
-            </div>}
-        </div>
-      </div>
-    </aside>;
+      </aside>
+    </>
+  );
 };
+
 export default ModernSidebar;
