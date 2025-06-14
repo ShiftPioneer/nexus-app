@@ -36,7 +36,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   const location = useLocation();
   const { user } = useAuth();
 
-  // NOTE: Only GTD uses SquareCheck now
+  // Only GTD uses SquareCheck now
   const navigationItems = [
     {
       name: "Dashboard",
@@ -114,19 +114,23 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       description: "App preferences",
     },
   ];
-  // Collapsed sidebar width
-  const SIDEBAR_COLLAPSED_WIDTH = "w-16"; // 64px
+
+  // Layout/size constants
+  const SIDEBAR_COLLAPSED_WIDTH = "w-16";
   const SIDEBAR_FULL_WIDTH = "w-64";
   const sidebarWidth = isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : SIDEBAR_FULL_WIDTH;
 
-  // NEW: Calculate fixed icon height to keep all visible when collapsed
-  // We have 12 main items + 1 bottom item = 13. We'll fit in 100vh.
-  const COLLAPSED_ICON_HEIGHT = "h-12"; // 48px per icon button suffices (max 13*48=624px)
-  const COLLAPSED_ICON_PADDING = "p-0"; // Remove excess padding
+  // Adjusted icon size for collapsed: h-7 w-7 (was h-6 w-6)
+  const COLLAPSED_ICON_SIZE = "h-7 w-7";
+  const COLLAPSED_ICON_HEIGHT = 56; // px per icon button including gap
+  const COLLAPSED_ICON_GAP = 0; // we'll use flex utility for even distribution
+
+  // For spacing: group all icons vertically, space-between to distribute them (remove ScrollArea)
+  const totalNavIcons = navigationItems.length + bottomItems.length + 1; // main items + 1 settings + 1 logo
+  // The +1 logo is for header, icons group fills the remaining vertical space
 
   return (
     <>
-      {/* Sidebar */}
       <aside
         className={cn(
           "bg-slate-950 border-r border-[#1e293b] transition-all duration-300 ease-in-out flex-shrink-0 relative h-full flex flex-col",
@@ -141,11 +145,24 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
         {/* Header */}
         <div
           className={cn(
-            "flex items-center border-b border-[#1e293b] py-4 relative min-h-[64px] transition-all duration-300 bg-slate-950",
-            isCollapsed ? "justify-center px-1" : "gap-3 px-4"
+            "flex items-center border-b border-[#1e293b] bg-slate-950",
+            isCollapsed ? "justify-center py-5 px-1 min-h-0" : "py-4 gap-3 px-4 min-h-[64px]"
           )}
         >
-          {!isCollapsed && (
+          {isCollapsed ? (
+            <Button
+              variant="ghost"
+              onClick={onToggle}
+              className="w-12 h-12 p-0 rounded-xl transition-all flex items-center justify-center bg-transparent"
+              aria-label="Expand sidebar"
+            >
+              <img
+                src={LOGO_URL}
+                alt="NEXUS"
+                className="w-7 h-7 object-contain"
+              />
+            </Button>
+          ) : (
             <>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-lg bg-transparent">
@@ -157,7 +174,6 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                 </div>
                 <span className="text-xl font-bold text-[#FF6500]">NEXUS</span>
               </div>
-              {/* Collapse Arrow Button */}
               <Button
                 variant="ghost"
                 size="icon"
@@ -169,80 +185,104 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               </Button>
             </>
           )}
-
-          {isCollapsed && (
-            <Button
-              variant="ghost"
-              onClick={onToggle}
-              className="w-10 h-10 p-0 rounded-xl transition-all flex items-center justify-center bg-transparent"
-              aria-label="Expand sidebar"
-            >
-              <img
-                src={LOGO_URL}
-                alt="NEXUS"
-                className="w-8 h-8 object-contain"
-                style={{ background: "transparent" }}
-              />
-            </Button>
-          )}
         </div>
 
-        {/* Navigation */}
-        <ScrollArea
-          className={cn(
-            "flex-1 bg-slate-950", // removed py-2 (vertical padding) to maximize space
-            isCollapsed && "px-0"
-          )}
-          style={isCollapsed ? { overflow: "visible", maxHeight: "none" } : undefined}
-        >
-          <nav
-            className={cn(
-              "space-y-1",
-              isCollapsed
-                ? "flex flex-col items-center gap-0" // remove gap for collapsed mode!
-                : "px-2"
-            )}
-          >
-            {navigationItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              const Icon = item.icon;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={cn("w-full", isCollapsed && "flex items-center justify-center")}
-                  tabIndex={0}
-                >
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "transition-all duration-200 group relative flex items-center",
-                      isCollapsed
-                        ? [
-                            COLLAPSED_ICON_HEIGHT,
-                            COLLAPSED_ICON_PADDING,
-                            "w-14 justify-center items-center rounded-xl", // w-14 = 56px
-                            "overflow-hidden", // ensure no spillage
-                          ].join(" ")
-                        : "h-14 px-3 justify-start w-full",
-                      isActive
-                        ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30"
-                        : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
-                    )}
-                    style={
-                      isCollapsed
-                        ? { minWidth: 56, maxWidth: 56 } // exact width for tight fit
-                        : undefined
-                    }
+        {/* NAVIGATION (flex vertically, equally-distributed icons for collapsed) */}
+        {isCollapsed ? (
+          <nav className="flex flex-col flex-1 justify-between items-center py-2 h-full">
+            {/* Main icons */}
+            <div className="flex flex-col flex-1 w-full justify-between items-center pt-2">
+              {navigationItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className="flex items-center justify-center w-full"
                   >
-                    <div
+                    <Button
+                      variant="ghost"
                       className={cn(
-                        "flex items-center w-full",
-                        isCollapsed ? "justify-center" : "gap-3"
+                        `w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200 group relative overflow-hidden p-0 m-0`,
+                        isActive
+                          ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30"
+                          : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
+                      )}
+                      style={{
+                        minWidth: 56,
+                        maxWidth: 56,
+                        marginBottom: 2,
+                      }}
+                    >
+                      <Icon className={cn(COLLAPSED_ICON_SIZE, "flex-shrink-0")} />
+                      {/* Active indicator */}
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#FF6500] rounded-r-full" />
+                      )}
+                    </Button>
+                  </Link>
+                );
+              })}
+            </div>
+            {/* Settings button at the bottom */}
+            <div className="w-full pb-2">
+              {bottomItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                const Icon = item.icon;
+                return (
+                  <Link key={item.path} to={item.path} className="w-full flex items-center justify-center">
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        `w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200 group relative overflow-hidden p-0 m-0`,
+                        isActive
+                          ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30"
+                          : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
+                      )}
+                      style={{
+                        minWidth: 56,
+                        maxWidth: 56,
+                      }}
+                    >
+                      <Icon className={cn(COLLAPSED_ICON_SIZE, "flex-shrink-0")} />
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#FF6500] rounded-r-full" />
+                      )}
+                    </Button>
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
+        ) : (
+          // Expanded navigation (unchanged), with ScrollArea
+          <ScrollArea
+            className={cn("flex-1 bg-slate-950", !isCollapsed && "px-0")}
+            style={!isCollapsed ? { overflow: "visible", maxHeight: "none" } : undefined}
+          >
+            <nav className={cn("space-y-1 px-2")}>
+              {navigationItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className="w-full"
+                    tabIndex={0}
+                  >
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        "transition-all duration-200 group relative flex items-center h-14 px-3 justify-start w-full",
+                        isActive
+                          ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30"
+                          : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
                       )}
                     >
-                      <Icon className="h-6 w-6 flex-shrink-0" />
-                      {!isCollapsed && (
+                      <div className="flex items-center w-full gap-3">
+                        <Icon className="h-6 w-6 flex-shrink-0" />
                         <div className="flex flex-col items-start flex-1 min-w-0">
                           <span className="text-sm font-medium truncate w-full text-left">
                             {item.name}
@@ -251,73 +291,18 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                             {item.description}
                           </span>
                         </div>
-                      )}
-                    </div>
-                    {/* Active indicator */}
-                    {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#FF6500] rounded-r-full" />
-                    )}
-                  </Button>
-                </Link>
-              );
-            })}
-          </nav>
-        </ScrollArea>
-        {/* Bottom section */}
-        <div className={cn(
-          "border-t border-[#1e293b] p-2 bg-slate-950",
-          isCollapsed && "flex items-center justify-center p-0" // align tight for collapsed
-        )}>
-          {bottomItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            const Icon = item.icon;
-            return (
-              <Link key={item.path} to={item.path} className={cn(isCollapsed && "flex items-center justify-center")}>
-                <Button
-                  variant="ghost"
-                  className={cn(
-                    "transition-all duration-200 group relative flex items-center",
-                    isCollapsed
-                      ? [
-                          COLLAPSED_ICON_HEIGHT,
-                          COLLAPSED_ICON_PADDING,
-                          "w-14 justify-center items-center rounded-xl",
-                          "overflow-hidden",
-                        ].join(" ")
-                      : "h-14 px-3 justify-start w-full",
-                    isActive
-                      ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30"
-                      : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
-                  )}
-                  style={isCollapsed ? { minWidth: 56, maxWidth: 56 } : undefined}
-                >
-                  <div
-                    className={cn(
-                      "flex items-center w-full",
-                      isCollapsed ? "justify-center" : "gap-3"
-                    )}
-                  >
-                    <Icon className="h-6 w-6 flex-shrink-0" />
-                    {!isCollapsed && (
-                      <div className="flex flex-col items-start flex-1 min-w-0">
-                        <span className="text-sm font-medium truncate w-full text-left">
-                          {item.name}
-                        </span>
-                        <span className="text-xs text-gray-400 truncate w-full text-left">
-                          {item.description}
-                        </span>
                       </div>
-                    )}
-                  </div>
-                  {/* Active indicator */}
-                  {isActive && (
-                    <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#FF6500] rounded-r-full" />
-                  )}
-                </Button>
-              </Link>
-            );
-          })}
-        </div>
+                      {/* Active indicator */}
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#FF6500] rounded-r-full" />
+                      )}
+                    </Button>
+                  </Link>
+                );
+              })}
+            </nav>
+          </ScrollArea>
+        )}
       </aside>
     </>
   );
