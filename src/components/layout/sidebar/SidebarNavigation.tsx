@@ -10,7 +10,6 @@ import {
   BookOpen,
   Crosshair,
   Zap,
-  Settings,
   CheckCircle2,
   Repeat,
   Pencil,
@@ -86,12 +85,6 @@ const navigationItems = [
     path: "/energy",
     icon: Zap,
     description: "Fitness & wellness"
-  },
-  {
-    name: "Settings",
-    path: "/settings",
-    icon: Settings,
-    description: "App preferences"
   }
 ];
 
