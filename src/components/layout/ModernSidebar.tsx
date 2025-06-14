@@ -1,11 +1,10 @@
 
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Home, CheckCircle, Target, Calendar, BookOpen, Zap, Brain, Settings, BarChart3, Clock, NotebookPen, Crosshair, ChevronLeft, SquareCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from "@/contexts/AuthContext";
+import SidebarHeader from "./sidebar/SidebarHeader";
+import SidebarNavigation from "./sidebar/SidebarNavigation";
+import SidebarFooter from "./sidebar/SidebarFooter";
 
 interface ModernSidebarProps {
   isCollapsed: boolean;
@@ -13,92 +12,12 @@ interface ModernSidebarProps {
   onToggle: () => void;
 }
 
-const LOGO_URL = "https://nexus-plaform.lovable.app/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png";
-
 const ModernSidebar: React.FC<ModernSidebarProps> = ({
   isCollapsed,
   isMobile,
   onToggle
 }) => {
-  const location = useLocation();
   const { user } = useAuth();
-
-  const navigationItems = [
-    {
-      name: "Dashboard",
-      path: "/",
-      icon: Home,
-      description: "Overview & insights"
-    },
-    {
-      name: "GTD",
-      path: "/gtd",
-      icon: SquareCheck,
-      description: "Getting Things Done"
-    },
-    {
-      name: "Actions",
-      path: "/actions",
-      icon: CheckCircle,
-      description: "Tasks & todos"
-    },
-    {
-      name: "Time Design",
-      path: "/timedesign",
-      icon: Clock,
-      description: "Schedule & matrix"
-    },
-    {
-      name: "Planning",
-      path: "/planning",
-      icon: Target,
-      description: "Goals & projects"
-    },
-    {
-      name: "Habits",
-      path: "/habits",
-      icon: BarChart3,
-      description: "Track habits"
-    },
-    {
-      name: "Focus",
-      path: "/focus",
-      icon: Crosshair,
-      description: "Deep work sessions"
-    },
-    {
-      name: "Mindset",
-      path: "/mindset",
-      icon: Brain,
-      description: "Values & beliefs"
-    },
-    {
-      name: "Knowledge",
-      path: "/knowledge",
-      icon: BookOpen,
-      description: "Learning & notes"
-    },
-    {
-      name: "Journal",
-      path: "/journal",
-      icon: NotebookPen,
-      description: "Thoughts & reflections"
-    },
-    {
-      name: "Energy",
-      path: "/energy",
-      icon: Zap,
-      description: "Fitness & wellness"
-    }
-  ];
-
-  const settingsItem = {
-    name: "Settings",
-    path: "/settings",
-    icon: Settings,
-    description: "App preferences"
-  };
-
   const sidebarWidth = isCollapsed ? "w-20" : "w-72";
 
   return (
@@ -107,145 +26,11 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       sidebarWidth,
       isMobile ? (isCollapsed ? "-translate-x-full" : "fixed inset-y-0 left-0 z-50") : "relative"
     )}>
-      {/* Header */}
-      <div className={cn(
-        "flex items-center border-b border-slate-700 bg-slate-950",
-        isCollapsed ? "justify-center py-6 px-2" : "py-5 gap-3 px-6 min-h-[80px]"
-      )}>
-        {isCollapsed ? (
-          <Button
-            variant="ghost"
-            onClick={onToggle}
-            aria-label="Expand sidebar"
-            className="w-14 h-14 p-0 rounded-xl transition-all duration-200 hover:bg-primary/20 hover:scale-105 group text-slate-300 hover:text-white"
-          >
-            <img 
-              src={LOGO_URL} 
-              alt="NEXUS" 
-              className="w-8 h-8 object-contain group-hover:drop-shadow-glow transition-all duration-200" 
-            />
-          </Button>
-        ) : (
-          <>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shadow-lg bg-primary/20 border border-primary/30">
-                <img src={LOGO_URL} alt="NEXUS" className="w-7 h-7 object-contain" />
-              </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent">
-                NEXUS
-              </span>
-            </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={onToggle}
-              className="ml-auto h-9 w-9 hover:bg-slate-800 transition-all duration-200 text-primary hover:text-primary-400"
-              aria-label="Collapse sidebar"
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-          </>
-        )}
-      </div>
-
-      {/* Navigation */}
+      <SidebarHeader isCollapsed={isCollapsed} onToggle={onToggle} />
+      
       <div className="flex flex-col flex-1">
-        <ScrollArea className="flex-1 bg-slate-950">
-          <nav className="px-4 py-4 space-y-2">
-            {navigationItems.map(item => {
-              const isActive = location.pathname === item.path;
-              const Icon = item.icon;
-              
-              return (
-                <Link key={item.path} to={item.path} className="block">
-                  <div
-                    className={cn(
-                      "flex items-center transition-all duration-200 group relative rounded-xl",
-                      isCollapsed 
-                        ? "w-12 h-12 justify-center mx-auto"
-                        : "gap-3 px-3 py-3",
-                      isActive 
-                        ? "bg-primary/20 text-primary shadow-lg" 
-                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
-                    )}
-                  >
-                    <div className={cn(
-                      "flex-shrink-0 flex items-center justify-center transition-all duration-200",
-                      isCollapsed ? "w-5 h-5" : "w-8 h-8 rounded-lg",
-                      isActive ? "text-primary" : "group-hover:text-primary"
-                    )}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    
-                    {!isCollapsed && (
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span className={cn(
-                          "text-sm font-medium leading-tight",
-                          isActive ? "text-white" : "text-slate-200 group-hover:text-white"
-                        )}>
-                          {item.name}
-                        </span>
-                        <span className="text-xs text-slate-400 leading-tight">
-                          {item.description}
-                        </span>
-                      </div>
-                    )}
-                    
-                    {isActive && (
-                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
-                    )}
-                  </div>
-                </Link>
-              );
-            })}
-          </nav>
-        </ScrollArea>
-
-        {/* Settings Button - Fixed at Bottom */}
-        <div className={cn(
-          "border-t border-slate-700 bg-slate-950",
-          isCollapsed ? "p-3" : "px-4 py-3"
-        )}>
-          <Link to={settingsItem.path} className="block">
-            <div
-              className={cn(
-                "flex items-center transition-all duration-200 group relative rounded-xl",
-                isCollapsed 
-                  ? "w-12 h-12 justify-center mx-auto"
-                  : "gap-3 px-3 py-3",
-                location.pathname === settingsItem.path
-                  ? "bg-primary/20 text-primary shadow-lg" 
-                  : "text-slate-300 hover:bg-slate-800 hover:text-white"
-              )}
-            >
-              <div className={cn(
-                "flex-shrink-0 flex items-center justify-center transition-all duration-200",
-                isCollapsed ? "w-5 h-5" : "w-8 h-8 rounded-lg",
-                location.pathname === settingsItem.path ? "text-primary" : "group-hover:text-primary"
-              )}>
-                <Settings className="h-5 w-5" />
-              </div>
-              
-              {!isCollapsed && (
-                <div className="flex flex-col min-w-0 flex-1">
-                  <span className={cn(
-                    "text-sm font-medium leading-tight",
-                    location.pathname === settingsItem.path ? "text-white" : "text-slate-200 group-hover:text-white"
-                  )}>
-                    {settingsItem.name}
-                  </span>
-                  <span className="text-xs text-slate-400 leading-tight">
-                    {settingsItem.description}
-                  </span>
-                </div>
-              )}
-              
-              {location.pathname === settingsItem.path && (
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
-              )}
-            </div>
-          </Link>
-        </div>
+        <SidebarNavigation isCollapsed={isCollapsed} />
+        <SidebarFooter isCollapsed={isCollapsed} />
       </div>
     </aside>
   );
