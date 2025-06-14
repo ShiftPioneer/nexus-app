@@ -31,14 +31,14 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ isCollapsed }) => {
               ? "w-10 h-10 justify-center mx-auto"
               : "gap-3 px-3 py-2.5",
             location.pathname === settingsItem.path
-              ? "bg-primary/20 text-primary shadow-md" 
+              ? "bg-slate-800 text-white shadow-md" 
               : "text-slate-300 hover:bg-slate-800 hover:text-white"
           )}
         >
           <div className={cn(
             "flex-shrink-0 flex items-center justify-center transition-all duration-200",
             isCollapsed ? "w-4 h-4" : "w-5 h-5",
-            location.pathname === settingsItem.path ? "text-primary" : "group-hover:text-primary"
+            location.pathname === settingsItem.path ? "text-white" : "group-hover:text-primary"
           )}>
             <Settings className={cn(isCollapsed ? "h-4 w-4" : "h-5 w-5")} />
           </div>
@@ -58,7 +58,7 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({ isCollapsed }) => {
           )}
           
           {location.pathname === settingsItem.path && (
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-r-full" />
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-slate-300 rounded-r-full" />
           )}
         </div>
       </Link>
