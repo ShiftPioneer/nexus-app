@@ -143,16 +143,16 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               <TabsTrigger value="planning">Planning</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="details" className="space-y-4 pt-4">
+            <TabsContent value="details" className="space-y-4 pt-4 bg-slate-900">
               <div>
-                <Input placeholder="Task title" value={title} onChange={e => setTitle(e.target.value)} className="mb-2" />
+                <Input placeholder="Task title" value={title} onChange={e => setTitle(e.target.value)} className="mb-2 bg-slate-900" />
               </div>
               
               <div>
-                <Textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} rows={3} />
+                <Textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} rows={3} className="bg-slate-900" />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 bg-slate-900">
                 <div>
                   <Select value={status} onValueChange={setStatus}>
                     <SelectTrigger>
@@ -198,7 +198,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               </div>
               
               <div>
-                <Input placeholder="Add tags (press Enter)" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleAddTag} />
+                <Input placeholder="Add tags (press Enter)" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleAddTag} className="bg-slate-900" />
                 {tags.length > 0 && <div className="flex flex-wrap gap-2 mt-2">
                     {tags.map(tag => <Badge key={tag} variant="secondary" className="flex items-center gap-1">
                         {tag}
@@ -239,7 +239,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               </Button>}
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="text-orange-600">
               Cancel
             </Button>
             <Button onClick={handleSubmit}>
