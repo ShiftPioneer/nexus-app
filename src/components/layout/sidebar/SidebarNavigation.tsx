@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -9,12 +8,12 @@ import {
   Target,
   Brain,
   BookOpen,
-  BarChart3,
   Crosshair,
-  FilePenLine,
   Zap,
   Settings,
   CheckCircle2,
+  Repeat,
+  Pencil,
 } from "lucide-react";
 
 interface SidebarNavigationProps {
@@ -55,7 +54,7 @@ const navigationItems = [
   {
     name: "Habits",
     path: "/habits",
-    icon: BarChart3,
+    icon: Repeat,
     description: "Track habits"
   },
   {
@@ -79,7 +78,7 @@ const navigationItems = [
   {
     name: "Journal",
     path: "/journal",
-    icon: FilePenLine,
+    icon: Pencil,
     description: "Thoughts & reflections"
   },
   {
