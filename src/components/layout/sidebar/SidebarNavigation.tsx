@@ -9,12 +9,12 @@ import {
   Target,
   Brain,
   BookOpen,
-  ListTodo,
   BarChart3,
   Crosshair,
   FilePenLine,
   Zap,
   Settings,
+  CheckCircle2,
 } from "lucide-react";
 
 interface SidebarNavigationProps {
@@ -31,13 +31,13 @@ const navigationItems = [
   {
     name: "GTD",
     path: "/gtd",
-    icon: ListTodo,
+    icon: CheckSquare,
     description: "Getting Things Done"
   },
   {
     name: "Actions",
     path: "/actions",
-    icon: CheckSquare,
+    icon: CheckCircle2,
     description: "Tasks & todos"
   },
   {
