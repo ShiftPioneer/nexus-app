@@ -136,7 +136,7 @@ const HabitsSection = () => {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="bg-slate-900">
+        <CardContent className="bg-slate-950">
           {habits.length === 0 ? <div className="text-center py-8">
               <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
               <p className="text-muted-foreground mb-2">No habits created yet</p>
@@ -145,7 +145,7 @@ const HabitsSection = () => {
               </Button>
             </div> : <div className="space-y-2">
               {habits.slice(0, 3).map(habit => <Card key={habit.id} className={cn("border overflow-hidden group hover:border-primary/30 transition-colors", habit.status === "completed" && "border-success/30 bg-success/5")}>
-                  <CardContent className="p-3 py-[14px] bg-slate-950 border-lime-500 ">
+                  <CardContent className="p-3 py-[14px] border-lime-500 bg-slate-900">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3">
                         <div className={`h-10 w-10 rounded-full flex items-center justify-center
@@ -158,11 +158,11 @@ const HabitsSection = () => {
                         <div>
                           <h4 className="font-medium">{habit.title}</h4>
                           <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
-                            <Clock className="h-3.5 w-3.5" />
-                            <span>{habit.duration}</span>
+                            <Clock className="h-3.5 w-3.5 bg-slate-800" />
+                            <span className="text-base text-cyan-500">{habit.duration}</span>
                             <span className="flex items-center gap-1">
                               <Award className="h-3.5 w-3.5 text-orange-500" />
-                              <span>{habit.streak} day streak</span>
+                              <span className="text-cyan-500">{habit.streak} day streak</span>
                             </span>
                           </div>
                         </div>

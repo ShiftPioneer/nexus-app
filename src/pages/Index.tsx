@@ -22,7 +22,7 @@ const Dashboard = () => {
               <TasksSection />
               <GoalSection />
             </div>
-            <div className="space-y-6 bg-slate-950">
+            <div className="space-y-6 bg-slate-900">
               <HabitsSection />
               <JournalSection />
             </div>
