@@ -138,7 +138,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
         
         <div className="grid gap-4 py-4">
           <Tabs defaultValue="details">
-            <TabsList className="grid grid-cols-2">
+            <TabsList className="grid grid-cols-2 justify-center align-items items-center ">
               <TabsTrigger value="details">Details</TabsTrigger>
               <TabsTrigger value="planning">Planning</TabsTrigger>
             </TabsList>
