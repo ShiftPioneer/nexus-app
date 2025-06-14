@@ -58,10 +58,10 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
             </AvatarFallback>
           </Avatar>
           {!isMobile && <div className="flex flex-col">
-              <span className="text-sm font-medium text-text-primary">
+              <span className="text-sm font-medium text-orange-600">
                 {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
               </span>
-              <span className="text-xs text-text-tertiary">
+              <span className="text-xs text-lime-500">
                 Pro Account
               </span>
             </div>}

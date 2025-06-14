@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -6,14 +5,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Clock, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-
 const getGreeting = () => {
   const hour = new Date().getHours();
   if (hour < 12) return "Good Morning";
   if (hour < 18) return "Good Afternoon";
   return "Good Evening";
 };
-
 const quotes = [{
   text: "The future depends on what you do today.",
   author: "Mahatma Gandhi"
@@ -30,15 +27,17 @@ const quotes = [{
   text: "You don't have to be great to start, but you have to start to be great.",
   author: "Zig Ziglar"
 }];
-
 const WelcomeSection = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [quote, setQuote] = useState(quotes[Math.floor(Math.random() * quotes.length)]);
-  const { toast } = useToast();
-  const { user } = useAuth();
+  const {
+    toast
+  } = useToast();
+  const {
+    user
+  } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   const navigate = useNavigate();
-  
   useEffect(() => {
     const fetchProfileData = async () => {
       try {
@@ -51,53 +50,41 @@ const WelcomeSection = () => {
         console.error("Failed to fetch profile:", error);
       }
     };
-    
     fetchProfileData();
-    
     const handleProfileUpdate = (e: any) => {
       setProfileData(e.detail);
     };
-    
     window.addEventListener('profileUpdated', handleProfileUpdate);
-    
     return () => {
       window.removeEventListener('profileUpdated', handleProfileUpdate);
     };
   }, [user]);
-  
   const getUserName = () => {
     if (profileData?.name) {
       return profileData.name;
     }
-    
     if (user?.user_metadata?.name) {
       return user.user_metadata.name;
     }
-    
     return user?.email?.split('@')[0] || "User";
   };
-  
   const userName = getUserName();
-  
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(timer);
   }, []);
-  
   const formattedTime = currentTime.toLocaleTimeString([], {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true
   });
-  
   const formattedDate = currentTime.toLocaleDateString([], {
     weekday: 'long',
     month: 'long',
     day: 'numeric'
   });
-  
   const handleNewQuote = () => {
     let newQuote;
     do {
@@ -108,23 +95,19 @@ const WelcomeSection = () => {
       description: "New quote generated!"
     });
   };
-  
   const handleStartDay = () => {
     navigate('/journal');
     toast({
-      description: "Starting your day with journal entry",
+      description: "Starting your day with journal entry"
     });
   };
-  
   const handleViewPlan = () => {
     navigate('/timedesign');
     toast({
-      description: "Viewing today's plan in time design",
+      description: "Viewing today's plan in time design"
     });
   };
-  
-  return (
-    <section className="mb-6 space-y-4">
+  return <section className="mb-6 space-y-4">
       <Card className="overflow-hidden bg-slate-950 border-slate-700">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-center">
@@ -140,11 +123,7 @@ const WelcomeSection = () => {
                 <Button variant="default" className="gap-2" onClick={handleStartDay}>
                   <span>Start Your Day</span>
                 </Button>
-                <Button 
-                  variant="outline" 
-                  className="text-white border-slate-600 hover:bg-slate-800"
-                  onClick={handleViewPlan}
-                >
+                <Button variant="outline" onClick={handleViewPlan} className="border-slate-600 hover:bg-slate-800 text-lime-500">
                   <Calendar className="mr-2 h-4 w-4" />
                   View Today's Plan
                 </Button>
@@ -164,15 +143,13 @@ const WelcomeSection = () => {
             <blockquote className="italic text-lg text-slate-200">"{quote.text}"</blockquote>
             <div className="mt-2 flex justify-between items-center">
               <span className="text-sm text-slate-400">— {quote.author}</span>
-              <Button variant="ghost" size="sm" onClick={handleNewQuote} className="text-primary hover:text-primary-400">
+              <Button variant="ghost" size="sm" onClick={handleNewQuote} className="text-lime-500">
                 New Quote
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
-    </section>
-  );
+    </section>;
 };
-
 export default WelcomeSection;

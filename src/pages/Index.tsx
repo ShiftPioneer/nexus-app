@@ -13,7 +13,7 @@ const Dashboard = () => {
   };
   return <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="animate-fade-in p-6 space-y-6">
+        <div className="animate-fade-in p-6 space-y-6 bg-slate-900">
           <WelcomeSection />
           <StatsSection />
           
