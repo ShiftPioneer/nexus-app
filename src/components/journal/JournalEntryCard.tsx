@@ -14,7 +14,7 @@ interface JournalEntryCardProps {
 
 const JournalEntryCard: React.FC<JournalEntryCardProps> = ({ entry, onEdit, onDelete }) => {
   return (
-    <Card className="cursor-pointer hover:bg-accent/20 transition-colors">
+    <Card className="cursor-pointer hover:bg-accent/20 transition-colors border-slate-300">
       <CardHeader className="pb-2">
         <div className="flex justify-between">
           <CardTitle className="text-lg">{entry.title}</CardTitle>

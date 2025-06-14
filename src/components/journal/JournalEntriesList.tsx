@@ -24,7 +24,7 @@ const JournalEntriesList: React.FC<JournalEntriesListProps> = ({
   onNewEntry
 }) => {
   return (
-    <Card>
+    <Card className="border-slate-300">
       <CardHeader className="space-y-4">
         <JournalFilters activeTab={activeTab} onTabChange={onTabChange} />
       </CardHeader>

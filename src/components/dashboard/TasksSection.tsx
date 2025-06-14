@@ -5,9 +5,11 @@ import { CheckCircle2, Plus, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { format, isToday } from "date-fns";
+
 const TasksSection = () => {
   const navigate = useNavigate();
   const [tasks, setTasks] = useState<any[]>([]);
+
   useEffect(() => {
     // Load tasks from localStorage
     const loadTasks = () => {
@@ -48,6 +50,7 @@ const TasksSection = () => {
       window.removeEventListener('tasksUpdated', handleTaskUpdate);
     };
   }, []);
+
   const handleCompleteTask = (taskId: string) => {
     try {
       const savedTasks = localStorage.getItem('gtdTasks');
@@ -69,7 +72,9 @@ const TasksSection = () => {
       console.error("Failed to complete task:", error);
     }
   };
-  return <Card>
+
+  return (
+    <Card className="border-slate-300">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 bg-slate-950 rounded-md">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
@@ -81,37 +86,51 @@ const TasksSection = () => {
         </Button>
       </CardHeader>
       <CardContent className="bg-slate-950 rounded-md">
-        {tasks.length === 0 ? <div className="text-center py-8">
+        {tasks.length === 0 ? (
+          <div className="text-center py-8">
             <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground mb-2">No tasks scheduled for today</p>
             <Button variant="outline" size="sm" onClick={() => navigate("/actions")}>
               Schedule Tasks
             </Button>
-          </div> : <div className="space-y-3">
-            {tasks.slice(0, 5).map(task => <div key={task.id} className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {tasks.slice(0, 5).map(task => (
+              <div key={task.id} className="flex items-center justify-between p-3 rounded-lg border border-slate-300 bg-card hover:bg-accent/50 transition-colors">
                 <div className="flex-1">
                   <h4 className="font-medium text-sm">{task.title}</h4>
-                  {task.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
+                  {task.description && (
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
                       {task.description}
-                    </p>}
+                    </p>
+                  )}
                   <div className="flex items-center gap-2 mt-2">
                     <Badge variant="outline" className="text-xs">
                       {task.priority}
                     </Badge>
-                    {task.dueDate && <Badge variant="secondary" className="text-xs">
+                    {task.dueDate && (
+                      <Badge variant="secondary" className="text-xs">
                         {format(new Date(task.dueDate), "MMM d")}
-                      </Badge>}
+                      </Badge>
+                    )}
                   </div>
                 </div>
                 <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-100" onClick={() => handleCompleteTask(task.id)}>
                   <CheckCircle2 className="h-4 w-4" />
                 </Button>
-              </div>)}
-            {tasks.length > 5 && <Button variant="ghost" className="w-full text-sm" onClick={() => navigate("/actions")}>
+              </div>
+            ))}
+            {tasks.length > 5 && (
+              <Button variant="ghost" className="w-full text-sm" onClick={() => navigate("/actions")}>
                 View all {tasks.length} tasks
-              </Button>}
-          </div>}
+              </Button>
+            )}
+          </div>
+        )}
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default TasksSection;

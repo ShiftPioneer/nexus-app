@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -250,116 +251,44 @@
   border: 1px solid #cbd5e1; /* slate-300 */
 }
 
-/* COMPREHENSIVE COLOR FIXES - ALL YELLOW/AMBER REMOVED */
-
-/* Replace ALL yellow/amber backgrounds with slate-950 */
-.bg-yellow-50, .bg-yellow-100, .bg-yellow-200, .bg-yellow-300,
-.bg-yellow-400, .bg-yellow-500, .bg-yellow-600, .bg-yellow-700,
-.bg-yellow-800, .bg-yellow-900, .bg-yellow-950,
-.bg-amber-50, .bg-amber-100, .bg-amber-200, .bg-amber-300,
-.bg-amber-400, .bg-amber-500, .bg-amber-600, .bg-amber-700,
-.bg-amber-800, .bg-amber-900, .bg-amber-950 {
-  background-color: #020617 !important; /* slate-950 */
-  color: #f8fafc !important; /* white text for contrast */
+/* COMPREHENSIVE BORDER COLOR STANDARDIZATION */
+/* Force ALL border colors to use slate-300 */
+* {
+  border-color: #cbd5e1 !important; /* slate-300 for ALL borders */
 }
 
-/* Replace ALL yellow/amber text with lime-500 */
-.text-yellow-50, .text-yellow-100, .text-yellow-200, .text-yellow-300, 
-.text-yellow-400, .text-yellow-500, .text-yellow-600, .text-yellow-700, 
-.text-yellow-800, .text-yellow-900, .text-yellow-950,
-.text-amber-50, .text-amber-100, .text-amber-200, .text-amber-300,
-.text-amber-400, .text-amber-500, .text-amber-600, .text-amber-700,
-.text-amber-800, .text-amber-900, .text-amber-950 {
-  color: #84cc16 !important; /* lime-500 for ALL yellow/amber text */
-}
-
-/* Replace ALL yellow/amber/lime borders with slate-300 */
-.border-yellow-50, .border-yellow-100, .border-yellow-200, .border-yellow-300, 
-.border-yellow-400, .border-yellow-500, .border-yellow-600, .border-yellow-700, 
-.border-yellow-800, .border-yellow-900, .border-yellow-950,
-.border-amber-50, .border-amber-100, .border-amber-200, .border-amber-300,
-.border-amber-400, .border-amber-500, .border-amber-600, .border-amber-700,
-.border-amber-800, .border-amber-900, .border-amber-950,
-.border-lime-50, .border-lime-100, .border-lime-200, .border-lime-300,
-.border-lime-400, .border-lime-500, .border-lime-600, .border-lime-700,
-.border-lime-800, .border-lime-900, .border-lime-950 {
+/* Specifically target common border classes */
+.border, .border-t, .border-b, .border-l, .border-r,
+.border-x, .border-y, .border-2, .border-4, .border-8,
+.rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl,
+.ring, .ring-1, .ring-2, .ring-4, .ring-8,
+.divide-x > *, .divide-y > * {
   border-color: #cbd5e1 !important; /* slate-300 */
 }
 
-/* Replace ALL yellow/amber rings with slate-300 */
-.ring-yellow-50, .ring-yellow-100, .ring-yellow-200, .ring-yellow-300, 
-.ring-yellow-400, .ring-yellow-500, .ring-yellow-600, .ring-yellow-700, 
-.ring-yellow-800, .ring-yellow-900, .ring-yellow-950,
-.ring-amber-50, .ring-amber-100, .ring-amber-200, .ring-amber-300,
-.ring-amber-400, .ring-amber-500, .ring-amber-600, .ring-amber-700,
-.ring-amber-800, .ring-amber-900, .ring-amber-950 {
-  --tw-ring-color: #cbd5e1 !important; /* slate-300 */
-}
-
-/* Fix warning colors to use lime text but slate-300 for borders */
-.text-warning {
-  color: #84cc16 !important; /* lime-500 */
-}
-.bg-warning {
-  background-color: #84cc16 !important; /* lime-500 */
-}
-.border-warning {
+/* Specific overrides for UI components */
+.card, .card-header, .card-content, .card-footer,
+.button, .input, .textarea, .select,
+.badge, .alert, .dialog, .sheet,
+.popover, .tooltip, .dropdown,
+.tabs, .accordion, .collapsible {
   border-color: #cbd5e1 !important; /* slate-300 */
 }
 
-/* Ensure all dark backgrounds use slate-950 */
-.bg-slate-950, .bg-dark, .sidebar-dark-bg {
-  background-color: #020617 !important; /* slate-950 */
-  color: #f8fafc !important; /* white text for contrast */
+/* Input and form element borders */
+input, textarea, select, [role="combobox"] {
+  border-color: #cbd5e1 !important; /* slate-300 */
 }
 
-/* Fix all card and container backgrounds */
-[class*="bg-card"], [class*="bg-background"], .card {
-  background-color: #020617 !important; /* slate-950 */
-  color: #f8fafc !important; /* white text */
+/* Hover and focus states for borders */
+*:hover, *:focus, *:focus-visible, *:focus-within {
+  border-color: #cbd5e1 !important; /* slate-300 */
 }
 
-/* Fix input fields for readability on dark backgrounds */
-input, textarea, select {
-  background-color: #1e293b !important; /* slate-800 */
-  color: #f8fafc !important; /* white text */
-  border-color: #cbd5e1 !important; /* slate-300 instead of slate-600 */
-}
-
-input::placeholder, textarea::placeholder {
-  color: #94a3b8 !important; /* slate-400 for placeholders */
-}
-
-/* Fix button text visibility */
-button {
-  color: inherit;
-}
-
-/* Ensure all text appears clearly on dark backgrounds */
-.text-primary, .text-foreground {
-  color: #f8fafc !important; /* white */
-}
-
-.text-secondary {
-  color: #cbd5e1 !important; /* slate-300 */
-}
-
-.text-muted, .text-muted-foreground {
-  color: #94a3b8 !important; /* slate-400 */
-}
-
-/* Fix specific component text colors */
-label, span, div {
-  color: inherit;
-}
-
-/* Ensure proper contrast for all interactive elements */
-a, button, [role="button"] {
-  transition: all 200ms ease-out;
-}
-
-a:hover, button:hover, [role="button"]:hover {
-  color: #f8fafc; /* ensure white text on hover */
+/* Component-specific border fixes */
+[class*="border-"], [class*="ring-"], [class*="divide-"] {
+  border-color: #cbd5e1 !important; /* slate-300 */
+  --tw-border-opacity: 1 !important;
 }
 
 /* Responsive utilities */

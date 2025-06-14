@@ -24,7 +24,7 @@ const JournalStats: React.FC<JournalStatsProps> = ({ entries }) => {
   }, 0);
 
   return (
-    <Card>
+    <Card className="border-slate-300">
       <CardHeader>
         <CardTitle className="text-lg flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
@@ -33,19 +33,19 @@ const JournalStats: React.FC<JournalStatsProps> = ({ entries }) => {
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 gap-4">
-          <div className="border rounded-lg p-3 text-center">
+          <div className="border border-slate-300 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold">{entries.length}</p>
             <p className="text-xs text-muted-foreground">Total Entries</p>
           </div>
-          <div className="border rounded-lg p-3 text-center">
+          <div className="border border-slate-300 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold">{todayEntries.length}</p>
             <p className="text-xs text-muted-foreground">Today</p>
           </div>
-          <div className="border rounded-lg p-3 text-center">
+          <div className="border border-slate-300 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold">{uniqueTags.length}</p>
             <p className="text-xs text-muted-foreground">Unique Tags</p>
           </div>
-          <div className="border rounded-lg p-3 text-center">
+          <div className="border border-slate-300 rounded-lg p-3 text-center">
             <p className="text-2xl font-bold">{streak}</p>
             <p className="text-xs text-muted-foreground">Streak</p>
           </div>
