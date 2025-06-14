@@ -115,14 +115,14 @@ const GoalSection = () => {
               
               <div className="flex justify-between items-center">
                 <span className="text-xs text-muted-foreground text-lime-500">Progress</span>
-                <span className="text-xs text-muted-foreground">{goal.calculatedProgress || 0}%</span>
+                <span className="text-xs text-muted-foreground text-lime-500">{goal.calculatedProgress || 0}%</span>
               </div>
               
               <Progress value={goal.calculatedProgress || 0} color={isOverdue(goal.endDate) ? "bg-red-500" : undefined} className="h-2 text-lime-500 text-right text-justify " />
               
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CalendarIcon className="h-3 w-3" />
-                <span className={isOverdue(goal.endDate) ? "text-red-500" : ""}>
+                <CalendarIcon className="h-3 w-3 " />
+                <span className="text-lime-500">
                   Due: {formatDate(goal.endDate)}
                 </span>
               </div>
