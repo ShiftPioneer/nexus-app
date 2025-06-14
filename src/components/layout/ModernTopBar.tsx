@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Bell, Search } from "lucide-react";
@@ -11,6 +10,8 @@ interface ModernTopBarProps {
   isCollapsed: boolean;
   isMobile: boolean;
 }
+
+const LOGO_URL = "https://nexus-plaform.lovable.app/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png";
 
 const ModernTopBar: React.FC<ModernTopBarProps> = ({
   onToggleSidebar,
@@ -29,11 +30,11 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
             onClick={onToggleSidebar}
             className="flex items-center gap-2 hover:bg-accent/50 px-2 py-1 rounded-lg transition-colors"
           >
-            <div className="w-8 h-8 bg-gradient-to-br from-[#FF6500] to-[#FF6500]/80 rounded-xl flex items-center justify-center shadow-lg">
-              <img 
-                src="/lovable-uploads/1f3e73bf-c9e7-4f3b-8c97-d86ee02b31a8.png" 
-                alt="NEXUS" 
-                className="w-6 h-6 object-contain"
+            <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-lg bg-transparent">
+              <img
+                src={LOGO_URL}
+                alt="NEXUS"
+                className="w-8 h-8 object-contain"
               />
             </div>
             <span className="text-xl font-bold text-[#FF6500]">
