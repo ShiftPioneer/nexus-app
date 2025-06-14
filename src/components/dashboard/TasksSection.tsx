@@ -70,7 +70,7 @@ const TasksSection = () => {
     }
   };
   return <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 bg-slate-950">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 bg-slate-950 rounded-md">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
           Today's Tasks
@@ -80,7 +80,7 @@ const TasksSection = () => {
           Add Task
         </Button>
       </CardHeader>
-      <CardContent className="bg-slate-950">
+      <CardContent className="bg-slate-950 rounded-md">
         {tasks.length === 0 ? <div className="text-center py-8">
             <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <p className="text-muted-foreground mb-2">No tasks scheduled for today</p>

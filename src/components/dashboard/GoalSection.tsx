@@ -92,8 +92,8 @@ const GoalSection = () => {
       return false;
     }
   };
-  return <Card className="min-h-[100px] h-auto">
-      <CardHeader className="pb-2 bg-slate-950">
+  return <Card className="min-h-[100px] h-auto rounded-md">
+      <CardHeader className="pb-2 bg-slate-950 rounded-md">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-medium">Active Goals</CardTitle>
           <Link to="/planning" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
@@ -101,7 +101,7 @@ const GoalSection = () => {
           </Link>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 bg-slate-950">
+      <CardContent className="space-y-4 bg-slate-950 rounded-md">
         {goals.length > 0 ? goals.slice(0, 3).map((goal: any, index: number) => <div key={goal.id || index} className="space-y-2 p-3 border rounded-md">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
