@@ -10,14 +10,18 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary-600 active:bg-primary-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        destructive: "bg-error text-error-foreground hover:bg-error-600 active:bg-error-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        outline: "border border-border bg-white hover:bg-slate-50 hover:text-slate-900 text-slate-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 dark:bg-slate-950 dark:hover:bg-slate-900 dark:text-slate-200 dark:hover:text-white dark:border-slate-600",
-        secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:border-slate-700",
-        ghost: "hover:bg-slate-100 hover:text-slate-900 text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-100 dark:text-slate-400",
-        link: "text-primary underline-offset-4 hover:underline hover:text-primary-600",
-        success: "bg-success text-success-foreground hover:bg-success-600 active:bg-success-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        warning: "bg-lime-500 text-white hover:bg-lime-600 active:bg-lime-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
+        default: "bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 border border-primary/20",
+        destructive: "bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0",
+        outline: "border-2 border-slate-600 bg-slate-950 text-slate-100 hover:bg-slate-800 hover:text-white hover:border-slate-500 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
+        secondary: "bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
+        ghost: "hover:bg-slate-800 hover:text-white text-slate-300 rounded-lg",
+        link: "text-primary underline-offset-4 hover:underline hover:text-primary/80",
+        success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0",
+        warning: "bg-lime-500 text-slate-950 hover:bg-lime-400 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 font-bold",
+        // New variants for tabs and navigation
+        tab: "bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary shadow-sm hover:shadow-md",
+        "tab-active": "bg-primary text-white border border-primary/30 shadow-lg",
+        navigation: "bg-slate-950 text-slate-200 hover:bg-slate-800 hover:text-white border border-slate-600 shadow-sm hover:shadow-md hover:-translate-y-0.5",
       },
       size: {
         default: "h-11 px-6 py-2.5",

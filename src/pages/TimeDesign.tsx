@@ -97,23 +97,23 @@ const TimeDesign = () => {
   return (
     <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="space-y-4 max-w-full overflow-hidden">
+        <div className="space-y-6 max-w-full overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold">Time Design</h1>
-              <p className="text-muted-foreground mt-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-white">Time Design</h1>
+              <p className="text-slate-300 mt-1">
                 Plan your day and visualize how you spend your time
               </p>
             </div>
-            <Button onClick={handleAddActivity} className="w-full md:w-auto gap-1">
+            <Button onClick={handleAddActivity} className="w-full md:w-auto gap-2 bg-primary hover:bg-primary/90">
               <Plus size={18} />
               New Activity
             </Button>
           </div>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-background rounded-lg w-full">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="overflow-x-auto">
-              <TabsList className="bg-muted">
+              <TabsList className="bg-slate-900 border border-slate-700">
                 <TabsTrigger value="calendar">Calendar</TabsTrigger>
                 <TabsTrigger value="analytics">Analytics</TabsTrigger>
                 <TabsTrigger value="activities">Activities</TabsTrigger>
@@ -122,41 +122,41 @@ const TimeDesign = () => {
             </div>
             
             <TabsContent value="calendar" className="mt-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
                 <div className="flex items-center">
-                  <Calendar className="h-5 w-5 mr-2" />
-                  <h2 className="text-xl font-semibold">
+                  <Calendar className="h-5 w-5 mr-3 text-primary" />
+                  <h2 className="text-xl font-semibold text-white">
                     {viewType === "day" 
                       ? format(currentDate, "MMMM d, yyyy") 
                       : `${format(startOfWeek(currentDate), "MMMM d")} - ${format(endOfWeek(currentDate), "MMMM d, yyyy")}`}
                   </h2>
                 </div>
                 
-                <div className="flex items-center gap-2 flex-wrap justify-end">
-                  <Button variant="outline" size="sm" onClick={handlePrevious}>
+                <div className="flex items-center gap-3 flex-wrap justify-end">
+                  <Button variant="navigation" size="sm" onClick={handlePrevious}>
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleToday}>
+                  <Button variant="navigation" size="sm" onClick={handleToday}>
                     Today
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleNext}>
+                  <Button variant="navigation" size="sm" onClick={handleNext}>
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                   
-                  <div className="bg-muted rounded-lg p-1 ml-2">
+                  <div className="bg-slate-900 rounded-xl p-1.5 ml-2 border border-slate-700">
                     <Button
-                      variant={viewType === "day" ? "default" : "ghost"}
+                      variant={viewType === "day" ? "tab-active" : "ghost"}
                       size="sm"
                       onClick={() => setViewType("day")}
-                      className="rounded-md"
+                      className="rounded-lg"
                     >
                       Day
                     </Button>
                     <Button
-                      variant={viewType === "week" ? "default" : "ghost"}
+                      variant={viewType === "week" ? "tab-active" : "ghost"}
                       size="sm"
                       onClick={() => setViewType("week")}
-                      className="rounded-md"
+                      className="rounded-lg"
                     >
                       Week
                     </Button>
@@ -164,7 +164,7 @@ const TimeDesign = () => {
                 </div>
               </div>
               
-              <Card className="overflow-hidden">
+              <Card className="overflow-hidden bg-slate-950 border-slate-700">
                 <CardContent className="p-0">
                   <TimeDesignCalendar 
                     currentDate={currentDate} 
