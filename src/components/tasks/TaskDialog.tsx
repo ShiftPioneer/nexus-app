@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -14,7 +13,6 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import GoalSelector from "./GoalSelector";
 import ProjectSelector from "./ProjectSelector";
-
 export interface TaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -24,14 +22,13 @@ export interface TaskDialogProps {
   onDeleteTask: (id: string) => void;
   isToDoNot?: boolean;
 }
-
 const TaskDialog: React.FC<TaskDialogProps> = ({
   open,
   onOpenChange,
   task,
   onAddTask,
   onUpdateTask,
-  onDeleteTask,
+  onDeleteTask
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -43,8 +40,10 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
   const [project, setProject] = useState("");
   const [goalId, setGoalId] = useState<string>("none");
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
+
   // Reset form when task changes
   useEffect(() => {
     if (task) {
@@ -67,11 +66,10 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       setProject("none");
       setGoalId("none");
     }
-    
+
     // Always reset the delete confirmation when dialog opens/closes
     setConfirmDelete(false);
   }, [task, open]);
-
   const handleAddTag = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && tagInput.trim()) {
       e.preventDefault();
@@ -81,21 +79,18 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       setTagInput("");
     }
   };
-
   const handleRemoveTag = (tag: string) => {
-    setTags(tags.filter((t) => t !== tag));
+    setTags(tags.filter(t => t !== tag));
   };
-
   const handleSubmit = () => {
     if (!title.trim()) {
       toast({
         title: "Error",
         description: "Task title is required",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     const taskData = {
       title,
       description,
@@ -104,45 +99,39 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
       dueDate,
       tags,
       project: project === "none" ? undefined : project,
-      goalId: goalId === "none" ? undefined : goalId,
+      goalId: goalId === "none" ? undefined : goalId
     };
-
     if (task) {
       onUpdateTask(task.id, taskData);
       toast({
         title: "Task Updated",
-        description: "Your task has been updated successfully",
+        description: "Your task has been updated successfully"
       });
     } else {
       onAddTask(taskData);
       toast({
         title: "Task Created",
-        description: "Your task has been created successfully",
+        description: "Your task has been created successfully"
       });
     }
-
     onOpenChange(false);
   };
-
   const handleDelete = () => {
     if (!confirmDelete) {
       setConfirmDelete(true);
       return;
     }
-    
     if (task) {
       onDeleteTask(task.id);
       toast({
         title: "Task Deleted",
-        description: "Task has been deleted successfully",
+        description: "Task has been deleted successfully"
       });
       onOpenChange(false);
     }
   };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+  return <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md bg-slate-900">
         <DialogHeader>
           <DialogTitle>{task ? "Edit Task" : "New Task"}</DialogTitle>
         </DialogHeader>
@@ -156,21 +145,11 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
             
             <TabsContent value="details" className="space-y-4 pt-4">
               <div>
-                <Input
-                  placeholder="Task title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="mb-2"
-                />
+                <Input placeholder="Task title" value={title} onChange={e => setTitle(e.target.value)} className="mb-2" />
               </div>
               
               <div>
-                <Textarea
-                  placeholder="Description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  rows={3}
-                />
+                <Textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} rows={3} />
               </div>
               
               <div className="grid grid-cols-2 gap-4">
@@ -207,70 +186,41 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               <div>
                 <Popover>
                   <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start text-left font-normal"
-                    >
+                    <Button variant="outline" className="w-full justify-start text-left font-normal">
                       <CalendarIcon className="mr-2 h-4 w-4" />
                       {dueDate ? format(dueDate, "PPP") : "Set due date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="center">
-                    <Calendar
-                      mode="single"
-                      selected={dueDate}
-                      onSelect={setDueDate}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
+                    <Calendar mode="single" selected={dueDate} onSelect={setDueDate} initialFocus className="p-3 pointer-events-auto" />
                   </PopoverContent>
                 </Popover>
               </div>
               
               <div>
-                <Input
-                  placeholder="Add tags (press Enter)"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  onKeyDown={handleAddTag}
-                />
-                {tags.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="flex items-center gap-1">
+                <Input placeholder="Add tags (press Enter)" value={tagInput} onChange={e => setTagInput(e.target.value)} onKeyDown={handleAddTag} />
+                {tags.length > 0 && <div className="flex flex-wrap gap-2 mt-2">
+                    {tags.map(tag => <Badge key={tag} variant="secondary" className="flex items-center gap-1">
                         {tag}
-                        <X
-                          className="h-3 w-3 cursor-pointer"
-                          onClick={() => handleRemoveTag(tag)}
-                        />
-                      </Badge>
-                    ))}
-                  </div>
-                )}
+                        <X className="h-3 w-3 cursor-pointer" onClick={() => handleRemoveTag(tag)} />
+                      </Badge>)}
+                  </div>}
               </div>
             </TabsContent>
             
             <TabsContent value="planning" className="space-y-4 pt-4">
               <div>
                 <label className="text-sm font-medium mb-1 block">Link to Goal</label>
-                <GoalSelector
-                  value={goalId}
-                  onValueChange={setGoalId}
-                />
+                <GoalSelector value={goalId} onValueChange={setGoalId} />
                 
-                {goalId && goalId !== "none" && (
-                  <div className="mt-2 text-xs text-muted-foreground">
+                {goalId && goalId !== "none" && <div className="mt-2 text-xs text-muted-foreground">
                     This task will contribute to your selected goal's progress.
-                  </div>
-                )}
+                  </div>}
               </div>
               
               <div>
                 <label className="text-sm font-medium mb-1 block">Link to Project</label>
-                <ProjectSelector
-                  value={project}
-                  onValueChange={setProject}
-                />
+                <ProjectSelector value={project} onValueChange={setProject} />
               </div>
             </TabsContent>
           </Tabs>
@@ -278,25 +228,15 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
         
         <DialogFooter className="flex justify-between">
           <div>
-            {task && (
-              <Button
-                variant={confirmDelete ? "destructive" : "outline"}
-                className={`${confirmDelete ? "bg-red-600 text-white" : "text-destructive"}`}
-                onClick={handleDelete}
-              >
-                {confirmDelete ? (
-                  <>
+            {task && <Button variant={confirmDelete ? "destructive" : "outline"} className={`${confirmDelete ? "bg-red-600 text-white" : "text-destructive"}`} onClick={handleDelete}>
+                {confirmDelete ? <>
                     <AlertTriangle className="h-4 w-4 mr-1" />
                     Confirm Delete
-                  </>
-                ) : (
-                  <>
+                  </> : <>
                     <Trash className="h-4 w-4 mr-1" />
                     Delete
-                  </>
-                )}
-              </Button>
-            )}
+                  </>}
+              </Button>}
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => onOpenChange(false)}>
@@ -309,8 +249,6 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
           </div>
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
-
 export default TaskDialog;
