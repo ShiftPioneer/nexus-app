@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Smile, Meh, Frown, X } from "lucide-react";
+import ReflectionFields from "./editor/ReflectionFields";
+import MoodSelector from "./editor/MoodSelector";
+import TagManager from "./editor/TagManager";
 
 interface JournalEditorProps {
   initialEntry: JournalEntry;
@@ -68,7 +68,7 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ initialEntry, onSave, onC
     setEntry(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tag) }));
   };
   
-  const handleReflectionChange = (field: keyof typeof reflections, value: string) => {
+  const handleReflectionChange = (field: string, value: string) => {
     setReflections(prev => ({ ...prev, [field]: value }));
   };
   
@@ -116,115 +116,10 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ initialEntry, onSave, onC
         </TabsList>
         
         <TabsContent value="reflections" className="space-y-4">
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="intentions">Today's intentions</Label>
-              <Textarea
-                id="intentions"
-                placeholder="What do you intend to focus on today?"
-                value={reflections.intentions}
-                onChange={(e) => handleReflectionChange("intentions", e.target.value)}
-                className="mt-1 resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="morningAffirmations">3 Morning Affirmations</Label>
-              <Textarea
-                id="morningAffirmations"
-                placeholder="Write three positive affirmations for your morning"
-                value={reflections.morningAffirmations}
-                onChange={(e) => handleReflectionChange("morningAffirmations", e.target.value)}
-                className="mt-1 resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="gratitude">3 Things I'm Grateful For</Label>
-              <Textarea
-                id="gratitude"
-                placeholder="What are you grateful for today?"
-                value={reflections.gratitude}
-                onChange={(e) => handleReflectionChange("gratitude", e.target.value)}
-                className="mt-1 resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="makeTodayGreat">What Would make Today Great</Label>
-              <Textarea
-                id="makeTodayGreat"
-                placeholder="What actions or events would make today great?"
-                value={reflections.makeTodayGreat}
-                onChange={(e) => handleReflectionChange("makeTodayGreat", e.target.value)}
-                className="mt-1 resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="highlight">Highlight of The Day</Label>
-              <Textarea
-                id="highlight"
-                placeholder="What was the best moment of your day?"
-                value={reflections.highlight}
-                onChange={(e) => handleReflectionChange("highlight", e.target.value)}
-                className="mt-1 resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="nightAffirmations">3 Night Affirmations</Label>
-              <Textarea
-                id="nightAffirmations"
-                placeholder="Write three positive affirmations for your evening"
-                value={reflections.nightAffirmations}
-                onChange={(e) => handleReflectionChange("nightAffirmations", e.target.value)}
-                className="mt-1 resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="todayEvaluation">What Made Today Great/Bad</Label>
-              <Textarea
-                id="todayEvaluation"
-                placeholder="Reflect on what went well and what didn't"
-                value={reflections.todayEvaluation}
-                onChange={(e) => handleReflectionChange("todayEvaluation", e.target.value)}
-                className="mt-1 resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="improvement">What Can Be Improved/Fixed</Label>
-              <Textarea
-                id="improvement"
-                placeholder="What can you improve tomorrow?"
-                value={reflections.improvement}
-                onChange={(e) => handleReflectionChange("improvement", e.target.value)}
-                className="mt-1 resize-none"
-                rows={3}
-              />
-            </div>
-            
-            <div>
-              <Label htmlFor="freeThoughts">Feel Free</Label>
-              <Textarea
-                id="freeThoughts"
-                placeholder="Express any additional thoughts or feelings"
-                value={reflections.freeThoughts}
-                onChange={(e) => handleReflectionChange("freeThoughts", e.target.value)}
-                className="mt-1 resize-y"
-                rows={5}
-              />
-            </div>
-          </div>
+          <ReflectionFields 
+            reflections={reflections}
+            onReflectionChange={handleReflectionChange}
+          />
         </TabsContent>
         
         <TabsContent value="notes">
@@ -242,66 +137,15 @@ const JournalEditor: React.FC<JournalEditorProps> = ({ initialEntry, onSave, onC
         </TabsContent>
       </Tabs>
 
-      <div>
-        <Label>How are you feeling?</Label>
-        <RadioGroup
-          value={entry.mood}
-          onValueChange={handleMoodChange}
-          className="flex gap-4 mt-2"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="positive" id="positive" />
-            <Label htmlFor="positive" className="flex items-center gap-1 cursor-pointer">
-              <Smile className="h-5 w-5 text-success" />
-              Positive
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="neutral" id="neutral" />
-            <Label htmlFor="neutral" className="flex items-center gap-1 cursor-pointer">
-              <Meh className="h-5 w-5 text-secondary" />
-              Neutral
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="negative" id="negative" />
-            <Label htmlFor="negative" className="flex items-center gap-1 cursor-pointer">
-              <Frown className="h-5 w-5 text-destructive" />
-              Negative
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="mixed" id="mixed" />
-            <Label htmlFor="mixed" className="cursor-pointer">Mixed</Label>
-          </div>
-        </RadioGroup>
-      </div>
+      <MoodSelector mood={entry.mood} onMoodChange={handleMoodChange} />
 
-      <div>
-        <Label htmlFor="tags">Tags</Label>
-        <Input
-          id="tags"
-          placeholder="Add tags (press Enter after each tag)"
-          value={tagInput}
-          onChange={(e) => setTagInput(e.target.value)}
-          onKeyDown={handleAddTag}
-          className="mt-1"
-        />
-        <div className="flex flex-wrap gap-2 mt-2">
-          {entry.tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-              {tag}
-              <button 
-                type="button" 
-                onClick={() => handleRemoveTag(tag)}
-                className="ml-1 h-4 w-4 rounded-full hover:bg-destructive/20"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </Badge>
-          ))}
-        </div>
-      </div>
+      <TagManager
+        tags={entry.tags}
+        tagInput={tagInput}
+        onTagInputChange={setTagInput}
+        onAddTag={handleAddTag}
+        onRemoveTag={handleRemoveTag}
+      />
 
       <div className="flex justify-end gap-2 pt-4">
         <Button variant="outline" onClick={onCancel}>

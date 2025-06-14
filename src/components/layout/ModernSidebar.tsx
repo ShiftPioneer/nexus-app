@@ -114,41 +114,43 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     }
   ];
 
-  const sidebarWidth = isCollapsed ? "w-16" : "w-56"; // Reduced from w-72 to w-56 (about 80% of original)
+  const sidebarWidth = isCollapsed ? "w-16" : "w-56";
 
   return (
     <>
       {/* Sidebar */}
       <aside className={cn(
-        "bg-card border-r border-border transition-all duration-500 ease-in-out flex-shrink-0",
+        "bg-card border-r border-border transition-all duration-300 ease-in-out flex-shrink-0 relative",
         sidebarWidth,
         isMobile ? (isCollapsed ? "-translate-x-full" : "fixed inset-y-0 left-0 z-50") : "relative"
       )}>
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className={cn(
-            "flex items-center gap-2 px-4 py-4 border-b border-border",
-            isCollapsed && "justify-center px-2"
+            "flex items-center gap-3 px-4 py-6 border-b border-border/50",
+            isCollapsed && "justify-center px-3"
           )}>
             {!isCollapsed && (
               <>
-                <div className="flex items-center gap-2">
-                  <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
-                    <span className="text-primary-foreground font-bold text-sm">N</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
+                    <span className="text-primary-foreground font-bold text-base">N</span>
                   </div>
-                  <span className="text-lg font-bold text-primary">NEXUS</span>
+                  <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                    NEXUS
+                  </span>
                 </div>
               </>
             )}
             {isCollapsed && (
-              <div className="w-7 h-7 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-primary-foreground font-bold text-sm">N</span>
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center shadow-lg">
+                <span className="text-primary-foreground font-bold text-base">N</span>
               </div>
             )}
           </div>
 
           {/* Navigation */}
-          <ScrollArea className="flex-1 px-2 py-4">
+          <ScrollArea className="flex-1 px-3 py-4">
             <nav className="space-y-1">
               {navigationItems.map((item) => {
                 const isActive = location.pathname === item.path;
@@ -159,21 +161,28 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                     <Button
                       variant={isActive ? "secondary" : "ghost"}
                       className={cn(
-                        "w-full justify-start gap-3 h-10 transition-all duration-200",
-                        isCollapsed ? "px-2" : "px-3",
-                        isActive && "bg-primary/10 text-primary hover:bg-primary/15",
-                        !isActive && "hover:bg-accent/50"
+                        "w-full justify-start gap-3 h-12 transition-all duration-200 group relative",
+                        isCollapsed ? "px-3" : "px-4",
+                        isActive && "bg-primary/10 text-primary hover:bg-primary/15 shadow-sm",
+                        !isActive && "hover:bg-accent/50 hover:translate-x-1"
                       )}
                     >
                       <Icon className={cn(
-                        "flex-shrink-0",
-                        isCollapsed ? "h-5 w-5" : "h-4 w-4"
+                        "flex-shrink-0 transition-all duration-200",
+                        isCollapsed ? "h-5 w-5" : "h-5 w-5",
+                        isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                       )} />
                       {!isCollapsed && (
-                        <div className="flex flex-col items-start overflow-hidden">
-                          <span className="text-sm font-medium truncate">{item.name}</span>
-                          <span className="text-xs text-muted-foreground truncate">{item.description}</span>
+                        <div className="flex flex-col items-start overflow-hidden flex-1">
+                          <span className="text-sm font-medium truncate w-full text-left">{item.name}</span>
+                          <span className="text-xs text-muted-foreground truncate w-full text-left opacity-70">
+                            {item.description}
+                          </span>
                         </div>
+                      )}
+                      {/* Active indicator */}
+                      {isActive && (
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                       )}
                     </Button>
                   </Link>
@@ -183,7 +192,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
           </ScrollArea>
 
           {/* Bottom section */}
-          <div className="px-2 py-4 border-t border-border">
+          <div className="px-3 py-4 border-t border-border/50">
             {bottomItems.map((item) => {
               const isActive = location.pathname === item.path;
               const Icon = item.icon;
@@ -193,21 +202,28 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                   <Button
                     variant={isActive ? "secondary" : "ghost"}
                     className={cn(
-                      "w-full justify-start gap-3 h-10 transition-all duration-200",
-                      isCollapsed ? "px-2" : "px-3",
-                      isActive && "bg-primary/10 text-primary hover:bg-primary/15",
-                      !isActive && "hover:bg-accent/50"
+                      "w-full justify-start gap-3 h-12 transition-all duration-200 group relative",
+                      isCollapsed ? "px-3" : "px-4",
+                      isActive && "bg-primary/10 text-primary hover:bg-primary/15 shadow-sm",
+                      !isActive && "hover:bg-accent/50 hover:translate-x-1"
                     )}
                   >
                     <Icon className={cn(
-                      "flex-shrink-0",
-                      isCollapsed ? "h-5 w-5" : "h-4 w-4"
+                      "flex-shrink-0 transition-all duration-200",
+                      isCollapsed ? "h-5 w-5" : "h-5 w-5",
+                      isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
                     )} />
                     {!isCollapsed && (
-                      <div className="flex flex-col items-start overflow-hidden">
-                        <span className="text-sm font-medium truncate">{item.name}</span>
-                        <span className="text-xs text-muted-foreground truncate">{item.description}</span>
+                      <div className="flex flex-col items-start overflow-hidden flex-1">
+                        <span className="text-sm font-medium truncate w-full text-left">{item.name}</span>
+                        <span className="text-xs text-muted-foreground truncate w-full text-left opacity-70">
+                          {item.description}
+                        </span>
                       </div>
+                    )}
+                    {/* Active indicator */}
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full" />
                     )}
                   </Button>
                 </Link>
