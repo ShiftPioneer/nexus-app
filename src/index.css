@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -41,7 +42,7 @@
     /* Dark theme variables */
     --background: 15 23 42;
     --foreground: 248 250 252;
-    --card: 2 6 23; /* slate-950 for cards in dark mode */
+    --card: 2 6 23;
     --card-foreground: 248 250 252;
     --popover: 15 23 42;
     --popover-foreground: 248 250 252;
@@ -60,7 +61,7 @@
     --ring: 255 101 0;
     
     /* Dark sidebar variables */
-    --sidebar-background: 2 6 23; /* slate-950 */
+    --sidebar-background: 2 6 23;
     --sidebar-foreground: 248 250 252;
     --sidebar-primary: 255 101 0;
     --sidebar-primary-foreground: 255 255 255;
@@ -307,260 +308,70 @@
   }
 }
 
-/* Override any potential background issues with slate-950 */
-/* Override any potential background issues with slate-950 */
-/* Replace all uses of browns/dark browns with slate-950 */
-.bg-dark,
-.bg-sidebar,
-.bg-navigation,
-.bg-section {
-  background-color: #020617 !important; /* slate-950 */
-}
-
-/* For major backgrounds in dark mode, enforce slate-950 */
-html.dark body,
-body.dark,
-.bg-primary-dark,
-.bg-dashboard-dark,
-.card-bg-dark {
-  background-color: #020617 !important; /* slate-950 */
-}
-
-/* Update any dark card or sidebar region to use slate-950 for consistency */
-.card-enhanced,
-.card-dark,
-.sidebar-dark-bg {
-  background-color: #020617 !important; /* slate-950 */
-  color: #F8FAFC !important; /* bright slate text for contrast */
-}
-
+/* Global color fixes for consistent design */
 .text-warning,
 .bg-warning {
   color: #84cc16 !important;       /* lime-500 */
   background-color: #84cc16 !important; /* lime-500 */
 }
 
-.border-warning { border-color: #84cc16 !important; }
-
-.text-yellow-400,
-.text-yellow-500,
-.text-yellow-600,
-.text-yellow-700,
-.text-yellow-800,
-.text-amber-400,
-.text-amber-500,
-.text-amber-600 {
-  color: #84cc16 !important; /* lime-500 for ALL warning/yellow/amber text */
+.border-warning { 
+  border-color: #84cc16 !important; 
 }
 
-.bg-yellow-400,
-.bg-yellow-500,
-.bg-yellow-600,
-.bg-yellow-700,
-.bg-yellow-800,
-.bg-amber-400,
-.bg-amber-500,
-.bg-amber-600 {
-  background-color: #84cc16 !important; /* lime-500 for ALL warning/yellow/amber backgrounds */
+/* Replace ALL yellow/amber text colors with lime-500 */
+.text-yellow-50, .text-yellow-100, .text-yellow-200, .text-yellow-300, 
+.text-yellow-400, .text-yellow-500, .text-yellow-600, .text-yellow-700, 
+.text-yellow-800, .text-yellow-900, .text-yellow-950,
+.text-amber-50, .text-amber-100, .text-amber-200, .text-amber-300,
+.text-amber-400, .text-amber-500, .text-amber-600, .text-amber-700,
+.text-amber-800, .text-amber-900, .text-amber-950 {
+  color: #84cc16 !important; /* lime-500 for ALL yellow/amber text */
 }
 
-/* Ensure all text appears on dark backgrounds */
+/* Replace ALL yellow/amber background colors with lime-500 */
+.bg-yellow-50, .bg-yellow-100, .bg-yellow-200, .bg-yellow-300,
+.bg-yellow-400, .bg-yellow-500, .bg-yellow-600, .bg-yellow-700,
+.bg-yellow-800, .bg-yellow-900, .bg-yellow-950,
+.bg-amber-50, .bg-amber-100, .bg-amber-200, .bg-amber-300,
+.bg-amber-400, .bg-amber-500, .bg-amber-600, .bg-amber-700,
+.bg-amber-800, .bg-amber-900, .bg-amber-950 {
+  background-color: #84cc16 !important; /* lime-500 for ALL yellow/amber backgrounds */
+}
+
+/* Ensure all dark backgrounds use slate-950 */
 .bg-slate-950,
 .bg-dark,
 .card-enhanced,
 .sidebar-dark-bg,
 html.dark body {
-  color: #F8FAFC !important; /* bright slate text for readability */
+  background-color: #020617 !important; /* slate-950 */
+  color: #f8fafc !important; /* slate-50 for contrast */
 }
 
-/* Fine-tune input fields and cards for readability on slate-950 */
+/* Fix input fields for readability on dark backgrounds */
 input,
 textarea,
 select {
   background-color: #1e293b !important; /* slate-800 */
-  color: #F8FAFC !important;
+  color: #f8fafc !important; /* slate-50 */
+  border-color: #475569 !important; /* slate-600 */
 }
 
+/* Ensure all text appears clearly on dark backgrounds */
 label, h1, h2, h3, h4, h5, h6, p {
-  color: #F8FAFC !important;
+  color: inherit;
 }
 
-/* Enhanced scrollbar styling */
-.scrollbar-none {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Fix specific dark mode text visibility */
+.dark label, .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6, .dark p {
+  color: #f8fafc !important; /* slate-50 */
 }
 
-.scrollbar-none::-webkit-scrollbar {
-  display: none;
+.dark .text-muted-foreground {
+  color: #94a3b8 !important; /* slate-400 */
 }
 
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: hsl(var(--muted));
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--muted-foreground));
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--foreground));
-}
-
-/* Focus management */
-.focus-visible {
-  outline: 2px solid hsl(var(--primary));
-  outline-offset: 2px;
-}
-
-/* Interactive element states */
-.interactive {
-  transition: all 200ms ease-out;
-}
-
-.interactive:hover {
-  transform: translateY(-2px);
-}
-
-.interactive:active {
-  transform: translateY(0);
-}
-
-/* Status indicators */
-.status-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.status-dot.active {
-  background-color: rgb(16 185 129);
-}
-
-.status-dot.pending {
-  background-color: rgb(132 204 22); /* lime-500 */
-}
-
-.status-dot.inactive {
-  background-color: rgb(107 114 128);
-}
-
-.status-dot.completed {
-  background-color: rgb(5 150 105);
-}
-
-/* Card enhancements */
-.card-enhanced {
-  background-color: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: 12px;
-  box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-  transition: all 300ms ease;
-}
-
-.card-enhanced:hover {
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  transform: translateY(-4px);
-}
-
-/* Animation utilities */
-.animate-in {
-  animation: fadeIn 400ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-.animate-out {
-  animation: fadeOut 300ms cubic-bezier(0.23, 1, 0.32, 1);
-}
-
-/* Glass effect utility */
-.glass {
-  backdrop-filter: blur(12px);
-  background-color: hsl(var(--background) / 0.8);
-  border: 1px solid hsl(var(--border) / 0.5);
-}
-
-/* Responsive utilities */
-@media (max-width: 768px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  h1 {
-    font-size: 1.875rem;
-  }
-  
-  h2 {
-    font-size: 1.25rem;
-  }
-}
-
-/* Print styles */
-@media print {
-  .no-print {
-    display: none !important;
-  }
-}
-
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  :root {
-    --border: 0 0 0;
-    --primary: 255 101 0;
-  }
-}
-
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* Additional keyframes */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-}
-
-/* Override any potential background issues with slate-950 */
-.bg-dark,
-.bg-sidebar,
-.bg-navigation {
-  background-color: rgb(2 6 23) !important; /* slate-950 */
-}
-
-/* Ensure warning colors use lime instead of yellow/amber */
-.text-warning,
-.bg-warning {
-  color: rgb(132 204 22) !important; /* lime-500 */
-  background-color: rgb(132 204 22) !important; /* lime-500 */
+.dark .text-secondary {
+  color: #cbd5e1 !important; /* slate-300 */
 }

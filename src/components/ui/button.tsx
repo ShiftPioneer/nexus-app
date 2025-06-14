@@ -12,7 +12,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary-600 active:bg-primary-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
         destructive: "bg-error text-error-foreground hover:bg-error-600 active:bg-error-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        outline: "border border-border bg-white hover:bg-slate-50 hover:text-slate-900 text-slate-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 dark:bg-slate-950 dark:hover:bg-slate-900 dark:text-slate-200 dark:hover:text-white",
+        outline: "border border-border bg-white hover:bg-slate-50 hover:text-slate-900 text-slate-700 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 dark:bg-slate-950 dark:hover:bg-slate-900 dark:text-slate-200 dark:hover:text-white dark:border-slate-600",
         secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200 border border-slate-200 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700 dark:border-slate-700",
         ghost: "hover:bg-slate-100 hover:text-slate-900 text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-100 dark:text-slate-400",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary-600",

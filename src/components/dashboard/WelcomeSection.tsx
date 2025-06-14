@@ -117,7 +117,7 @@ const WelcomeSection = () => {
   };
   
   const handleViewPlan = () => {
-    navigate('/time-design');
+    navigate('/timedesign');
     toast({
       description: "Viewing today's plan in time design",
     });
@@ -125,14 +125,14 @@ const WelcomeSection = () => {
   
   return (
     <section className="mb-6 space-y-4">
-      <Card className="overflow-hidden">
+      <Card className="overflow-hidden bg-slate-950 border-slate-700">
         <CardContent className="p-6">
           <div className="flex flex-col md:flex-row gap-6 items-center">
             <div className="flex-1 space-y-2 my-[10px] py-[5px]">
-              <h1 className="text-3xl font-bold">
+              <h1 className="text-3xl font-bold text-white">
                 <span className="text-primary">{getGreeting()}</span>, {userName}
               </h1>
-              <p className="text-muted-foreground py-[10px]">
+              <p className="text-slate-300 py-[10px]">
                 Ready to make today extraordinary? Your life operating system is primed for action.
               </p>
               
@@ -142,7 +142,7 @@ const WelcomeSection = () => {
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="text-orange-600 bg-deep-DEFAULT"
+                  className="text-white border-slate-600 hover:bg-slate-800"
                   onClick={handleViewPlan}
                 >
                   <Calendar className="mr-2 h-4 w-4" />
@@ -151,20 +151,20 @@ const WelcomeSection = () => {
               </div>
             </div>
             
-            <div className="flex flex-col items-center gap-2 p-4 bg-card shadow-sm border my-[10px] py-[20px] rounded-xl border-width [5px]">
+            <div className="flex flex-col items-center gap-2 p-4 bg-slate-900 border border-slate-700 my-[10px] py-[20px] rounded-xl">
               <div className="flex items-center gap-2">
                 <Clock className="h-5 w-5 text-primary" />
-                <span className="text-2xl font-semibold">{formattedTime}</span>
+                <span className="text-2xl font-semibold text-white">{formattedTime}</span>
               </div>
-              <span className="text-sm text-muted-foreground">{formattedDate}</span>
+              <span className="text-sm text-slate-400">{formattedDate}</span>
             </div>
           </div>
           
-          <div className="mt-6 p-4 rounded-lg border border-accent/20 bg-accent-DEFAULT">
-            <blockquote className="italic text-lg">"{quote.text}"</blockquote>
+          <div className="mt-6 p-4 rounded-lg border border-slate-700 bg-slate-900">
+            <blockquote className="italic text-lg text-slate-200">"{quote.text}"</blockquote>
             <div className="mt-2 flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">— {quote.author}</span>
-              <Button variant="ghost" size="sm" onClick={handleNewQuote} className="text-primary-dark">
+              <span className="text-sm text-slate-400">— {quote.author}</span>
+              <Button variant="ghost" size="sm" onClick={handleNewQuote} className="text-primary hover:text-primary-400">
                 New Quote
               </Button>
             </div>
