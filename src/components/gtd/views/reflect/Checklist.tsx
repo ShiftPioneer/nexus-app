@@ -43,8 +43,8 @@ const Checklist: React.FC<ChecklistProps> = ({
     });
     setItems(updatedItems);
   };
-  return <Card className="bg-slate-900 border-slate-700 text-slate-200 h-full">
-      <CardHeader className="pb-2 bg-slate-950">
+  return <Card className="border-slate-700 text-slate-200 h-full bg-slate-950 rounded-lg">
+      <CardHeader className="pb-2 bg-slate-950 rounded-lg">
         <CardTitle className="text-lg text-slate-200 flex items-center">
           {icon}
           {title}
