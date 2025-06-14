@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import AppLayout from "@/components/layout/AppLayout";
+import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -13,7 +13,7 @@ const Knowledge = () => {
   const [activeTab, setActiveTab] = useState("skillsets");
   
   return (
-    <AppLayout>
+    <ModernAppLayout>
       <div className="animate-fade-in space-y-6 max-w-full overflow-hidden">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -54,7 +54,7 @@ const Knowledge = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </AppLayout>
+    </ModernAppLayout>
   );
 };
 

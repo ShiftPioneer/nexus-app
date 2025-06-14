@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,44 +7,46 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, BookOpen, Clock, Calendar, Grid, List, Star } from "lucide-react";
 import { BookDialog } from "./BookDialog";
 import { Book } from "@/types/knowledge";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+
+const defaultBooks: Book[] = [
+  {
+    id: "1",
+    title: "Atomic Habits",
+    author: "James Clear",
+    readingStatus: "Finished",
+    rating: 5,
+    description: "A comprehensive guide to building good habits and breaking bad ones.",
+    relatedSkillsets: ["Self-Improvement", "Productivity"],
+    summary: "Small changes can make a big difference over time.",
+    keyLessons: "Focus on systems rather than goals, make habits obvious, attractive, easy, and satisfying.",
+  },
+  {
+    id: "2", 
+    title: "The 7 Habits of Highly Effective People",
+    author: "Stephen Covey",
+    readingStatus: "Reading Now",
+    rating: 4,
+    description: "Timeless principles for personal and professional effectiveness.",
+    relatedSkillsets: ["Leadership", "Business"],
+    summary: "Character-based approach to personal and interpersonal effectiveness.",
+    keyLessons: "Be proactive, begin with the end in mind, put first things first.",
+  },
+  {
+    id: "3",
+    title: "Deep Work",
+    author: "Cal Newport", 
+    readingStatus: "Not Yet Read",
+    rating: 0,
+    description: "Rules for focused success in a distracted world.",
+    relatedSkillsets: ["Productivity", "Focus"],
+    summary: "The ability to focus without distraction on cognitively demanding tasks.",
+    keyLessons: "Cultivate deep work habits, eliminate shallow work, embrace boredom.",
+  }
+];
 
 const BookshelfTab = () => {
-  const [books, setBooks] = useState<Book[]>([
-    {
-      id: "1",
-      title: "Atomic Habits",
-      author: "James Clear",
-      readingStatus: "Finished",
-      rating: 5,
-      description: "A comprehensive guide to building good habits and breaking bad ones.",
-      relatedSkillsets: ["Self-Improvement", "Productivity"],
-      summary: "Small changes can make a big difference over time.",
-      keyLessons: "Focus on systems rather than goals, make habits obvious, attractive, easy, and satisfying.",
-    },
-    {
-      id: "2", 
-      title: "The 7 Habits of Highly Effective People",
-      author: "Stephen Covey",
-      readingStatus: "Reading Now",
-      rating: 4,
-      description: "Timeless principles for personal and professional effectiveness.",
-      relatedSkillsets: ["Leadership", "Business"],
-      summary: "Character-based approach to personal and interpersonal effectiveness.",
-      keyLessons: "Be proactive, begin with the end in mind, put first things first.",
-    },
-    {
-      id: "3",
-      title: "Deep Work",
-      author: "Cal Newport", 
-      readingStatus: "Not Yet Read",
-      rating: 0,
-      description: "Rules for focused success in a distracted world.",
-      relatedSkillsets: ["Productivity", "Focus"],
-      summary: "The ability to focus without distraction on cognitively demanding tasks.",
-      keyLessons: "Cultivate deep work habits, eliminate shallow work, embrace boredom.",
-    }
-  ]);
-  
+  const [books, setBooks] = useLocalStorage<Book[]>("userBooks", defaultBooks);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
   const [showBookDialog, setShowBookDialog] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -282,7 +283,64 @@ const BookshelfTab = () => {
               </CardContent>
             </Card>
           ) : (
-            viewMode === "grid" ? renderGridView() : renderListView()
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredBooks.map((book) => (
+                <Card 
+                  key={book.id} 
+                  className="cursor-pointer hover:shadow-lg transition-all duration-200 group h-fit"
+                  onClick={() => {
+                    setSelectedBook(book);
+                    setShowBookDialog(true);
+                  }}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="aspect-[3/4] bg-gradient-to-br from-primary/10 to-primary/30 rounded-lg mb-3 flex items-center justify-center group-hover:from-primary/20 group-hover:to-primary/40 transition-all">
+                      <BookOpen className="h-8 w-8 text-primary/60" />
+                    </div>
+                    <CardTitle className="text-base font-semibold line-clamp-2 leading-tight">
+                      {book.title}
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground line-clamp-1">{book.author}</p>
+                  </CardHeader>
+                  
+                  <CardContent className="pt-0 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Badge className={getStatusColor(book.readingStatus)} variant="secondary">
+                        {book.readingStatus}
+                      </Badge>
+                    </div>
+                    
+                    {book.rating > 0 && (
+                      <div className="flex items-center gap-2">
+                        {renderStars(book.rating)}
+                        <span className="text-xs text-muted-foreground">({book.rating}/5)</span>
+                      </div>
+                    )}
+                    
+                    {book.description && (
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {book.description}
+                      </p>
+                    )}
+                    
+                    {book.relatedSkillsets && book.relatedSkillsets.length > 0 && (
+                      <div className="flex gap-1 flex-wrap">
+                        {book.relatedSkillsets.slice(0, 2).map(skillset => (
+                          <Badge key={skillset} variant="outline" className="text-xs">
+                            {skillset}
+                          </Badge>
+                        ))}
+                        {book.relatedSkillsets.length > 2 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{book.relatedSkillsets.length - 2}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </TabsContent>
       </Tabs>

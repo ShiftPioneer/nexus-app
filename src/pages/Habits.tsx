@@ -268,8 +268,10 @@ const Habits = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
+        {/* Main Grid Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+          {/* Habits List - Takes 3 columns */}
+          <div className="xl:col-span-3 space-y-6">
             <Card>
               <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
@@ -393,7 +395,9 @@ const Habits = () => {
             </Card>
           </div>
           
-          <div className="space-y-6">
+          {/* Right Sidebar - Statistics */}
+          <div className="xl:col-span-1 space-y-6">
+            {/* Accountability Score */}
             <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/30 dark:to-orange-900/30 border-orange-200 dark:border-orange-800">
               <CardHeader className="pb-2">
                 <CardTitle className="text-orange-800 dark:text-orange-200 flex items-center gap-2">
@@ -419,32 +423,23 @@ const Habits = () => {
               </CardContent>
             </Card>
             
+            {/* Habit Statistics */}
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <BarChart2 className="h-5 w-5 text-primary" />
-                  Habit Statistics
+                  Statistics
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <Tabs value={statisticsTab} onValueChange={setStatisticsTab}>
-                  <TabsList className="grid w-full grid-cols-4 mb-4">
+                  <TabsList className="grid w-full grid-cols-2 mb-4">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="trends">Trends</TabsTrigger>
-                    <TabsTrigger value="categories">Categories</TabsTrigger>
                     <TabsTrigger value="streaks">Streaks</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="overview" className="mt-4">
                     <HabitStatisticsOverview habits={habits} />
-                  </TabsContent>
-                  
-                  <TabsContent value="trends" className="mt-4">
-                    <HabitStatisticsTrends habits={habits} />
-                  </TabsContent>
-                  
-                  <TabsContent value="categories" className="mt-4">
-                    <HabitStatisticsCategories habits={habits} />
                   </TabsContent>
                   
                   <TabsContent value="streaks" className="mt-4">
