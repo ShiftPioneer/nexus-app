@@ -6,11 +6,11 @@ import { format, isAfter, addDays } from "date-fns";
 import { CalendarIcon, Target, AlertTriangle, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useGTD } from "@/components/gtd/GTDContext";
-
 const GoalSection = () => {
   const [goals, setGoals] = useState<any[]>([]);
-  const { tasks } = useGTD();
-
+  const {
+    tasks
+  } = useGTD();
   useEffect(() => {
     // Try to load goals from localStorage
     try {
@@ -92,9 +92,7 @@ const GoalSection = () => {
       return false;
     }
   };
-
-  return (
-    <Card className="min-h-[100px] h-auto rounded-md border-slate-300">
+  return <Card className="min-h-[100px] h-auto rounded-md border-slate-300">
       <CardHeader className="pb-2 bg-slate-950 rounded-md">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-medium">Active Goals</CardTitle>
@@ -104,9 +102,7 @@ const GoalSection = () => {
         </div>
       </CardHeader>
       <CardContent className="space-y-4 bg-slate-950 rounded-md">
-        {goals.length > 0 ? (
-          goals.slice(0, 3).map((goal: any, index: number) => (
-            <div key={goal.id || index} className="space-y-2 p-3 border border-slate-300 rounded-md">
+        {goals.length > 0 ? goals.slice(0, 3).map((goal: any, index: number) => <div key={goal.id || index} className="space-y-2 p-3 border border-slate-300 rounded-md">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
                   <Target className="h-4 w-4 text-primary" />
@@ -118,7 +114,7 @@ const GoalSection = () => {
               </div>
               
               <div className="flex justify-between items-center">
-                <span className="text-xs text-muted-foreground">Progress</span>
+                <span className="text-xs text-muted-foreground text-lime-500">Progress</span>
                 <span className="text-xs text-muted-foreground">{goal.calculatedProgress || 0}%</span>
               </div>
               
@@ -132,44 +128,32 @@ const GoalSection = () => {
               </div>
               
               <div className="flex flex-wrap gap-2 text-xs">
-                {goal.taskCount > 0 && (
-                  <div className="flex items-center gap-1 text-muted-foreground">
+                {goal.taskCount > 0 && <div className="flex items-center gap-1 text-muted-foreground">
                     <CheckCircle className="h-3 w-3" />
                     <span>{goal.completedTaskCount} of {goal.taskCount} tasks completed</span>
-                  </div>
-                )}
+                  </div>}
                 
-                {goal.milestones && goal.milestones.length > 0 && (
-                  <div className="flex items-center gap-1 text-muted-foreground">
+                {goal.milestones && goal.milestones.length > 0 && <div className="flex items-center gap-1 text-muted-foreground">
                     <Target className="h-3 w-3" />
                     <span>
                       {goal.milestones.filter((m: any) => m.completed).length} of {goal.milestones.length} milestones completed
                     </span>
-                  </div>
-                )}
+                  </div>}
               </div>
-            </div>
-          ))
-        ) : (
-          <div className="flex flex-col items-center justify-center py-6 text-center">
+            </div>) : <div className="flex flex-col items-center justify-center py-6 text-center">
             <Target className="h-10 w-10 text-muted-foreground opacity-50 mb-2" />
             <p className="text-sm text-muted-foreground mb-2">No active goals found</p>
             <Link to="/planning" className="text-xs text-primary hover:underline">
               Create a goal
             </Link>
-          </div>
-        )}
+          </div>}
         
-        {goals.length > 0 && goals.length > 3 && (
-          <div className="text-center pt-2">
+        {goals.length > 0 && goals.length > 3 && <div className="text-center pt-2">
             <Link to="/planning" className="text-xs text-primary hover:underline">
               View all {goals.length} goals
             </Link>
-          </div>
-        )}
+          </div>}
       </CardContent>
-    </Card>
-  );
+    </Card>;
 };
-
 export default GoalSection;
