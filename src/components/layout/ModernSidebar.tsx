@@ -256,52 +256,87 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
             </div>
           </nav>
         ) : (
-          // Expanded navigation (unchanged), with ScrollArea
-          <ScrollArea
-            className={cn("flex-1 bg-slate-950", !isCollapsed && "px-0")}
-            style={!isCollapsed ? { overflow: "visible", maxHeight: "none" } : undefined}
-          >
-            <nav className={cn("space-y-1 px-2")}>
-              {navigationItems.map((item) => {
+          // EXPANDED NAVIGATION: Make sidebar content fill all space, keep settings visible at bottom
+          <div className="flex flex-1 flex-col h-full">
+            <ScrollArea
+              className={cn("flex-1 bg-slate-950", !isCollapsed && "px-0")}
+              style={!isCollapsed ? { overflow: "visible", maxHeight: "none" } : undefined}
+            >
+              <nav className={cn("space-y-1 px-2")}>
+                {navigationItems.map((item) => {
+                  const isActive = location.pathname === item.path;
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className="w-full"
+                      tabIndex={0}
+                    >
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          "transition-all duration-200 group relative flex items-center h-14 px-3 justify-start w-full",
+                          isActive
+                            ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30"
+                            : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
+                        )}
+                      >
+                        <div className="flex items-center w-full gap-3">
+                          <Icon className="h-6 w-6 flex-shrink-0" />
+                          <div className="flex flex-col items-start flex-1 min-w-0">
+                            <span className="text-sm font-medium truncate w-full text-left">
+                              {item.name}
+                            </span>
+                            <span className="text-xs text-gray-400 truncate w-full text-left">
+                              {item.description}
+                            </span>
+                          </div>
+                        </div>
+                        {/* Active indicator */}
+                        {isActive && (
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#FF6500] rounded-r-full" />
+                        )}
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </nav>
+            </ScrollArea>
+            {/* SETTINGS: Always visible at bottom */}
+            <div className="w-full px-2 py-3 border-t border-[#1e293b] bg-slate-950">
+              {bottomItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 const Icon = item.icon;
                 return (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className="w-full"
-                    tabIndex={0}
-                  >
+                  <Link key={item.path} to={item.path} className="w-full flex items-center">
                     <Button
                       variant="ghost"
                       className={cn(
-                        "transition-all duration-200 group relative flex items-center h-14 px-3 justify-start w-full",
+                        "transition-all duration-200 group relative flex items-center h-12 px-3 w-full rounded-xl",
                         isActive
                           ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30"
                           : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
                       )}
                     >
-                      <div className="flex items-center w-full gap-3">
-                        <Icon className="h-6 w-6 flex-shrink-0" />
-                        <div className="flex flex-col items-start flex-1 min-w-0">
-                          <span className="text-sm font-medium truncate w-full text-left">
-                            {item.name}
-                          </span>
-                          <span className="text-xs text-gray-400 truncate w-full text-left">
-                            {item.description}
-                          </span>
-                        </div>
+                      <Icon className="h-6 w-6 flex-shrink-0" />
+                      <div className="flex flex-col items-start flex-1 min-w-0 ml-2">
+                        <span className="text-sm font-medium truncate w-full text-left">
+                          {item.name}
+                        </span>
+                        <span className="text-xs text-gray-400 truncate w-full text-left">
+                          {item.description}
+                        </span>
                       </div>
-                      {/* Active indicator */}
                       {isActive && (
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#FF6500] rounded-r-full" />
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-7 bg-[#FF6500] rounded-r-full" />
                       )}
                     </Button>
                   </Link>
                 );
               })}
-            </nav>
-          </ScrollArea>
+            </div>
+          </div>
         )}
       </aside>
     </>
