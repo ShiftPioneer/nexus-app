@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -161,8 +160,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                     "w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200 relative group",
                     isActive 
                       ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30" 
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      : "text-slate-100 hover:bg-slate-900 hover:text-white"
                   )}
+                  aria-label={item.name}
                 >
                   <Icon className="h-6 w-6 transition-transform duration-200 group-hover:scale-110" />
                   {isActive && (
@@ -172,6 +172,21 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               </Link>
             );
           })}
+          {/* Settings as a persistent bottom icon */}
+          <Link to="/settings" className="w-full flex justify-center group mt-6">
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-14 h-14 flex items-center justify-center rounded-xl transition-all duration-200 relative group",
+                location.pathname === "/settings"
+                  ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30"
+                  : "text-lime-500 hover:bg-slate-900 hover:text-white"
+              )}
+              aria-label="Settings"
+            >
+              <Settings className="h-6 w-6" />
+            </Button>
+          </Link>
         </nav>
       ) : (
         <ScrollArea className="flex-1 bg-slate-950 px-3">
@@ -187,13 +202,14 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                       "w-full transition-all duration-200 group relative flex items-center h-16 px-4 justify-start rounded-xl",
                       isActive 
                         ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30" 
-                        : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                        : "text-slate-100 hover:bg-slate-900 hover:text-white"
                     )}
+                    aria-label={item.name}
                   >
                     <div className="flex items-center w-full gap-4">
                       <div className={cn(
                         "flex-shrink-0 p-2 rounded-lg transition-all duration-200",
-                        isActive ? "bg-primary/30" : "group-hover:bg-slate-700"
+                        isActive ? "bg-primary/30" : "group-hover:bg-slate-800"
                       )}>
                         <Icon className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
                       </div>
@@ -213,6 +229,39 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                 </Link>
               );
             })}
+            {/* Settings at very bottom, highly visible */}
+            <Link to="/settings" className="w-full" tabIndex={0}>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full transition-all duration-200 group relative flex items-center h-16 px-4 mt-4 rounded-xl",
+                  location.pathname === "/settings"
+                    ? "bg-primary/20 text-primary shadow-lg hover:bg-primary/30"
+                    : "text-lime-500 hover:bg-slate-900 hover:text-white"
+                )}
+                aria-label="Settings"
+              >
+                <div className="flex items-center w-full gap-4">
+                  <div className={cn(
+                    "flex-shrink-0 p-2 rounded-lg transition-all duration-200",
+                    location.pathname === "/settings" ? "bg-primary/30" : "group-hover:bg-slate-800"
+                  )}>
+                    <Settings className="h-5 w-5 transition-transform duration-200 group-hover:scale-110" />
+                  </div>
+                  <div className="flex flex-col items-start flex-1 min-w-0">
+                    <span className="text-sm font-semibold truncate w-full text-left">
+                      Settings
+                    </span>
+                    <span className="text-xs text-slate-400 truncate w-full text-left">
+                      App preferences
+                    </span>
+                  </div>
+                </div>
+                {location.pathname === "/settings" && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-10 bg-primary rounded-r-full" />
+                )}
+              </Button>
+            </Link>
           </nav>
         </ScrollArea>
       )}
