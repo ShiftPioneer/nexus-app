@@ -30,7 +30,11 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
             className="flex items-center gap-2 hover:bg-accent/50 px-2 py-1 rounded-lg transition-colors"
           >
             <div className="w-8 h-8 bg-gradient-to-br from-[#FF6500] to-[#FF6500]/80 rounded-xl flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-base">N</span>
+              <img 
+                src="/lovable-uploads/1f3e73bf-c9e7-4f3b-8c97-d86ee02b31a8.png" 
+                alt="NEXUS" 
+                className="w-6 h-6 object-contain"
+              />
             </div>
             <span className="text-xl font-bold text-[#FF6500]">
               NEXUS

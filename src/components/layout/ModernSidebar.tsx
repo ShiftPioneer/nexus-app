@@ -2,7 +2,7 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { Home, CheckSquare, Target, Calendar, BookOpen, Zap, Brain, Settings, BarChart3, Clock, NotebookPen, Focus, Users, ChevronLeft } from "lucide-react";
+import { Home, CheckCircle, Target, Calendar, BookOpen, Zap, Brain, Settings, BarChart3, Clock, NotebookPen, Crosshair, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -32,13 +32,13 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     {
       name: "GTD",
       path: "/gtd",
-      icon: CheckSquare,
+      icon: CheckCircle,
       description: "Getting Things Done"
     },
     {
       name: "Actions",
       path: "/actions",
-      icon: CheckSquare,
+      icon: CheckCircle,
       description: "Tasks & todos"
     },
     {
@@ -62,7 +62,7 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
     {
       name: "Focus",
       path: "/focus",
-      icon: Focus,
+      icon: Crosshair,
       description: "Deep work sessions"
     },
     {
@@ -112,14 +112,18 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
       )}>
         {/* Header */}
         <div className={cn(
-          "flex items-center border-b border-[#1e293b] py-4 relative",
+          "flex items-center border-b border-[#1e293b] py-4 relative min-h-[64px]",
           isCollapsed ? "justify-center px-3" : "gap-3 px-4"
         )}>
           {!isCollapsed && (
             <>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-gradient-to-br from-[#FF6500] to-[#FF6500]/80 rounded-xl flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-base">N</span>
+                  <img 
+                    src="/lovable-uploads/1f3e73bf-c9e7-4f3b-8c97-d86ee02b31a8.png" 
+                    alt="NEXUS" 
+                    className="w-6 h-6 object-contain"
+                  />
                 </div>
                 <span className="text-xl font-bold text-[#FF6500]">
                   NEXUS
@@ -141,9 +145,13 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
             <Button
               variant="ghost"
               onClick={onToggle}
-              className="w-8 h-8 p-0 bg-gradient-to-br from-[#FF6500] to-[#FF6500]/80 rounded-xl hover:from-[#FF6500]/90 hover:to-[#FF6500]/70 transition-all"
+              className="w-10 h-10 p-0 bg-gradient-to-br from-[#FF6500] to-[#FF6500]/80 rounded-xl hover:from-[#FF6500]/90 hover:to-[#FF6500]/70 transition-all flex items-center justify-center"
             >
-              <span className="text-white font-bold text-base">N</span>
+              <img 
+                src="/lovable-uploads/1f3e73bf-c9e7-4f3b-8c97-d86ee02b31a8.png" 
+                alt="NEXUS" 
+                className="w-6 h-6 object-contain"
+              />
             </Button>
           )}
         </div>
@@ -161,27 +169,32 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                     variant="ghost"
                     className={cn(
                       "w-full transition-all duration-200 group relative",
-                      isCollapsed ? "h-10 px-2 justify-center" : "h-12 px-3 justify-start",
+                      isCollapsed ? "h-12 px-0 justify-center" : "h-14 px-3 justify-start",
                       isActive 
                         ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30" 
                         : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
                     )}
                   >
-                    <Icon className={cn(
-                      "flex-shrink-0",
-                      isCollapsed ? "h-5 w-5" : "h-5 w-5 mr-3"
-                    )} />
-                    
-                    {!isCollapsed && (
-                      <div className="flex flex-col items-start flex-1 min-w-0">
-                        <span className="text-sm font-medium truncate w-full text-left">
-                          {item.name}
-                        </span>
-                        <span className="text-xs text-gray-400 truncate w-full text-left">
-                          {item.description}
-                        </span>
-                      </div>
-                    )}
+                    <div className={cn(
+                      "flex items-center",
+                      isCollapsed ? "justify-center w-full" : "w-full"
+                    )}>
+                      <Icon className={cn(
+                        "flex-shrink-0",
+                        isCollapsed ? "h-5 w-5" : "h-5 w-5 mr-3"
+                      )} />
+                      
+                      {!isCollapsed && (
+                        <div className="flex flex-col items-start flex-1 min-w-0">
+                          <span className="text-sm font-medium truncate w-full text-left">
+                            {item.name}
+                          </span>
+                          <span className="text-xs text-gray-400 truncate w-full text-left">
+                            {item.description}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                     
                     {/* Active indicator */}
                     {isActive && (
@@ -206,27 +219,32 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
                   variant="ghost"
                   className={cn(
                     "w-full transition-all duration-200 group relative",
-                    isCollapsed ? "h-10 px-2 justify-center" : "h-12 px-3 justify-start",
+                    isCollapsed ? "h-12 px-0 justify-center" : "h-14 px-3 justify-start",
                     isActive 
                       ? "bg-[#FF6500]/20 text-[#FF6500] hover:bg-[#FF6500]/30" 
                       : "text-gray-300 hover:bg-[#1e293b] hover:text-white"
                   )}
                 >
-                  <Icon className={cn(
-                    "flex-shrink-0",
-                    isCollapsed ? "h-5 w-5" : "h-5 w-5 mr-3"
-                  )} />
-                  
-                  {!isCollapsed && (
-                    <div className="flex flex-col items-start flex-1 min-w-0">
-                      <span className="text-sm font-medium truncate w-full text-left">
-                        {item.name}
-                      </span>
-                      <span className="text-xs text-gray-400 truncate w-full text-left">
-                        {item.description}
-                      </span>
-                    </div>
-                  )}
+                  <div className={cn(
+                    "flex items-center",
+                    isCollapsed ? "justify-center w-full" : "w-full"
+                  )}>
+                    <Icon className={cn(
+                      "flex-shrink-0",
+                      isCollapsed ? "h-5 w-5" : "h-5 w-5 mr-3"
+                    )} />
+                    
+                    {!isCollapsed && (
+                      <div className="flex flex-col items-start flex-1 min-w-0">
+                        <span className="text-sm font-medium truncate w-full text-left">
+                          {item.name}
+                        </span>
+                        <span className="text-xs text-gray-400 truncate w-full text-left">
+                          {item.description}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                   
                   {/* Active indicator */}
                   {isActive && (
