@@ -55,15 +55,23 @@ const defaultSkillsets: Skillset[] = [
 ];
 
 export function SkillsetTab() {
-  const [skillsets, setSkillsets] = useLocalStorage<Skillset[]>("userSkillsets", defaultSkillsets);
+  const [skillsetsRaw, setSkillsetsRaw] = useLocalStorage<Skillset[]>("userSkillsets", defaultSkillsets);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [currentSkillset, setCurrentSkillset] = useState<Skillset | null>(null);
 
+  // Convert lastPracticed strings back to Date objects when loading from localStorage
+  const skillsets = skillsetsRaw.map(skillset => ({
+    ...skillset,
+    lastPracticed: typeof skillset.lastPracticed === 'string' 
+      ? new Date(skillset.lastPracticed) 
+      : skillset.lastPracticed
+  }));
+
   const handleAddSkillset = (skillset: Skillset) => {
     if (currentSkillset) {
-      setSkillsets(skillsets.map(s => s.id === skillset.id ? skillset : s));
+      setSkillsetsRaw(skillsetsRaw.map(s => s.id === skillset.id ? skillset : s));
     } else {
-      setSkillsets([...skillsets, {
+      setSkillsetsRaw([...skillsetsRaw, {
         ...skillset,
         id: Date.now().toString()
       }]);
@@ -78,7 +86,7 @@ export function SkillsetTab() {
   };
 
   const handleDelete = (id: string) => {
-    setSkillsets(skillsets.filter(s => s.id !== id));
+    setSkillsetsRaw(skillsetsRaw.filter(s => s.id !== id));
   };
 
   return (
