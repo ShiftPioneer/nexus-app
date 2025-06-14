@@ -69,7 +69,7 @@ function App() {
               } 
             />
             <Route 
-              path="/time-design" 
+              path="/timedesign" 
               element={
                 <ProtectedRoute>
                   <TimeDesign />

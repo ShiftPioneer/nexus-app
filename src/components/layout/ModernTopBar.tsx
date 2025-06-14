@@ -1,31 +1,42 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Bell, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ThemeToggle from "@/components/theme/ThemeToggle";
+
 interface ModernTopBarProps {
   onToggleSidebar: () => void;
   isCollapsed: boolean;
   isMobile: boolean;
 }
+
 const ModernTopBar: React.FC<ModernTopBarProps> = ({
   onToggleSidebar,
   isCollapsed,
   isMobile
 }) => {
-  const {
-    user
-  } = useAuth();
-  return <header className="h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6 z-30 flex-shrink-0">
+  const { user } = useAuth();
+  
+  return (
+    <header className="h-16 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex items-center justify-between px-6 z-30 flex-shrink-0">
       <div className="flex items-center gap-4">
         {/* Show logo when sidebar is collapsed */}
-        {isCollapsed && <div className="flex items-center gap-2">
-            
-            <span className="text-xl font-bold text-primary">NEXUS</span>
-          </div>}
-        
-        {!isMobile && !isCollapsed}
+        {isCollapsed && (
+          <Button
+            variant="ghost"
+            onClick={onToggleSidebar}
+            className="flex items-center gap-2 hover:bg-accent/50 px-2 py-1 rounded-lg transition-colors"
+          >
+            <div className="w-8 h-8 bg-gradient-to-br from-[#FF6500] to-[#FF6500]/80 rounded-xl flex items-center justify-center shadow-lg">
+              <span className="text-white font-bold text-base">N</span>
+            </div>
+            <span className="text-xl font-bold text-[#FF6500]">
+              NEXUS
+            </span>
+          </Button>
+        )}
       </div>
       
       <div className="flex items-center gap-3">
@@ -43,6 +54,8 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
           </AvatarFallback>
         </Avatar>
       </div>
-    </header>;
+    </header>
+  );
 };
+
 export default ModernTopBar;
