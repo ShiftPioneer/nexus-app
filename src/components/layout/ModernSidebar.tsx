@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -24,100 +23,78 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   } = useAuth();
 
   // NOTE: Only GTD uses SquareCheck now
-  const navigationItems = [
-    {
-      name: "Dashboard",
-      path: "/",
-      icon: Home,
-      description: "Overview & insights"
-    },
-    {
-      name: "GTD",
-      path: "/gtd",
-      icon: SquareCheck,
-      description: "Getting Things Done"
-    },
-    {
-      name: "Actions",
-      path: "/actions",
-      icon: CheckCircle,
-      description: "Tasks & todos"
-    },
-    {
-      name: "Time Design",
-      path: "/timedesign",
-      icon: Clock,
-      description: "Schedule & matrix"
-    },
-    {
-      name: "Planning",
-      path: "/planning",
-      icon: Target,
-      description: "Goals & projects"
-    },
-    {
-      name: "Habits",
-      path: "/habits",
-      icon: BarChart3,
-      description: "Track habits"
-    },
-    {
-      name: "Focus",
-      path: "/focus",
-      icon: Crosshair,
-      description: "Deep work sessions"
-    },
-    {
-      name: "Mindset",
-      path: "/mindset",
-      icon: Brain,
-      description: "Values & beliefs"
-    },
-    {
-      name: "Knowledge",
-      path: "/knowledge",
-      icon: BookOpen,
-      description: "Learning & notes"
-    },
-    {
-      name: "Journal",
-      path: "/journal",
-      icon: NotebookPen,
-      description: "Thoughts & reflections"
-    },
-    {
-      name: "Energy",
-      path: "/energy",
-      icon: Zap,
-      description: "Fitness & wellness"
-    }
-  ];
-  const bottomItems = [
-    {
-      name: "Settings",
-      path: "/settings",
-      icon: Settings,
-      description: "App preferences"
-    }
-  ];
+  const navigationItems = [{
+    name: "Dashboard",
+    path: "/",
+    icon: Home,
+    description: "Overview & insights"
+  }, {
+    name: "GTD",
+    path: "/gtd",
+    icon: SquareCheck,
+    description: "Getting Things Done"
+  }, {
+    name: "Actions",
+    path: "/actions",
+    icon: CheckCircle,
+    description: "Tasks & todos"
+  }, {
+    name: "Time Design",
+    path: "/timedesign",
+    icon: Clock,
+    description: "Schedule & matrix"
+  }, {
+    name: "Planning",
+    path: "/planning",
+    icon: Target,
+    description: "Goals & projects"
+  }, {
+    name: "Habits",
+    path: "/habits",
+    icon: BarChart3,
+    description: "Track habits"
+  }, {
+    name: "Focus",
+    path: "/focus",
+    icon: Crosshair,
+    description: "Deep work sessions"
+  }, {
+    name: "Mindset",
+    path: "/mindset",
+    icon: Brain,
+    description: "Values & beliefs"
+  }, {
+    name: "Knowledge",
+    path: "/knowledge",
+    icon: BookOpen,
+    description: "Learning & notes"
+  }, {
+    name: "Journal",
+    path: "/journal",
+    icon: NotebookPen,
+    description: "Thoughts & reflections"
+  }, {
+    name: "Energy",
+    path: "/energy",
+    icon: Zap,
+    description: "Fitness & wellness"
+  }];
+  const bottomItems = [{
+    name: "Settings",
+    path: "/settings",
+    icon: Settings,
+    description: "App preferences"
+  }];
   const sidebarWidth = isCollapsed ? "w-16" : "w-64";
   return <>
       {/* Sidebar */}
-      <aside className={cn(
-          "bg-slate-950 border-r border-[#1e293b] transition-all duration-300 ease-in-out flex-shrink-0 relative h-full flex flex-col",
-          sidebarWidth,
-          isMobile
-            ? isCollapsed
-              ? "-translate-x-full"
-              : "fixed inset-y-0 left-0 z-50"
-            : "relative"
-        )}>
+      <aside className={cn("bg-slate-950 border-r border-[#1e293b] transition-all duration-300 ease-in-out flex-shrink-0 relative h-full flex flex-col", sidebarWidth, isMobile ? isCollapsed ? "-translate-x-full" : "fixed inset-y-0 left-0 z-50" : "relative")}>
         {/* Header */}
         <div className={cn("flex items-center border-b border-[#1e293b] py-4 relative min-h-[64px]", isCollapsed ? "justify-center px-3" : "gap-3 px-4")}>
           {!isCollapsed && <>
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-xl flex items-center justify-center shadow-lg bg-transparent">
-                  <img src={LOGO_URL} alt="NEXUS" className="w-6 h-6 object-contain" />
+                  <img src={LOGO_URL} alt="NEXUS" className="w-6 h-6 object-fill" />
                 </div>
                 <span className="text-xl font-bold text-[#FF6500]">
                   NEXUS
@@ -129,16 +106,9 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
               </Button>
             </>}
 
-          {isCollapsed &&
-            <Button
-              variant="ghost"
-              onClick={onToggle}
-              className="w-10 h-10 p-0 rounded-xl transition-all flex items-center justify-center bg-transparent"
-              aria-label="Expand sidebar"
-            >
+          {isCollapsed && <Button variant="ghost" onClick={onToggle} className="w-10 h-10 p-0 rounded-xl transition-all flex items-center justify-center bg-transparent" aria-label="Expand sidebar">
               <img src={LOGO_URL} alt="NEXUS" className="w-8 h-8 object-contain" />
-            </Button>
-          }
+            </Button>}
         </div>
 
         {/* Navigation */}
