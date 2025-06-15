@@ -17,20 +17,20 @@ const Dashboard = () => {
   return (
     <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="animate-fade-in p-6 space-y-6 bg-slate-900">
+        <div className="animate-fade-in space-y-4 sm:space-y-6 bg-slate-900 min-h-full">
           <WelcomeSection />
           <StatsSection />
           
-          {/* Optimized Grid Layout - 65/35 split */}
-          <div className="grid grid-cols-1 xl:grid-cols-5 gap-6">
-            {/* Main Content Area - 3 columns (60%) */}
-            <div className="xl:col-span-3 space-y-6">
+          {/* Responsive Grid Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6">
+            {/* Main Content Area - Responsive columns */}
+            <div className="lg:col-span-3 space-y-4 sm:space-y-6">
               <TasksSection />
               <GoalSection />
             </div>
             
-            {/* Sidebar Content - 2 columns (40%) */}
-            <div className="xl:col-span-2 space-y-6">
+            {/* Sidebar Content - Full width on mobile, 2 columns on desktop */}
+            <div className="lg:col-span-2 space-y-4 sm:space-y-6">
               <HabitsSection />
               <JournalSection />
             </div>

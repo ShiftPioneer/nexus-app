@@ -18,19 +18,26 @@ const ModernSidebar: React.FC<ModernSidebarProps> = ({
   onToggle
 }) => {
   const { user } = useAuth();
-  const sidebarWidth = isCollapsed ? "w-16" : "w-56"; // Reduced from w-20/w-72 to w-16/w-56 (20% reduction)
-
+  
   return (
     <aside className={cn(
-      "bg-slate-950 border-r border-slate-300 transition-all duration-300 ease-out flex-shrink-0 relative h-full flex flex-col shadow-lg",
-      sidebarWidth,
-      isMobile ? (isCollapsed ? "-translate-x-full" : "fixed inset-y-0 left-0 z-50") : "relative"
+      "bg-slate-950 border-r border-slate-700/50 transition-all duration-300 ease-out flex-shrink-0 relative h-full flex flex-col shadow-xl",
+      // Desktop behavior
+      !isMobile && (isCollapsed ? "w-16" : "w-56"),
+      // Mobile behavior - full overlay when open, completely hidden when closed
+      isMobile && (
+        isCollapsed 
+          ? "-translate-x-full w-0 opacity-0 pointer-events-none" 
+          : "fixed inset-y-0 left-0 w-64 z-50 translate-x-0 opacity-100"
+      ),
+      // Enhanced shadows and backdrop
+      isMobile && !isCollapsed && "shadow-2xl backdrop-blur-sm"
     )}>
-      <SidebarHeader isCollapsed={isCollapsed} onToggle={onToggle} />
+      <SidebarHeader isCollapsed={isCollapsed && !isMobile} onToggle={onToggle} />
       
       <div className="flex flex-col flex-1 overflow-hidden">
-        <SidebarNavigation isCollapsed={isCollapsed} />
-        <SidebarFooter isCollapsed={isCollapsed} />
+        <SidebarNavigation isCollapsed={isCollapsed && !isMobile} />
+        <SidebarFooter isCollapsed={isCollapsed && !isMobile} />
       </div>
     </aside>
   );
