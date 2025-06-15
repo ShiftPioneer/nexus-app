@@ -1,22 +1,24 @@
 
 import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, Square, Play, Pause } from 'lucide-react';
+import { Mic, Square } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface VoiceInputProps {
   onTranscription: (text: string) => void;
-  onAudioData?: (audioBlob: Blob) => void;
+  isRecording?: boolean;
+  onRecordingStateChange?: (isRecording: boolean) => void;
 }
 
-const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscription, onAudioData }) => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+const VoiceInput: React.FC<VoiceInputProps> = ({ 
+  onTranscription, 
+  isRecording = false,
+  onRecordingStateChange 
+}) => {
   const [recordingTime, setRecordingTime] = useState(0);
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const { toast } = useToast();
 
@@ -35,19 +37,25 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscription, onAudioData })
       mediaRecorder.onstop = async () => {
         const blob = new Blob(chunks, { type: 'audio/webm' });
         setAudioBlob(blob);
-        onAudioData?.(blob);
         
-        // For now, we'll just show a placeholder transcription
-        // In a real implementation, you'd send this to a speech-to-text service
-        const placeholderText = "Voice recording captured. Transcription would appear here.";
-        onTranscription(placeholderText);
+        // Convert audio to base64 and send for transcription
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const base64Audio = reader.result?.toString().split(',')[1];
+          if (base64Audio) {
+            // For now, simulate transcription - you can integrate with speech-to-text API later
+            const simulatedTranscription = "Voice input captured - transcription would appear here";
+            onTranscription(simulatedTranscription);
+          }
+        };
+        reader.readAsDataURL(blob);
         
         // Stop all tracks
         stream.getTracks().forEach(track => track.stop());
       };
       
       mediaRecorder.start();
-      setIsRecording(true);
+      onRecordingStateChange?.(true);
       setRecordingTime(0);
       
       // Start timer
@@ -57,7 +65,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscription, onAudioData })
       
       toast({
         title: "Recording started",
-        description: "Speak clearly to capture your task details"
+        description: "Speak clearly to capture your input"
       });
     } catch (error) {
       console.error('Error accessing microphone:', error);
@@ -72,7 +80,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscription, onAudioData })
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
+      onRecordingStateChange?.(false);
       
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -86,29 +94,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscription, onAudioData })
     }
   };
 
-  const playRecording = () => {
-    if (audioBlob && !isPlaying) {
-      const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      audioRef.current = audio;
-      
-      audio.onended = () => {
-        setIsPlaying(false);
-        URL.revokeObjectURL(audioUrl);
-      };
-      
-      audio.play();
-      setIsPlaying(true);
-    }
-  };
-
-  const pauseRecording = () => {
-    if (audioRef.current && isPlaying) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -116,53 +101,29 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscription, onAudioData })
   };
 
   return (
-    <div className="flex flex-col space-y-3">
-      <div className="flex items-center space-x-3">
-        {!isRecording ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={startRecording}
-            className="flex items-center space-x-2"
-          >
-            <Mic className="h-4 w-4" />
-            <span>Start Recording</span>
-          </Button>
-        ) : (
+    <div className="flex items-center space-x-2">
+      {!isRecording ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={startRecording}
+          className="flex items-center space-x-1 text-cyan-500 hover:text-cyan-400"
+        >
+          <Mic className="h-4 w-4" />
+        </Button>
+      ) : (
+        <div className="flex items-center space-x-2">
           <Button
             type="button"
             variant="destructive"
             size="sm"
             onClick={stopRecording}
-            className="flex items-center space-x-2 animate-pulse"
+            className="flex items-center space-x-1 animate-pulse"
           >
             <Square className="h-4 w-4" />
-            <span>Stop ({formatTime(recordingTime)})</span>
+            <span>{formatTime(recordingTime)}</span>
           </Button>
-        )}
-        
-        {audioBlob && !isRecording && (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={isPlaying ? pauseRecording : playRecording}
-            className="flex items-center space-x-2"
-          >
-            {isPlaying ? (
-              <Pause className="h-4 w-4" />
-            ) : (
-              <Play className="h-4 w-4" />
-            )}
-            <span>{isPlaying ? 'Pause' : 'Play'}</span>
-          </Button>
-        )}
-      </div>
-      
-      {isRecording && (
-        <div className="text-sm text-muted-foreground">
-          Recording: {formatTime(recordingTime)}
         </div>
       )}
     </div>

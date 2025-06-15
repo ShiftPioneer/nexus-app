@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Paperclip, X, File, Image, Link } from 'lucide-react';
+import { Paperclip, X, File, Image, Link, Camera } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { TaskAttachment } from '@/types/gtd';
 
@@ -19,9 +19,10 @@ const AttachmentInput: React.FC<AttachmentInputProps> = ({
   const [linkUrl, setLinkUrl] = useState('');
   const [showLinkInput, setShowLinkInput] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>, isPhoto = false) => {
     const files = event.target.files;
     if (!files) return;
 
@@ -38,7 +39,7 @@ const AttachmentInput: React.FC<AttachmentInputProps> = ({
 
       const attachment: TaskAttachment = {
         name: file.name,
-        type: file.type.startsWith('image/') ? 'image' : 'file',
+        type: isPhoto || file.type.startsWith('image/') ? 'image' : 'file',
         file: file
       };
 
@@ -48,6 +49,9 @@ const AttachmentInput: React.FC<AttachmentInputProps> = ({
     // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+    if (photoInputRef.current) {
+      photoInputRef.current.value = '';
     }
   };
 
@@ -117,11 +121,22 @@ const AttachmentInput: React.FC<AttachmentInputProps> = ({
           type="button"
           variant="outline"
           size="sm"
+          onClick={() => photoInputRef.current?.click()}
+          className="flex items-center space-x-2"
+        >
+          <Camera className="h-4 w-4" />
+          <span>Photo</span>
+        </Button>
+        
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
           onClick={() => fileInputRef.current?.click()}
           className="flex items-center space-x-2"
         >
           <Paperclip className="h-4 w-4" />
-          <span>Add File</span>
+          <span>File</span>
         </Button>
         
         <Button
@@ -132,16 +147,25 @@ const AttachmentInput: React.FC<AttachmentInputProps> = ({
           className="flex items-center space-x-2"
         >
           <Link className="h-4 w-4" />
-          <span>Add Link</span>
+          <span>Link</span>
         </Button>
       </div>
 
       <input
         type="file"
-        ref={fileInputRef}
-        onChange={handleFileSelect}
+        ref={photoInputRef}
+        onChange={(e) => handleFileSelect(e, true)}
         multiple
-        accept="image/*,.pdf,.doc,.docx,.txt,.md"
+        accept="image/*"
+        className="hidden"
+      />
+
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={(e) => handleFileSelect(e, false)}
+        multiple
+        accept=".pdf,.doc,.docx,.txt,.md,*"
         className="hidden"
       />
 

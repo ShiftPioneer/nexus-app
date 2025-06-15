@@ -23,27 +23,23 @@ const QuickCaptureForm = () => {
   const [priority, setPriority] = useState<TaskPriority>("Medium");
   const [isToDoNot, setIsToDoNot] = useState<boolean>(false);
   const [attachments, setAttachments] = useState<TaskAttachment[]>([]);
+  const [isRecordingTitle, setIsRecordingTitle] = useState(false);
+  const [isRecordingDescription, setIsRecordingDescription] = useState(false);
 
-  const handleVoiceTranscription = (text: string) => {
-    if (!title.trim()) {
-      setTitle(text);
-    } else {
-      setDescription(prev => prev ? `${prev}\n\n${text}` : text);
-    }
-    
+  const handleVoiceTranscriptionTitle = (text: string) => {
+    setTitle(prev => prev ? `${prev} ${text}` : text);
     toast({
-      title: "Voice input added",
+      title: "Voice input added to title",
       description: "Your speech has been transcribed"
     });
   };
 
-  const handleVoiceAudio = (audioBlob: Blob) => {
-    const audioAttachment: TaskAttachment = {
-      name: `Voice recording ${new Date().toLocaleTimeString()}`,
-      type: 'audio',
-      file: audioBlob
-    };
-    setAttachments(prev => [...prev, audioAttachment]);
+  const handleVoiceTranscriptionDescription = (text: string) => {
+    setDescription(prev => prev ? `${prev} ${text}` : text);
+    toast({
+      title: "Voice input added to description",
+      description: "Your speech has been transcribed"
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -88,31 +84,40 @@ const QuickCaptureForm = () => {
       </CardHeader>
       <CardContent className="bg-slate-950">
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Input
-              placeholder="What's on your mind?"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="focus:ring-2 focus:ring-primary bg-slate-900"
-            />
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-cyan-500">Task Title</label>
+            <div className="flex items-center space-x-2">
+              <Input
+                placeholder="What's on your mind?"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="flex-1 focus:ring-2 focus:ring-primary bg-slate-900"
+              />
+              <VoiceInput 
+                onTranscription={handleVoiceTranscriptionTitle}
+                isRecording={isRecordingTitle}
+                onRecordingStateChange={setIsRecordingTitle}
+              />
+            </div>
           </div>
           
-          <div>
-            <Textarea
-              placeholder="Add details (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="min-h-[100px] focus:ring-2 focus:ring-primary bg-slate-900"
-            />
-          </div>
-
-          {/* Voice Input Section */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-cyan-500">Voice Input</label>
-            <VoiceInput 
-              onTranscription={handleVoiceTranscription}
-              onAudioData={handleVoiceAudio}
-            />
+            <label className="text-sm font-medium text-cyan-500">Details</label>
+            <div className="flex items-start space-x-2">
+              <Textarea
+                placeholder="Add details (optional)"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="flex-1 min-h-[100px] focus:ring-2 focus:ring-primary bg-slate-900"
+              />
+              <div className="pt-2">
+                <VoiceInput 
+                  onTranscription={handleVoiceTranscriptionDescription}
+                  isRecording={isRecordingDescription}
+                  onRecordingStateChange={setIsRecordingDescription}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Attachments Section */}
@@ -125,7 +130,7 @@ const QuickCaptureForm = () => {
           </div>
           
           <div className="space-y-3">
-            <label className="text-sm font-medium bg-background-DEFAULT text-cyan-500">Priority</label>
+            <label className="text-sm font-medium text-cyan-500">Priority</label>
             <div className="flex flex-wrap gap-2">
               {["Very Low", "Low", "Medium", "High", "Very High"].map((p) => (
                 <Button
@@ -162,7 +167,7 @@ const QuickCaptureForm = () => {
                   checked={isToDoNot}
                   onClick={() => setIsToDoNot(true)}
                 />
-                <Label htmlFor="nottodo" className="bg-deep-DEFAULT text-slate-300">Not To Do</Label>
+                <Label htmlFor="nottodo" className="text-slate-300">Not To Do</Label>
               </div>
             </RadioGroup>
           </div>
