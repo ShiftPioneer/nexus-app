@@ -59,7 +59,7 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
             
             <div className="flex justify-between text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" />
+                <Clock className="h-3.5 w-3.5 text-lime-600" />
                 <span className="text-lime-500">
                   {format(goal.startDate, "MMM d, yyyy")} - {format(goal.endDate, "MMM d, yyyy")}
                 </span>
