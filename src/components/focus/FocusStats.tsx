@@ -52,7 +52,7 @@ const FocusStats: React.FC<FocusStatsProps> = ({
     count
   }));
   return <div className="space-y-6">
-      <Card>
+      <Card className="bg-slate-950">
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-lg">
             <TrendingUp className="h-5 w-5 text-primary" />
@@ -62,7 +62,7 @@ const FocusStats: React.FC<FocusStatsProps> = ({
             Real-time analysis of your focus sessions
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 bg-slate-950 rounded-lg">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <Card className="bg-card/50 shadow-sm">
               <CardContent className="p-4 flex flex-col items-center text-center bg-slate-900 rounded-lg">
