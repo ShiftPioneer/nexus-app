@@ -1,4 +1,3 @@
-
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -115,7 +114,15 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
   const handleSave = (values: ActivityFormValues) => {
     const activityToSave: TimeActivity = {
       id: activity?.id || "",
-      ...values,
+      title: values.title,
+      description: values.description,
+      category: values.category,
+      color: values.color,
+      startDate: values.startDate,
+      endDate: values.endDate,
+      startTime: values.startTime,
+      endTime: values.endTime,
+      syncWithGoogleCalendar: values.syncWithGoogleCalendar,
     };
     onSave(activityToSave);
   };
