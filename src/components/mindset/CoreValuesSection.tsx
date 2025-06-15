@@ -100,8 +100,8 @@ const CoreValuesSection = () => {
     setIsDialogOpen(false);
   };
   return <>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+      <Card className="bg-slate-950 rounded-lg">
+        <CardHeader className="flex flex-row items-center justify-between rounded-lg bg-slate-950">
           <div>
             <CardTitle>Core Values</CardTitle>
             <CardDescription>Define what matters most to you</CardDescription>
@@ -111,7 +111,7 @@ const CoreValuesSection = () => {
             Add Value
           </Button>
         </CardHeader>
-        <CardContent>
+        <CardContent className="bg-slate-950 rounded-lg">
           {values.length === 0 ? <div className="text-center py-6 text-muted-foreground">
               No core values defined yet. Add your first one!
             </div> : <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

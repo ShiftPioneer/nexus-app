@@ -94,7 +94,7 @@ const MissionSection = () => {
     setIsDialogOpen(false);
   };
   return <>
-      <Card>
+      <Card className="rounded-lg bg-slate-950">
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
@@ -107,30 +107,30 @@ const MissionSection = () => {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-4 bg-slate-950 rounded-lg">
           {missions.length === 0 ? <div className="text-center py-6 text-muted-foreground">
               No mission statements defined yet. Add your first one!
-            </div> : missions.map(mission => <Card key={mission.id} className="bg-gradient-to-r from-blue-500/10 to-blue-500/5">
-                <CardHeader className="bg-deep-DEFAULT">
+            </div> : missions.map(mission => <Card key={mission.id} className="bg-gradient-to-r from-blue-500/10 to-blue-500/5 bg-slate-900">
+                <CardHeader className="bg-slate-900 rounded-lg">
                   <div className="flex justify-between">
                     <CardTitle className="text-lg">{mission.title}</CardTitle>
                     <div className="flex space-x-1">
-                      <Button variant="ghost" size="icon" onClick={() => handleEditMission(mission)}>
+                      <Button variant="ghost" size="icon" onClick={() => handleEditMission(mission)} className="text-cyan-600">
                         <Edit className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteMission(mission.id)}>
+                      <Button variant="ghost" size="icon" onClick={() => handleDeleteMission(mission.id)} className="text-red-600">
                         <Trash className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="bg-slate-900 py-[10px]">
                   <p className="italic">"<span className="text-primary">{mission.statement}</span>"</p>
                 </CardContent>
-                <CardFooter className="text-xs text-muted-foreground flex justify-end pt-1">
+                <CardFooter className="text-xs text-muted-foreground flex justify-end pt-1 rounded-lg bg-slate-900">
                   <div className="flex items-center">
-                    <Calendar className="h-3 w-3 mr-1" />
-                    <span>Last edited: {format(new Date(mission.lastEditedAt), 'MMM d, yyyy')}</span>
+                    <Calendar className="h-3 w-3 mr-1 text-lime-600" />
+                    <span className="text-lime-600">Last edited: {format(new Date(mission.lastEditedAt), 'MMM d, yyyy')}</span>
                   </div>
                 </CardFooter>
               </Card>)}
