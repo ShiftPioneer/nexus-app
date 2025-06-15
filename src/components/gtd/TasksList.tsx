@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+
 interface TasksListProps {
   tasks: any[];
   showActions?: boolean;
@@ -16,6 +17,7 @@ interface TasksListProps {
   isToDoNot?: boolean;
   onEdit?: (id: string) => void;
 }
+
 const TasksList: React.FC<TasksListProps> = ({
   tasks,
   showActions = false,
@@ -129,7 +131,7 @@ const TasksList: React.FC<TasksListProps> = ({
               <div className="flex space-x-3 items-start">
                 <div className="mt-0.5">
                   <Button variant="ghost" size="icon" className="h-6 w-6 rounded-full hover:bg-slate-700" onClick={() => handleMarkComplete(task.id)}>
-                    <CheckCircle className={cn("h-5 w-5", task.status === "completed" ? "text-green-500" : task.priority === "High" || task.priority === "Very High" ? "text-red-500" : task.priority === "Medium" ? "text-yellow-500" : "text-slate-500")} />
+                    <CheckCircle className={cn("h-5 w-5", task.status === "completed" ? "text-green-500" : task.priority === "High" || task.priority === "Very High" ? "text-red-500" : task.priority === "Medium" ? "text-lime-600" : "text-slate-500")} />
                   </Button>
                 </div>
                 <div>
@@ -207,4 +209,5 @@ const TasksList: React.FC<TasksListProps> = ({
         </Card>)}
     </div>;
 };
+
 export default TasksList;

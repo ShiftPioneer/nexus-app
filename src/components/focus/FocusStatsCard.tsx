@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Clock, Calendar } from "lucide-react";
@@ -35,7 +36,7 @@ const FocusStatsCard: React.FC<FocusStatsCardProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="text-orange-500">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-yellow-500">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-lime-600">
                   <path d="M8 2V5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   <path d="M16 2V5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
                   <path d="M3 7.5H21" stroke="currentColor" strokeWidth="1.5" />
@@ -44,9 +45,9 @@ const FocusStatsCard: React.FC<FocusStatsCardProps> = ({
                   <path fillRule="evenodd" clipRule="evenodd" d="M19 22H5C3.895 22 3 21.105 3 20V9C3 7.895 3.895 7 5 7H19C20.105 7 21 7.895 21 9V20C21 21.105 20.105 22 19 22Z" stroke="currentColor" strokeWidth="1.5" />
                 </svg>
               </div>
-              <span className="text-yellow-500">Current Streak</span>
+              <span className="text-lime-600">Current Streak</span>
             </div>
-            <span className="px-3 py-1 bg-amber-100 text-yellow-500 rounded-full text-xs">{stats.currentStreak || 0} days</span>
+            <span className="px-3 py-1 bg-lime-100 text-lime-600 rounded-full text-xs">{stats.currentStreak || 0} days</span>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

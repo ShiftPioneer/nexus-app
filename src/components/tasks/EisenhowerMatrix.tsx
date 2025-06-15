@@ -55,7 +55,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ isToDoNot = false }
       title: "Delegate",
       subtitle: "Urgent & Not Important", 
       icon: CheckCircle,
-      color: "bg-yellow-50 dark:bg-yellow-950/20 border-yellow-200 dark:border-yellow-800",
+      color: "bg-lime-50 dark:bg-lime-950/20 border-lime-200 dark:border-lime-800",
       tasks: getQuadrantTasks(true, false)
     },
     {

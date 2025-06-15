@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -57,7 +58,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ isToDoNot = false }) => {
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case "high": return "bg-red-500";
-      case "medium": return "bg-yellow-500";
+      case "medium": return "bg-lime-500";
       case "low": return "bg-green-500";
       default: return "bg-gray-500";
     }

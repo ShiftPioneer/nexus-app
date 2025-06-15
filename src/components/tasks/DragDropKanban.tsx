@@ -22,13 +22,13 @@ const DragDropKanban: React.FC<DragDropKanbanProps> = ({
   const columns = isToDoNot
     ? [
         { id: "todo", title: "To Avoid", icon: AlertCircle, color: "text-red-500" },
-        { id: "in-progress", title: "Reducing", icon: Circle, color: "text-yellow-500" },
+        { id: "in-progress", title: "Reducing", icon: Circle, color: "text-lime-600" },
         { id: "completed", title: "Eliminated", icon: CheckCircle2, color: "text-green-500" },
       ]
     : [
         { id: "today", title: "Today", icon: Clock, color: "text-blue-500" },
         { id: "todo", title: "To Do", icon: Circle, color: "text-gray-500" },
-        { id: "in-progress", title: "In Progress", icon: Circle, color: "text-yellow-500" },
+        { id: "in-progress", title: "In Progress", icon: Circle, color: "text-lime-600" },
         { id: "completed", title: "Completed", icon: CheckCircle2, color: "text-green-500" },
       ];
 

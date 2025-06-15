@@ -19,7 +19,7 @@ const DragDropMatrix: React.FC<DragDropMatrixProps> = ({
   const quadrants = [
     { urgency: "High", importance: "High", title: "Do First", color: "border-red-500 bg-red-50 dark:bg-red-950/20" },
     { urgency: "Low", importance: "High", title: "Schedule", color: "border-blue-500 bg-blue-50 dark:bg-blue-950/20" },
-    { urgency: "High", importance: "Low", title: "Delegate", color: "border-yellow-500 bg-yellow-50 dark:bg-yellow-950/20" },
+    { urgency: "High", importance: "Low", title: "Delegate", color: "border-lime-500 bg-lime-50 dark:bg-lime-950/20" },
     { urgency: "Low", importance: "Low", title: "Eliminate", color: "border-gray-500 bg-gray-50 dark:bg-gray-950/20" },
   ];
 
