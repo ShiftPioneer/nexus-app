@@ -13,7 +13,6 @@ import HabitStatisticsCategories from "@/components/habits/HabitStatisticsCatego
 import HabitStatisticsStreaks from "@/components/habits/HabitStatisticsStreaks";
 import HabitCreationDialog from "@/components/habits/HabitCreationDialog";
 import { Badge } from "@/components/ui/badge";
-
 const Habits = () => {
   const {
     toast
@@ -237,15 +236,11 @@ const Habits = () => {
   };
 
   // Filter habits based on category
-  const filteredHabits = habits.filter(habit =>
-    filterCategory === "all" || habit.category === filterCategory
-  );
+  const filteredHabits = habits.filter(habit => filterCategory === "all" || habit.category === filterCategory);
 
   // Get unique categories
   const categories = ["all", ...Array.from(new Set(habits.map(h => h.category)))];
-
-  return (
-    <ModernAppLayout>
+  return <ModernAppLayout>
       <div className="animate-fade-in space-y-6">
         <div className="flex justify-between items-center">
           <div>
@@ -256,9 +251,9 @@ const Habits = () => {
             <p className="text-muted-foreground">Track your daily habits and build lasting streaks</p>
           </div>
           <Button onClick={() => {
-            setSelectedHabit(null);
-            setShowHabitDialog(true);
-          }} className="gap-2">
+          setSelectedHabit(null);
+          setShowHabitDialog(true);
+        }} className="gap-2">
             <Plus size={18} />
             New Habit
           </Button>
@@ -282,10 +277,9 @@ const Habits = () => {
                   Keep building your habits to increase your score!
                 </p>
                 <div className="w-full bg-orange-200 dark:bg-orange-800 h-2 rounded-full">
-                  <div 
-                    className="bg-orange-500 h-2 rounded-full transition-all duration-500" 
-                    style={{ width: `${Math.min(100, accountabilityScore / 500 * 100)}%` }} 
-                  />
+                  <div className="bg-orange-500 h-2 rounded-full transition-all duration-500" style={{
+                  width: `${Math.min(100, accountabilityScore / 500 * 100)}%`
+                }} />
                 </div>
               </div>
             </div>
@@ -301,55 +295,33 @@ const Habits = () => {
                 <CardDescription>Track your consistency and build momentum</CardDescription>
               </div>
               <div className="flex gap-2">
-                <select 
-                  value={filterCategory} 
-                  onChange={(e) => setFilterCategory(e.target.value)} 
-                  className="px-3 py-1 border rounded-md text-sm bg-slate-900 text-lime-500"
-                >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>
+                <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="px-3 py-1 border rounded-md text-sm bg-slate-900 text-lime-500">
+                  {categories.map(cat => <option key={cat} value={cat}>
                       {cat === "all" ? "All Categories" : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                    </option>
-                  ))}
+                    </option>)}
                 </select>
               </div>
             </div>
           </CardHeader>
           <CardContent className="bg-slate-950">
-            {filteredHabits.length === 0 ? (
-              <div className="text-center py-12">
+            {filteredHabits.length === 0 ? <div className="text-center py-12">
                 <CheckCircle2 className="mx-auto h-12 w-12 text-muted-foreground opacity-50" />
                 <h3 className="mt-4 text-lg font-medium">No habits yet</h3>
                 <p className="mt-2 text-muted-foreground">
                   Start by creating your first habit to track.
                 </p>
                 <Button onClick={() => {
-                  setSelectedHabit(null);
-                  setShowHabitDialog(true);
-                }} className="mt-4">
+              setSelectedHabit(null);
+              setShowHabitDialog(true);
+            }} className="mt-4">
                   Create New Habit
                 </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {filteredHabits.map(habit => (
-                  <Card 
-                    key={habit.id} 
-                    className={cn(
-                      "border overflow-hidden hover:border-primary/30 transition-all duration-200 cursor-pointer group",
-                      habit.status === "completed" && "border-green-500/30 bg-green-50 dark:bg-green-950/30",
-                      habit.status === "missed" && "border-red-500/30 bg-red-50 dark:bg-red-950/30"
-                    )} 
-                    onClick={() => handleEditHabit(habit)}
-                  >
+              </div> : <div className="space-y-3">
+                {filteredHabits.map(habit => <Card key={habit.id} className={cn("border overflow-hidden hover:border-primary/30 transition-all duration-200 cursor-pointer group", habit.status === "completed" && "border-green-500/30 bg-green-50 dark:bg-green-950/30", habit.status === "missed" && "border-red-500/30 bg-red-50 dark:bg-red-950/30")} onClick={() => handleEditHabit(habit)}>
                     <CardContent className="p-4 bg-slate-900">
                       <div className="flex justify-between items-center">
                         <div className="flex items-center gap-3">
-                          <div className={cn(
-                            "h-12 w-12 rounded-full flex items-center justify-center transition-all",
-                            habit.status === "completed" ? "bg-green-500/20" : 
-                            habit.status === "missed" ? "bg-red-500/20" : "bg-muted"
-                          )}>
+                          <div className={cn("h-12 w-12 rounded-full flex items-center justify-center transition-all", habit.status === "completed" ? "bg-green-500/20" : habit.status === "missed" ? "bg-red-500/20" : "bg-muted")}>
                             {getStatusIcon(habit.status)}
                           </div>
                           <div>
@@ -376,34 +348,25 @@ const Habits = () => {
                             {habit.category}
                           </Badge>
                           
-                          {habit.status === "pending" && (
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                              <Button size="sm" onClick={(e) => {
-                                e.stopPropagation();
-                                completeHabit(habit.id);
-                              }}>
+                          {habit.status === "pending" && <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Button size="sm" onClick={e => {
+                        e.stopPropagation();
+                        completeHabit(habit.id);
+                      }}>
                                 Complete
                               </Button>
-                              <Button 
-                                size="sm" 
-                                variant="outline" 
-                                className="text-destructive border-destructive/30 hover:bg-destructive/10" 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  missHabit(habit.id);
-                                }}
-                              >
+                              <Button size="sm" variant="outline" className="text-destructive border-destructive/30 hover:bg-destructive/10" onClick={e => {
+                        e.stopPropagation();
+                        missHabit(habit.id);
+                      }}>
                                 Skip
                               </Button>
-                            </div>
-                          )}
+                            </div>}
                         </div>
                       </div>
                     </CardContent>
-                  </Card>
-                ))}
-              </div>
-            )}
+                  </Card>)}
+              </div>}
           </CardContent>
         </Card>
 
@@ -417,8 +380,8 @@ const Habits = () => {
           </CardHeader>
           <CardContent className="bg-slate-950">
             <Tabs value={statisticsTab} onValueChange={setStatisticsTab}>
-              <TabsList className="grid w-full grid-cols-4 mb-6">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-4 mb-6 py-0 items-center ">
+                <TabsTrigger value="overview" className="my-0">Overview</TabsTrigger>
                 <TabsTrigger value="trends">Trends</TabsTrigger>
                 <TabsTrigger value="categories">Categories</TabsTrigger>
                 <TabsTrigger value="streaks">Streaks</TabsTrigger>
@@ -444,14 +407,7 @@ const Habits = () => {
         </Card>
       </div>
       
-      <HabitCreationDialog 
-        open={showHabitDialog} 
-        onOpenChange={setShowHabitDialog} 
-        onHabitCreate={handleCreateHabit} 
-        initialHabit={selectedHabit} 
-      />
-    </ModernAppLayout>
-  );
+      <HabitCreationDialog open={showHabitDialog} onOpenChange={setShowHabitDialog} onHabitCreate={handleCreateHabit} initialHabit={selectedHabit} />
+    </ModernAppLayout>;
 };
-
 export default Habits;
