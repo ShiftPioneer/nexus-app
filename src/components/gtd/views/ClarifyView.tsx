@@ -59,7 +59,7 @@ const ClarifyView: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {decisionCards.map(card => <Droppable key={card.id} droppableId={card.id}>
               {(provided, snapshot) => <div ref={provided.innerRef} className="bg-slate-900 rounded-lg border">
-                  <div className="p-4 space-y-3 bg-slate-900">
+                  <div className="p-4 space-y-3 bg-slate-900 rounded-lg">
                     <div className="flex flex-col items-center text-center">
                       {card.icon}
                       <h3 className="text-white font-semibold mt-3">{card.title}</h3>
