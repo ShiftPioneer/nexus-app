@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,17 +5,20 @@ import { Calendar, Clock, XCircle, Award, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-
 interface FocusSessionHistoryProps {
   sessions: FocusSession[];
   onDeleteSession?: (sessionId: string) => void;
 }
-
-const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onDeleteSession }) => {
+const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({
+  sessions,
+  onDeleteSession
+}) => {
   const [selectedSession, setSelectedSession] = useState<FocusSession | null>(null);
   const [filterCategory, setFilterCategory] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<"all" | "today" | "week" | "month">("all");
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
 
   // Get unique categories from sessions
   const categories = [...new Set(sessions.map(session => session.category))];
@@ -31,26 +33,21 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onD
     // Apply date range filter
     const sessionDate = new Date(session.date);
     const today = new Date();
-    
     if (dateRange === "today") {
       return sessionDate.setHours(0, 0, 0, 0) === today.setHours(0, 0, 0, 0);
-    } 
-    
+    }
     if (dateRange === "week") {
       const pastWeek = new Date();
       pastWeek.setDate(pastWeek.getDate() - 7);
       return sessionDate >= pastWeek;
     }
-    
     if (dateRange === "month") {
       const pastMonth = new Date();
       pastMonth.setMonth(pastMonth.getMonth() - 1);
       return sessionDate >= pastMonth;
     }
-    
     return true;
   });
-
   const handleDeleteSession = (id: string) => {
     if (onDeleteSession) {
       onDeleteSession(id);
@@ -61,11 +58,9 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onD
       });
     }
   };
-
   const handleViewSession = (session: FocusSession) => {
     setSelectedSession(session);
   };
-
   const formatDuration = (minutes: number) => {
     if (minutes < 60) {
       return `${minutes} min`;
@@ -74,11 +69,9 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onD
     const mins = minutes % 60;
     return `${hours}h ${mins > 0 ? `${mins}m` : ""}`;
   };
-
-  return (
-    <>
-      <Card>
-        <CardHeader>
+  return <>
+      <Card className="bg-slate-950">
+        <CardHeader className="bg-slate-950 rounded-lg">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <CardTitle className="flex items-center gap-2">
               <Clock className="h-5 w-5 text-primary" />
@@ -86,22 +79,12 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onD
             </CardTitle>
             
             <div className="flex flex-wrap gap-2">
-              <select 
-                className="rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-                value={filterCategory || ""}
-                onChange={(e) => setFilterCategory(e.target.value || null)}
-              >
+              <select value={filterCategory || ""} onChange={e => setFilterCategory(e.target.value || null)} className="rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm text-lime-600">
                 <option value="">All Categories</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>{category}</option>
-                ))}
+                {categories.map(category => <option key={category} value={category}>{category}</option>)}
               </select>
               
-              <select 
-                className="rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm"
-                value={dateRange}
-                onChange={(e) => setDateRange(e.target.value as any)}
-              >
+              <select value={dateRange} onChange={e => setDateRange(e.target.value as any)} className="rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm text-lime-600">
                 <option value="all">All Time</option>
                 <option value="today">Today</option>
                 <option value="week">This Week</option>
@@ -111,18 +94,11 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onD
           </div>
         </CardHeader>
         
-        <CardContent>
-          {filteredSessions.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
+        <CardContent className="rounded-lg bg-slate-950">
+          {filteredSessions.length === 0 ? <div className="text-center py-8 text-muted-foreground">
               <p>No focus sessions found for the selected filters.</p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {filteredSessions.map((session) => (
-                <div 
-                  key={session.id} 
-                  className="flex flex-col sm:flex-row sm:items-center justify-between border rounded-lg p-4 hover:bg-accent/50 transition-colors"
-                >
+            </div> : <div className="space-y-4">
+              {filteredSessions.map(session => <div key={session.id} className="flex flex-col sm:flex-row sm:items-center justify-between border rounded-lg p-4 hover:bg-accent/50 transition-colors">
                   <div className="flex-1 mb-2 sm:mb-0">
                     <div className="flex items-center gap-2">
                       <div className={`h-3 w-3 rounded-full ${getCategoryColor(session.category)}`} />
@@ -145,26 +121,15 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onD
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => handleViewSession(session)}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => handleViewSession(session)}>
                       Details
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm"
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                      onClick={() => handleDeleteSession(session.id)}
-                    >
+                    <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDeleteSession(session.id)}>
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                </div>)}
+            </div>}
         </CardContent>
       </Card>
       
@@ -178,8 +143,7 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onD
             </DialogDescription>
           </DialogHeader>
           
-          {selectedSession && (
-            <div className="space-y-4">
+          {selectedSession && <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Category</p>
@@ -202,10 +166,9 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onD
               <div className="pt-4 border-t">
                 <h4 className="font-medium mb-2">Session Performance</h4>
                 <div className="h-4 bg-accent rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-primary rounded-full" 
-                    style={{ width: `${Math.min(100, selectedSession.xpEarned / selectedSession.duration * 100)}%` }}
-                  />
+                  <div className="h-full bg-primary rounded-full" style={{
+                width: `${Math.min(100, selectedSession.xpEarned / selectedSession.duration * 100)}%`
+              }} />
                 </div>
                 <p className="text-xs text-muted-foreground mt-1 text-center">
                   {Math.round(selectedSession.xpEarned / selectedSession.duration * 100)}% efficiency
@@ -218,14 +181,11 @@ const FocusSessionHistory: React.FC<FocusSessionHistoryProps> = ({ sessions, onD
                   {selectedSession.notes || "No notes recorded for this session."}
                 </p>
               </div>
-            </div>
-          )}
+            </div>}
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 const getCategoryColor = (category: string): string => {
   switch (category) {
     case "Deep Work":
@@ -240,5 +200,4 @@ const getCategoryColor = (category: string): string => {
       return "bg-gray-500";
   }
 };
-
 export default FocusSessionHistory;
