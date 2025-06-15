@@ -69,7 +69,7 @@ const TasksSection = () => {
       console.error("Failed to complete task:", error);
     }
   };
-  return <Card className="border-slate-300">
+  return <Card className="border-slate-300 bg-slate-950">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 bg-slate-950 rounded-lg">
         <CardTitle className="text-lg font-semibold flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
