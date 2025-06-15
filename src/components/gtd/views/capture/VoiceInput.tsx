@@ -18,6 +18,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
   const [isSupported, setIsSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
+  const finalTranscriptRef = useRef('');
 
   useEffect(() => {
     // Check if speech recognition is supported
@@ -25,31 +26,31 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     
     if (SpeechRecognition) {
       setIsSupported(true);
-      recognitionRef.current = new SpeechRecognition();
+      const recognition = new SpeechRecognition();
+      recognitionRef.current = recognition;
       
       // Configure speech recognition
-      recognitionRef.current.continuous = true;
-      recognitionRef.current.interimResults = true;
-      recognitionRef.current.lang = 'en-US';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
 
       // Handle speech results
-      recognitionRef.current.onresult = (event: any) => {
-        let finalTranscript = '';
+      recognition.onresult = (event: any) => {
+        let interimTranscript = '';
         
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
-            finalTranscript += transcript;
+            finalTranscriptRef.current += transcript;
+          } else {
+            interimTranscript += transcript;
           }
         }
-
-        if (finalTranscript) {
-          onTranscription(finalTranscript);
-        }
+        onTranscription(finalTranscriptRef.current + interimTranscript);
       };
 
       // Handle errors
-      recognitionRef.current.onerror = (event: any) => {
+      recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         onRecordingStateChange?.(false);
         
@@ -77,7 +78,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
       };
 
       // Handle speech end
-      recognitionRef.current.onend = () => {
+      recognition.onend = () => {
         onRecordingStateChange?.(false);
       };
     } else {
@@ -87,6 +88,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
+        recognitionRef.current = null;
       }
     };
   }, [onTranscription, onRecordingStateChange, toast]);
@@ -102,13 +104,9 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     }
 
     try {
+      finalTranscriptRef.current = '';
       recognitionRef.current.start();
       onRecordingStateChange?.(true);
-      
-      toast({
-        title: "Listening...",
-        description: "Speak clearly to capture your input"
-      });
     } catch (error) {
       console.error('Error starting speech recognition:', error);
       toast({
@@ -122,12 +120,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
   const stopRecording = () => {
     if (recognitionRef.current && isRecording) {
       recognitionRef.current.stop();
-      onRecordingStateChange?.(false);
-      
-      toast({
-        title: "Recording stopped",
-        description: "Voice input captured successfully"
-      });
     }
   };
 

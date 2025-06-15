@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useGTD } from "../../GTDContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,20 +25,39 @@ const QuickCaptureForm = () => {
   const [isRecordingTitle, setIsRecordingTitle] = useState(false);
   const [isRecordingDescription, setIsRecordingDescription] = useState(false);
 
+  const baseTitleRef = useRef("");
+  const baseDescriptionRef = useRef("");
+
   const handleVoiceTranscriptionTitle = (text: string) => {
-    setTitle(prev => prev ? `${prev} ${text}` : text);
-    toast({
-      title: "Voice input added to title",
-      description: "Your speech has been transcribed"
-    });
+    setTitle(baseTitleRef.current + text);
+  };
+
+  const handleRecordingStateChangeTitle = (isRecording: boolean) => {
+    setIsRecordingTitle(isRecording);
+    if (isRecording) {
+      baseTitleRef.current = title ? `${title.trim()} ` : "";
+    } else if (title.trim() && title.trim() !== baseTitleRef.current.trim()) {
+      toast({
+        title: "Voice input captured",
+        description: "Your speech has been added to the title.",
+      });
+    }
   };
 
   const handleVoiceTranscriptionDescription = (text: string) => {
-    setDescription(prev => prev ? `${prev} ${text}` : text);
-    toast({
-      title: "Voice input added to description",
-      description: "Your speech has been transcribed"
-    });
+    setDescription(baseDescriptionRef.current + text);
+  };
+
+  const handleRecordingStateChangeDescription = (isRecording: boolean) => {
+    setIsRecordingDescription(isRecording);
+    if (isRecording) {
+      baseDescriptionRef.current = description ? `${description.trim()} ` : "";
+    } else if (description.trim() && description.trim() !== baseDescriptionRef.current.trim()) {
+      toast({
+        title: "Voice input captured",
+        description: "Your speech has been added to the details.",
+      });
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -96,7 +114,7 @@ const QuickCaptureForm = () => {
               <VoiceInput 
                 onTranscription={handleVoiceTranscriptionTitle}
                 isRecording={isRecordingTitle}
-                onRecordingStateChange={setIsRecordingTitle}
+                onRecordingStateChange={handleRecordingStateChangeTitle}
               />
             </div>
           </div>
@@ -114,7 +132,7 @@ const QuickCaptureForm = () => {
                 <VoiceInput 
                   onTranscription={handleVoiceTranscriptionDescription}
                   isRecording={isRecordingDescription}
-                  onRecordingStateChange={setIsRecordingDescription}
+                  onRecordingStateChange={handleRecordingStateChangeDescription}
                 />
               </div>
             </div>
