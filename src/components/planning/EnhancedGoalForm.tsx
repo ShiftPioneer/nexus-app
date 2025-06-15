@@ -259,7 +259,7 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
 
               {timeframeQuestions[timeframe]?.map(question => <div key={question.key} className="space-y-2">
                   <label className="text-sm font-medium text-cyan-600">{question.label}</label>
-                  <Textarea value={formData[question.key] || ""} onChange={e => handleInputChange(question.key, e.target.value)} placeholder={question.placeholder} rows={3} />
+                  <Textarea value={formData[question.key] || ""} onChange={e => handleInputChange(question.key, e.target.value)} placeholder={question.placeholder} rows={3} className="bg-slate-900" />
                 </div>)}
             </div>
 
