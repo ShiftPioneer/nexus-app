@@ -21,7 +21,7 @@ const JournalSection = () => {
       console.error("Failed to load focus sessions:", error);
     }
   }, []);
-  return <Card className="border-slate-300">
+  return <Card className="border-slate-300 bg-slate-950">
       <CardHeader className="pb-2 bg-slate-950 border-slate-300 rounded-lg">
         <div className="flex justify-between items-center">
           <CardTitle className="text-lg font-medium">Today's Focus</CardTitle>
