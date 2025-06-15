@@ -11,8 +11,8 @@ const WeekTimeColumn: React.FC<WeekTimeColumnProps> = ({
   formatHour
 }) => {
   return <div className="border-r border-white/5">
-      {hours.map(hour => <div key={hour} className="h-[72px] relative">
-          <span className="absolute -top-3 w-full text-right pr-2 text-sm font-mono text-slate-500">
+      {hours.map((hour, index) => <div key={hour} className="h-[72px] relative">
+          <span className={`absolute w-full text-right pr-2 text-sm font-mono text-slate-500 ${index === 0 ? 'top-0' : '-top-3'}`}>
             {formatHour(hour)}
           </span>
           <div className="border-b border-white/5 h-full"></div>

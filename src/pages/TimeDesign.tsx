@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -48,6 +47,20 @@ const TimeDesign = () => {
     setEditingActivity(null);
     setShowActivityDialog(true);
   };
+
+  const handleCreateActivityFromCalendar = (data: { startDate: Date; endDate: Date; startTime: string; endTime: string; }) => {
+    setEditingActivity({
+        id: '', // temporary id indicates a new pre-filled activity
+        title: '',
+        description: '',
+        category: 'work',
+        color: 'purple',
+        syncWithGoogleCalendar: false,
+        ...data,
+    });
+    setShowActivityDialog(true);
+  };
+
   const handleSaveActivity = (activity: TimeActivity) => {
     if (activity.id && activities.find(a => a.id === activity.id)) {
       // Update existing activity
@@ -146,7 +159,13 @@ const TimeDesign = () => {
               
               <Card className="overflow-hidden bg-slate-950 border-slate-800 shadow-2xl shadow-black/25">
                 <CardContent className="p-0">
-                  <TimeDesignCalendar currentDate={currentDate} viewType={viewType} activities={activities} onEditActivity={handleEditActivity} />
+                  <TimeDesignCalendar 
+                    currentDate={currentDate} 
+                    viewType={viewType} 
+                    activities={activities} 
+                    onEditActivity={handleEditActivity} 
+                    onCreateActivity={handleCreateActivityFromCalendar}
+                  />
                 </CardContent>
               </Card>
             </TabsContent>

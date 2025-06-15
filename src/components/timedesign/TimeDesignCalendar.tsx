@@ -1,4 +1,3 @@
-
 import React from "react";
 import { format, startOfWeek, addDays, startOfDay, endOfDay, isSameDay, isWithinInterval } from "date-fns";
 import DayCalendarView from "./calendar/DayCalendarView";
@@ -9,13 +8,15 @@ interface TimeDesignCalendarProps {
   viewType: "day" | "week";
   activities: TimeActivity[];
   onEditActivity: (activity: TimeActivity) => void;
+  onCreateActivity: (data: { startDate: Date; endDate: Date; startTime: string; endTime: string; }) => void;
 }
 
 const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
   currentDate,
   viewType,
   activities,
-  onEditActivity
+  onEditActivity,
+  onCreateActivity
 }) => {
   const hours = Array.from({ length: 24 }, (_, i) => i);
   const weekStart = startOfWeek(currentDate);
@@ -84,6 +85,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
             filteredActivities={filteredActivities}
             getActivityStyle={getActivityStyle}
             onEditActivity={onEditActivity}
+            onCreateActivity={onCreateActivity}
           />
         ) : (
           <WeekCalendarView
@@ -94,6 +96,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
             filteredActivities={filteredActivities}
             getActivityStyle={getActivityStyle}
             onEditActivity={onEditActivity}
+            onCreateActivity={onCreateActivity}
           />
         )}
     </div>

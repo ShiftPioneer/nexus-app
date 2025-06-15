@@ -1,4 +1,3 @@
-
 import React from "react";
 import WeekHeader from "./WeekHeader";
 import WeekTimeColumn from "./WeekTimeColumn";
@@ -16,6 +15,7 @@ interface WeekCalendarViewProps {
     className: string;
   };
   onEditActivity: (activity: TimeActivity) => void;
+  onCreateActivity: (data: { startDate: Date; endDate: Date; startTime: string; endTime: string; }) => void;
 }
 
 const WeekCalendarView: React.FC<WeekCalendarViewProps> = ({
@@ -25,7 +25,8 @@ const WeekCalendarView: React.FC<WeekCalendarViewProps> = ({
   getCurrentTimePosition,
   filteredActivities,
   getActivityStyle,
-  onEditActivity
+  onEditActivity,
+  onCreateActivity
 }) => {
   return (
     <div className="min-h-[1728px] overflow-x-auto">
@@ -44,6 +45,7 @@ const WeekCalendarView: React.FC<WeekCalendarViewProps> = ({
             getActivityStyle={getActivityStyle}
             getCurrentTimePosition={getCurrentTimePosition}
             onEditActivity={onEditActivity}
+            onCreateActivity={onCreateActivity}
           />
         ))}
       </div>

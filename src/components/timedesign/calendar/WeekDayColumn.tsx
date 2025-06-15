@@ -1,5 +1,4 @@
-
-import React from "react";
+import React, { useRef, useState, MouseEvent } from "react";
 import { isSameDay } from "date-fns";
 import ActivityBlock from "./ActivityBlock";
 import CurrentTimeIndicator from "./CurrentTimeIndicator";
@@ -16,6 +15,7 @@ interface WeekDayColumnProps {
   };
   getCurrentTimePosition: () => number;
   onEditActivity: (activity: TimeActivity) => void;
+  onCreateActivity: (data: { startDate: Date; endDate: Date; startTime: string; endTime: string; }) => void;
 }
 
 const WeekDayColumn: React.FC<WeekDayColumnProps> = ({
@@ -25,12 +25,68 @@ const WeekDayColumn: React.FC<WeekDayColumnProps> = ({
   activities,
   getActivityStyle,
   getCurrentTimePosition,
-  onEditActivity
+  onEditActivity,
+  onCreateActivity
 }) => {
   const dayActivities = activities.filter(activity => isSameDay(activity.startDate, day));
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [dragData, setDragData] = useState<{ startY: number; currentY: number } | null>(null);
+
+  const pixelsToTime = (pixels: number) => {
+    const totalMinutes = pixels / 1.2;
+    const hour = Math.floor(totalMinutes / 60);
+    const minute = Math.round((totalMinutes % 60) / 15) * 15;
+    const normalizedHour = hour > 23 ? 23 : hour;
+    const normalizedMinute = minute >= 60 ? 45 : minute;
+    return `${String(normalizedHour).padStart(2, "0")}:${String(normalizedMinute).padStart(2, "0")}`;
+  };
+
+  const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const startY = e.clientY - rect.top;
+    setDragData({ startY, currentY: startY });
+  };
+
+  const handleMouseMove = (e: MouseEvent<HTMLDivElement>) => {
+    if (dragData) {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      const currentY = e.clientY - rect.top;
+      setDragData({ ...dragData, currentY });
+    }
+  };
+
+  const handleMouseUp = () => {
+    if (dragData && Math.abs(dragData.startY - dragData.currentY) > 10) { // minimum drag distance
+      const start = Math.min(dragData.startY, dragData.currentY);
+      const end = Math.max(dragData.startY, dragData.currentY);
+      
+      const startTime = pixelsToTime(start);
+      const endTime = pixelsToTime(end);
+
+      if (startTime !== endTime) {
+        onCreateActivity({
+            startDate: day,
+            endDate: day,
+            startTime,
+            endTime
+        });
+      }
+    }
+    setDragData(null);
+  };
 
   return (
-    <div key={dayIndex} className="border-r border-white/5 relative">
+    <div 
+      key={dayIndex} 
+      className="border-r border-white/5 relative"
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
       {hours.map(hour => (
         <div key={hour} className="border-b border-white/5 h-[72px] relative">
           <div className="h-full relative">
@@ -51,6 +107,18 @@ const WeekDayColumn: React.FC<WeekDayColumnProps> = ({
         </div>
       )}
       
+      {dragData && (
+        <div
+          className="absolute w-full bg-primary/30 border-2 border-primary rounded-lg z-20 pointer-events-none"
+          style={{
+            top: `${Math.min(dragData.startY, dragData.currentY)}px`,
+            height: `${Math.abs(dragData.currentY - dragData.startY)}px`,
+            left: "0",
+            right: "0"
+          }}
+        />
+      )}
+
       <div className="absolute inset-0">
         {dayActivities.map(activity => (
           <ActivityBlock
