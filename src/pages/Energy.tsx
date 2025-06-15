@@ -2,8 +2,6 @@
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { Zap, BarChart2, Dumbbell } from "lucide-react";
 import { DashboardTab } from "@/components/energy/DashboardTab";
 import { WorkoutsTab } from "@/components/energy/WorkoutsTab";
@@ -28,50 +26,39 @@ const Energy = () => {
           onValueChange={setActiveTab}
           className="w-full"
         >
-          <div className="bg-card border rounded-lg overflow-x-auto mb-6 w-fit">
-            <TabsList className="justify-start rounded-none border-b bg-muted/50 p-0 w-fit">
+          <TabsList>
               <TabsTrigger 
                 value="dashboard"
-                className={cn(
-                  "data-[state=active]:bg-background rounded-none border-r px-6 py-3",
-                  "flex items-center gap-2"
-                )}
+                className="flex items-center gap-2"
               >
                 <Zap className="h-4 w-4" />
                 Dashboard
               </TabsTrigger>
               <TabsTrigger 
                 value="workouts"
-                className={cn(
-                  "data-[state=active]:bg-background rounded-none border-r px-6 py-3",
-                  "flex items-center gap-2"
-                )}
+                className="flex items-center gap-2"
               >
                 <Dumbbell className="h-4 w-4" />
                 Workouts
               </TabsTrigger>
               <TabsTrigger 
                 value="analytics"
-                className={cn(
-                  "data-[state=active]:bg-background rounded-none px-6 py-3",
-                  "flex items-center gap-2"
-                )}
+                className="flex items-center gap-2"
               >
                 <BarChart2 className="h-4 w-4" />
                 Analytics
               </TabsTrigger>
             </TabsList>
-          </div>
           
-          <TabsContent value="dashboard" className="mt-0">
+          <TabsContent value="dashboard" className="mt-6">
             <DashboardTab />
           </TabsContent>
           
-          <TabsContent value="workouts" className="mt-0">
+          <TabsContent value="workouts" className="mt-6">
             <WorkoutsTab />
           </TabsContent>
           
-          <TabsContent value="analytics" className="mt-0">
+          <TabsContent value="analytics" className="mt-6">
             <AnalyticsTab />
           </TabsContent>
         </Tabs>

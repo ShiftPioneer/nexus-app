@@ -97,7 +97,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
             tooltip={isCollapsed ? item.title : undefined} 
             className={cn(
               "hover:bg-slate-800 transition-all duration-300 group", 
-              currentPath === item.path ? "bg-slate-800 text-secondary" : "text-slate-300",
+              currentPath === item.path ? "bg-slate-800 text-primary" : "text-slate-300",
               isCollapsed ? "justify-center" : "px-2"
             )}
           >
@@ -114,7 +114,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
                   <item.icon 
                     className={cn(
                       "h-5 w-5 transition-transform transform duration-300", 
-                      currentPath === item.path ? "text-secondary" : "text-slate-300"
+                      currentPath === item.path ? "text-primary" : "text-slate-300"
                     )} 
                   />
                 </motion.div>

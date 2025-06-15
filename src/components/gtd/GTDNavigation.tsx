@@ -1,13 +1,9 @@
 
 import React from "react";
-import { useGTD } from "./GTDContext";
+import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Inbox, CheckCircle2, LayoutGrid, RefreshCw, Play } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 const GTDNavigation = () => {
-  const { activeView, setActiveView } = useGTD();
-  
   const navItems = [
     {
       title: "Capture",
@@ -42,25 +38,14 @@ const GTDNavigation = () => {
   ];
   
   return (
-    <div className="flex flex-wrap gap-2 mb-8">
+    <TabsList>
       {navItems.map(item => (
-        <motion.button
-          key={item.view}
-          onClick={() => setActiveView(item.view)}
-          className={cn(
-            "flex items-center gap-2 px-4 py-2 rounded-md transition-all duration-300",
-            activeView === item.view 
-              ? "bg-blue-600 text-white" 
-              : "bg-slate-800 text-slate-200 hover:bg-slate-700"
-          )}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <item.icon className="h-5 w-5" />
+        <TabsTrigger key={item.view} value={item.view} className="flex items-center gap-2">
+          <item.icon className="h-4 w-4" />
           <span>{item.title}</span>
-        </motion.button>
+        </TabsTrigger>
       ))}
-    </div>
+    </TabsList>
   );
 };
 

@@ -210,7 +210,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
             
             <TabsContent value="planning" className="space-y-4 pt-4">
               <div>
-                <label className="text-sm font-medium mb-1 block bg-slate-900 text-orange-600">Link to Goal</label>
+                <label className="text-sm font-medium mb-1 block bg-slate-900 text-lime-600">Link to Goal</label>
                 <GoalSelector value={goalId} onValueChange={setGoalId} />
                 
                 {goalId && goalId !== "none" && <div className="mt-2 text-xs text-muted-foreground">
@@ -219,7 +219,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               </div>
               
               <div>
-                <label className="text-sm font-medium mb-1 block text-orange-600 text-orange-600 ">Link to Project</label>
+                <label className="text-sm font-medium mb-1 block text-lime-600">Link to Project</label>
                 <ProjectSelector value={project} onValueChange={setProject} />
               </div>
             </TabsContent>
@@ -239,7 +239,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               </Button>}
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="text-orange-600">
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="text-lime-600">
               Cancel
             </Button>
             <Button onClick={handleSubmit}>

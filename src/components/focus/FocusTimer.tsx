@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -44,7 +45,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
         {/* Mode selection */}
         <div className="rounded-lg p-1 bg-slate-900">
           <div className="grid grid-cols-3 gap-1">
-            <Button variant={timerMode === "focus" ? "default" : "ghost"} className={`w-full ${timerMode === "focus" ? "bg-orange-500 hover:bg-orange-600" : ""}`} onClick={() => onModeChange("focus")}>
+            <Button variant={timerMode === "focus" ? "default" : "ghost"} className={`w-full ${timerMode === "focus" ? "bg-lime-600 hover:bg-lime-700" : ""}`} onClick={() => onModeChange("focus")}>
               Focus
             </Button>
             <Button variant={timerMode === "shortBreak" ? "default" : "ghost"} className={`w-full ${timerMode === "shortBreak" ? "bg-green-500 hover:bg-green-600" : ""}`} onClick={() => onModeChange("shortBreak")}>
@@ -58,16 +59,16 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
 
         {/* Timer duration selection (only in focus mode) */}
         {timerMode === "focus" && <div className="grid grid-cols-5 gap-2">
-            <Button variant={timerDuration === 25 * 60 ? "default" : "outline"} size="sm" onClick={() => onDurationChange(25)} className={timerDuration === 25 * 60 ? "bg-orange-500 hover:bg-orange-600" : ""}>
+            <Button variant={timerDuration === 25 * 60 ? "default" : "outline"} size="sm" onClick={() => onDurationChange(25)} className={timerDuration === 25 * 60 ? "bg-lime-600 hover:bg-lime-700" : ""}>
               25m
             </Button>
-            <Button variant={timerDuration === 45 * 60 ? "default" : "outline"} size="sm" onClick={() => onDurationChange(45)} className={timerDuration === 45 * 60 ? "bg-orange-500 hover:bg-orange-600" : ""}>
+            <Button variant={timerDuration === 45 * 60 ? "default" : "outline"} size="sm" onClick={() => onDurationChange(45)} className={timerDuration === 45 * 60 ? "bg-lime-600 hover:bg-lime-700" : ""}>
               45m
             </Button>
-            <Button variant={timerDuration === 60 * 60 ? "default" : "outline"} size="sm" onClick={() => onDurationChange(60)} className={timerDuration === 60 * 60 ? "bg-orange-500 hover:bg-orange-600" : ""}>
+            <Button variant={timerDuration === 60 * 60 ? "default" : "outline"} size="sm" onClick={() => onDurationChange(60)} className={timerDuration === 60 * 60 ? "bg-lime-600 hover:bg-lime-700" : ""}>
               60m
             </Button>
-            <Button variant={timerDuration === 90 * 60 ? "default" : "outline"} size="sm" onClick={() => onDurationChange(90)} className={timerDuration === 90 * 60 ? "bg-orange-500 hover:bg-orange-600" : ""}>
+            <Button variant={timerDuration === 90 * 60 ? "default" : "outline"} size="sm" onClick={() => onDurationChange(90)} className={timerDuration === 90 * 60 ? "bg-lime-600 hover:bg-lime-700" : ""}>
               90m
             </Button>
             <Button variant="outline" size="sm">
@@ -98,7 +99,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
             {/* Progress circle */}
             <svg className="w-full h-full" viewBox="0 0 100 100">
               <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground/20" />
-              <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - 283 * progress / 100} transform="rotate(-90 50 50)" className={timerMode === "focus" ? "text-orange-500" : timerMode === "shortBreak" ? "text-green-500" : "text-blue-500"} />
+              <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="5" strokeLinecap="round" strokeDasharray="283" strokeDashoffset={283 - 283 * progress / 100} transform="rotate(-90 50 50)" className={timerMode === "focus" ? "text-lime-600" : timerMode === "shortBreak" ? "text-green-500" : "text-blue-500"} />
             </svg>
             
             {/* Timer text */}
@@ -116,7 +117,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
           <Button variant="outline" size="icon" onClick={onResetTimer}>
             <RotateCcw className="h-4 w-4" />
           </Button>
-          <Button onClick={onToggleTimer} className="bg-orange-500 hover:bg-orange-600">
+          <Button onClick={onToggleTimer} className="bg-lime-600 hover:bg-lime-700">
             {isRunning ? <>
                 <Pause className="h-4 w-4 mr-1" />
                 Pause
