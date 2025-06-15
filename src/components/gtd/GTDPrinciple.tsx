@@ -16,7 +16,7 @@ const GTDPrinciple: React.FC = () => {
     title: "1. Capture",
     description: "Collect everything that has your attention in a trusted system outside your mind.",
     icon: Inbox,
-    color: "bg-blue-500/20 border-blue-500/50 text-blue-500"
+    color: "bg-primary/20 border-primary/50 text-primary"
   }, {
     key: "clarify",
     title: "2. Clarify",

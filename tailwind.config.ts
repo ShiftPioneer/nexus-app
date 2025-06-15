@@ -217,6 +217,21 @@ export default {
           950: '#1a2e05'
         },
 
+        // Remap cyan to orange to fix hardcoded -cyan classes globally
+        cyan: {
+          50: '#FFF7ED',  // From primary color
+          100: '#FFEDD5',
+          200: '#FED7AA',
+          300: '#FDBA74',
+          400: '#FB923C',
+          500: '#FF6500',
+          600: '#EA580C',
+          700: '#C2410C',
+          800: '#9A3412',
+          900: '#7C2D12',
+          950: '#431407'
+        },
+
         slate: {
           // normal tailwind slate palette (make sure 950 is defined)
           50: '#f8fafc',
@@ -332,4 +347,3 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
-

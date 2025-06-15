@@ -462,7 +462,7 @@ const Settings = () => {
           <SettingSection title="Account" icon={Lock} sectionKey="account">
             <div className="space-y-4">
               <div className="p-4 bg-muted/50 rounded-lg">
-                <h4 className="font-medium mb-2">Account Status</h4>
+                <h4 className="font-medium mb-2 text-orange-600">Account Status</h4>
                 <p className="text-sm text-muted-foreground mb-3">Pro Plan - All features unlocked</p>
                 <Button variant="outline" size="sm">Manage Subscription</Button>
               </div>
