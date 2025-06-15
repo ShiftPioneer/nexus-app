@@ -86,7 +86,7 @@ const EngageView = () => {
         <TasksSection title="Next Actions" description="Ready to be scheduled or done next" icon={<Clock className="h-5 w-5 text-primary" />} tasks={nextActions} emptyMessage="No next actions available" emptyActionText="Process Your Inbox" onEmptyAction={navigateToActions} onStartFocus={handleStartFocus} onCompleteTask={handleCompleteTask} onMoveToToday={handleMoveToToday} />
       </motion.div>
 
-      <Card>
+      <Card className="bg-slate-950">
         <CardHeader className="bg-slate-950 rounded-lg">
           <CardTitle>Your Progress</CardTitle>
           <CardDescription>
