@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -243,11 +244,11 @@ const Settings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="name" className="bg-background-DEFAULT text-orange-600">Display Name</Label>
+                  <Label htmlFor="name" className="text-orange-600">Display Name</Label>
                   <Input id="name" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} className="bg-slate-900" />
                 </div>
                 <div>
-                  <Label htmlFor="email" className="text-orange-600 ">Email</Label>
+                  <Label htmlFor="email" className="text-orange-600">Email</Label>
                   <Input id="email" type="email" value={email} disabled />
                 </div>
                 <Button onClick={handleSaveProfile} disabled={isSaving} className="w-full">
@@ -255,14 +256,14 @@ const Settings = () => {
                 </Button>
               </div>
               <div>
-                <Label className="text-orange-600 ">Avatar</Label>
+                <Label className="text-orange-600">Avatar</Label>
                 <AvatarSelector currentAvatar={avatar} onAvatarChange={handleAvatarChange} />
               </div>
             </div>
             
             <div className="space-y-4 border-t pt-4">
               <div className="space-y-2">
-                <Label className="text-orange-600 ">Theme</Label>
+                <Label className="text-orange-600">Theme</Label>
                 <Select value={profileData?.theme as Theme || "system"} onValueChange={(value: Theme) => {
                 setTheme(value);
                 const profile = {
@@ -299,7 +300,7 @@ const Settings = () => {
               </div>
               
               <div className="space-y-2">
-                <Label className="text-orange-600 ">Accent Color</Label>
+                <Label className="text-orange-600">Accent Color</Label>
                 <Select value={settings.appearance.accentColor}>
                   <SelectTrigger>
                     <SelectValue />
