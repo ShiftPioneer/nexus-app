@@ -96,7 +96,7 @@ export function BookDialog({
     }
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-slate-900 rounded-lg">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-lg bg-slate-950">
         <DialogHeader>
           <DialogTitle>{book ? "Edit Book" : "Add New Book"}</DialogTitle>
           <DialogDescription>
@@ -108,22 +108,22 @@ export function BookDialog({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="title">Book Title</Label>
-                <Input id="title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter book title" required />
+                <Label htmlFor="title" className="bg-background-DEFAULT text-cyan-600">Book Title</Label>
+                <Input id="title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter book title" required className="text-cyan-600 bg-slate-900" />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="author">Author</Label>
-                <Input id="author" value={author} onChange={e => setAuthor(e.target.value)} placeholder="Enter author name" required />
+                <Label htmlFor="author" className="text-cyan-600">Author</Label>
+                <Input id="author" value={author} onChange={e => setAuthor(e.target.value)} placeholder="Enter author name" required className="text-cyan-600 bg-slate-900" />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
-                <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Brief description of the book" rows={3} />
+                <Label htmlFor="description" className="text-cyan-600">Description</Label>
+                <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Brief description of the book" rows={3} className="text-cyan-600 bg-slate-900" />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="reading-status">Reading Status</Label>
+                <Label htmlFor="reading-status" className="text-cyan-600">Reading Status</Label>
                 <Select value={readingStatus} onValueChange={(value: ReadingStatus) => setReadingStatus(value)}>
                   <SelectTrigger id="reading-status">
                     <SelectValue placeholder="Select status" />
@@ -137,7 +137,7 @@ export function BookDialog({
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="rating">Rating (0-5)</Label>
+                <Label htmlFor="rating" className="text-cyan-600">Rating (0-5)</Label>
                 <div className="flex items-center space-x-1">
                   {[1, 2, 3, 4, 5].map(star => <Button key={star} type="button" variant="ghost" size="sm" className={`p-0 w-8 h-8 ${rating >= star ? 'text-yellow-400' : 'text-gray-300'}`} onClick={() => setRating(star)}>
                       ★
@@ -148,7 +148,7 @@ export function BookDialog({
             
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Book Cover</Label>
+                <Label className="text-cyan-600">Book Cover</Label>
                 <div className="border-2 border-dashed rounded-md p-4 flex flex-col items-center justify-center">
                   {coverImage ? <div className="relative">
                       <img src={coverImage} alt="Book cover" className="max-h-44 object-contain rounded" />
@@ -168,9 +168,9 @@ export function BookDialog({
               </div>
               
               <div className="space-y-2">
-                <Label>Related Skillsets</Label>
+                <Label className="text-cyan-600">Related Skillsets</Label>
                 <div className="flex items-center space-x-2">
-                  <Input value={skillsetInput} onChange={e => setSkillsetInput(e.target.value)} placeholder="e.g., Web Development" className="flex-1" />
+                  <Input value={skillsetInput} onChange={e => setSkillsetInput(e.target.value)} placeholder="e.g., Web Development" className="flex-1 bg-slate-900" />
                   <Button type="button" onClick={handleAddSkillset} variant="outline">
                     Add
                   </Button>
@@ -187,13 +187,13 @@ export function BookDialog({
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="summary">Summary</Label>
-                <Textarea id="summary" value={summary} onChange={e => setSummary(e.target.value)} placeholder="Brief summary of what the book is about" rows={3} />
+                <Label htmlFor="summary" className="text-cyan-600">Summary</Label>
+                <Textarea id="summary" value={summary} onChange={e => setSummary(e.target.value)} placeholder="Brief summary of what the book is about" rows={3} className="text-cyan-600 bg-slate-900" />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="key-lessons">Key Lessons</Label>
-                <Textarea id="key-lessons" value={keyLessons} onChange={e => setKeyLessons(e.target.value)} placeholder="Main takeaways from the book" rows={3} />
+                <Label htmlFor="key-lessons" className="text-cyan-600">Key Lessons</Label>
+                <Textarea id="key-lessons" value={keyLessons} onChange={e => setKeyLessons(e.target.value)} placeholder="Main takeaways from the book" rows={3} className="text-cyan-600 bg-slate-900" />
               </div>
             </div>
           </div>
