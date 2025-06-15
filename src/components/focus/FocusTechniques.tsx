@@ -66,7 +66,7 @@ const FocusTechniques: React.FC<FocusTechniquesProps> = ({
   const [activeTab, setActiveTab] = useState<string>("all");
   const filteredTechniques = activeTab === "all" ? focusTechniques : focusTechniques.filter(t => t.difficulty.toLowerCase() === activeTab.toLowerCase());
   return <>
-      <Card>
+      <Card className="bg-slate-950">
         <CardHeader className="pb-2 bg-slate-950 rounded-lg">
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
