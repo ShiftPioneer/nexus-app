@@ -120,18 +120,18 @@ const CoreValuesSection = () => {
                     <div className="flex justify-between items-start">
                       <h3 className="font-semibold text-lg">{value.name}</h3>
                       <div className="flex space-x-1">
-                        <Button variant="ghost" size="icon" onClick={() => handleEditValue(value)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleEditValue(value)} className="text-cyan-600">
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteValue(value.id)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteValue(value.id)} className="text-red-600">
                           <Trash className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                     <p className="mt-2 text-sm text-muted-foreground">{value.description}</p>
                     <div className="flex items-center mt-4 text-xs text-muted-foreground">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>Last edited: {format(new Date(value.lastEditedAt), 'MMM d, yyyy')}</span>
+                      <Calendar className="h-3 w-3 mr-1 text-lime-600" />
+                      <span className="text-lime-600">Last edited: {format(new Date(value.lastEditedAt), 'MMM d, yyyy')}</span>
                     </div>
                   </div>
                 </Card>)}
