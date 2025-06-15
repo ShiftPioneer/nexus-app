@@ -14,7 +14,7 @@ const JournalEntryCard: React.FC<JournalEntryCardProps> = ({
   onEdit,
   onDelete
 }) => {
-  return <Card className="cursor-pointer hover:bg-accent/20 transition-colors border-slate-300">
+  return <Card className="cursor-pointer transition-colors border-slate-300 bg-slate-900">
       <CardHeader className="pb-2 rounded-lg bg-slate-900">
         <div className="flex justify-between">
           <CardTitle className="text-lg">{entry.title}</CardTitle>

@@ -16,7 +16,7 @@ const JournalStats: React.FC<JournalStatsProps> = ({
     prevDate.setDate(prevDate.getDate() - 1);
     return format(prevDate, "yyyy-MM-dd") === format(entry.date, "yyyy-MM-dd") ? streak + 1 : streak;
   }, 0);
-  return <Card className="border-slate-300">
+  return <Card className="border-slate-300 bg-slate-950">
       <CardHeader className="rounded-lg bg-slate-950">
         <CardTitle className="text-lg flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
