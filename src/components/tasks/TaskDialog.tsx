@@ -192,7 +192,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" align="center">
-                    <Calendar mode="single" selected={dueDate} onSelect={setDueDate} initialFocus className="p-3 pointer-events-auto" />
+                    <Calendar mode="single" selected={dueDate} onSelect={setDueDate} initialFocus className="p-3 pointer-events-auto bg-slate-950 rounded-lg" />
                   </PopoverContent>
                 </Popover>
               </div>
