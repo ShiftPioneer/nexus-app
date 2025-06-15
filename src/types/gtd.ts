@@ -1,4 +1,3 @@
-
 // Define TaskPriority and TaskStatus types with all possible values
 export type TaskPriority = "Very Low" | "Low" | "Medium" | "High" | "Very High";
 
@@ -22,7 +21,7 @@ export interface TaskAttachment {
   name: string;
   type: string;
   url?: string;
-  file?: File;
+  file?: File | Blob;
 }
 
 export interface GTDTask {
