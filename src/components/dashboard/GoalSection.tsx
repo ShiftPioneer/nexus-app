@@ -17,36 +17,46 @@ const GoalSection = () => {
     tasks
   } = useGTD();
   useEffect(() => {
-    // Try to load goals from localStorage
-    try {
-      const savedGoals = localStorage.getItem('planningGoals');
-      if (savedGoals) {
-        const parsedGoals = JSON.parse(savedGoals);
+    const loadGoals = () => {
+      // Try to load goals from localStorage
+      try {
+        const savedGoals = localStorage.getItem('planningGoals');
+        if (savedGoals) {
+          const parsedGoals = JSON.parse(savedGoals);
 
-        // Sort by due date (closest first)
-        const sortedGoals = parsedGoals.filter((goal: any) => goal.status === 'active' || goal.status === 'in-progress' || goal.status === 'not-started').sort((a: any, b: any) => {
-          const dateA = a.endDate ? new Date(a.endDate) : new Date();
-          const dateB = b.endDate ? new Date(b.endDate) : new Date();
-          return dateA.getTime() - dateB.getTime();
-        });
+          // Sort by due date (closest first)
+          const sortedGoals = parsedGoals.filter((goal: any) => goal.status === 'active' || goal.status === 'in-progress' || goal.status === 'not-started').sort((a: any, b: any) => {
+            const dateA = a.endDate ? new Date(a.endDate) : new Date();
+            const dateB = b.endDate ? new Date(b.endDate) : new Date();
+            return dateA.getTime() - dateB.getTime();
+          });
 
-        // Count linked tasks for each goal
-        const goalsWithTaskCounts = sortedGoals.map((goal: any) => {
-          const linkedTasks = tasks.filter(task => task.goalId === goal.id);
-          const completedTasks = linkedTasks.filter(task => task.status === "completed");
-          return {
-            ...goal,
-            taskCount: linkedTasks.length,
-            completedTaskCount: completedTasks.length,
-            // Calculate progress based on milestones and linked tasks
-            calculatedProgress: calculateGoalProgress(goal, linkedTasks)
-          };
-        });
-        setGoals(goalsWithTaskCounts);
+          // Count linked tasks for each goal
+          const goalsWithTaskCounts = sortedGoals.map((goal: any) => {
+            const linkedTasks = tasks.filter(task => task.goalId === goal.id);
+            const completedTasks = linkedTasks.filter(task => task.status === "completed");
+            return {
+              ...goal,
+              taskCount: linkedTasks.length,
+              completedTaskCount: completedTasks.length,
+              // Calculate progress based on milestones and linked tasks
+              calculatedProgress: calculateGoalProgress(goal, linkedTasks)
+            };
+          });
+          setGoals(goalsWithTaskCounts);
+        }
+      } catch (error) {
+        console.error("Failed to load goals:", error);
       }
-    } catch (error) {
-      console.error("Failed to load goals:", error);
-    }
+    };
+    
+    loadGoals();
+
+    window.addEventListener('goalsUpdated', loadGoals);
+
+    return () => {
+      window.removeEventListener('goalsUpdated', loadGoals);
+    };
   }, [tasks]);
 
   // Calculate goal progress based on milestones and linked tasks

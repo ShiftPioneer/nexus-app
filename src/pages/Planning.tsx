@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,19 @@ const Planning = () => {
   const [selectedGoal, setSelectedGoal] = useState<Goal | null>(null);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
+  useEffect(() => {
+    const reloadGoals = () => {
+      const data = localStorage.getItem('planningGoals');
+      if (data) {
+        setGoals(JSON.parse(data));
+      }
+    };
+    window.addEventListener('goalsUpdated', reloadGoals);
+    return () => {
+      window.removeEventListener('goalsUpdated', reloadGoals);
+    };
+  }, [setGoals]);
+
   const handleGoalCreate = (goal: Goal) => {
     if (selectedGoal) {
       const updatedGoals = goals.map(g => g.id === goal.id ? goal : g);
@@ -42,6 +55,7 @@ const Planning = () => {
         description: "Your new goal has been created successfully."
       });
     }
+    window.dispatchEvent(new CustomEvent('goalsUpdated'));
     setShowGoalDialog(false);
   };
 
@@ -73,6 +87,7 @@ const Planning = () => {
     if ('milestones' in itemToUpdate) { // it's a Goal
       const updatedGoals = goals.map(g => g.id === itemToUpdate.id ? { ...g, progress: newProgress } : g);
       setGoals(updatedGoals);
+      window.dispatchEvent(new CustomEvent('goalsUpdated'));
       itemName = "Goal";
     } else { // it's a Project
       const updatedProjects = projects.map(p => p.id === itemToUpdate.id ? { ...p, progress: newProgress } : p);

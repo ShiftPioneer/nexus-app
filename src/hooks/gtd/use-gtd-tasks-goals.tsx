@@ -40,6 +40,7 @@ export const useGTDTasksGoals = (tasks: GTDTask[]) => {
       
       if (goalsUpdated) {
         localStorage.setItem('planningGoals', JSON.stringify(updatedGoals));
+        window.dispatchEvent(new CustomEvent('goalsUpdated'));
         console.log("Goals updated based on task completion");
       }
     } catch (error) {
