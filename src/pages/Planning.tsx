@@ -68,6 +68,23 @@ const Planning = () => {
     setShowProjectDialog(false);
   };
 
+  const handleProgressUpdate = (itemToUpdate: Goal | Project, newProgress: number) => {
+    let itemName: string;
+    if ('milestones' in itemToUpdate) { // it's a Goal
+      const updatedGoals = goals.map(g => g.id === itemToUpdate.id ? { ...g, progress: newProgress } : g);
+      setGoals(updatedGoals);
+      itemName = "Goal";
+    } else { // it's a Project
+      const updatedProjects = projects.map(p => p.id === itemToUpdate.id ? { ...p, progress: newProgress } : p);
+      setProjects(updatedProjects);
+      itemName = "Project";
+    }
+    toast({
+      title: `${itemName} Progress Updated`,
+      description: `Progress for "${itemToUpdate.title}" is now ${newProgress}%.`,
+    });
+  };
+
   const handleEditGoal = (goal: Goal) => {
     setSelectedGoal(goal);
     setShowGoalDialog(true);
@@ -150,6 +167,7 @@ const Planning = () => {
                 goals={goals} 
                 contentType="goals" 
                 onEditItem={goal => handleEditGoal(goal as Goal)} 
+                onUpdateProgress={handleProgressUpdate}
               />
             ) : (
               <PlanningBoardView 
@@ -180,6 +198,7 @@ const Planning = () => {
                 projects={projects} 
                 contentType="projects" 
                 onEditItem={project => handleEditProject(project as Project)} 
+                onUpdateProgress={handleProgressUpdate}
               />
             ) : (
               <PlanningBoardView 

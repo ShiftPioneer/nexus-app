@@ -1,118 +1,151 @@
-import React from "react";
+
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { format } from "date-fns";
-import { Target, Briefcase, BarChart3, Clock } from "lucide-react";
+import { Target, Briefcase, BarChart3, Clock, Edit, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Slider } from "@/components/ui/slider";
+import PlanningStatsDialog from "./PlanningStatsDialog";
+
 interface PlanningListViewProps {
   goals?: Goal[];
   projects?: Project[];
   contentType: "goals" | "projects";
   onEditItem: (item: Goal | Project) => void;
+  onUpdateProgress: (item: Goal | Project, progress: number) => void;
 }
+
 const PlanningListView: React.FC<PlanningListViewProps> = ({
   goals = [],
   projects = [],
   contentType,
-  onEditItem
+  onEditItem,
+  onUpdateProgress,
 }) => {
+  const [editingProgress, setEditingProgress] = useState<string | null>(null);
+  const [tempProgress, setTempProgress] = useState<number>(0);
+  const [statsItem, setStatsItem] = useState<Goal | Project | null>(null);
+
   const getCategoryIcon = (category: string) => {
+    const badgeClass = "text-white text-xs px-2.5 py-1 rounded-full";
     switch (category) {
       case "wealth":
-        return <Badge className="bg-orange-500">Wealth</Badge>;
+        return <Badge className={cn(badgeClass, "bg-orange-500 hover:bg-orange-600")}>Wealth</Badge>;
       case "health":
-        return <Badge className="bg-green-500">Health</Badge>;
+        return <Badge className={cn(badgeClass, "bg-green-500 hover:bg-green-600")}>Health</Badge>;
       case "relationships":
-        return <Badge className="bg-pink-500">Relationships</Badge>;
+        return <Badge className={cn(badgeClass, "bg-pink-500 hover:bg-pink-600")}>Relationships</Badge>;
       case "spirituality":
-        return <Badge className="bg-purple-500">Spirituality</Badge>;
+        return <Badge className={cn(badgeClass, "bg-purple-500 hover:bg-purple-600")}>Spirituality</Badge>;
       case "education":
-        return <Badge className="bg-blue-500">Education</Badge>;
+        return <Badge className={cn(badgeClass, "bg-blue-500 hover:bg-blue-600")}>Education</Badge>;
       case "career":
-        return <Badge className="bg-blue-500">Career</Badge>;
+        return <Badge className={cn(badgeClass, "bg-indigo-500 hover:bg-indigo-600")}>Career</Badge>;
       default:
-        return <Badge className="bg-gray-500">{category}</Badge>;
+        return <Badge className={cn(badgeClass, "bg-gray-500 hover:bg-gray-600")}>{category}</Badge>;
     }
   };
-  const renderGoals = () => {
-    return goals.map(goal => <Card key={goal.id} className="group hover:shadow-md transition-shadow cursor-pointer" onClick={() => onEditItem(goal)}>
-        <CardContent className="p-6 bg-slate-950 rounded-lg">
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                <Target className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">{goal.title}</h3>
+
+  const handleProgressEditStart = (item: Goal | Project) => {
+    setEditingProgress(item.id);
+    setTempProgress(item.progress);
+  };
+  
+  const handleProgressSave = (item: Goal | Project) => {
+    onUpdateProgress(item, tempProgress);
+    setEditingProgress(null);
+  };
+
+  const renderItem = (item: Goal | Project) => {
+    const isGoal = 'milestones' in item;
+    const progressBeingEdited = editingProgress === item.id;
+
+    return (
+      <Card
+        key={item.id}
+        className="bg-slate-900/50 border border-slate-800 hover:border-slate-700 transition-colors duration-300 rounded-2xl shadow-lg"
+      >
+        <CardContent className="p-4 flex flex-col justify-between h-full space-y-4">
+          <div>
+            <div className="flex justify-between items-start">
+              <div className="flex items-center gap-3">
+                <div className="bg-primary/10 p-2 rounded-lg border border-primary/20">
+                  {isGoal ? (
+                    <Target className="h-5 w-5 text-primary" />
+                  ) : (
+                    <Briefcase className="h-5 w-5 text-primary" />
+                  )}
+                </div>
+                <h3 onClick={() => onEditItem(item)} className="cursor-pointer text-lg font-semibold text-slate-100 hover:text-primary transition-colors">{item.title}</h3>
               </div>
-              {getCategoryIcon(goal.category)}
+              {getCategoryIcon(item.category)}
             </div>
             
-            <p className="text-muted-foreground">{goal.description}</p>
-            
-            <div>
-              <div className="flex justify-between text-sm">
-                <span className="text-lime-600">Progress</span>
-                <span className="text-lime-600">{goal.progress}%</span>
+            <div className="space-y-2 mt-4">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-400">Progress</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-slate-200">{progressBeingEdited ? tempProgress : item.progress}%</span>
+                  {!progressBeingEdited ? (
+                    <button onClick={() => handleProgressEditStart(item)} className="text-slate-400 hover:text-white transition-colors p-1 rounded-md">
+                      <Edit size={14} />
+                    </button>
+                  ) : (
+                    <button onClick={() => handleProgressSave(item)} className="text-green-400 hover:text-green-300 transition-colors p-1 rounded-md">
+                      <Check size={16} />
+                    </button>
+                  )}
+                </div>
               </div>
-              <Progress value={goal.progress} className="h-2 mt-1" />
-            </div>
-            
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5 text-lime-600" />
-                <span className="text-lime-500">
-                  {format(goal.startDate, "MMM d, yyyy")} - {format(goal.endDate, "MMM d, yyyy")}
-                </span>
-              </div>
-              <div className="text-lime-600">
-                <BarChart3 className="h-4 w-4 inline-block mr-1" />
-                Stats
-              </div>
+              {progressBeingEdited ? (
+                <Slider
+                  value={[tempProgress]}
+                  onValueChange={(value) => setTempProgress(value[0])}
+                  max={100}
+                  step={1}
+                />
+              ) : (
+                <Progress value={item.progress} className="h-2" indicatorClassName="bg-primary" />
+              )}
             </div>
           </div>
-        </CardContent>
-      </Card>);
-  };
-  const renderProjects = () => {
-    return projects.map(project => <Card key={project.id} className="group hover:shadow-md transition-shadow cursor-pointer" onClick={() => onEditItem(project)}>
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-4">
-            <div className="flex justify-between">
-              <div className="flex items-center gap-2">
-                <Briefcase className="h-5 w-5 text-primary" />
-                <h3 className="text-lg font-semibold">{project.title}</h3>
-              </div>
-              {getCategoryIcon(project.category)}
+
+          <div className="flex justify-between items-center text-sm text-slate-400 pt-3 border-t border-slate-800">
+            <div className="flex items-center gap-1.5">
+              <Clock className="h-4 w-4 text-primary/70" />
+              <span>
+                {format(new Date(item.startDate), "MMM d, yyyy")} - {format(new Date(item.endDate), "MMM d, yyyy")}
+              </span>
             </div>
-            
-            <p className="text-muted-foreground">{project.description}</p>
-            
-            <div>
-              <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span>{project.progress}%</span>
-              </div>
-              <Progress value={project.progress} className="h-2 mt-1" />
-            </div>
-            
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <div className="flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" />
-                <span>
-                  {format(project.startDate, "MMM d, yyyy")} - {format(project.endDate, "MMM d, yyyy")}
-                </span>
-              </div>
-              <div>
-                <BarChart3 className="h-4 w-4 inline-block mr-1" />
-                Stats
-              </div>
-            </div>
+            <button 
+              onClick={() => setStatsItem(item)}
+              className="flex items-center gap-1.5 hover:text-primary transition-colors"
+            >
+              <BarChart3 className="h-4 w-4" />
+              <span>Stats</span>
+            </button>
           </div>
         </CardContent>
-      </Card>);
+      </Card>
+    );
   };
-  return <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {contentType === "goals" ? renderGoals() : renderProjects()}
-    </div>;
+  
+  const items = contentType === "goals" ? goals : projects;
+
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {items.map(renderItem)}
+      </div>
+      <PlanningStatsDialog 
+        item={statsItem}
+        open={!!statsItem}
+        onOpenChange={() => setStatsItem(null)}
+      />
+    </>
+  );
 };
+
 export default PlanningListView;
