@@ -239,7 +239,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               </Button>}
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={() => onOpenChange(false)} className="text-lime-600">
+            <Button variant="outline" onClick={() => onOpenChange(false)} className="text-orange-600">
               Cancel
             </Button>
             <Button onClick={handleSubmit}>
