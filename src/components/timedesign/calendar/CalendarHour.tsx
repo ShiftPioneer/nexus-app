@@ -8,17 +8,14 @@ interface CalendarHourProps {
 
 const CalendarHour: React.FC<CalendarHourProps> = ({ hour, formatHour }) => {
   return (
-    <div className="grid grid-cols-1 border-b border-slate-800 min-h-[72px]">
+    <div className="grid grid-cols-1 border-b border-white/5 min-h-[72px]">
       <div className="relative">
-        <span className="absolute -top-3 -left-14 text-sm font-medium text-slate-400">
+        <span className="absolute -top-3 -left-16 text-sm font-mono text-slate-500 w-14 text-right pr-2">
           {formatHour(hour)}
         </span>
-        <div className="border-t border-slate-800 h-[36px]"></div>
-        <div className="relative">
-          <span className="absolute -left-14 -top-3 text-xs text-slate-500">
-            30
-          </span>
-          <div className="border-t border-dashed h-[36px] border-slate-800"></div>
+        <div className="relative h-full">
+          {/* half-hour line */}
+          <div className="absolute top-1/2 w-full border-t border-dashed border-white/5"></div>
         </div>
       </div>
     </div>

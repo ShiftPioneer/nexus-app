@@ -45,7 +45,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
     return {
       top: `${startPosition}px`,
       height: `${height}px`,
-      className: `absolute w-full ${categoryStyle} p-2 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-200 border border-white/10`
+      className: `absolute w-full ${categoryStyle} p-2 rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-primary/20 transition-all duration-200 ring-1 ring-inset ring-white/10 hover:ring-white/20`
     };
   };
 

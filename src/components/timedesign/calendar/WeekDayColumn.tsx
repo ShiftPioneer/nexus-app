@@ -1,3 +1,4 @@
+
 import React from "react";
 import { isSameDay } from "date-fns";
 import ActivityBlock from "./ActivityBlock";
@@ -29,11 +30,12 @@ const WeekDayColumn: React.FC<WeekDayColumnProps> = ({
   const dayActivities = activities.filter(activity => isSameDay(activity.startDate, day));
 
   return (
-    <div key={dayIndex} className="border-r border-slate-800 relative">
+    <div key={dayIndex} className="border-r border-white/5 relative">
       {hours.map(hour => (
-        <div key={hour} className="border-b border-slate-800 h-[72px] relative">
-          <div className="border-t border-slate-800 h-[36px]"></div>
-          <div className="border-t border-dashed h-[36px] border-slate-800"></div>
+        <div key={hour} className="border-b border-white/5 h-[72px] relative">
+          <div className="h-full relative">
+            <div className="absolute top-1/2 w-full border-t border-dashed border-white/5"></div>
+          </div>
         </div>
       ))}
       

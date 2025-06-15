@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -143,7 +144,7 @@ const TimeDesign = () => {
                 </div>
               </div>
               
-              <Card className="overflow-hidden bg-slate-950 border-slate-700">
+              <Card className="overflow-hidden bg-slate-950 border-slate-800 shadow-2xl shadow-black/25">
                 <CardContent className="p-0">
                   <TimeDesignCalendar currentDate={currentDate} viewType={viewType} activities={activities} onEditActivity={handleEditActivity} />
                 </CardContent>

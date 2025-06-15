@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -249,46 +248,6 @@
   backdrop-filter: blur(12px);
   background-color: rgba(2, 6, 23, 0.8); /* slate-950 with transparency */
   border: 1px solid #cbd5e1; /* slate-300 */
-}
-
-/* COMPREHENSIVE BORDER COLOR STANDARDIZATION */
-/* Force ALL border colors to use slate-300 */
-* {
-  border-color: #cbd5e1 !important; /* slate-300 for ALL borders */
-}
-
-/* Specifically target common border classes */
-.border, .border-t, .border-b, .border-l, .border-r,
-.border-x, .border-y, .border-2, .border-4, .border-8,
-.rounded, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl,
-.ring, .ring-1, .ring-2, .ring-4, .ring-8,
-.divide-x > *, .divide-y > * {
-  border-color: #cbd5e1 !important; /* slate-300 */
-}
-
-/* Specific overrides for UI components */
-.card, .card-header, .card-content, .card-footer,
-.button, .input, .textarea, .select,
-.badge, .alert, .dialog, .sheet,
-.popover, .tooltip, .dropdown,
-.tabs, .accordion, .collapsible {
-  border-color: #cbd5e1 !important; /* slate-300 */
-}
-
-/* Input and form element borders */
-input, textarea, select, [role="combobox"] {
-  border-color: #cbd5e1 !important; /* slate-300 */
-}
-
-/* Hover and focus states for borders */
-*:hover, *:focus, *:focus-visible, *:focus-within {
-  border-color: #cbd5e1 !important; /* slate-300 */
-}
-
-/* Component-specific border fixes */
-[class*="border-"], [class*="ring-"], [class*="divide-"] {
-  border-color: #cbd5e1 !important; /* slate-300 */
-  --tw-border-opacity: 1 !important;
 }
 
 /* Responsive utilities */

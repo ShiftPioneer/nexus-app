@@ -17,7 +17,7 @@ const WeekHeader: React.FC<WeekHeaderProps> = ({ weekDays }) => {
             <div className={`text-xs uppercase tracking-wider ${isToday ? "text-primary" : "text-slate-400"}`}>
               {format(day, "EEE")}
             </div>
-            <div className={`text-2xl font-bold mt-1 ${isToday ? "text-white bg-primary rounded-full w-10 h-10 flex items-center justify-center mx-auto" : "text-slate-300"}`}>
+            <div className={`text-2xl font-bold mt-1 ${isToday ? "text-white bg-primary rounded-full w-10 h-10 flex items-center justify-center mx-auto shadow-lg shadow-primary/30" : "text-slate-300"}`}>
               {format(day, "d")}
             </div>
           </div>
