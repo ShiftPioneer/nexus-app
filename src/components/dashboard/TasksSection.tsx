@@ -1,7 +1,8 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Calendar, Circle } from "lucide-react";
+import { Plus, Calendar, Circle, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import { format, isToday } from "date-fns";
@@ -75,7 +76,7 @@ const TasksSection = () => {
   return <Card className="border-slate-800 bg-slate-950/40 backdrop-blur-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
         <CardTitle className="text-lg font-semibold flex items-center gap-2 text-slate-100">
-          <Calendar className="h-5 w-5 text-primary" />
+          <CheckCircle2 className="h-5 w-5 text-primary" />
           Today's Focus
         </CardTitle>
         <Button size="sm" onClick={() => navigate("/actions")} className="gap-1 bg-primary/20 text-primary hover:bg-primary/30">
@@ -85,7 +86,7 @@ const TasksSection = () => {
       </CardHeader>
       <CardContent>
         {tasks.length === 0 ? <div className="text-center py-8 flex flex-col items-center justify-center">
-            <Calendar className="h-16 w-16 text-slate-700 mb-4" />
+            <CheckCircle2 className="h-16 w-16 text-slate-700 mb-4" />
             <h3 className="text-lg font-semibold text-slate-200">All Clear for Today!</h3>
             <p className="text-slate-400 text-sm mt-1 mb-4">You have no tasks scheduled for today. Time to plan or relax!</p>
             <Button variant="outline" size="sm" onClick={() => navigate("/actions")} className="border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white">
