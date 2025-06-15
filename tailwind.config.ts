@@ -140,10 +140,10 @@ export default {
           dark: '#060F1A'
         },
         accent: {
-          DEFAULT: '#00D4FF',
+          DEFAULT: '#FF6500',
           foreground: '#FFFFFF',
-          light: '#4DE2FF',
-          dark: '#00A3C9'
+          light: '#FB923C',
+          dark: '#EA580C'
         },
         neutral: {
           DEFAULT: '#F5F7FA',
@@ -332,3 +332,4 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+

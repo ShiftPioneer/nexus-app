@@ -1,3 +1,4 @@
+
 import React from "react";
 import { useGTD } from "./GTDContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -43,7 +44,7 @@ const GTDPrinciple: React.FC = () => {
   }];
   return <Card className="border-slate-700 text-slate-200 bg-slate-950">
       <CardHeader>
-        <CardTitle className="text-cyan-500">GTD Principles</CardTitle>
+        <CardTitle className="text-orange-600">GTD Principles</CardTitle>
         <CardDescription className="text-slate-400">Effective task management workflow</CardDescription>
       </CardHeader>
       <CardContent className="space-y-4 bg-slate-950 rounded-lg">
