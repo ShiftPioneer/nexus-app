@@ -231,7 +231,7 @@ const Habits = () => {
       case "missed":
         return <X className="h-6 w-6 text-red-500" />;
       default:
-        return <Circle className="h-6 w-6 text-muted-foreground/50" />;
+        return <Circle className="h-6 w-6 text-slate-900" />;
     }
   };
 
