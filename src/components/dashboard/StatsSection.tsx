@@ -1,6 +1,5 @@
-
 import React, { useEffect, useState } from "react";
-import { Target, CheckCircle2, BarChart2, CheckCircle } from "lucide-react";
+import { Target, CheckCircle2, BarChart2, Repeat } from "lucide-react";
 import { useGTD } from "@/components/gtd/GTDContext";
 import { motion } from "framer-motion";
 
@@ -121,7 +120,7 @@ const StatsSection = () => {
     title: "Today's Tasks",
     value: taskStats.total > 0 ? `${taskStats.completed}/${taskStats.total}` : "N/A",
     change: taskStats.total > 0 ? `${taskStats.rate}% completed` : "Add tasks for today",
-    icon: CheckCircle,
+    icon: CheckCircle2,
     progress: taskStats.rate,
     color: "text-blue-400 bg-blue-900/40",
     progressColor: "bg-blue-400"
@@ -129,7 +128,7 @@ const StatsSection = () => {
     title: "Habit Streak",
     value: habitStats.totalHabits > 0 ? `${habitStats.streak} days` : "N/A",
     change: habitStats.totalHabits > 0 ? `${habitStats.completedToday}/${habitStats.totalHabits} completed today` : "Create a habit",
-    icon: CheckCircle2,
+    icon: Repeat,
     progress: habitStats.totalHabits > 0 ? Math.min(100, habitStats.streak / 30 * 100) : 0,
     color: "text-green-400 bg-green-900/40",
     progressColor: "bg-green-400"
