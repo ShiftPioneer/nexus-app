@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -6,9 +7,15 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { ExternalLink, Calendar, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 const TimeDesignSettings: React.FC = () => {
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [weekStartsOn, setWeekStartsOn] = useState("Sunday");
+  const [timeFormat, setTimeFormat] = useState("12-hour (AM/PM)");
+  const [workingHoursStart, setWorkingHoursStart] = useState("9:00 AM");
+  const [workingHoursEnd, setWorkingHoursEnd] = useState("5:00 PM");
   const {
     toast
   } = useToast();
@@ -170,38 +177,58 @@ const TimeDesignSettings: React.FC = () => {
           <div className="grid gap-4">
             <div className="flex items-center justify-between">
               <Label htmlFor="week-starts">Week Starts On</Label>
-              <select id="week-starts" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background text-cyan-600">
-                <option>Sunday</option>
-                <option>Monday</option>
-              </select>
+              <Select value={weekStartsOn} onValueChange={setWeekStartsOn}>
+                <SelectTrigger className="w-auto min-w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Sunday">Sunday</SelectItem>
+                  <SelectItem value="Monday">Monday</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="flex items-center justify-between">
               <Label htmlFor="time-format">Time Format</Label>
-              <select id="time-format" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background text-cyan-600">
-                <option>12-hour (AM/PM)</option>
-                <option>24-hour</option>
-              </select>
+              <Select value={timeFormat} onValueChange={setTimeFormat}>
+                <SelectTrigger className="w-auto min-w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="12-hour (AM/PM)">12-hour (AM/PM)</SelectItem>
+                  <SelectItem value="24-hour">24-hour</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="flex items-center justify-between">
               <Label htmlFor="working-hours-start">Working Hours Start</Label>
-              <select id="working-hours-start" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background text-cyan-600">
-                <option>6:00 AM</option>
-                <option>7:00 AM</option>
-                <option>8:00 AM</option>
-                <option>9:00 AM</option>
-              </select>
+              <Select value={workingHoursStart} onValueChange={setWorkingHoursStart}>
+                <SelectTrigger className="w-auto min-w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="6:00 AM">6:00 AM</SelectItem>
+                  <SelectItem value="7:00 AM">7:00 AM</SelectItem>
+                  <SelectItem value="8:00 AM">8:00 AM</SelectItem>
+                  <SelectItem value="9:00 AM">9:00 AM</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             
             <div className="flex items-center justify-between">
               <Label htmlFor="working-hours-end">Working Hours End</Label>
-              <select id="working-hours-end" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background text-cyan-600">
-                <option>5:00 PM</option>
-                <option>6:00 PM</option>
-                <option>7:00 PM</option>
-                <option>8:00 PM</option>
-              </select>
+              <Select value={workingHoursEnd} onValueChange={setWorkingHoursEnd}>
+                <SelectTrigger className="w-auto min-w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5:00 PM">5:00 PM</SelectItem>
+                  <SelectItem value="6:00 PM">6:00 PM</SelectItem>
+                  <SelectItem value="7:00 PM">7:00 PM</SelectItem>
+                  <SelectItem value="8:00 PM">8:00 PM</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
