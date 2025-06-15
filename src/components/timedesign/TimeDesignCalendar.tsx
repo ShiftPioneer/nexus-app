@@ -17,15 +17,11 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
   activities,
   onEditActivity
 }) => {
-  // Generate hours for the day (12 AM to 11 PM - full 24 hours)
   const hours = Array.from({ length: 24 }, (_, i) => i);
-
-  // Generate week days starting from Sunday for the current week
   const weekStart = startOfWeek(currentDate);
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
   const getActivityStyle = (activity: TimeActivity) => {
-    // Calculate position based on start and end times
     const startParts = activity.startTime.split(":");
     const endParts = activity.endTime.split(":");
     const startHour = parseInt(startParts[0], 10);
@@ -33,34 +29,30 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
     const endHour = parseInt(endParts[0], 10);
     const endMinute = parseInt(endParts[1], 10);
 
-    // Calculate top position (start time)
-    const startPosition = (startHour * 60 + startMinute) * 1.2; // Scale factor for better visibility
-
-    // Calculate height (duration)
+    const startPosition = (startHour * 60 + startMinute) * 1.2;
     const endPosition = (endHour * 60 + endMinute) * 1.2;
     const height = endPosition - startPosition;
 
-    // Get background color based on activity category
-    const colorMap: Record<string, string> = {
-      work: "bg-purple-100 border-l-4 border-purple-500 text-purple-800 dark:bg-purple-900/30 dark:border-purple-600 dark:text-purple-300",
-      social: "bg-orange-100 border-l-4 border-orange-500 text-orange-800 dark:bg-orange-900/30 dark:border-orange-600 dark:text-orange-300",
-      health: "bg-green-100 border-l-4 border-green-500 text-green-800 dark:bg-green-900/30 dark:border-green-600 dark:text-green-300",
-      learning: "bg-blue-100 border-l-4 border-blue-500 text-blue-800 dark:bg-blue-900/30 dark:border-blue-600 dark:text-blue-300"
+    const styleMap: Record<string, string> = {
+      work: "bg-gradient-to-br from-purple-600 to-indigo-700 text-white",
+      social: "bg-gradient-to-br from-orange-500 to-red-600 text-white",
+      health: "bg-gradient-to-br from-green-500 to-teal-600 text-white",
+      learning: "bg-gradient-to-br from-blue-500 to-cyan-600 text-white",
+      default: "bg-gradient-to-br from-slate-600 to-slate-700 text-white",
     };
+    const categoryStyle = styleMap[activity.category] || styleMap.default;
 
     return {
       top: `${startPosition}px`,
       height: `${height}px`,
-      className: `absolute w-full ${colorMap[activity.category]} p-2 rounded-r-md shadow-sm overflow-hidden cursor-pointer hover:opacity-90 transition-opacity`
+      className: `absolute w-full ${categoryStyle} p-2 rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-all duration-200 border border-white/10`
     };
   };
 
-  // Filter activities for the current day or week
   const filteredActivities = activities.filter(activity => {
     if (viewType === "day") {
       return isSameDay(activity.startDate, currentDate);
     } else {
-      // For week view, check if the activity is within the week
       const activityDate = activity.startDate;
       return isWithinInterval(activityDate, {
         start: startOfDay(weekStart),
@@ -69,24 +61,21 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
     }
   });
 
-  // Format hour labels nicely
   const formatHour = (hour: number) => {
     if (hour === 0) return "12 AM";
     if (hour === 12) return "12 PM";
     return hour > 12 ? `${hour - 12} PM` : `${hour} AM`;
   };
 
-  // Get current time indicators positions
   const getCurrentTimePosition = () => {
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
-    return (hours * 60 + minutes) * 1.2; // Same scale factor as activities
+    return (hours * 60 + minutes) * 1.2;
   };
 
   return (
-    <div className="p-4 overflow-auto">
-      <div className="bg-white dark:bg-slate-900 rounded-lg border border-slate-700 shadow-sm p-2">
+    <div className="bg-slate-950 rounded-lg border border-slate-800 shadow-lg overflow-auto">
         {viewType === "day" ? (
           <DayCalendarView
             hours={hours}
@@ -107,7 +96,6 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
             onEditActivity={onEditActivity}
           />
         )}
-      </div>
     </div>
   );
 };

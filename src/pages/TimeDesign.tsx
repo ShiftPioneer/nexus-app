@@ -13,6 +13,7 @@ import ActivityDialog from "@/components/timedesign/ActivityDialog";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useToast } from "@/hooks/use-toast";
+
 const TimeDesign = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<"day" | "week">("week");

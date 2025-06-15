@@ -1,4 +1,3 @@
-
 import React from "react";
 import { isSameDay } from "date-fns";
 import ActivityBlock from "./ActivityBlock";
@@ -30,28 +29,26 @@ const WeekDayColumn: React.FC<WeekDayColumnProps> = ({
   const dayActivities = activities.filter(activity => isSameDay(activity.startDate, day));
 
   return (
-    <div key={dayIndex} className="border-r border-slate-700 relative">
+    <div key={dayIndex} className="border-r border-slate-800 relative">
       {hours.map(hour => (
-        <div key={hour} className="border-b border-slate-700 h-[72px] relative">
-          <div className="border-t border-slate-700 h-[36px]"></div>
-          <div className="border-t border-dashed h-[36px] border-slate-700"></div>
+        <div key={hour} className="border-b border-slate-800 h-[72px] relative">
+          <div className="border-t border-slate-800 h-[36px]"></div>
+          <div className="border-t border-dashed h-[36px] border-slate-800"></div>
         </div>
       ))}
       
-      {/* Current time indicator */}
       {isSameDay(day, new Date()) && (
         <div 
-          className="absolute left-0 right-0 border-t-2 border-red-500 dark:border-red-400 z-10" 
+          className="absolute left-0 right-0 border-t-2 border-primary z-10" 
           style={{
             top: `${getCurrentTimePosition()}px`,
             width: '100%'
           }}
         >
-          <div className="absolute -left-1 -top-2 w-3 h-3 rounded-full bg-red-500 dark:bg-red-400"></div>
+          <div className="absolute -left-1.5 -top-2 w-3 h-3 rounded-full bg-primary animate-pulse border-2 border-slate-950"></div>
         </div>
       )}
       
-      {/* Activities for this day */}
       <div className="absolute inset-0">
         {dayActivities.map(activity => (
           <ActivityBlock
