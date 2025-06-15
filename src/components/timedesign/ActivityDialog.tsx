@@ -1,3 +1,4 @@
+
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -138,20 +140,23 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] bg-slate-950 border-slate-800 text-slate-50 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{activity?.id ? "Edit Activity" : "New Activity"}</DialogTitle>
+          <DialogTitle className="text-2xl font-bold text-white">{activity?.id ? "Edit Activity" : "New Activity"}</DialogTitle>
+          <DialogDescription className="text-slate-400">
+            {activity?.id ? "Edit the details of your activity." : "Add a new activity to your calendar."}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-4 py-4">
+          <form onSubmit={form.handleSubmit(handleSave)} className="space-y-6 py-4">
             <FormField
               control={form.control}
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Activity Title</FormLabel>
+                  <FormLabel className="text-primary font-semibold">Activity Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter activity title" {...field} />
+                    <Input placeholder="Enter activity title" {...field} className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -163,33 +168,33 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormLabel className="text-primary font-semibold">Description (Optional)</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Add more details about this activity" rows={3} {...field} />
+                    <Textarea placeholder="Add more details about this activity" rows={3} {...field} className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category</FormLabel>
+                      <FormLabel className="text-primary font-semibold">Category</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="bg-slate-900 border-slate-700 focus:ring-primary">
                             <SelectValue placeholder="Select category" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="work">Work</SelectItem>
-                          <SelectItem value="social">Social</SelectItem>
-                          <SelectItem value="health">Health</SelectItem>
-                          <SelectItem value="learning">Learning</SelectItem>
+                        <SelectContent className="bg-slate-900 text-white border-slate-700">
+                          <SelectItem value="work" className="focus:bg-primary/20">Work</SelectItem>
+                          <SelectItem value="social" className="focus:bg-primary/20">Social</SelectItem>
+                          <SelectItem value="health" className="focus:bg-primary/20">Health</SelectItem>
+                          <SelectItem value="learning" className="focus:bg-primary/20">Learning</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
@@ -201,13 +206,13 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                   name="color"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Color</FormLabel>
+                      <FormLabel className="text-primary font-semibold">Color</FormLabel>
                       <FormControl>
-                        <div className="flex items-center justify-between px-3 py-2 bg-muted rounded-md h-10">
+                        <div className="flex items-center justify-between px-3 py-2 bg-slate-900 border border-slate-700 rounded-md h-10">
                             {colors.map((c) => (
                                 <div
                                 key={c}
-                                className={`h-5 w-5 rounded-full cursor-pointer ${field.value === c ? 'ring-2 ring-offset-2 ring-primary ring-offset-background' : ''} ${colorMap[c]}`}
+                                className={`h-6 w-6 rounded-full cursor-pointer transition-all ${field.value === c ? 'ring-2 ring-offset-2 ring-primary ring-offset-slate-950' : ''} ${colorMap[c]}`}
                                 onClick={() => field.onChange(c)}
                                 />
                             ))}
@@ -219,38 +224,43 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                 />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="startDate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>Start Date</FormLabel>
+                      <FormLabel className="text-primary font-semibold">Start Date</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-full pl-3 text-left font-normal",
+                                "w-full justify-start pl-3 text-left font-normal bg-slate-900 border-slate-700 hover:bg-slate-800 hover:text-white",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
+                              <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
                               {field.value ? (
                                 format(field.value, "PPP")
                               ) : (
                                 <span>Pick a date</span>
                               )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-auto p-0 bg-slate-900 border-slate-700" align="start">
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
+                            className="text-white"
+                            classNames={{
+                              day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary",
+                              day_today: "bg-primary/20 text-primary-foreground",
+                            }}
                           />
                         </PopoverContent>
                       </Popover>
@@ -263,9 +273,9 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                   name="startTime"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Start Time</FormLabel>
+                      <FormLabel className="text-primary font-semibold">Start Time</FormLabel>
                       <FormControl>
-                        <Input type="time" {...field} />
+                        <Input type="time" {...field} className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -273,38 +283,43 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                 />
             </div>
             
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
                   name="endDate"
                   render={({ field }) => (
                     <FormItem className="flex flex-col">
-                      <FormLabel>End Date</FormLabel>
+                      <FormLabel className="text-primary font-semibold">End Date</FormLabel>
                       <Popover>
                         <PopoverTrigger asChild>
                           <FormControl>
                             <Button
                               variant={"outline"}
                               className={cn(
-                                "w-full pl-3 text-left font-normal",
+                                "w-full justify-start pl-3 text-left font-normal bg-slate-900 border-slate-700 hover:bg-slate-800 hover:text-white",
                                 !field.value && "text-muted-foreground"
                               )}
                             >
+                              <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
                               {field.value ? (
                                 format(field.value, "PPP")
                               ) : (
                                 <span>Pick a date</span>
                               )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                             </Button>
                           </FormControl>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent className="w-auto p-0 bg-slate-900 border-slate-700" align="start">
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
+                            className="text-white"
+                             classNames={{
+                              day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary",
+                              day_today: "bg-primary/20 text-primary-foreground",
+                            }}
                           />
                         </PopoverContent>
                       </Popover>
@@ -317,9 +332,9 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                   name="endTime"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>End Time</FormLabel>
+                      <FormLabel className="text-primary font-semibold">End Time</FormLabel>
                       <FormControl>
-                        <Input type="time" {...field} />
+                        <Input type="time" {...field} className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -331,10 +346,10 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
               control={form.control}
               name="syncWithGoogleCalendar"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-slate-700/50 bg-slate-900/50 p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-slate-700/50 bg-slate-900/80 p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Sync with Google Calendar</FormLabel>
-                    <FormDescription>
+                    <FormLabel className="text-base text-primary font-semibold">Sync with Google Calendar</FormLabel>
+                    <FormDescription className="text-slate-400">
                       Add or update this activity on your Google Calendar.
                     </FormDescription>
                   </div>
@@ -342,17 +357,18 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                     <Switch
                       checked={field.value}
                       onCheckedChange={field.onChange}
+                      className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-700"
                     />
                   </FormControl>
                 </FormItem>
               )}
             />
 
-            <DialogFooter className="pt-4">
+            <DialogFooter className="pt-6">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit">
+              <Button type="submit" className="bg-orange-600 hover:bg-orange-700 text-white">
                 {activity?.id ? "Save Changes" : "Create Activity"}
               </Button>
             </DialogFooter>
