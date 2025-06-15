@@ -3,8 +3,8 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { SidebarMenu, SidebarMenuItem, SidebarMenuButton } from "@/components/ui/sidebar";
 import { 
-  LayoutDashboard, CheckCircle, Clock, Zap, FileText, Brain, 
-  BookOpen, Settings, BarChartHorizontal, Target, RefreshCw, CheckSquare
+  LayoutDashboard, CheckCircle, Clock, FileText, Brain, 
+  BookOpen, Settings, BarChartHorizontal, Target, RefreshCw, CheckSquare, Dumbbell
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
@@ -58,7 +58,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     {
       title: "Mindset",
       path: "/mindset",
-      icon: Zap
+      icon: Brain
     },
     {
       title: "Knowledge",
@@ -73,7 +73,7 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     {
       title: "Energy",
       path: "/energy",
-      icon: Zap
+      icon: Dumbbell
     },
     {
       title: "Stats",
