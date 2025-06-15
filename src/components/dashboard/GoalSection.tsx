@@ -1,11 +1,16 @@
+
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Link } from "react-router-dom";
 import { Progress } from "@/components/ui/progress";
 import { format, isAfter, addDays } from "date-fns";
-import { CalendarIcon, Target, AlertTriangle, CheckCircle } from "lucide-react";
+import { CalendarIcon, Target, CheckCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useGTD } from "@/components/gtd/GTDContext";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+
 const GoalSection = () => {
   const [goals, setGoals] = useState<any[]>([]);
   const {
@@ -92,64 +97,83 @@ const GoalSection = () => {
       return false;
     }
   };
-  return <Card className="min-h-[100px] h-auto rounded-md border-slate-300 bg-slate-950">
-      <CardHeader className="pb-2 bg-slate-950 rounded-md">
+  return <Card className="border-slate-800 bg-slate-950/40 backdrop-blur-sm">
+      <CardHeader className="pb-4">
         <div className="flex justify-between items-center">
-          <CardTitle className="text-lg font-medium">Active Goals</CardTitle>
-          <Link to="/planning" className="text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300">
-            View All
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+              <Target className="h-5 w-5 text-blue-400" />
+            </div>
+            <div>
+              <CardTitle className="text-lg font-semibold text-slate-100">Active Goals</CardTitle>
+              <p className="text-sm text-slate-400 mt-0.5">Your current high-priority objectives</p>
+            </div>
+          </div>
+          <Link to="/planning">
+            <Button variant="outline" size="sm" className="text-xs px-3 py-1.5 h-7 border-slate-700 text-slate-300 hover:bg-slate-800 hover:text-white">
+              View All
+            </Button>
           </Link>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4 bg-slate-950 rounded-md">
-        {goals.length > 0 ? goals.slice(0, 3).map((goal: any, index: number) => <div key={goal.id || index} className="space-y-2 p-3 border border-slate-300 rounded-md">
+      <CardContent className="space-y-4 pt-4">
+        {goals.length > 0 ? goals.slice(0, 3).map((goal: any, index: number) => <motion.div key={goal.id || index} initial={{
+          opacity: 0,
+          y: 20
+        }} animate={{
+          opacity: 1,
+          y: 0
+        }} transition={{
+          duration: 0.3,
+          delay: index * 0.05
+        }} className="space-y-3 p-4 border border-slate-800 bg-slate-900/50 rounded-lg hover:bg-slate-800/60 hover:border-slate-700 transition-colors">
               <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2">
-                  <Target className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-lime-500">{goal.title}</span>
-                </div>
-                <Badge variant={isOverdue(goal.endDate) ? "destructive" : isDueSoon(goal.endDate) ? "default" : "outline"} className="text-xs bg-lime-500 text-slate-200">
-                  {isOverdue(goal.endDate) ? "Overdue" : isDueSoon(goal.endDate) ? "Due Soon" : goal.endDate ? "On Track" : "No Deadline"}
+                <span className="text-sm font-medium text-slate-100">{goal.title}</span>
+                <Badge variant={isOverdue(goal.endDate) ? "destructive" : isDueSoon(goal.endDate) ? "default" : "outline"} className={cn("text-xs", {
+              "bg-error/20 text-error-foreground border-error/30": isOverdue(goal.endDate),
+              "bg-warning/20 text-warning-foreground border-warning/30": isDueSoon(goal.endDate),
+              "bg-slate-700 text-slate-300 border-slate-600": !isOverdue(goal.endDate) && !isDueSoon(goal.endDate)
+            })}>
+                  {isOverdue(goal.endDate) ? "Overdue" : isDueSoon(goal.endDate) ? "Due Soon" : "On Track"}
                 </Badge>
               </div>
-              
-              <div className="flex justify-between items-center">
-                <span className="text-xs text-muted-foreground text-lime-500">Progress</span>
-                <span className="text-xs text-muted-foreground text-lime-500">{goal.calculatedProgress || 0}%</span>
+
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-blue-400 font-medium">Progress</span>
+                  <span className="text-xs text-slate-300 font-semibold">{goal.calculatedProgress || 0}%</span>
+                </div>
+                <Progress value={goal.calculatedProgress || 0} indicatorClassName={cn({
+              "bg-blue-400": !isOverdue(goal.endDate),
+              "bg-error": isOverdue(goal.endDate)
+            })} />
               </div>
-              
-              <Progress value={goal.calculatedProgress || 0} color={isOverdue(goal.endDate) ? "bg-red-500" : undefined} className="h-2 text-lime-500 text-right text-justify " />
-              
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CalendarIcon className="h-3 w-3 text-lime-600" />
-                <span className="text-lime-500">
-                  Due: {formatDate(goal.endDate)}
-                </span>
-              </div>
-              
-              <div className="flex flex-wrap gap-2 text-xs">
-                {goal.taskCount > 0 && <div className="flex items-center gap-1 text-muted-foreground">
+
+              <div className="flex items-center justify-between text-xs text-slate-400 pt-1">
+                <div className="flex items-center gap-1.5">
+                  <CalendarIcon className="h-3 w-3" />
+                  <span>
+                    Due: {formatDate(goal.endDate)}
+                  </span>
+                </div>
+                {goal.taskCount > 0 && <div className="flex items-center gap-1.5">
                     <CheckCircle className="h-3 w-3" />
-                    <span>{goal.completedTaskCount} of {goal.taskCount} tasks completed</span>
-                  </div>}
-                
-                {goal.milestones && goal.milestones.length > 0 && <div className="flex items-center gap-1 text-muted-foreground">
-                    <Target className="h-3 w-3" />
-                    <span>
-                      {goal.milestones.filter((m: any) => m.completed).length} of {goal.milestones.length} milestones completed
-                    </span>
+                    <span>{goal.completedTaskCount}/{goal.taskCount} Tasks</span>
                   </div>}
               </div>
-            </div>) : <div className="flex flex-col items-center justify-center py-6 text-center">
-            <Target className="h-10 w-10 text-muted-foreground opacity-50 mb-2" />
-            <p className="text-sm text-muted-foreground mb-2">No active goals found</p>
-            <Link to="/planning" className="text-xs text-primary hover:underline">
-              Create a goal
+            </motion.div>) : <div className="flex flex-col items-center justify-center py-6 text-center">
+            <Target className="h-16 w-16 text-slate-700 mb-4" />
+            <h3 className="text-base font-semibold text-white mb-1">Set Your Sights</h3>
+            <p className="text-sm text-slate-400 mb-4">Define your goals to start making progress.</p>
+            <Link to="/planning">
+              <Button className="bg-blue-500 hover:bg-blue-600 text-white shadow-lg shadow-blue-500/20">
+                Create a Goal
+              </Button>
             </Link>
           </div>}
         
-        {goals.length > 0 && goals.length > 3 && <div className="text-center pt-2">
-            <Link to="/planning" className="text-xs text-primary hover:underline">
+        {goals.length > 3 && <div className="text-center pt-2">
+            <Link to="/planning" className="text-sm text-blue-400 hover:text-blue-300 transition-colors">
               View all {goals.length} goals
             </Link>
           </div>}
