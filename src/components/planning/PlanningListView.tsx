@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -6,19 +5,17 @@ import { format } from "date-fns";
 import { Target, Briefcase, BarChart3, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-
 interface PlanningListViewProps {
   goals?: Goal[];
   projects?: Project[];
   contentType: "goals" | "projects";
   onEditItem: (item: Goal | Project) => void;
 }
-
 const PlanningListView: React.FC<PlanningListViewProps> = ({
   goals = [],
   projects = [],
   contentType,
-  onEditItem,
+  onEditItem
 }) => {
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -38,11 +35,9 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
         return <Badge className="bg-gray-500">{category}</Badge>;
     }
   };
-
   const renderGoals = () => {
-    return goals.map((goal) => (
-      <Card key={goal.id} className="group hover:shadow-md transition-shadow cursor-pointer" onClick={() => onEditItem(goal)}>
-        <CardContent className="p-6">
+    return goals.map(goal => <Card key={goal.id} className="group hover:shadow-md transition-shadow cursor-pointer" onClick={() => onEditItem(goal)}>
+        <CardContent className="p-6 bg-slate-950">
           <div className="flex flex-col gap-4">
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
@@ -56,8 +51,8 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
             
             <div>
               <div className="flex justify-between text-sm">
-                <span>Progress</span>
-                <span>{goal.progress}%</span>
+                <span className="text-lime-600">Progress</span>
+                <span className="text-lime-600">{goal.progress}%</span>
               </div>
               <Progress value={goal.progress} className="h-2 mt-1" />
             </div>
@@ -65,24 +60,21 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
             <div className="flex justify-between text-sm text-muted-foreground">
               <div className="flex items-center gap-1">
                 <Clock className="h-3.5 w-3.5" />
-                <span>
+                <span className="text-lime-500">
                   {format(goal.startDate, "MMM d, yyyy")} - {format(goal.endDate, "MMM d, yyyy")}
                 </span>
               </div>
-              <div>
+              <div className="text-lime-600">
                 <BarChart3 className="h-4 w-4 inline-block mr-1" />
                 Stats
               </div>
             </div>
           </div>
         </CardContent>
-      </Card>
-    ));
+      </Card>);
   };
-
   const renderProjects = () => {
-    return projects.map((project) => (
-      <Card key={project.id} className="group hover:shadow-md transition-shadow cursor-pointer" onClick={() => onEditItem(project)}>
+    return projects.map(project => <Card key={project.id} className="group hover:shadow-md transition-shadow cursor-pointer" onClick={() => onEditItem(project)}>
         <CardContent className="p-6">
           <div className="flex flex-col gap-4">
             <div className="flex justify-between">
@@ -117,15 +109,10 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
             </div>
           </div>
         </CardContent>
-      </Card>
-    ));
+      </Card>);
   };
-
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+  return <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {contentType === "goals" ? renderGoals() : renderProjects()}
-    </div>
-  );
+    </div>;
 };
-
 export default PlanningListView;
