@@ -170,7 +170,7 @@ const TimeDesignSettings: React.FC = () => {
           <div className="grid gap-4">
             <div className="flex items-center justify-between">
               <Label htmlFor="week-starts">Week Starts On</Label>
-              <select id="week-starts" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background ">
+              <select id="week-starts" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background text-cyan-600">
                 <option>Sunday</option>
                 <option>Monday</option>
               </select>
@@ -178,7 +178,7 @@ const TimeDesignSettings: React.FC = () => {
             
             <div className="flex items-center justify-between">
               <Label htmlFor="time-format">Time Format</Label>
-              <select id="time-format" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background">
+              <select id="time-format" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background text-cyan-600">
                 <option>12-hour (AM/PM)</option>
                 <option>24-hour</option>
               </select>
@@ -186,7 +186,7 @@ const TimeDesignSettings: React.FC = () => {
             
             <div className="flex items-center justify-between">
               <Label htmlFor="working-hours-start">Working Hours Start</Label>
-              <select id="working-hours-start" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background">
+              <select id="working-hours-start" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background text-cyan-600">
                 <option>6:00 AM</option>
                 <option>7:00 AM</option>
                 <option>8:00 AM</option>
@@ -196,7 +196,7 @@ const TimeDesignSettings: React.FC = () => {
             
             <div className="flex items-center justify-between">
               <Label htmlFor="working-hours-end">Working Hours End</Label>
-              <select id="working-hours-end" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background">
+              <select id="working-hours-end" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background text-cyan-600">
                 <option>5:00 PM</option>
                 <option>6:00 PM</option>
                 <option>7:00 PM</option>
