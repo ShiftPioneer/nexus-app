@@ -321,7 +321,7 @@ const Settings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Daily Reminders</Label>
+                  <Label className="text-orange-600">Daily Reminders</Label>
                   <p className="text-sm text-muted-foreground">Get reminded of your daily goals</p>
                 </div>
                 <Switch checked={settings.notifications.dailyReminders} />
@@ -329,7 +329,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Habit Reminders</Label>
+                  <Label className="text-orange-600">Habit Reminders</Label>
                   <p className="text-sm text-muted-foreground">Notifications for habit tracking</p>
                 </div>
                 <Switch checked={settings.notifications.habitReminders} />
@@ -337,7 +337,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Focus Break Alerts</Label>
+                  <Label className="text-orange-600">Focus Break Alerts</Label>
                   <p className="text-sm text-muted-foreground">Alerts during focus sessions</p>
                 </div>
                 <Switch checked={settings.notifications.focusBreaks} />
@@ -345,7 +345,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Goal Deadlines</Label>
+                  <Label className="text-orange-600">Goal Deadlines</Label>
                   <p className="text-sm text-muted-foreground">Reminders for approaching deadlines</p>
                 </div>
                 <Switch checked={settings.notifications.goalDeadlines} />
@@ -358,14 +358,14 @@ const Settings = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Enable AI Assistant</Label>
+                  <Label className="text-orange-600">Enable AI Assistant</Label>
                   <p className="text-sm text-muted-foreground">Get AI-powered productivity suggestions</p>
                 </div>
                 <Switch checked={settings.ai.enabled} />
               </div>
               
               <div className="space-y-2">
-                <Label>Suggestion Frequency</Label>
+                <Label className="text-orange-600">Suggestion Frequency</Label>
                 <Select value={settings.ai.suggestionsFrequency}>
                   <SelectTrigger>
                     <SelectValue />
@@ -381,7 +381,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Personalized Tips</Label>
+                  <Label className="text-orange-600">Personalized Tips</Label>
                   <p className="text-sm text-muted-foreground">AI learns from your behavior patterns</p>
                 </div>
                 <Switch checked={settings.ai.personalizedTips} />
@@ -394,7 +394,7 @@ const Settings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Enable Gamification</Label>
+                  <Label className="text-orange-600">Enable Gamification</Label>
                   <p className="text-sm text-muted-foreground">XP, badges, and achievements</p>
                 </div>
                 <Switch checked={settings.gamification.enabled} />
@@ -402,7 +402,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Show XP Points</Label>
+                  <Label className="text-orange-600">Show XP Points</Label>
                   <p className="text-sm text-muted-foreground">Display experience points</p>
                 </div>
                 <Switch checked={settings.gamification.showXP} />
@@ -410,7 +410,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Show Badges</Label>
+                  <Label className="text-orange-600">Show Badges</Label>
                   <p className="text-sm text-muted-foreground">Display earned badges</p>
                 </div>
                 <Switch checked={settings.gamification.showBadges} />
@@ -418,7 +418,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Streak Notifications</Label>
+                  <Label className="text-orange-600">Streak Notifications</Label>
                   <p className="text-sm text-muted-foreground">Celebrate streak milestones</p>
                 </div>
                 <Switch checked={settings.gamification.streakNotifications} />
@@ -431,7 +431,7 @@ const Settings = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Analytics Tracking</Label>
+                  <Label className="text-orange-600">Analytics Tracking</Label>
                   <p className="text-sm text-muted-foreground">Help improve the app with usage data</p>
                 </div>
                 <Switch checked={settings.privacy.analyticsTracking} />
@@ -439,7 +439,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Performance Data</Label>
+                  <Label className="text-orange-600">Performance Data</Label>
                   <p className="text-sm text-muted-foreground">Share performance metrics</p>
                 </div>
                 <Switch checked={settings.privacy.performanceData} />
@@ -483,7 +483,7 @@ const Settings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Sound Effects</Label>
+                  <Label className="text-orange-600">Sound Effects</Label>
                   <p className="text-sm text-muted-foreground">Audio feedback for actions</p>
                 </div>
                 <Switch checked={settings.device.soundEffects} />
@@ -491,7 +491,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Auto-save</Label>
+                  <Label className="text-orange-600">Auto-save</Label>
                   <p className="text-sm text-muted-foreground">Automatically save your progress</p>
                 </div>
                 <Switch checked={settings.device.autoSave} />
@@ -499,7 +499,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Animations</Label>
+                  <Label className="text-orange-600">Animations</Label>
                   <p className="text-sm text-muted-foreground">Enable smooth transitions</p>
                 </div>
                 <Switch checked={settings.appearance.animationsEnabled} />
@@ -507,7 +507,7 @@ const Settings = () => {
               
               <div className="flex items-center justify-between">
                 <div>
-                  <Label>Offline Mode</Label>
+                  <Label className="text-orange-600">Offline Mode</Label>
                   <p className="text-sm text-muted-foreground">Work without internet connection</p>
                 </div>
                 <Switch checked={settings.device.offlineMode} />
