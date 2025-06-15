@@ -121,7 +121,7 @@ const GoalSection = () => {
               <Progress value={goal.calculatedProgress || 0} color={isOverdue(goal.endDate) ? "bg-red-500" : undefined} className="h-2 text-lime-500 text-right text-justify " />
               
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <CalendarIcon className="h-3 w-3 " />
+                <CalendarIcon className="h-3 w-3 text-lime-600" />
                 <span className="text-lime-500">
                   Due: {formatDate(goal.endDate)}
                 </span>
