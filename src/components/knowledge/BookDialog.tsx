@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { Upload, X, Image } from "lucide-react";
 import { cn } from "@/lib/utils";
-
 export interface BookDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -18,8 +17,15 @@ export interface BookDialogProps {
   coverImage: string | null;
   onCoverImageChange: (url: string | null) => void;
 }
-
-export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverImage, onCoverImageChange }: BookDialogProps) {
+export function BookDialog({
+  open,
+  onOpenChange,
+  onSave,
+  onDelete,
+  book,
+  coverImage,
+  onCoverImageChange
+}: BookDialogProps) {
   const [title, setTitle] = useState("");
   const [author, setAuthor] = useState("");
   const [description, setDescription] = useState("");
@@ -29,7 +35,6 @@ export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverIm
   const [skillsetInput, setSkillsetInput] = useState("");
   const [summary, setSummary] = useState("");
   const [keyLessons, setKeyLessons] = useState("");
-  
   useEffect(() => {
     if (book) {
       setTitle(book.title);
@@ -44,7 +49,6 @@ export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverIm
       resetForm();
     }
   }, [book]);
-  
   const resetForm = () => {
     setTitle("");
     setAuthor("");
@@ -57,21 +61,17 @@ export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverIm
     setKeyLessons("");
     onCoverImageChange(null);
   };
-  
   const handleAddSkillset = () => {
     if (skillsetInput && !relatedSkillsets.includes(skillsetInput)) {
       setRelatedSkillsets([...relatedSkillsets, skillsetInput]);
       setSkillsetInput("");
     }
   };
-  
   const handleRemoveSkillset = (skillset: string) => {
     setRelatedSkillsets(relatedSkillsets.filter(s => s !== skillset));
   };
-  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
     const newBook: Book = {
       id: book?.id || Date.now().toString(),
       title,
@@ -84,10 +84,8 @@ export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverIm
       keyLessons,
       coverImage: coverImage || undefined
     };
-    
     onSave(newBook);
   };
-  
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files && e.target.files[0];
     if (file) {
@@ -97,10 +95,8 @@ export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverIm
       onCoverImageChange(imageUrl);
     }
   };
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+  return <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto bg-slate-900 rounded-lg">
         <DialogHeader>
           <DialogTitle>{book ? "Edit Book" : "Add New Book"}</DialogTitle>
           <DialogDescription>
@@ -113,35 +109,17 @@ export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverIm
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title">Book Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter book title"
-                  required
-                />
+                <Input id="title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter book title" required />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="author">Author</Label>
-                <Input
-                  id="author"
-                  value={author}
-                  onChange={(e) => setAuthor(e.target.value)}
-                  placeholder="Enter author name"
-                  required
-                />
+                <Input id="author" value={author} onChange={e => setAuthor(e.target.value)} placeholder="Enter author name" required />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Brief description of the book"
-                  rows={3}
-                />
+                <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Brief description of the book" rows={3} />
               </div>
               
               <div className="space-y-2">
@@ -161,18 +139,9 @@ export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverIm
               <div className="space-y-2">
                 <Label htmlFor="rating">Rating (0-5)</Label>
                 <div className="flex items-center space-x-1">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <Button
-                      key={star}
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className={`p-0 w-8 h-8 ${rating >= star ? 'text-yellow-400' : 'text-gray-300'}`}
-                      onClick={() => setRating(star)}
-                    >
+                  {[1, 2, 3, 4, 5].map(star => <Button key={star} type="button" variant="ghost" size="sm" className={`p-0 w-8 h-8 ${rating >= star ? 'text-yellow-400' : 'text-gray-300'}`} onClick={() => setRating(star)}>
                       ★
-                    </Button>
-                  ))}
+                    </Button>)}
                 </div>
               </div>
             </div>
@@ -181,105 +150,50 @@ export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverIm
               <div className="space-y-2">
                 <Label>Book Cover</Label>
                 <div className="border-2 border-dashed rounded-md p-4 flex flex-col items-center justify-center">
-                  {coverImage ? (
-                    <div className="relative">
-                      <img 
-                        src={coverImage} 
-                        alt="Book cover"
-                        className="max-h-44 object-contain rounded"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute top-0 right-0 rounded-full p-1 h-auto"
-                        onClick={() => onCoverImageChange(null)}
-                      >
+                  {coverImage ? <div className="relative">
+                      <img src={coverImage} alt="Book cover" className="max-h-44 object-contain rounded" />
+                      <Button type="button" variant="ghost" size="sm" className="absolute top-0 right-0 rounded-full p-1 h-auto" onClick={() => onCoverImageChange(null)}>
                         <X className="h-4 w-4" />
                       </Button>
-                    </div>
-                  ) : (
-                    <>
+                    </div> : <>
                       <Image className="h-10 w-10 text-muted-foreground mb-2" />
                       <p className="text-sm text-muted-foreground mb-2">Upload book cover</p>
-                      <Label
-                        htmlFor="cover-upload"
-                        className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-primary/90 text-primary-foreground rounded-md hover:bg-primary text-sm"
-                      >
+                      <Label htmlFor="cover-upload" className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-primary/90 text-primary-foreground rounded-md hover:bg-primary text-sm">
                         <Upload className="h-4 w-4" />
                         <span>Choose file</span>
-                        <Input
-                          id="cover-upload"
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="sr-only"
-                        />
+                        <Input id="cover-upload" type="file" accept="image/*" onChange={handleImageUpload} className="sr-only" />
                       </Label>
-                    </>
-                  )}
+                    </>}
                 </div>
               </div>
               
               <div className="space-y-2">
                 <Label>Related Skillsets</Label>
                 <div className="flex items-center space-x-2">
-                  <Input
-                    value={skillsetInput}
-                    onChange={(e) => setSkillsetInput(e.target.value)}
-                    placeholder="e.g., Web Development"
-                    className="flex-1"
-                  />
-                  <Button 
-                    type="button" 
-                    onClick={handleAddSkillset}
-                    variant="outline"
-                  >
+                  <Input value={skillsetInput} onChange={e => setSkillsetInput(e.target.value)} placeholder="e.g., Web Development" className="flex-1" />
+                  <Button type="button" onClick={handleAddSkillset} variant="outline">
                     Add
                   </Button>
                 </div>
                 
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {relatedSkillsets.map((skillset) => (
-                    <div 
-                      key={skillset}
-                      className="bg-orange-100 text-orange-800 px-2 py-1 rounded-md flex items-center gap-1 text-sm"
-                    >
+                  {relatedSkillsets.map(skillset => <div key={skillset} className="bg-orange-100 text-orange-800 px-2 py-1 rounded-md flex items-center gap-1 text-sm">
                       {skillset}
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 p-0"
-                        onClick={() => handleRemoveSkillset(skillset)}
-                      >
+                      <Button type="button" variant="ghost" size="sm" className="h-4 w-4 p-0" onClick={() => handleRemoveSkillset(skillset)}>
                         <X className="h-3 w-3" />
                       </Button>
-                    </div>
-                  ))}
+                    </div>)}
                 </div>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="summary">Summary</Label>
-                <Textarea
-                  id="summary"
-                  value={summary}
-                  onChange={(e) => setSummary(e.target.value)}
-                  placeholder="Brief summary of what the book is about"
-                  rows={3}
-                />
+                <Textarea id="summary" value={summary} onChange={e => setSummary(e.target.value)} placeholder="Brief summary of what the book is about" rows={3} />
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="key-lessons">Key Lessons</Label>
-                <Textarea
-                  id="key-lessons"
-                  value={keyLessons}
-                  onChange={(e) => setKeyLessons(e.target.value)}
-                  placeholder="Main takeaways from the book"
-                  rows={3}
-                />
+                <Textarea id="key-lessons" value={keyLessons} onChange={e => setKeyLessons(e.target.value)} placeholder="Main takeaways from the book" rows={3} />
               </div>
             </div>
           </div>
@@ -294,6 +208,5 @@ export function BookDialog({ open, onOpenChange, onSave, onDelete, book, coverIm
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 }
