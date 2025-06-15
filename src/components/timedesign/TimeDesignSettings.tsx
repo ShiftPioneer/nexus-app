@@ -55,14 +55,14 @@ const TimeDesignSettings: React.FC = () => {
       setIsConnecting(false);
     }
   };
-  return <Card>
-      <CardHeader>
+  return <Card className="bg-slate-950">
+      <CardHeader className="bg-slate-950 rounded-lg">
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-primary" />
           Google Calendar Integration
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 bg-slate-950 rounded-lg">
         <div className="flex items-center justify-between">
           <div>
             <Label htmlFor="google-calendar" className="font-medium">Connect your Google Calendar to sync activities</Label>
@@ -170,7 +170,7 @@ const TimeDesignSettings: React.FC = () => {
           <div className="grid gap-4">
             <div className="flex items-center justify-between">
               <Label htmlFor="week-starts">Week Starts On</Label>
-              <select id="week-starts" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background">
+              <select id="week-starts" className="rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm ring-offset-background ">
                 <option>Sunday</option>
                 <option>Monday</option>
               </select>

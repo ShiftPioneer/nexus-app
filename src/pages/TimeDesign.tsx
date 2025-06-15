@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -14,18 +13,18 @@ import ActivityDialog from "@/components/timedesign/ActivityDialog";
 import { DragDropContext } from "react-beautiful-dnd";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useToast } from "@/hooks/use-toast";
-
 const TimeDesign = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<"day" | "week">("week");
   const [activeTab, setActiveTab] = useState("calendar");
   const [showActivityDialog, setShowActivityDialog] = useState(false);
   const [editingActivity, setEditingActivity] = useState<TimeActivity | null>(null);
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
+
   // Store activities in localStorage for persistence
   const [activities, setActivities] = useLocalStorage<TimeActivity[]>("timeDesignActivities", []);
-
   const handlePrevious = () => {
     if (viewType === "day") {
       setCurrentDate(addDays(currentDate, -1));
@@ -33,7 +32,6 @@ const TimeDesign = () => {
       setCurrentDate(addWeeks(currentDate, -1));
     }
   };
-
   const handleNext = () => {
     if (viewType === "day") {
       setCurrentDate(addDays(currentDate, 1));
@@ -41,23 +39,20 @@ const TimeDesign = () => {
       setCurrentDate(addWeeks(currentDate, 1));
     }
   };
-
   const handleToday = () => {
     setCurrentDate(new Date());
   };
-  
   const handleAddActivity = () => {
     setEditingActivity(null);
     setShowActivityDialog(true);
   };
-
   const handleSaveActivity = (activity: TimeActivity) => {
     if (activity.id && activities.find(a => a.id === activity.id)) {
       // Update existing activity
       setActivities(activities.map(a => a.id === activity.id ? activity : a));
       toast({
         title: "Activity Updated",
-        description: "Your activity has been updated successfully!",
+        description: "Your activity has been updated successfully!"
       });
     } else {
       // Add new activity
@@ -68,34 +63,29 @@ const TimeDesign = () => {
       setActivities([...activities, newActivity]);
       toast({
         title: "Activity Created",
-        description: "Your new activity has been added to the calendar!",
+        description: "Your new activity has been added to the calendar!"
       });
     }
     setShowActivityDialog(false);
     setEditingActivity(null);
   };
-
   const handleEditActivity = (activity: TimeActivity) => {
     setEditingActivity(activity);
     setShowActivityDialog(true);
   };
-
   const handleDeleteActivity = (id: string) => {
     setActivities(activities.filter(a => a.id !== id));
     toast({
       title: "Activity Deleted",
-      description: "The activity has been removed from your calendar.",
+      description: "The activity has been removed from your calendar."
     });
   };
-  
   const handleDragEnd = (result: any) => {
     // Handle drag end for activities if needed
     console.log("Drag ended:", result);
     // Implement drag and drop functionality here if required
   };
-  
-  return (
-    <ModernAppLayout>
+  return <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="space-y-6 max-w-full overflow-hidden">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -113,7 +103,7 @@ const TimeDesign = () => {
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="overflow-x-auto">
-              <TabsList className="bg-slate-900 border border-slate-700">
+              <TabsList className="border border-slate-700 bg-slate-950">
                 <TabsTrigger value="calendar">Calendar</TabsTrigger>
                 <TabsTrigger value="analytics">Analytics</TabsTrigger>
                 <TabsTrigger value="activities">Activities</TabsTrigger>
@@ -126,9 +116,7 @@ const TimeDesign = () => {
                 <div className="flex items-center">
                   <Calendar className="h-5 w-5 mr-3 text-primary" />
                   <h2 className="text-xl font-semibold text-white">
-                    {viewType === "day" 
-                      ? format(currentDate, "MMMM d, yyyy") 
-                      : `${format(startOfWeek(currentDate), "MMMM d")} - ${format(endOfWeek(currentDate), "MMMM d, yyyy")}`}
+                    {viewType === "day" ? format(currentDate, "MMMM d, yyyy") : `${format(startOfWeek(currentDate), "MMMM d")} - ${format(endOfWeek(currentDate), "MMMM d, yyyy")}`}
                   </h2>
                 </div>
                 
@@ -144,20 +132,10 @@ const TimeDesign = () => {
                   </Button>
                   
                   <div className="bg-slate-900 rounded-xl p-1.5 ml-2 border border-slate-700">
-                    <Button
-                      variant={viewType === "day" ? "tab-active" : "ghost"}
-                      size="sm"
-                      onClick={() => setViewType("day")}
-                      className="rounded-lg"
-                    >
+                    <Button variant={viewType === "day" ? "tab-active" : "ghost"} size="sm" onClick={() => setViewType("day")} className="rounded-lg">
                       Day
                     </Button>
-                    <Button
-                      variant={viewType === "week" ? "tab-active" : "ghost"}
-                      size="sm"
-                      onClick={() => setViewType("week")}
-                      className="rounded-lg"
-                    >
+                    <Button variant={viewType === "week" ? "tab-active" : "ghost"} size="sm" onClick={() => setViewType("week")} className="rounded-lg">
                       Week
                     </Button>
                   </div>
@@ -166,12 +144,7 @@ const TimeDesign = () => {
               
               <Card className="overflow-hidden bg-slate-950 border-slate-700">
                 <CardContent className="p-0">
-                  <TimeDesignCalendar 
-                    currentDate={currentDate} 
-                    viewType={viewType} 
-                    activities={activities}
-                    onEditActivity={handleEditActivity}
-                  />
+                  <TimeDesignCalendar currentDate={currentDate} viewType={viewType} activities={activities} onEditActivity={handleEditActivity} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -181,11 +154,7 @@ const TimeDesign = () => {
             </TabsContent>
             
             <TabsContent value="activities" className="mt-6">
-              <TimeDesignActivities 
-                activities={activities} 
-                onEditActivity={handleEditActivity}
-                onDeleteActivity={handleDeleteActivity}
-              />
+              <TimeDesignActivities activities={activities} onEditActivity={handleEditActivity} onDeleteActivity={handleDeleteActivity} />
             </TabsContent>
             
             <TabsContent value="settings" className="mt-6">
@@ -194,15 +163,8 @@ const TimeDesign = () => {
           </Tabs>
         </div>
         
-        <ActivityDialog 
-          open={showActivityDialog}
-          onOpenChange={setShowActivityDialog}
-          activity={editingActivity}
-          onSave={handleSaveActivity}
-        />
+        <ActivityDialog open={showActivityDialog} onOpenChange={setShowActivityDialog} activity={editingActivity} onSave={handleSaveActivity} />
       </DragDropContext>
-    </ModernAppLayout>
-  );
+    </ModernAppLayout>;
 };
-
 export default TimeDesign;
