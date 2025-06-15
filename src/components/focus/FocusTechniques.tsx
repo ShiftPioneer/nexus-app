@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,81 +5,69 @@ import { Badge } from "@/components/ui/badge";
 import { Clock, Target, Zap, Brain, BookOpen, Flame } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
 interface FocusTechniquesProps {
   onStartTechnique: (technique: FocusTechnique) => void;
 }
 
 // Sample focus techniques
-const focusTechniques: FocusTechnique[] = [
-  {
-    name: "Pomodoro",
-    description: "Work for 25 minutes, then take a 5-minute break. After 4 cycles, take a longer break.",
-    difficulty: "Beginner",
-    bestFor: "Breaking down work into intervals",
-    structure: "25min work, 5min break × 4, then 15-30min break",
-    duration: 25,
-    icon: Clock
-  },
-  {
-    name: "Deep Work",
-    description: "Dedicate 50-90 minutes to distraction-free, high-concentration work on a single task.",
-    difficulty: "Intermediate",
-    bestFor: "Complex problem-solving and creative tasks",
-    structure: "50-90min of uninterrupted focus",
-    duration: 50,
-    icon: Brain
-  },
-  {
-    name: "52/17 Method",
-    description: "Work for 52 minutes with intense focus, then recover with a 17-minute break.",
-    difficulty: "Intermediate",
-    bestFor: "Maintaining high energy and productivity",
-    structure: "52min work, 17min break",
-    duration: 52,
-    icon: Zap
-  },
-  {
-    name: "Flow State",
-    description: "Create optimal conditions for achieving a state of complete immersion in your work.",
-    difficulty: "Advanced",
-    bestFor: "Creative work and deep thinking",
-    structure: "90-120min of uninterrupted focus",
-    duration: 90,
-    icon: Flame
-  },
-  {
-    name: "Timeboxing",
-    description: "Allocate a fixed time period to each task, moving on when time is up regardless of completion.",
-    difficulty: "Beginner",
-    bestFor: "Managing multiple tasks and preventing perfectionism",
-    structure: "Fixed time blocks for specific tasks",
-    duration: 30,
-    icon: Target
-  },
-  {
-    name: "Deliberate Practice",
-    description: "Focus on specific skill improvement with targeted practice and immediate feedback.",
-    difficulty: "Advanced",
-    bestFor: "Skill development and mastery",
-    structure: "45min targeted practice sessions",
-    duration: 45,
-    icon: BookOpen
-  }
-];
-
-const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) => {
+const focusTechniques: FocusTechnique[] = [{
+  name: "Pomodoro",
+  description: "Work for 25 minutes, then take a 5-minute break. After 4 cycles, take a longer break.",
+  difficulty: "Beginner",
+  bestFor: "Breaking down work into intervals",
+  structure: "25min work, 5min break × 4, then 15-30min break",
+  duration: 25,
+  icon: Clock
+}, {
+  name: "Deep Work",
+  description: "Dedicate 50-90 minutes to distraction-free, high-concentration work on a single task.",
+  difficulty: "Intermediate",
+  bestFor: "Complex problem-solving and creative tasks",
+  structure: "50-90min of uninterrupted focus",
+  duration: 50,
+  icon: Brain
+}, {
+  name: "52/17 Method",
+  description: "Work for 52 minutes with intense focus, then recover with a 17-minute break.",
+  difficulty: "Intermediate",
+  bestFor: "Maintaining high energy and productivity",
+  structure: "52min work, 17min break",
+  duration: 52,
+  icon: Zap
+}, {
+  name: "Flow State",
+  description: "Create optimal conditions for achieving a state of complete immersion in your work.",
+  difficulty: "Advanced",
+  bestFor: "Creative work and deep thinking",
+  structure: "90-120min of uninterrupted focus",
+  duration: 90,
+  icon: Flame
+}, {
+  name: "Timeboxing",
+  description: "Allocate a fixed time period to each task, moving on when time is up regardless of completion.",
+  difficulty: "Beginner",
+  bestFor: "Managing multiple tasks and preventing perfectionism",
+  structure: "Fixed time blocks for specific tasks",
+  duration: 30,
+  icon: Target
+}, {
+  name: "Deliberate Practice",
+  description: "Focus on specific skill improvement with targeted practice and immediate feedback.",
+  difficulty: "Advanced",
+  bestFor: "Skill development and mastery",
+  structure: "45min targeted practice sessions",
+  duration: 45,
+  icon: BookOpen
+}];
+const FocusTechniques: React.FC<FocusTechniquesProps> = ({
+  onStartTechnique
+}) => {
   const [selectedTechnique, setSelectedTechnique] = useState<FocusTechnique | null>(null);
   const [activeTab, setActiveTab] = useState<string>("all");
-  
-  const filteredTechniques = activeTab === "all" 
-    ? focusTechniques 
-    : focusTechniques.filter(t => t.difficulty.toLowerCase() === activeTab.toLowerCase());
-  
-  return (
-    <>
+  const filteredTechniques = activeTab === "all" ? focusTechniques : focusTechniques.filter(t => t.difficulty.toLowerCase() === activeTab.toLowerCase());
+  return <>
       <Card>
-        <CardHeader className="pb-2">
+        <CardHeader className="pb-2 bg-slate-950 rounded-lg">
           <CardTitle className="flex items-center gap-2">
             <Brain className="h-5 w-5 text-primary" />
             Focus Techniques
@@ -90,7 +77,7 @@ const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) =
           </CardDescription>
         </CardHeader>
         
-        <CardContent>
+        <CardContent className="rounded-lg bg-slate-950">
           <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="mb-6">
             <TabsList>
               <TabsTrigger value="all">All Techniques</TabsTrigger>
@@ -101,9 +88,8 @@ const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) =
           </Tabs>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredTechniques.map((technique) => (
-              <Card key={technique.name} className="overflow-hidden border border-accent hover:border-primary transition-colors">
-                <CardHeader className="pb-2">
+            {filteredTechniques.map(technique => <Card key={technique.name} className="overflow-hidden border border-accent hover:border-primary transition-colors">
+                <CardHeader className="pb-2 bg-slate-900">
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-lg">{technique.name}</CardTitle>
@@ -117,42 +103,31 @@ const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) =
                   </div>
                 </CardHeader>
                 
-                <CardContent className="pb-2 pt-0">
+                <CardContent className="pb-2 pt-0 bg-slate-900">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline">{technique.difficulty}</Badge>
-                      <Badge variant="outline">{technique.duration}min</Badge>
+                      <Badge variant="outline" className="text-lime-600">{technique.difficulty}</Badge>
+                      <Badge variant="outline" className="text-lime-600">{technique.duration}min</Badge>
                     </div>
                   </div>
                 </CardContent>
                 
-                <CardFooter className="flex gap-2">
-                  <Button 
-                    variant="default" 
-                    size="sm" 
-                    className="flex-1"
-                    onClick={() => onStartTechnique(technique)}
-                  >
+                <CardFooter className="flex gap-2 bg-slate-900">
+                  <Button variant="default" size="sm" className="flex-1" onClick={() => onStartTechnique(technique)}>
                     Start Now
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => setSelectedTechnique(technique)}
-                  >
+                  <Button variant="outline" size="sm" onClick={() => setSelectedTechnique(technique)}>
                     Details
                   </Button>
                 </CardFooter>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </CardContent>
       </Card>
       
       {/* Technique details dialog */}
       <Dialog open={!!selectedTechnique} onOpenChange={() => setSelectedTechnique(null)}>
-        {selectedTechnique && (
-          <DialogContent className="sm:max-w-md">
+        {selectedTechnique && <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <div className="flex items-center gap-2">
                 <div className="bg-primary p-2 rounded-full text-primary-foreground">
@@ -200,21 +175,15 @@ const FocusTechniques: React.FC<FocusTechniquesProps> = ({ onStartTechnique }) =
             </div>
             
             <DialogFooter>
-              <Button 
-                onClick={() => {
-                  onStartTechnique(selectedTechnique);
-                  setSelectedTechnique(null);
-                }}
-                className="w-full"
-              >
+              <Button onClick={() => {
+            onStartTechnique(selectedTechnique);
+            setSelectedTechnique(null);
+          }} className="w-full">
                 Start {selectedTechnique.name} Technique
               </Button>
             </DialogFooter>
-          </DialogContent>
-        )}
+          </DialogContent>}
       </Dialog>
-    </>
-  );
+    </>;
 };
-
 export default FocusTechniques;
