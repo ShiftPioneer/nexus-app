@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { CheckCircle, Target, ClipboardCheck, BarChart2 } from "lucide-react";
+import { Target, CheckCircle2, BarChart2, CheckCircle } from "lucide-react";
 import { useGTD } from "@/components/gtd/GTDContext";
 import { motion } from "framer-motion";
 
@@ -110,14 +110,6 @@ const StatsSection = () => {
   const productivityScore = Math.round(taskStats.rate * 0.4 + goalStats.progress * 0.4 + (habitStats.streak * 2));
 
   const statsData = [{
-    title: "Habit Streak",
-    value: habitStats.totalHabits > 0 ? `${habitStats.streak} days` : "N/A",
-    change: habitStats.totalHabits > 0 ? `${habitStats.completedToday}/${habitStats.totalHabits} completed today` : "Create a habit",
-    icon: CheckCircle,
-    progress: habitStats.totalHabits > 0 ? Math.min(100, habitStats.streak / 30 * 100) : 0,
-    color: "text-green-400 bg-green-900/40",
-    progressColor: "bg-green-400"
-  }, {
     title: "Goals Progress",
     value: `${goalStats.progress}%`,
     change: `${goalStats.activeCount} active goals`,
@@ -129,10 +121,18 @@ const StatsSection = () => {
     title: "Today's Tasks",
     value: taskStats.total > 0 ? `${taskStats.completed}/${taskStats.total}` : "N/A",
     change: taskStats.total > 0 ? `${taskStats.rate}% completed` : "Add tasks for today",
-    icon: ClipboardCheck,
+    icon: CheckCircle,
     progress: taskStats.rate,
     color: "text-blue-400 bg-blue-900/40",
     progressColor: "bg-blue-400"
+  }, {
+    title: "Habit Streak",
+    value: habitStats.totalHabits > 0 ? `${habitStats.streak} days` : "N/A",
+    change: habitStats.totalHabits > 0 ? `${habitStats.completedToday}/${habitStats.totalHabits} completed today` : "Create a habit",
+    icon: CheckCircle2,
+    progress: habitStats.totalHabits > 0 ? Math.min(100, habitStats.streak / 30 * 100) : 0,
+    color: "text-green-400 bg-green-900/40",
+    progressColor: "bg-green-400"
   }, {
     title: "Productivity",
     value: productivityScore.toString(),
