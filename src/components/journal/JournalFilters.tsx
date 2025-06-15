@@ -1,17 +1,16 @@
-
 import React from "react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-
 interface JournalFiltersProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
-
-const JournalFilters: React.FC<JournalFiltersProps> = ({ activeTab, onTabChange }) => {
-  return (
-    <div className="space-y-4">
+const JournalFilters: React.FC<JournalFiltersProps> = ({
+  activeTab,
+  onTabChange
+}) => {
+  return <div className="space-y-4">
       <Tabs defaultValue="all" value={activeTab} onValueChange={onTabChange} className="w-full">
         <TabsList className="grid grid-cols-4">
           <TabsTrigger value="all">All Entries</TabsTrigger>
@@ -23,11 +22,9 @@ const JournalFilters: React.FC<JournalFiltersProps> = ({ activeTab, onTabChange 
       <div className="flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search journal entries..." className="pl-8" />
+          <Input placeholder="Search journal entries..." className="pl-8 bg-slate-900" />
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default JournalFilters;
