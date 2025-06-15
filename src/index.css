@@ -30,12 +30,12 @@
     /* Sidebar variables */
     --sidebar-background: 2 6 23;
     --sidebar-foreground: 248 250 252;
-    --sidebar-primary: 101 163 13; /* Changed from orange to lime-600 */
+    --sidebar-primary: 255 101 0;
     --sidebar-primary-foreground: 255 255 255;
     --sidebar-accent: 51 65 85;
     --sidebar-accent-foreground: 248 250 252;
     --sidebar-border: 51 65 85;
-    --sidebar-ring: 101 163 13; /* Changed from orange to lime-600 */
+    --sidebar-ring: 255 101 0;
   }
  
   .dark {
@@ -63,12 +63,12 @@
     /* Dark sidebar variables */
     --sidebar-background: 2 6 23;
     --sidebar-foreground: 248 250 252;
-    --sidebar-primary: 101 163 13; /* Changed from orange to lime-600 */
+    --sidebar-primary: 255 101 0;
     --sidebar-primary-foreground: 255 255 255;
     --sidebar-accent: 51 65 85;
     --sidebar-accent-foreground: 248 250 252;
     --sidebar-border: 51 65 85;
-    --sidebar-ring: 101 163 13; /* Changed from orange to lime-600 */
+    --sidebar-ring: 255 101 0;
   }
 }
  

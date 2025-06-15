@@ -25,19 +25,19 @@ export default {
       colors: {
         // NEXUS Primary Brand Colors
         primary: {
-          DEFAULT: "#65a30d", // lime-600
-          50: "#f7fee7", // lime-50
-          100: "#ecfccb", // lime-100
-          200: "#d9f99d", // lime-200
-          300: "#bef264", // lime-300
-          400: "#a3e635", // lime-400
-          500: "#84cc16", // lime-500
-          600: "#65a30d", // lime-600
-          700: "#4d7c0f", // lime-700
-          800: "#3f6212", // lime-800
-          900: "#365314", // lime-900
-          950: "#1a2e05", // lime-950
-          foreground: "#FFFFFF",
+          DEFAULT: '#FF6500',
+          50: '#FFF7ED',
+          100: '#FFEDD5',
+          200: '#FED7AA',
+          300: '#FDBA74',
+          400: '#FB923C',
+          500: '#FF6500',
+          600: '#EA580C',
+          700: '#C2410C',
+          800: '#9A3412',
+          900: '#7C2D12',
+          950: '#431407',
+          foreground: '#FFFFFF'
         },
 
         // Semantic Color System
@@ -120,10 +120,10 @@ export default {
 
         // Status Colors
         status: {
-          active: "#10B981",
-          pending: "#84cc16", // lime-500
-          inactive: "#6B7280",
-          completed: "#059669"
+          active: '#10B981',
+          pending: '#F59E0B',
+          inactive: '#6B7280',
+          completed: '#059669'
         },
 
         // Legacy colors (keeping for compatibility)
