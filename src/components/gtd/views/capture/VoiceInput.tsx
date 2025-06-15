@@ -1,7 +1,7 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mic, Square } from 'lucide-react';
+import { Mic, MicOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 interface VoiceInputProps {
@@ -15,90 +15,136 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
   isRecording = false,
   onRecordingStateChange 
 }) => {
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
-  
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [isSupported, setIsSupported] = useState(false);
+  const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
+  useEffect(() => {
+    // Check if speech recognition is supported
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    
+    if (SpeechRecognition) {
+      setIsSupported(true);
+      recognitionRef.current = new SpeechRecognition();
       
-      const chunks: Blob[] = [];
-      
-      mediaRecorder.ondataavailable = (event) => {
-        chunks.push(event.data);
-      };
-      
-      mediaRecorder.onstop = async () => {
-        const blob = new Blob(chunks, { type: 'audio/webm' });
-        setAudioBlob(blob);
+      // Configure speech recognition
+      recognitionRef.current.continuous = true;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+
+      // Handle speech results
+      recognitionRef.current.onresult = (event: any) => {
+        let finalTranscript = '';
         
-        // Convert audio to base64 and send for transcription
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          const base64Audio = reader.result?.toString().split(',')[1];
-          if (base64Audio) {
-            // For now, simulate transcription - you can integrate with speech-to-text API later
-            const simulatedTranscription = "Voice input captured - transcription would appear here";
-            onTranscription(simulatedTranscription);
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript;
           }
-        };
-        reader.readAsDataURL(blob);
-        
-        // Stop all tracks
-        stream.getTracks().forEach(track => track.stop());
+        }
+
+        if (finalTranscript) {
+          onTranscription(finalTranscript);
+        }
       };
-      
-      mediaRecorder.start();
+
+      // Handle errors
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        onRecordingStateChange?.(false);
+        
+        let errorMessage = 'Speech recognition failed';
+        switch (event.error) {
+          case 'no-speech':
+            errorMessage = 'No speech detected. Please try again.';
+            break;
+          case 'audio-capture':
+            errorMessage = 'Microphone not accessible. Please check permissions.';
+            break;
+          case 'not-allowed':
+            errorMessage = 'Microphone permission denied. Please allow microphone access.';
+            break;
+          case 'network':
+            errorMessage = 'Network error occurred during speech recognition.';
+            break;
+        }
+        
+        toast({
+          title: "Speech Recognition Error",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      };
+
+      // Handle speech end
+      recognitionRef.current.onend = () => {
+        onRecordingStateChange?.(false);
+      };
+    } else {
+      setIsSupported(false);
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, [onTranscription, onRecordingStateChange, toast]);
+
+  const startRecording = () => {
+    if (!recognitionRef.current || !isSupported) {
+      toast({
+        title: "Speech Recognition Not Available",
+        description: "Your browser doesn't support speech recognition. Please use Chrome or Edge.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      recognitionRef.current.start();
       onRecordingStateChange?.(true);
-      setRecordingTime(0);
-      
-      // Start timer
-      timerRef.current = setInterval(() => {
-        setRecordingTime(prev => prev + 1);
-      }, 1000);
       
       toast({
-        title: "Recording started",
+        title: "Listening...",
         description: "Speak clearly to capture your input"
       });
     } catch (error) {
-      console.error('Error accessing microphone:', error);
+      console.error('Error starting speech recognition:', error);
       toast({
-        title: "Microphone access denied",
-        description: "Please allow microphone access to use voice input",
+        title: "Error",
+        description: "Failed to start speech recognition",
         variant: "destructive"
       });
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
       onRecordingStateChange?.(false);
-      
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-        timerRef.current = null;
-      }
       
       toast({
         title: "Recording stopped",
-        description: "Processing your voice input..."
+        description: "Voice input captured successfully"
       });
     }
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  if (!isSupported) {
+    return (
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        disabled
+        className="flex items-center space-x-1 text-slate-500"
+        title="Speech recognition not supported in this browser"
+      >
+        <MicOff className="h-4 w-4" />
+      </Button>
+    );
+  }
 
   return (
     <div className="flex items-center space-x-2">
@@ -108,23 +154,22 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
           variant="ghost"
           size="sm"
           onClick={startRecording}
-          className="flex items-center space-x-1 text-cyan-500 hover:text-cyan-400"
+          className="flex items-center space-x-1 text-cyan-500 hover:text-cyan-400 transition-colors"
+          title="Start voice input"
         >
           <Mic className="h-4 w-4" />
         </Button>
       ) : (
-        <div className="flex items-center space-x-2">
-          <Button
-            type="button"
-            variant="destructive"
-            size="sm"
-            onClick={stopRecording}
-            className="flex items-center space-x-1 animate-pulse"
-          >
-            <Square className="h-4 w-4" />
-            <span>{formatTime(recordingTime)}</span>
-          </Button>
-        </div>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={stopRecording}
+          className="flex items-center space-x-1 text-red-500 hover:text-red-400 animate-pulse"
+          title="Stop voice input"
+        >
+          <Mic className="h-4 w-4" />
+        </Button>
       )}
     </div>
   );
