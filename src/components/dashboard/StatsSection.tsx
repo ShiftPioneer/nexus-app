@@ -1,7 +1,9 @@
+
 import React, { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, Target, ClipboardCheck, BarChart2 } from "lucide-react";
 import { useGTD } from "@/components/gtd/GTDContext";
+import { motion } from "framer-motion";
+
 const StatsSection = () => {
   const {
     tasks
@@ -105,55 +107,76 @@ const StatsSection = () => {
   const taskStats = calculateTaskStats();
 
   // Calculate productivity score (combination of task completion, goal progress, and habit streaks)
-  const productivityScore = Math.round(taskStats.rate * 0.4 + goalStats.progress * 0.4 + habitStats.streak * 2);
+  const productivityScore = Math.round(taskStats.rate * 0.4 + goalStats.progress * 0.4 + (habitStats.streak * 2));
 
-  // Mock stats data with real calculated values
-  const stats = [{
+  const statsData = [{
     title: "Habit Streak",
-    value: habitStats.totalHabits > 0 ? `${habitStats.streak} days` : "No habits",
-    change: habitStats.totalHabits > 0 ? `${habitStats.completedToday}/${habitStats.totalHabits} completed today` : "Create your first habit",
-    icon: <CheckCircle className="h-8 w-8 text-success" />,
-    color: "bg-success/10 border-success/20"
+    value: habitStats.totalHabits > 0 ? `${habitStats.streak} days` : "N/A",
+    change: habitStats.totalHabits > 0 ? `${habitStats.completedToday}/${habitStats.totalHabits} completed today` : "Create a habit",
+    icon: CheckCircle,
+    progress: habitStats.totalHabits > 0 ? Math.min(100, habitStats.streak / 30 * 100) : 0,
+    color: "text-green-400 bg-green-900/40",
+    progressColor: "bg-green-400"
   }, {
     title: "Goals Progress",
     value: `${goalStats.progress}%`,
     change: `${goalStats.activeCount} active goals`,
-    icon: <Target className="h-8 w-8 text-primary" />,
-    color: "bg-primary/10 border-primary/20"
+    icon: Target,
+    progress: goalStats.progress,
+    color: "text-primary bg-primary/20",
+    progressColor: "bg-primary"
   }, {
-    title: "Tasks Completed",
-    value: taskStats.total > 0 ? `${taskStats.completed}/${taskStats.total}` : "No tasks today",
-    change: taskStats.total > 0 ? `${taskStats.rate}% completion rate` : "Schedule tasks for today",
-    icon: <ClipboardCheck className="h-8 w-8 text-secondary" />,
-    color: "bg-secondary/10 border-secondary/20"
+    title: "Today's Tasks",
+    value: taskStats.total > 0 ? `${taskStats.completed}/${taskStats.total}` : "N/A",
+    change: taskStats.total > 0 ? `${taskStats.rate}% completed` : "Add tasks for today",
+    icon: ClipboardCheck,
+    progress: taskStats.rate,
+    color: "text-blue-400 bg-blue-900/40",
+    progressColor: "bg-blue-400"
   }, {
-    title: "Productivity Score",
+    title: "Productivity",
     value: productivityScore.toString(),
-    change: "+5 points this week",
-    icon: <BarChart2 className="h-8 w-8 text-accent" />,
-    color: "bg-accent/10 border-accent/20"
+    change: "Score based on activity",
+    icon: BarChart2,
+    progress: Math.min(productivityScore, 100),
+    color: "text-purple-400 bg-purple-900/40",
+    progressColor: "bg-purple-400"
   }];
-  return <section className="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-      {stats.map((stat, index) => <Card key={index} className={`overflow-hidden card-hover border ${stat.color}`}>
-          <CardContent className="p-6">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground text-green-600">{stat.title}</p>
-                <h3 className="text-2xl font-bold mt-1 text-green-600">{stat.value}</h3>
-                <p className="text-xs text-muted-foreground mt-1 text-green-600">{stat.change}</p>
-              </div>
-              <div>{stat.icon}</div>
+  return <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      {statsData.map((stat, index) => <motion.div key={index} className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-slate-700 hover:bg-slate-800/60 hover:shadow-primary/10" initial={{
+      opacity: 0,
+      y: 20
+    }} animate={{
+      opacity: 1,
+      y: 0
+    }} transition={{
+      duration: 0.5,
+      delay: index * 0.1
+    }}>
+          <div className="flex items-start justify-between">
+            <div className="flex flex-col">
+              <p className="text-sm text-slate-400">{stat.title}</p>
+              <h3 className="text-2xl font-bold text-slate-50 mt-1">{stat.value}</h3>
             </div>
-            
-            {/* Simple progress indicator */}
-            <div className="progress-bar-bg mt-4">
-              <div className={`progress-bar-fill animate-progress`} style={{
-            width: stat.title.includes("Goals") ? `${goalStats.progress}%` : stat.title.includes("Tasks") ? `${taskStats.rate}%` : stat.title.includes("Habit") ? `${Math.min(habitStats.streak * 10, 100)}%` : `${Math.min(productivityScore, 100)}%`,
-            backgroundColor: stat.icon.props.className.includes("success") ? "#39D98A" : stat.icon.props.className.includes("primary") ? "#FF6500" : stat.icon.props.className.includes("secondary") ? "#024CAA" : "#00D4FF"
-          }}></div>
+            <div className={`rounded-lg p-3 ${stat.color}`}>
+              <stat.icon className="h-6 w-6" />
             </div>
-          </CardContent>
-        </Card>)}
+          </div>
+          <div className="mt-4">
+            <div className="h-2 w-full rounded-full bg-slate-700/50">
+              <motion.div className={`h-2 rounded-full ${stat.progressColor}`} initial={{
+              width: 0
+            }} animate={{
+              width: `${stat.progress}%`
+            }} transition={{
+              duration: 1,
+              ease: "circOut",
+              delay: 0.5 + index * 0.1
+            }} />
+            </div>
+            <p className="mt-2 text-xs text-slate-500">{stat.change}</p>
+          </div>
+        </motion.div>)}
     </section>;
 };
 export default StatsSection;
