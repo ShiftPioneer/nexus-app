@@ -87,13 +87,13 @@ const EngageView = () => {
       </motion.div>
 
       <Card>
-        <CardHeader className="bg-slate-950">
+        <CardHeader className="bg-slate-950 rounded-lg">
           <CardTitle>Your Progress</CardTitle>
           <CardDescription>
             Track your GTD workflow progress
           </CardDescription>
         </CardHeader>
-        <CardContent className="bg-slate-950">
+        <CardContent className="bg-slate-950 rounded-lg">
           <div className="space-y-6">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatsCard title="In Inbox" value={tasks.filter(task => task.status === "inbox").length} bgClass="bg-blue-50 dark:bg-blue-900/20" textClass="text-blue-800 dark:text-blue-300" />
