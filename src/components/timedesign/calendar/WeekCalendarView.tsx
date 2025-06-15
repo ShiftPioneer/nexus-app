@@ -31,7 +31,7 @@ const WeekCalendarView: React.FC<WeekCalendarViewProps> = ({
     <div className="min-h-[1728px] overflow-x-auto">
       <WeekHeader weekDays={weekDays} />
       
-      <div className="grid grid-cols-8 relative">
+      <div className="grid grid-cols-[3.5rem,repeat(7,1fr)] relative">
         <WeekTimeColumn hours={hours} formatHour={formatHour} />
         
         {weekDays.map((day, dayIndex) => (

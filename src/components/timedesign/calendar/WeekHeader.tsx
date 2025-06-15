@@ -8,8 +8,8 @@ interface WeekHeaderProps {
 
 const WeekHeader: React.FC<WeekHeaderProps> = ({ weekDays }) => {
   return (
-    <div className="grid grid-cols-8 border-b border-slate-800 sticky top-0 bg-slate-950 z-20">
-      <div className="w-12"></div>
+    <div className="grid grid-cols-[3.5rem,repeat(7,1fr)] border-b border-slate-800 sticky top-0 bg-slate-950 z-20">
+      <div></div>
       {weekDays.map((day, i) => {
         const isToday = isSameDay(day, new Date());
         return (
