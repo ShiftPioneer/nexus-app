@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -245,7 +244,7 @@ const Settings = () => {
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="name" className="text-orange-600">Display Name</Label>
-                  <Input id="name" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} className="bg-slate-900" />
+                  <Input id="name" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} className="bg-slate-900 text-slate-300 border-slate-300" />
                 </div>
                 <div>
                   <Label htmlFor="email" className="text-orange-600">Email</Label>
