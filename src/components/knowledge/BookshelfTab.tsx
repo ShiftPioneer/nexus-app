@@ -5,9 +5,10 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Search, BookOpen, Clock, Calendar, Grid, List, Star } from "lucide-react";
-import { BookDialog } from "./BookDialog";
+import BookDialog from "./BookDialog";
 import { Book } from "@/types/knowledge";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+
 const defaultBooks: Book[] = [{
   id: "1",
   title: "Atomic Habits",
@@ -39,6 +40,7 @@ const defaultBooks: Book[] = [{
   summary: "The ability to focus without distraction on cognitively demanding tasks.",
   keyLessons: "Cultivate deep work habits, eliminate shallow work, embrace boredom."
 }];
+
 const BookshelfTab = () => {
   const [books, setBooks] = useLocalStorage<Book[]>("userBooks", defaultBooks);
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
