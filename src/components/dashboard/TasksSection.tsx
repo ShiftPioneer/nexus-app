@@ -82,7 +82,7 @@ const TasksSection = () => {
       </CardHeader>
       <CardContent className="bg-slate-950 rounded-lg">
         {tasks.length === 0 ? <div className="text-center py-8">
-            <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4 text-cyan-600" />
             <p className="text-muted-foreground mb-2">No tasks scheduled for today</p>
             <Button variant="outline" size="sm" onClick={() => navigate("/actions")}>
               Schedule Tasks
