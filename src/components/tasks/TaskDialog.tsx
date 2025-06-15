@@ -131,7 +131,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
     }
   };
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md bg-slate-900">
+      <DialogContent className="sm:max-w-md bg-slate-950">
         <DialogHeader>
           <DialogTitle>{task ? "Edit Task" : "New Task"}</DialogTitle>
         </DialogHeader>
