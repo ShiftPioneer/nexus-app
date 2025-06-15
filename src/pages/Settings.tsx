@@ -9,32 +9,29 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-import { 
-  User, Bell, Brain, Trophy, Shield, Smartphone,
-  Palette, Volume2, Moon, Sun, Globe, Lock, 
-  Database, Trash2, Download, ChevronDown, ChevronRight
-} from 'lucide-react';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { User, Bell, Brain, Trophy, Shield, Smartphone, Palette, Volume2, Moon, Sun, Globe, Lock, Database, Trash2, Download, ChevronDown, ChevronRight } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Theme, useTheme } from "@/components/ui/theme-provider";
 import AvatarSelector from "@/components/settings/AvatarSelector";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-
 const Settings = () => {
   const navigate = useNavigate();
-  const { user, signOut, updateUser } = useAuth();
+  const {
+    user,
+    signOut,
+    updateUser
+  } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [avatar, setAvatar] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const { toast } = useToast();
-  const { setTheme } = useTheme();
+  const {
+    toast
+  } = useToast();
+  const {
+    setTheme
+  } = useTheme();
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -78,7 +75,6 @@ const Settings = () => {
       offlineMode: true
     }
   });
-
   const [expandedSections, setExpandedSections] = useState({
     personalization: true,
     notifications: false,
@@ -88,20 +84,17 @@ const Settings = () => {
     account: false,
     device: false
   });
-
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section]
     }));
   };
-
   useEffect(() => {
     if (user) {
       setEmail(user.email || '');
     }
   }, [user]);
-
   useEffect(() => {
     try {
       const savedProfile = localStorage.getItem('userProfile');
@@ -118,7 +111,6 @@ const Settings = () => {
       console.error("Failed to load profile data:", error);
     }
   }, [user]);
-
   const handleSignOut = async () => {
     try {
       saveUserData();
@@ -143,7 +135,6 @@ const Settings = () => {
       console.error("Failed to save user data:", error);
     }
   };
-
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
@@ -153,7 +144,7 @@ const Settings = () => {
         avatar_url: avatar
       };
       await updateUser(metadata);
-      
+
       // Save profile data to localStorage
       const profile = {
         name: name,
@@ -164,25 +155,25 @@ const Settings = () => {
       setProfileData(profile);
 
       // Dispatch custom event for profile update
-      const event = new CustomEvent('profileUpdated', { detail: profile });
+      const event = new CustomEvent('profileUpdated', {
+        detail: profile
+      });
       window.dispatchEvent(event);
-
       toast({
         title: "Profile Updated",
-        description: "Your profile has been updated successfully.",
+        description: "Your profile has been updated successfully."
       });
     } catch (error: any) {
       console.error("Error updating profile:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to update profile.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsSaving(false);
     }
   };
-
   const getUserName = () => {
     if (profileData?.name) {
       return profileData.name;
@@ -195,7 +186,6 @@ const Settings = () => {
     }
     return user?.email?.split('@')[0] || "User";
   };
-
   const handleAvatarChange = (newAvatar: string) => {
     setAvatar(newAvatar);
   };
@@ -205,29 +195,23 @@ const Settings = () => {
     const handleBeforeUnload = () => {
       saveUserData();
     };
-
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [name, avatar, profileData]);
-
-  const SettingSection = ({ 
-    title, 
-    icon: Icon, 
-    children, 
-    sectionKey 
-  }: { 
-    title: string; 
-    icon: any; 
-    children: React.ReactNode; 
-    sectionKey: string; 
-  }) => (
-    <Card className="overflow-hidden">
-      <Collapsible
-        open={expandedSections[sectionKey]}
-        onOpenChange={() => toggleSection(sectionKey)}
-      >
+  const SettingSection = ({
+    title,
+    icon: Icon,
+    children,
+    sectionKey
+  }: {
+    title: string;
+    icon: any;
+    children: React.ReactNode;
+    sectionKey: string;
+  }) => <Card className="overflow-hidden">
+      <Collapsible open={expandedSections[sectionKey]} onOpenChange={() => toggleSection(sectionKey)} className="bg-slate-950">
         <CollapsibleTrigger className="w-full">
           <CardHeader className="hover:bg-muted/50 transition-colors">
             <CardTitle className="flex items-center justify-between text-lg">
@@ -235,25 +219,18 @@ const Settings = () => {
                 <Icon className="h-5 w-5 text-primary" />
                 {title}
               </div>
-              {expandedSections[sectionKey] ? (
-                <ChevronDown className="h-4 w-4" />
-              ) : (
-                <ChevronRight className="h-4 w-4" />
-              )}
+              {expandedSections[sectionKey] ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </CardTitle>
           </CardHeader>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-4 rounded-lg bg-slate-950">
             {children}
           </CardContent>
         </CollapsibleContent>
       </Collapsible>
-    </Card>
-  );
-
-  return (
-    <ModernAppLayout>
+    </Card>;
+  return <ModernAppLayout>
       <div className="space-y-6 max-w-4xl mx-auto animate-fade-in">
         <div>
           <h1 className="text-3xl font-bold">Settings</h1>
@@ -266,49 +243,35 @@ const Settings = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="name">Display Name</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Your Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                  />
+                  <Label htmlFor="name" className="bg-background-DEFAULT text-orange-600">Display Name</Label>
+                  <Input id="name" type="text" placeholder="Your Name" value={name} onChange={e => setName(e.target.value)} className="bg-slate-900" />
                 </div>
                 <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    disabled
-                  />
+                  <Label htmlFor="email" className="text-orange-600 ">Email</Label>
+                  <Input id="email" type="email" value={email} disabled />
                 </div>
                 <Button onClick={handleSaveProfile} disabled={isSaving} className="w-full">
                   {isSaving ? "Saving..." : "Save Profile"}
                 </Button>
               </div>
               <div>
-                <Label>Avatar</Label>
-                <AvatarSelector 
-                  currentAvatar={avatar}
-                  onAvatarChange={handleAvatarChange}
-                />
+                <Label className="text-orange-600 ">Avatar</Label>
+                <AvatarSelector currentAvatar={avatar} onAvatarChange={handleAvatarChange} />
               </div>
             </div>
             
             <div className="space-y-4 border-t pt-4">
               <div className="space-y-2">
-                <Label>Theme</Label>
-                <Select 
-                  value={profileData?.theme as Theme || "system"} 
-                  onValueChange={(value: Theme) => {
-                    setTheme(value);
-                    const profile = { ...profileData, theme: value };
-                    localStorage.setItem('userProfile', JSON.stringify(profile));
-                    setProfileData(profile);
-                  }}
-                >
+                <Label className="text-orange-600 ">Theme</Label>
+                <Select value={profileData?.theme as Theme || "system"} onValueChange={(value: Theme) => {
+                setTheme(value);
+                const profile = {
+                  ...profileData,
+                  theme: value
+                };
+                localStorage.setItem('userProfile', JSON.stringify(profile));
+                setProfileData(profile);
+              }}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a theme" />
                   </SelectTrigger>
@@ -336,7 +299,7 @@ const Settings = () => {
               </div>
               
               <div className="space-y-2">
-                <Label>Accent Color</Label>
+                <Label className="text-orange-600 ">Accent Color</Label>
                 <Select value={settings.appearance.accentColor}>
                   <SelectTrigger>
                     <SelectValue />
@@ -552,8 +515,6 @@ const Settings = () => {
           </SettingSection>
         </div>
       </div>
-    </ModernAppLayout>
-  );
+    </ModernAppLayout>;
 };
-
 export default Settings;
