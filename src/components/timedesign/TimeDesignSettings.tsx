@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -8,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { ExternalLink, Calendar, CheckCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-
 const TimeDesignSettings: React.FC = () => {
   const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -72,7 +70,7 @@ const TimeDesignSettings: React.FC = () => {
       <CardContent className="space-y-4 bg-slate-950 rounded-lg">
         <div className="flex items-center justify-between">
           <div>
-            <Label htmlFor="google-calendar" className="font-medium">Connect your Google Calendar to sync activities</Label>
+            <Label htmlFor="google-calendar" className="font-medium text-orange-600">Connect your Google Calendar to sync activities</Label>
             <p className="text-sm text-muted-foreground mt-1">
               {googleCalendarConnected ? <span className="flex items-center gap-1 text-green-500">
                   <CheckCircle className="h-4 w-4" /> Connected
@@ -98,7 +96,7 @@ const TimeDesignSettings: React.FC = () => {
             <h4 className="font-medium mb-2">Synchronization Options</h4>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="text-orange-600">
                   <Label htmlFor="sync-two-way">Two-way Synchronization</Label>
                   <p className="text-xs text-muted-foreground">
                     Changes in either calendar will sync to the other
@@ -108,7 +106,7 @@ const TimeDesignSettings: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="sync-notifications">Sync Notifications</Label>
+                  <Label htmlFor="sync-notifications" className="text-orange-600">Sync Notifications</Label>
                   <p className="text-xs text-muted-foreground">
                     Receive notifications for synced calendar events
                   </p>
@@ -117,7 +115,7 @@ const TimeDesignSettings: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="sync-availability">Sync Availability Status</Label>
+                  <Label htmlFor="sync-availability" className="text-orange-600">Sync Availability Status</Label>
                   <p className="text-xs text-muted-foreground">
                     Show your busy/free status from Google Calendar
                   </p>
@@ -126,7 +124,7 @@ const TimeDesignSettings: React.FC = () => {
               </div>
               <div className="flex items-center justify-between">
                 <div>
-                  <Label htmlFor="auto-block">Auto-block Focus Time</Label>
+                  <Label htmlFor="auto-block" className="text-orange-600">Auto-block Focus Time</Label>
                   <p className="text-xs text-muted-foreground">
                     Automatically block focus time on your Google Calendar
                   </p>
@@ -140,7 +138,7 @@ const TimeDesignSettings: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Primary Calendar</Label>
+                    <Label className="text-orange-600">Primary Calendar</Label>
                     <p className="text-xs text-muted-foreground">
                       {user?.email || "Your primary calendar"}
                     </p>
@@ -149,14 +147,14 @@ const TimeDesignSettings: React.FC = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Work Calendar</Label>
+                    <Label className="text-orange-600">Work Calendar</Label>
                     <p className="text-xs text-muted-foreground">Work events</p>
                   </div>
                   <Switch />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <Label>Personal Calendar</Label>
+                    <Label className="text-orange-600">Personal Calendar</Label>
                     <p className="text-xs text-muted-foreground">Personal events</p>
                   </div>
                   <Switch defaultChecked />
@@ -176,7 +174,7 @@ const TimeDesignSettings: React.FC = () => {
           <h3 className="font-medium mb-2">Calendar Settings</h3>
           <div className="grid gap-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="week-starts">Week Starts On</Label>
+              <Label htmlFor="week-starts" className="text-orange-600">Week Starts On</Label>
               <Select value={weekStartsOn} onValueChange={setWeekStartsOn}>
                 <SelectTrigger className="w-auto min-w-[180px]">
                   <SelectValue />
@@ -189,7 +187,7 @@ const TimeDesignSettings: React.FC = () => {
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="time-format">Time Format</Label>
+              <Label htmlFor="time-format" className="text-orange-600">Time Format</Label>
               <Select value={timeFormat} onValueChange={setTimeFormat}>
                 <SelectTrigger className="w-auto min-w-[180px]">
                   <SelectValue />
@@ -202,7 +200,7 @@ const TimeDesignSettings: React.FC = () => {
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="working-hours-start">Working Hours Start</Label>
+              <Label htmlFor="working-hours-start" className="text-orange-600">Working Hours Start</Label>
               <Select value={workingHoursStart} onValueChange={setWorkingHoursStart}>
                 <SelectTrigger className="w-auto min-w-[180px]">
                   <SelectValue />
@@ -217,7 +215,7 @@ const TimeDesignSettings: React.FC = () => {
             </div>
             
             <div className="flex items-center justify-between">
-              <Label htmlFor="working-hours-end">Working Hours End</Label>
+              <Label htmlFor="working-hours-end" className="text-orange-600">Working Hours End</Label>
               <Select value={workingHoursEnd} onValueChange={setWorkingHoursEnd}>
                 <SelectTrigger className="w-auto min-w-[180px]">
                   <SelectValue />
@@ -238,7 +236,7 @@ const TimeDesignSettings: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="email-notifications">Email Notifications</Label>
+                <Label htmlFor="email-notifications" className="bg-secondary-DEFAULT text-orange-600">Email Notifications</Label>
                 <p className="text-sm text-muted-foreground">
                   Receive email reminders for upcoming activities
                 </p>
@@ -248,7 +246,7 @@ const TimeDesignSettings: React.FC = () => {
             
             <div className="flex items-center justify-between">
               <div>
-                <Label htmlFor="browser-notifications">Browser Notifications</Label>
+                <Label htmlFor="browser-notifications" className="text-orange-600">Browser Notifications</Label>
                 <p className="text-sm text-muted-foreground">
                   Get browser alerts before activities start
                 </p>
@@ -259,7 +257,7 @@ const TimeDesignSettings: React.FC = () => {
         </div>
         
         <div className="flex justify-end pt-4">
-          <Button>Save Settings</Button>
+          <Button className="bg-primary-DEFAULT">Save Settings</Button>
         </div>
       </CardContent>
     </Card>;
