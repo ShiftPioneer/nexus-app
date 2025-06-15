@@ -13,7 +13,7 @@ const CaptureView: React.FC = () => {
     toast
   } = useToast();
   const inboxTasks = tasks.filter(task => task.status === "inbox");
-  return <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+  return <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-[25px]">
       <QuickCaptureForm />
       <GTDPrinciple />
       

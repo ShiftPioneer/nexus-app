@@ -51,7 +51,7 @@ const QuickCaptureForm = () => {
     });
   };
   return <Card className="bg-slate-950">
-      <CardHeader className="bg-slate-950">
+      <CardHeader className="bg-slate-950 rounded-lg">
         <CardTitle className="text-xl text-cyan-500">Quick Capture</CardTitle>
       </CardHeader>
       <CardContent className="bg-slate-950">

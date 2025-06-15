@@ -46,7 +46,7 @@ const GTDPrinciple: React.FC = () => {
         <CardTitle className="text-cyan-500">GTD Principles</CardTitle>
         <CardDescription className="text-slate-400">Effective task management workflow</CardDescription>
       </CardHeader>
-      <CardContent className="space-y-4 bg-slate-950">
+      <CardContent className="space-y-4 bg-slate-950 rounded-lg">
         {principles.map(principle => <motion.div key={principle.key} className={cn("px-4 py-5 rounded-xl border transition-all duration-300", principle.color, activeView === principle.key ? "scale-[1.02] shadow-lg" : "opacity-90")} whileHover={{
         scale: 1.02
       }}>
