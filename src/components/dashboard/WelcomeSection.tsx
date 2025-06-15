@@ -123,7 +123,7 @@ const WelcomeSection = () => {
                 <Button variant="default" className="gap-2" onClick={handleStartDay}>
                   <span>Start Your Day</span>
                 </Button>
-                <Button variant="outline" onClick={handleViewPlan} className="border-slate-600 hover:bg-slate-800 text-lime-500">
+                <Button variant="outline" onClick={handleViewPlan} className="border-slate-600 hover:bg-slate-800 text-orange-600">
                   <Calendar className="mr-2 h-4 w-4" />
                   View Today's Plan
                 </Button>
@@ -143,7 +143,7 @@ const WelcomeSection = () => {
             <blockquote className="italic text-lg text-slate-200">"{quote.text}"</blockquote>
             <div className="mt-2 flex justify-between items-center">
               <span className="text-sm text-slate-400">— {quote.author}</span>
-              <Button variant="ghost" size="sm" onClick={handleNewQuote} className="text-lime-500">
+              <Button variant="ghost" size="sm" onClick={handleNewQuote} className="text-orange-600">
                 New Quote
               </Button>
             </div>
