@@ -1,212 +1,226 @@
+
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Book, ReadingStatus } from "@/types/knowledge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Upload, X, Image } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Star } from "lucide-react";
 import { cn } from "@/lib/utils";
-export interface BookDialogProps {
+
+interface BookDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (book: Book) => void;
-  onDelete?: (bookId: string) => void;
-  book: Book | null;
-  coverImage: string | null;
-  onCoverImageChange: (url: string | null) => void;
+  book?: any;
+  onSave: (book: any) => void;
 }
-export function BookDialog({
-  open,
-  onOpenChange,
-  onSave,
-  onDelete,
-  book,
-  coverImage,
-  onCoverImageChange
-}: BookDialogProps) {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [description, setDescription] = useState("");
-  const [readingStatus, setReadingStatus] = useState<ReadingStatus>("Not Yet Read");
-  const [rating, setRating] = useState<number>(0);
-  const [relatedSkillsets, setRelatedSkillsets] = useState<string[]>([]);
-  const [skillsetInput, setSkillsetInput] = useState("");
-  const [summary, setSummary] = useState("");
-  const [keyLessons, setKeyLessons] = useState("");
+
+const BookDialog: React.FC<BookDialogProps> = ({ open, onOpenChange, book, onSave }) => {
+  const [formData, setFormData] = useState({
+    title: "",
+    author: "",
+    category: "",
+    status: "want-to-read",
+    rating: 0,
+    pages: "",
+    notes: "",
+    dateStarted: "",
+    dateCompleted: "",
+  });
+
+  const [hoveredStar, setHoveredStar] = useState(0);
+
   useEffect(() => {
     if (book) {
-      setTitle(book.title);
-      setAuthor(book.author);
-      setDescription(book.description || "");
-      setReadingStatus(book.readingStatus);
-      setRating(book.rating);
-      setRelatedSkillsets(book.relatedSkillsets || []);
-      setSummary(book.summary || "");
-      setKeyLessons(book.keyLessons || "");
+      setFormData({
+        title: book.title || "",
+        author: book.author || "",
+        category: book.category || "",
+        status: book.status || "want-to-read",
+        rating: book.rating || 0,
+        pages: book.pages?.toString() || "",
+        notes: book.notes || "",
+        dateStarted: book.dateStarted || "",
+        dateCompleted: book.dateCompleted || "",
+      });
     } else {
-      resetForm();
+      setFormData({
+        title: "",
+        author: "",
+        category: "",
+        status: "want-to-read",
+        rating: 0,
+        pages: "",
+        notes: "",
+        dateStarted: "",
+        dateCompleted: "",
+      });
     }
-  }, [book]);
-  const resetForm = () => {
-    setTitle("");
-    setAuthor("");
-    setDescription("");
-    setReadingStatus("Not Yet Read");
-    setRating(0);
-    setRelatedSkillsets([]);
-    setSkillsetInput("");
-    setSummary("");
-    setKeyLessons("");
-    onCoverImageChange(null);
-  };
-  const handleAddSkillset = () => {
-    if (skillsetInput && !relatedSkillsets.includes(skillsetInput)) {
-      setRelatedSkillsets([...relatedSkillsets, skillsetInput]);
-      setSkillsetInput("");
-    }
-  };
-  const handleRemoveSkillset = (skillset: string) => {
-    setRelatedSkillsets(relatedSkillsets.filter(s => s !== skillset));
-  };
+  }, [book, open]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newBook: Book = {
+    
+    const bookData = {
+      ...formData,
       id: book?.id || Date.now().toString(),
-      title,
-      author,
-      readingStatus,
-      rating,
-      description,
-      relatedSkillsets,
-      summary,
-      keyLessons,
-      coverImage: coverImage || undefined
+      pages: formData.pages ? parseInt(formData.pages) : undefined,
+      createdAt: book?.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     };
-    onSave(newBook);
+
+    onSave(bookData);
+    onOpenChange(false);
   };
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files && e.target.files[0];
-    if (file) {
-      // In a real app, we would upload this to a server and get a URL back
-      // For now, we'll create an object URL
-      const imageUrl = URL.createObjectURL(file);
-      onCoverImageChange(imageUrl);
-    }
+
+  const renderStarRating = () => {
+    return (
+      <div className="flex items-center gap-1">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            onMouseEnter={() => setHoveredStar(star)}
+            onMouseLeave={() => setHoveredStar(0)}
+            onClick={() => setFormData(prev => ({ ...prev, rating: star }))}
+            className="focus:outline-none"
+          >
+            <Star
+              className={cn(
+                "h-6 w-6 transition-colors cursor-pointer",
+                (hoveredStar >= star || formData.rating >= star)
+                  ? "fill-lime-400 text-lime-400"
+                  : "text-gray-300 hover:text-lime-300"
+              )}
+            />
+          </button>
+        ))}
+        <span className="text-sm text-muted-foreground ml-2">
+          {formData.rating > 0 ? `${formData.rating}/5` : "No rating"}
+        </span>
+      </div>
+    );
   };
-  return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto rounded-lg bg-slate-950">
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{book ? "Edit Book" : "Add New Book"}</DialogTitle>
-          <DialogDescription>
-            Add details about the book you're reading or have read.
-          </DialogDescription>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-6 py-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="title" className="bg-background-DEFAULT text-cyan-600">Book Title</Label>
-                <Input id="title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter book title" required className="text-cyan-600 bg-slate-900" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="author" className="text-cyan-600">Author</Label>
-                <Input id="author" value={author} onChange={e => setAuthor(e.target.value)} placeholder="Enter author name" required className="text-cyan-600 bg-slate-900" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="description" className="text-cyan-600">Description</Label>
-                <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Brief description of the book" rows={3} className="text-cyan-600 bg-slate-900" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="reading-status" className="text-cyan-600">Reading Status</Label>
-                <Select value={readingStatus} onValueChange={(value: ReadingStatus) => setReadingStatus(value)}>
-                  <SelectTrigger id="reading-status">
-                    <SelectValue placeholder="Select status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Reading Now">Reading Now</SelectItem>
-                    <SelectItem value="Not Yet Read">Not Yet Read</SelectItem>
-                    <SelectItem value="Finished">Finished</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="rating" className="text-cyan-600">Rating (0-5)</Label>
-                <div className="flex items-center space-x-1">
-                  {[1, 2, 3, 4, 5].map(star => <Button key={star} type="button" variant="ghost" size="sm" className={`p-0 w-8 h-8 ${rating >= star ? 'text-yellow-400' : 'text-gray-300'}`} onClick={() => setRating(star)}>
-                      ★
-                    </Button>)}
-                </div>
-              </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title *</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+              placeholder="Enter book title"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="author">Author *</Label>
+            <Input
+              id="author"
+              value={formData.author}
+              onChange={(e) => setFormData(prev => ({ ...prev, author: e.target.value }))}
+              placeholder="Enter author name"
+              required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Input
+              id="category"
+              value={formData.category}
+              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
+              placeholder="e.g., Fiction, Non-fiction, Self-help"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="status">Reading Status</Label>
+            <Select
+              value={formData.status}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="want-to-read">Want to Read</SelectItem>
+                <SelectItem value="reading">Currently Reading</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Rating</Label>
+            {renderStarRating()}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="pages">Pages</Label>
+            <Input
+              id="pages"
+              type="number"
+              value={formData.pages}
+              onChange={(e) => setFormData(prev => ({ ...prev, pages: e.target.value }))}
+              placeholder="Number of pages"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="notes">Notes</Label>
+            <Textarea
+              id="notes"
+              value={formData.notes}
+              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+              placeholder="Your thoughts, quotes, or notes about this book"
+              rows={3}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="dateStarted">Date Started</Label>
+              <Input
+                id="dateStarted"
+                type="date"
+                value={formData.dateStarted}
+                onChange={(e) => setFormData(prev => ({ ...prev, dateStarted: e.target.value }))}
+              />
             </div>
-            
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-cyan-600">Book Cover</Label>
-                <div className="border-2 border-dashed rounded-md p-4 flex flex-col items-center justify-center">
-                  {coverImage ? <div className="relative">
-                      <img src={coverImage} alt="Book cover" className="max-h-44 object-contain rounded" />
-                      <Button type="button" variant="ghost" size="sm" className="absolute top-0 right-0 rounded-full p-1 h-auto" onClick={() => onCoverImageChange(null)}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div> : <>
-                      <Image className="h-10 w-10 text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground mb-2">Upload book cover</p>
-                      <Label htmlFor="cover-upload" className="cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 bg-primary/90 text-primary-foreground rounded-md hover:bg-primary text-sm">
-                        <Upload className="h-4 w-4" />
-                        <span>Choose file</span>
-                        <Input id="cover-upload" type="file" accept="image/*" onChange={handleImageUpload} className="sr-only" />
-                      </Label>
-                    </>}
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label className="text-cyan-600">Related Skillsets</Label>
-                <div className="flex items-center space-x-2">
-                  <Input value={skillsetInput} onChange={e => setSkillsetInput(e.target.value)} placeholder="e.g., Web Development" className="flex-1 bg-slate-900" />
-                  <Button type="button" onClick={handleAddSkillset} variant="outline">
-                    Add
-                  </Button>
-                </div>
-                
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {relatedSkillsets.map(skillset => <div key={skillset} className="bg-orange-100 text-orange-800 px-2 py-1 rounded-md flex items-center gap-1 text-sm">
-                      {skillset}
-                      <Button type="button" variant="ghost" size="sm" className="h-4 w-4 p-0" onClick={() => handleRemoveSkillset(skillset)}>
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>)}
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="summary" className="text-cyan-600">Summary</Label>
-                <Textarea id="summary" value={summary} onChange={e => setSummary(e.target.value)} placeholder="Brief summary of what the book is about" rows={3} className="text-cyan-600 bg-slate-900" />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="key-lessons" className="text-cyan-600">Key Lessons</Label>
-                <Textarea id="key-lessons" value={keyLessons} onChange={e => setKeyLessons(e.target.value)} placeholder="Main takeaways from the book" rows={3} className="text-cyan-600 bg-slate-900" />
-              </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dateCompleted">Date Completed</Label>
+              <Input
+                id="dateCompleted"
+                type="date"
+                value={formData.dateCompleted}
+                onChange={(e) => setFormData(prev => ({ ...prev, dateCompleted: e.target.value }))}
+              />
             </div>
           </div>
-          
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+
+          <div className="flex gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
               Cancel
             </Button>
-            <Button type="submit" disabled={!title || !author}>
-              {book ? 'Update Book' : 'Add Book'}
+            <Button type="submit" className="flex-1">
+              {book ? "Update Book" : "Add Book"}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
-    </Dialog>;
-}
+    </Dialog>
+  );
+};
+
+export default BookDialog;

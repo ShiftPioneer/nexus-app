@@ -1,97 +1,144 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { PlayCircle, PauseCircle, RotateCcw, Clock } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Play, Pause, Square, RotateCcw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FocusSessionProps {
-  taskTitle: string;
-  isRunning: boolean;
-  minutes: number;
-  seconds: number;
-  progress: number;
-  onToggleTimer: () => void;
-  onResetTimer: () => void;
-  onCompleteSession: () => void;
+  taskTitle?: string;
+  onComplete?: () => void;
 }
 
-const FocusSession: React.FC<FocusSessionProps> = ({
-  taskTitle,
-  isRunning,
-  minutes,
-  seconds,
-  progress,
-  onToggleTimer,
-  onResetTimer,
-  onCompleteSession
-}) => {
-  // Format time as MM:SS
-  const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  
+const FocusSession: React.FC<FocusSessionProps> = ({ taskTitle, onComplete }) => {
+  const [isActive, setIsActive] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes in seconds
+  const [initialTime] = useState(25 * 60);
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    if (isActive && !isPaused && timeLeft > 0) {
+      intervalId = setInterval(() => {
+        setTimeLeft(timeLeft => timeLeft - 1);
+      }, 1000);
+    } else if (timeLeft === 0) {
+      setIsActive(false);
+      if (onComplete) onComplete();
+    }
+
+    return () => clearInterval(intervalId);
+  }, [isActive, isPaused, timeLeft, onComplete]);
+
+  const handleStart = () => {
+    setIsActive(true);
+    setIsPaused(false);
+  };
+
+  const handlePause = () => {
+    setIsPaused(!isPaused);
+  };
+
+  const handleStop = () => {
+    setIsActive(false);
+    setIsPaused(false);
+  };
+
+  const handleReset = () => {
+    setTimeLeft(initialTime);
+    setIsActive(false);
+    setIsPaused(false);
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const getProgressPercentage = () => {
+    return ((initialTime - timeLeft) / initialTime) * 100;
+  };
+
+  const getSessionState = () => {
+    if (!isActive) return "ready";
+    if (isPaused) return "paused";
+    return "active";
+  };
+
+  const getStateColor = () => {
+    const state = getSessionState();
+    switch (state) {
+      case "active": return "text-green-600 border-green-600";
+      case "paused": return "text-lime-600 border-lime-600";
+      case "ready": return "text-blue-600 border-blue-600";
+      default: return "text-gray-600 border-gray-600";
+    }
+  };
+
   return (
-    <Card className="bg-card border-border">
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Clock className="h-5 w-5 text-primary" />
-            <span>Focus Session</span>
-          </div>
-          <span className="text-2xl font-mono">{formattedTime}</span>
+    <Card className={cn("transition-all duration-300", getStateColor().includes("border") ? `border-2 ${getStateColor().split(" ")[1]}` : "")}>
+      <CardHeader className="text-center">
+        <CardTitle className="flex items-center justify-center gap-2">
+          Focus Session
+          {taskTitle && (
+            <span className="text-sm font-normal text-muted-foreground">
+              • {taskTitle}
+            </span>
+          )}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium">{taskTitle}</h3>
-          
-          <Progress value={progress} className="h-2" />
-          
-          <div className="flex justify-between items-center">
-            <div className="space-y-1">
-              <p className="text-sm">Status: <span className={isRunning ? "text-green-500" : "text-yellow-500"}>{isRunning ? "Running" : "Paused"}</span></p>
-              <p className="text-xs text-muted-foreground">{progress === 100 ? "Session complete!" : isRunning ? "Stay focused..." : "Resume when ready"}</p>
-            </div>
-            
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onToggleTimer}
-                className={isRunning ? "border-yellow-500 text-yellow-500" : "border-green-500 text-green-500"}
-              >
-                {isRunning ? (
-                  <>
-                    <PauseCircle className="h-4 w-4 mr-1" />
-                    Pause
-                  </>
-                ) : (
-                  <>
-                    <PlayCircle className="h-4 w-4 mr-1" />
-                    Resume
-                  </>
-                )}
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onResetTimer}
-              >
-                <RotateCcw className="h-4 w-4 mr-1" />
-                Reset
-              </Button>
-              
-              <Button
-                onClick={onCompleteSession}
-                size="sm"
-                disabled={progress < 100}
-                className={progress === 100 ? "bg-green-500 hover:bg-green-600" : ""}
-              >
-                Complete
-              </Button>
-            </div>
+      <CardContent className="space-y-6">
+        <div className="text-center">
+          <div className={cn("text-6xl font-bold tabular-nums", getStateColor().split(" ")[0])}>
+            {formatTime(timeLeft)}
           </div>
+          <p className="text-sm text-muted-foreground mt-2">
+            {getSessionState() === "active" && "Focus time"}
+            {getSessionState() === "paused" && "Session paused"}
+            {getSessionState() === "ready" && "Ready to start"}
+          </p>
         </div>
+
+        <Progress 
+          value={getProgressPercentage()} 
+          className="w-full h-3"
+        />
+
+        <div className="flex justify-center gap-3">
+          {!isActive ? (
+            <Button onClick={handleStart} size="lg" className="bg-green-600 hover:bg-green-700">
+              <Play className="h-5 w-5 mr-2" />
+              Start
+            </Button>
+          ) : (
+            <>
+              <Button onClick={handlePause} variant="outline" size="lg">
+                <Pause className="h-5 w-5 mr-2" />
+                {isPaused ? "Resume" : "Pause"}
+              </Button>
+              <Button onClick={handleStop} variant="destructive" size="lg">
+                <Square className="h-5 w-5 mr-2" />
+                Stop
+              </Button>
+            </>
+          )}
+          
+          <Button onClick={handleReset} variant="outline" size="lg">
+            <RotateCcw className="h-5 w-5 mr-2" />
+            Reset
+          </Button>
+        </div>
+
+        {timeLeft === 0 && (
+          <div className="text-center p-4 bg-green-50 dark:bg-green-950/20 rounded-lg">
+            <p className="text-green-700 dark:text-green-400 font-medium">
+              🎉 Focus session completed!
+            </p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

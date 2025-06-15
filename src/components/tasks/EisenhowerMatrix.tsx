@@ -2,10 +2,11 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, AlertCircle, Clock, CheckCircle, Archive } from "lucide-react";
+import { PlusCircle, AlertCircle, Clock, CheckCircle, Archive, Target, Zap } from "lucide-react";
 import { useGTD } from "@/components/gtd/GTDContext";
 import TaskDialog from "./TaskDialog";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 interface EisenhowerMatrixProps {
   isToDoNot?: boolean;
@@ -25,9 +26,7 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ isToDoNot = false }
 
   const getQuadrantTasks = (urgent: boolean, important: boolean) => {
     return filteredTasks.filter(task => {
-      // Check if task is urgent based on priority being "Very High" or having a soon due date
       const taskUrgent = task.priority === "Very High" || (task.dueDate && new Date(task.dueDate) <= new Date(Date.now() + 24 * 60 * 60 * 1000));
-      // Check if task is important based on having a goal link or high priority
       const taskImportant = task.goalId || task.priority === "Very High" || task.priority === "High";
       return taskUrgent === urgent && taskImportant === important;
     });
@@ -39,23 +38,35 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ isToDoNot = false }
       title: "Do First",
       subtitle: "Urgent & Important",
       icon: AlertCircle,
-      color: "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800",
+      description: "Crisis, emergencies, deadline-driven projects",
+      color: "from-red-500/20 to-red-600/30",
+      borderColor: "border-red-500/50",
+      iconColor: "text-red-600",
+      bgClass: "bg-gradient-to-br from-red-50 to-red-100 dark:from-red-950/30 dark:to-red-900/40",
       tasks: getQuadrantTasks(true, true)
     },
     {
       id: "not-urgent-important", 
       title: "Schedule",
       subtitle: "Not Urgent & Important",
-      icon: Clock,
-      color: "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800",
+      icon: Target,
+      description: "Prevention, planning, development, growth",
+      color: "from-blue-500/20 to-blue-600/30",
+      borderColor: "border-blue-500/50",
+      iconColor: "text-blue-600",
+      bgClass: "bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950/30 dark:to-blue-900/40",
       tasks: getQuadrantTasks(false, true)
     },
     {
       id: "urgent-not-important",
       title: "Delegate",
       subtitle: "Urgent & Not Important", 
-      icon: CheckCircle,
-      color: "bg-lime-50 dark:bg-lime-950/20 border-lime-200 dark:border-lime-800",
+      icon: Zap,
+      description: "Interruptions, some calls, some meetings",
+      color: "from-lime-500/20 to-lime-600/30",
+      borderColor: "border-lime-500/50",
+      iconColor: "text-lime-600",
+      bgClass: "bg-gradient-to-br from-lime-50 to-lime-100 dark:from-lime-950/30 dark:to-lime-900/40",
       tasks: getQuadrantTasks(true, false)
     },
     {
@@ -63,7 +74,11 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ isToDoNot = false }
       title: "Eliminate",
       subtitle: "Not Urgent & Not Important",
       icon: Archive,
-      color: "bg-gray-50 dark:bg-gray-950/20 border-gray-200 dark:border-gray-800",
+      description: "Time wasters, busy work, some social media",
+      color: "from-gray-500/20 to-gray-600/30",
+      borderColor: "border-gray-500/50",
+      iconColor: "text-gray-600",
+      bgClass: "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950/30 dark:to-gray-900/40",
       tasks: getQuadrantTasks(false, false)
     }
   ];
@@ -102,62 +117,119 @@ const EisenhowerMatrix: React.FC<EisenhowerMatrixProps> = ({ isToDoNot = false }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="text-center space-y-4">
+        <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-full border border-primary/20">
+          <Target className="h-6 w-6 text-primary" />
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            Eisenhower Decision Matrix
+          </h2>
+        </div>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          Prioritize {isToDoNot ? "habits to avoid" : "your tasks"} based on urgency and importance. 
+          Focus on quadrant 2 for long-term success.
+        </p>
+      </div>
+
+      {/* Matrix Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {quadrants.map((quadrant) => (
-          <Card key={quadrant.id} className={`${quadrant.color} min-h-[400px]`}>
-            <CardHeader className="pb-3">
+          <Card 
+            key={quadrant.id} 
+            className={cn(
+              "relative overflow-hidden transition-all duration-300 hover:shadow-xl hover:scale-[1.02]",
+              quadrant.bgClass,
+              quadrant.borderColor,
+              "border-2"
+            )}
+          >
+            {/* Gradient Overlay */}
+            <div className={cn("absolute inset-0 bg-gradient-to-br opacity-50", quadrant.color)} />
+            
+            <CardHeader className="relative pb-4">
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <quadrant.icon className="h-5 w-5" />
+                <div className="flex items-center gap-3">
+                  <div className={cn("p-2 rounded-lg bg-white/80 dark:bg-black/20", quadrant.iconColor)}>
+                    <quadrant.icon className="h-6 w-6" />
+                  </div>
                   <div>
-                    <CardTitle className="text-lg">{quadrant.title}</CardTitle>
-                    <p className="text-sm text-muted-foreground">{quadrant.subtitle}</p>
+                    <CardTitle className="text-xl font-bold">{quadrant.title}</CardTitle>
+                    <p className="text-sm font-medium opacity-80">{quadrant.subtitle}</p>
                   </div>
                 </div>
                 <Button
                   size="sm"
-                  variant="outline"
+                  variant="secondary"
                   onClick={() => handleAddTask(quadrant.id)}
+                  className="bg-white/80 hover:bg-white/90 dark:bg-black/20 dark:hover:bg-black/30"
                 >
                   <PlusCircle className="h-4 w-4" />
                 </Button>
               </div>
-              <div className="text-xs text-muted-foreground">
-                {quadrant.tasks.length} {isToDoNot ? "items" : "tasks"}
+              
+              <div className="flex items-center justify-between mt-3">
+                <p className="text-xs text-muted-foreground italic">
+                  {quadrant.description}
+                </p>
+                <Badge variant="secondary" className="bg-white/60 dark:bg-black/20">
+                  {quadrant.tasks.length} {isToDoNot ? "items" : "tasks"}
+                </Badge>
               </div>
             </CardHeader>
             
-            <CardContent className="pt-0">
-              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+            <CardContent className="relative pt-0">
+              <div className="space-y-3 max-h-[400px] overflow-y-auto">
                 {quadrant.tasks.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <p className="text-sm">No {isToDoNot ? "items" : "tasks"} in this quadrant</p>
+                  <div className="text-center py-12">
+                    <quadrant.icon className="h-12 w-12 mx-auto mb-3 opacity-30" />
+                    <p className="text-sm text-muted-foreground">
+                      No {isToDoNot ? "items" : "tasks"} in this quadrant
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Click the + button to add one
+                    </p>
                   </div>
                 ) : (
                   quadrant.tasks.map((task) => (
                     <Card 
                       key={task.id} 
-                      className="cursor-pointer hover:shadow-md transition-all bg-background/80"
+                      className="cursor-pointer hover:shadow-md transition-all bg-white/80 dark:bg-black/20 backdrop-blur-sm border-white/50 dark:border-gray-700/50"
                       onClick={() => handleEditTask(task)}
                     >
-                      <CardContent className="p-3">
-                        <div className="flex justify-between items-start gap-2">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-sm">{task.title}</h4>
+                      <CardContent className="p-4">
+                        <div className="flex justify-between items-start gap-3">
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-sm truncate">{task.title}</h4>
                             {task.description && (
                               <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                                 {task.description}
                               </p>
                             )}
-                            <div className="flex gap-1 mt-2">
-                              <Badge variant="outline" className="text-xs">
+                            <div className="flex flex-wrap gap-1 mt-3">
+                              <Badge variant="outline" className="text-xs bg-white/60 dark:bg-black/20">
                                 {task.priority}
                               </Badge>
-                              <Badge variant="secondary" className="text-xs">
+                              <Badge 
+                                variant="secondary" 
+                                className={cn(
+                                  "text-xs",
+                                  task.status === "completed" ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300" :
+                                  task.status === "in-progress" ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300" :
+                                  "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300"
+                                )}
+                              >
                                 {task.status}
                               </Badge>
                             </div>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            {task.goalId && (
+                              <div className="w-2 h-2 bg-primary rounded-full" title="Linked to goal" />
+                            )}
+                            {task.dueDate && new Date(task.dueDate) <= new Date(Date.now() + 24 * 60 * 60 * 1000) && (
+                              <div className="w-2 h-2 bg-red-500 rounded-full" title="Due soon" />
+                            )}
                           </div>
                         </div>
                       </CardContent>

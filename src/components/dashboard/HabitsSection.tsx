@@ -1,189 +1,159 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
+import React, { useEffect, useState } from "react";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Plus, Award, Clock, Calendar } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle, Plus, Flame, Target } from "lucide-react";
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { useNavigate } from "react-router-dom";
+
 interface Habit {
   id: string;
-  title: string;
+  name: string;
+  category: string;
+  frequency: string;
   streak: number;
-  target: number;
-  status: "completed" | "pending" | "missed";
-  category: "health" | "productivity" | "mindfulness" | "personal" | "religion" | "learning" | "other";
-  duration?: string;
-  completionDates: Date[];
+  completed: boolean;
+  lastCompleted?: string;
 }
+
 const HabitsSection = () => {
   const [habits, setHabits] = useState<Habit[]>([]);
-  const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
 
-  // Load habits from localStorage
   useEffect(() => {
+    // Load habits from localStorage
     try {
-      const savedHabits = localStorage.getItem('userHabits');
+      const savedHabits = localStorage.getItem('habits');
       if (savedHabits) {
         const parsedHabits = JSON.parse(savedHabits);
-        setHabits(parsedHabits);
+        setHabits(parsedHabits.slice(0, 4)); // Show only first 4 habits
       }
     } catch (error) {
       console.error("Failed to load habits:", error);
     }
-
-    // Listen for habit updates
-    const handleHabitsUpdate = () => {
-      try {
-        const savedHabits = localStorage.getItem('userHabits');
-        if (savedHabits) {
-          const parsedHabits = JSON.parse(savedHabits);
-          setHabits(parsedHabits);
-        }
-      } catch (error) {
-        console.error("Failed to load updated habits:", error);
-      }
-    };
-    window.addEventListener('storage', handleHabitsUpdate);
-    return () => {
-      window.removeEventListener('storage', handleHabitsUpdate);
-    };
   }, []);
-  const completeHabit = (id: string) => {
-    const today = new Date();
-    const updatedHabits = habits.map(habit => {
-      if (habit.id === id) {
-        // Check if already completed today
-        const completedToday = habit.completionDates.some(date => new Date(date).toDateString() === today.toDateString());
-        if (completedToday) {
-          toast({
-            title: "Already Completed",
-            description: `${habit.title} has already been completed today.`
-          });
-          return habit;
-        }
-        const updatedHabit = {
-          ...habit,
-          status: "completed" as const,
-          streak: habit.streak + 1,
-          completionDates: [today, ...habit.completionDates]
-        };
-        return updatedHabit;
-      }
-      return habit;
-    });
-    setHabits(updatedHabits);
 
-    // Save to localStorage
-    try {
-      localStorage.setItem('userHabits', JSON.stringify(updatedHabits));
-    } catch (error) {
-      console.error("Failed to save habits:", error);
-    }
-    const habit = habits.find(h => h.id === id);
-    if (habit) {
-      toast({
-        title: "Habit Completed! 🎉",
-        description: `${habit.title} completed for today.`
-      });
+  const toggleHabitCompletion = (habitId: string) => {
+    setHabits(prev => prev.map(habit => 
+      habit.id === habitId 
+        ? { 
+            ...habit, 
+            completed: !habit.completed,
+            streak: !habit.completed ? habit.streak + 1 : Math.max(0, habit.streak - 1),
+            lastCompleted: !habit.completed ? new Date().toISOString() : habit.lastCompleted
+          }
+        : habit
+    ));
+  };
 
-      // Check if streak milestone reached
-      const updatedStreak = habit.streak + 1;
-      if (updatedStreak === habit.target) {
-        setTimeout(() => {
-          toast({
-            title: "Achievement Unlocked! 🏆",
-            description: `You've reached your streak goal of ${habit.target} days for ${habit.title}!`
-          });
-        }, 1000);
-      }
-    }
-  };
-  const navigateToHabits = () => {
-    navigate("/habits");
-  };
   const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'health':
-        return 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400';
-      case 'productivity':
-        return 'bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400';
-      case 'mindfulness':
-        return 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400';
-      case 'personal':
-        return 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400';
-      case 'learning':
-        return 'bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400';
-      case 'religion':
-        return 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400';
-      default:
-        return 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
+    switch (category.toLowerCase()) {
+      case "health": return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      case "productivity": return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+      case "learning": return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
+      case "mindfulness": return "bg-lime-100 text-lime-800 dark:bg-lime-900 dark:text-lime-300";
+      default: return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300";
     }
   };
-  return <section className="mb-6">
-      <Card>
-        <CardHeader className="pb-2 bg-slate-950 rounded-lg">
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Habits</CardTitle>
-              <CardDescription>Track your daily habits and build streaks</CardDescription>
-            </div>
+
+  return (
+    <Card className="border-slate-300 bg-slate-950">
+      <CardHeader className="pb-3 bg-slate-950 border-slate-300 rounded-lg">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-lg font-medium flex items-center gap-2">
+            <Target className="h-5 w-5 text-lime-600" />
+            Today's Habits
+          </CardTitle>
+          <Link to="/habits">
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="text-xs px-3 py-1 h-7 border-lime-600 text-lime-600 hover:bg-lime-50 dark:hover:bg-lime-950/20"
+            >
+              View All
+            </Button>
+          </Link>
+        </div>
+      </CardHeader>
+      
+      <CardContent className="bg-slate-950 rounded-lg space-y-3">
+        {habits.length > 0 ? (
+          <>
+            {habits.map((habit) => (
+              <div 
+                key={habit.id}
+                className="flex items-center justify-between p-3 rounded-lg border border-slate-700 hover:border-slate-600 transition-colors"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  <button
+                    onClick={() => toggleHabitCompletion(habit.id)}
+                    className={cn(
+                      "flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all",
+                      habit.completed
+                        ? "bg-lime-600 border-lime-600 text-white"
+                        : "border-slate-600 hover:border-lime-600"
+                    )}
+                  >
+                    {habit.completed && <CheckCircle className="h-4 w-4" />}
+                  </button>
+                  
+                  <div className="flex-1 min-w-0">
+                    <p className={cn(
+                      "font-medium text-sm truncate",
+                      habit.completed && "line-through text-slate-400"
+                    )}>
+                      {habit.name}
+                    </p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <Badge 
+                        variant="secondary" 
+                        className={cn("text-xs px-2 py-0", getCategoryColor(habit.category))}
+                      >
+                        {habit.category}
+                      </Badge>
+                      {habit.streak > 0 && (
+                        <div className="flex items-center gap-1 text-xs text-lime-600">
+                          <Flame className="h-3 w-3" />
+                          <span>{habit.streak}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
             
-          </div>
-        </CardHeader>
-        <CardContent className="bg-slate-950 rounded-lg">
-          {habits.length === 0 ? <div className="text-center py-8">
-              <CheckCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />
-              <p className="text-muted-foreground mb-2">No habits created yet</p>
-              <Button variant="outline" size="sm" onClick={navigateToHabits}>
+            <div className="pt-2 border-t border-slate-700">
+              <Link to="/habits">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full text-xs h-8 border-lime-600 text-lime-600 hover:bg-lime-50 dark:hover:bg-lime-950/20"
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add New Habit
+                </Button>
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div className="text-center py-6">
+            <Target className="h-12 w-12 mx-auto mb-3 text-slate-600" />
+            <p className="text-sm text-slate-400 mb-3">No habits tracked yet</p>
+            <Link to="/habits">
+              <Button 
+                size="sm"
+                className="bg-lime-600 hover:bg-lime-700 text-white"
+              >
+                <Plus className="h-4 w-4 mr-1" />
                 Create Your First Habit
               </Button>
-            </div> : <div className="space-y-2">
-              {habits.slice(0, 3).map(habit => <Card key={habit.id} className={cn("border overflow-hidden group hover:border-primary/30 transition-colors", habit.status === "completed" && "border-success/30 bg-success/5")}>
-                  <CardContent className="p-3 py-[14px] border-lime-500 bg-slate-900">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <div className={`h-10 w-10 rounded-full flex items-center justify-center
-                            ${habit.status === "completed" ? 'bg-success/20' : 'bg-muted/30'}
-                          `}>
-                          <CheckCircle className={`h-5 w-5 
-                              ${habit.status === "completed" ? 'text-success' : 'text-muted-foreground/50'}
-                            `} />
-                        </div>
-                        <div>
-                          <h4 className="font-medium">{habit.title}</h4>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-0.5">
-                            <Clock className="h-3.5 w-3.5 bg-slate-800" />
-                            <span className="text-base text-cyan-500">{habit.duration}</span>
-                            <span className="flex items-center gap-1">
-                              <Award className="h-3.5 w-3.5 text-orange-500" />
-                              <span className="text-cyan-500">{habit.streak} day streak</span>
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        {habit.status === "pending" ? <Button size="sm" onClick={() => completeHabit(habit.id)} className="opacity-0 group-hover:opacity-100 transition-opacity">
-                            Complete
-                          </Button> : <span className="px-2 py-1 text-xs rounded-full bg-success/20 text-success">
-                            Completed
-                          </span>}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>)}
-            </div>}
-
-          <div className="mt-4 flex justify-center">
-            <Button variant="outline" onClick={navigateToHabits} className="bg-orange-600 hover:bg-orange-500">
-              View All Habits
-            </Button>
+            </Link>
           </div>
-        </CardContent>
-      </Card>
-    </section>;
+        )}
+      </CardContent>
+    </Card>
+  );
 };
+
 export default HabitsSection;
