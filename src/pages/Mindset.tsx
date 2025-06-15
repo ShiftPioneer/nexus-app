@@ -31,7 +31,7 @@ const Mindset = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <div className="bg-card border rounded-lg overflow-x-auto mb-6 w-fit">
             <TabsList className="justify-start rounded-none border-b p-0 w-fit bg-slate-950">
-              <TabsTrigger value="core-values" className="rounded-none border-r px-6 py-3 bg-orange-600 hover:bg-orange-500">
+              <TabsTrigger value="core-values" className="border-r px-6 py-3 bg-orange-600 hover:bg-orange-500 rounded-lg">
                 Core Values
               </TabsTrigger>
               <TabsTrigger value="mission" className="data-[state=active]:bg-background rounded-none border-r px-6 py-3">
