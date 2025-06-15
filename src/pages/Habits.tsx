@@ -319,12 +319,12 @@ const Habits = () => {
                                 <h4 className="font-medium text-lg">{habit.title}</h4>
                                 <div className="flex items-center gap-4 mt-1">
                                   <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <Clock className="h-3.5 w-3.5" />
-                                    <span>{habit.duration}</span>
+                                    <Clock className="h-3.5 w-3.5 text-lime-600" />
+                                    <span className="text-yellow-500">{habit.duration}</span>
                                   </span>
                                   <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <Calendar className="h-3.5 w-3.5" />
-                                    <span>{habit.type}</span>
+                                    <Calendar className="h-3.5 w-3.5 bg-background-DEFAULT text-lime-600" />
+                                    <span className="text-yellow-500">{habit.type}</span>
                                   </span>
                                   <span className="flex items-center gap-1 text-sm text-orange-500 font-medium">
                                     <Flame className="h-4 w-4" />
