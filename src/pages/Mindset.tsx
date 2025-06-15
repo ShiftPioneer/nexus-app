@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import ModernAppLayout from '@/components/layout/ModernAppLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,13 +13,12 @@ import MissionSection from '@/components/mindset/MissionSection';
 import KeyBeliefsSection from '@/components/mindset/KeyBeliefsSection';
 import AffirmationsSection from '@/components/mindset/AffirmationsSection';
 import VisionBoardSection from '@/components/mindset/VisionBoardSection';
-
 const Mindset = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [activeTab, setActiveTab] = useState('core-values');
-
-  return (
-    <ModernAppLayout>
+  return <ModernAppLayout>
       <div className="animate-fade-in space-y-6">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -32,8 +30,8 @@ const Mindset = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <div className="bg-card border rounded-lg overflow-x-auto mb-6 w-fit">
-            <TabsList className="justify-start rounded-none border-b bg-muted/50 p-0 w-fit">
-              <TabsTrigger value="core-values" className="data-[state=active]:bg-background rounded-none border-r px-6 py-3">
+            <TabsList className="justify-start rounded-none border-b p-0 w-fit bg-slate-950">
+              <TabsTrigger value="core-values" className="rounded-none border-r px-6 py-3 bg-orange-600 hover:bg-orange-500">
                 Core Values
               </TabsTrigger>
               <TabsTrigger value="mission" className="data-[state=active]:bg-background rounded-none border-r px-6 py-3">
@@ -72,8 +70,6 @@ const Mindset = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </ModernAppLayout>
-  );
+    </ModernAppLayout>;
 };
-
 export default Mindset;
