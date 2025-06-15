@@ -65,7 +65,7 @@ const ReflectView: React.FC = () => {
       ...items
     }));
   };
-  return <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-inherit \n">
+  return <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-inherit \\n py-[25px]">
       <Checklist title="Weekly Review Checklist" icon={<Check className="mr-2 h-5 w-5" />} items={weeklyChecklist} setItems={handleWeeklyChecklistUpdate} itemLabels={weeklyChecklistLabels} showActions={true} />
 
       <Checklist title="Monthly Review" icon={<Check className="mr-2 h-5 w-5" />} items={monthlyChecklist} setItems={handleMonthlyChecklistUpdate} itemLabels={monthlyChecklistLabels} description="Take time to review your bigger picture goals and adjust your projects and next actions accordingly." />
