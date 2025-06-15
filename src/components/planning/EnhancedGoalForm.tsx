@@ -236,12 +236,12 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
 
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Goal Title</label>
-                <Input value={formData.title || ""} onChange={e => handleInputChange("title", e.target.value)} placeholder={`Enter your ${timeframe} goal title`} />
+                <label className="text-sm font-medium text-cyan-600">Goal Title</label>
+                <Input value={formData.title || ""} onChange={e => handleInputChange("title", e.target.value)} placeholder={`Enter your ${timeframe} goal title`} className="bg-slate-900" />
               </div>
 
               <div>
-                <label className="text-sm font-medium">Category</label>
+                <label className="text-sm font-medium text-cyan-600">Category</label>
                 <Select value={formData.category || ""} onValueChange={value => handleInputChange("category", value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
@@ -258,13 +258,13 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
               </div>
 
               {timeframeQuestions[timeframe]?.map(question => <div key={question.key} className="space-y-2">
-                  <label className="text-sm font-medium">{question.label}</label>
+                  <label className="text-sm font-medium text-cyan-600">{question.label}</label>
                   <Textarea value={formData[question.key] || ""} onChange={e => handleInputChange(question.key, e.target.value)} placeholder={question.placeholder} rows={3} />
                 </div>)}
             </div>
 
             <div className="flex justify-between">
-              <Button variant="outline" onClick={() => setStep(1)}>
+              <Button variant="outline" onClick={() => setStep(1)} className="text-orange-600">
                 Back
               </Button>
               <Button onClick={handleSubmit} disabled={!formData.title}>
