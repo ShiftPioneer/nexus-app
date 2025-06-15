@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,50 +9,43 @@ import { SkillsetDialog } from "./SkillsetDialog";
 import { MasteryChart } from "./MasteryChart";
 import { CategoryChart } from "./CategoryChart";
 import { useLocalStorage } from "@/hooks/use-local-storage";
-
-const defaultSkillsets: Skillset[] = [
-  {
-    id: "1",
-    name: "JavaScript",
-    description: "Modern JavaScript programming language",
-    category: "Programming",
-    mastery: 75,
-    lastPracticed: new Date("2023-12-15"),
-    resourceCount: 5,
-    color: "#FFDD00"
-  },
-  {
-    id: "2",
-    name: "UI/UX Design",
-    description: "User interface and experience design",
-    category: "Design",
-    mastery: 60,
-    lastPracticed: new Date("2023-12-10"),
-    resourceCount: 8,
-    color: "#FF5733"
-  },
-  {
-    id: "3",
-    name: "Data Science",
-    description: "Statistical analysis and machine learning",
-    category: "Analytics",
-    mastery: 40,
-    lastPracticed: new Date("2023-11-28"),
-    resourceCount: 12,
-    color: "#4285F4"
-  },
-  {
-    id: "4",
-    name: "Public Speaking",
-    description: "Effective communication and presentation skills",
-    category: "Soft Skills",
-    mastery: 80,
-    lastPracticed: new Date("2023-12-05"),
-    resourceCount: 3,
-    color: "#9C27B0"
-  }
-];
-
+const defaultSkillsets: Skillset[] = [{
+  id: "1",
+  name: "JavaScript",
+  description: "Modern JavaScript programming language",
+  category: "Programming",
+  mastery: 75,
+  lastPracticed: new Date("2023-12-15"),
+  resourceCount: 5,
+  color: "#FFDD00"
+}, {
+  id: "2",
+  name: "UI/UX Design",
+  description: "User interface and experience design",
+  category: "Design",
+  mastery: 60,
+  lastPracticed: new Date("2023-12-10"),
+  resourceCount: 8,
+  color: "#FF5733"
+}, {
+  id: "3",
+  name: "Data Science",
+  description: "Statistical analysis and machine learning",
+  category: "Analytics",
+  mastery: 40,
+  lastPracticed: new Date("2023-11-28"),
+  resourceCount: 12,
+  color: "#4285F4"
+}, {
+  id: "4",
+  name: "Public Speaking",
+  description: "Effective communication and presentation skills",
+  category: "Soft Skills",
+  mastery: 80,
+  lastPracticed: new Date("2023-12-05"),
+  resourceCount: 3,
+  color: "#9C27B0"
+}];
 export function SkillsetTab() {
   const [skillsetsRaw, setSkillsetsRaw] = useLocalStorage<Skillset[]>("userSkillsets", defaultSkillsets);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -62,11 +54,8 @@ export function SkillsetTab() {
   // Convert lastPracticed strings back to Date objects when loading from localStorage
   const skillsets = skillsetsRaw.map(skillset => ({
     ...skillset,
-    lastPracticed: typeof skillset.lastPracticed === 'string' 
-      ? new Date(skillset.lastPracticed) 
-      : skillset.lastPracticed
+    lastPracticed: typeof skillset.lastPracticed === 'string' ? new Date(skillset.lastPracticed) : skillset.lastPracticed
   }));
-
   const handleAddSkillset = (skillset: Skillset) => {
     if (currentSkillset) {
       setSkillsetsRaw(skillsetsRaw.map(s => s.id === skillset.id ? skillset : s));
@@ -79,32 +68,27 @@ export function SkillsetTab() {
     setDialogOpen(false);
     setCurrentSkillset(null);
   };
-
   const handleEdit = (skillset: Skillset) => {
     setCurrentSkillset(skillset);
     setDialogOpen(true);
   };
-
   const handleDelete = (id: string) => {
     setSkillsetsRaw(skillsetsRaw.filter(s => s.id !== id));
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Your Skillsets</h2>
         <Button onClick={() => {
-          setCurrentSkillset(null);
-          setDialogOpen(true);
-        }} className="gap-1">
+        setCurrentSkillset(null);
+        setDialogOpen(true);
+      }} className="gap-1">
           <Plus size={18} />
           Add Skillset
         </Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {skillsets.map(skillset => (
-          <Card key={skillset.id} className="bg-blue-800 rounded-25px rounded-2xl">
+        {skillsets.map(skillset => <Card key={skillset.id} className="bg-blue-800 rounded-25px rounded-2xl">
             <CardContent className="p-6 bg-blue-800 rounded-2xl py-[24px]">
               <div className="flex flex-col bg-blue-800">
                 <div className="flex justify-between items-start bg-transparent">
@@ -131,40 +115,33 @@ export function SkillsetTab() {
                 </div>
                 
                 <div className="flex justify-end gap-2 mt-4 bg-blue-800">
-                  <Button size="icon" variant="outline" onClick={() => handleEdit(skillset)} className="bg-lime-500 hover:bg-lime-400 font-normal text-slate-950 rounded">
+                  <Button size="icon" variant="outline" onClick={() => handleEdit(skillset)} className="font-normal rounded bg-amber-600 hover:bg-amber-500 text-blue-800">
                     <Edit className="h-4 w-4" />
                   </Button>
-                  <Button size="icon" variant="outline" onClick={() => handleDelete(skillset.id)} className="text-destructive hover:text-destructive">
+                  <Button size="icon" variant="outline" onClick={() => handleDelete(skillset.id)} className="text-red-600">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </div>
             </CardContent>
-          </Card>
-        ))}
+          </Card>)}
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-6 bg-slate-950 rounded-lg">
             <h3 className="font-bold text-xl mb-4">Mastery Overview</h3>
             <MasteryChart skillsets={skillsets} />
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-6 rounded-lg bg-slate-950">
             <h3 className="font-bold text-xl mb-4">Skillsets by Category</h3>
             <CategoryChart skillsets={skillsets} />
           </CardContent>
         </Card>
       </div>
       
-      <SkillsetDialog 
-        open={dialogOpen} 
-        onOpenChange={setDialogOpen} 
-        onSave={handleAddSkillset} 
-        skillset={currentSkillset} 
-      />
-    </div>
-  );
+      <SkillsetDialog open={dialogOpen} onOpenChange={setDialogOpen} onSave={handleAddSkillset} skillset={currentSkillset} />
+    </div>;
 }
