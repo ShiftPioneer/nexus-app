@@ -65,34 +65,34 @@ const FocusStats: React.FC<FocusStatsProps> = ({
         <CardContent className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <Card className="bg-card/50 shadow-sm">
-              <CardContent className="p-4 flex flex-col items-center text-center">
+              <CardContent className="p-4 flex flex-col items-center text-center bg-slate-900 rounded-lg">
                 <div className="mb-1 p-2 rounded-full bg-blue-100">
                   <Zap className="h-4 w-4 text-blue-600" />
                 </div>
-                <div className="text-2xl font-bold">{allSessions.length}</div>
-                <div className="text-sm text-muted-foreground">Total Sessions</div>
+                <div className="text-2xl font-bold text-lime-600">{allSessions.length}</div>
+                <div className="text-sm text-muted-foreground bg-background-DEFAULT text-lime-600">Total Sessions</div>
               </CardContent>
             </Card>
             
             <Card className="bg-card/50 shadow-sm">
-              <CardContent className="p-4 flex flex-col items-center text-center">
+              <CardContent className="p-4 flex flex-col items-center text-center rounded-lg bg-slate-900">
                 <div className="mb-1 p-2 rounded-full bg-green-100">
                   <Target className="h-4 w-4 text-green-600" />
                 </div>
-                <div className="text-2xl font-bold">{completedSessions.length}</div>
-                <div className="text-sm text-muted-foreground">Completed Sessions</div>
+                <div className="text-2xl font-bold text-lime-600">{completedSessions.length}</div>
+                <div className="text-sm text-muted-foreground text-lime-600">Completed Sessions</div>
               </CardContent>
             </Card>
             
             <Card className="bg-card/50 shadow-sm">
-              <CardContent className="p-4 flex flex-col items-center text-center">
+              <CardContent className="p-4 flex flex-col items-center text-center rounded-lg bg-slate-900">
                 <div className="mb-1 p-2 rounded-full bg-purple-100">
                   <Clock className="h-4 w-4 text-purple-600" />
                 </div>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-lime-600">
                   {Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
                 </div>
-                <div className="text-sm text-muted-foreground">Total Focus Time</div>
+                <div className="text-sm text-muted-foreground text-lime-600">Total Focus Time</div>
               </CardContent>
             </Card>
             
@@ -101,20 +101,20 @@ const FocusStats: React.FC<FocusStatsProps> = ({
                 <div className="mb-1 p-2 rounded-full bg-orange-100">
                   <TrendingUp className="h-4 w-4 text-orange-600" />
                 </div>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-lime-600">
                   {allSessions.length > 0 ? Math.round(completedSessions.length / allSessions.length * 100) : 0}%
                 </div>
-                <div className="text-sm text-muted-foreground">Success Rate</div>
+                <div className="text-sm text-muted-foreground text-lime-600">Success Rate</div>
               </CardContent>
             </Card>
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="bg-card/50 shadow-sm">
-              <CardHeader className="pb-0">
+            <Card className="shadow-sm bg-slate-900">
+              <CardHeader className="pb-0 rounded-lg bg-slate-900">
                 <CardTitle className="text-base">Daily Focus (Last 7 Days)</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="rounded-lg bg-slate-900">
                 <div className="h-[200px] mt-2">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={dailyStats} margin={{
@@ -144,11 +144,11 @@ const FocusStats: React.FC<FocusStatsProps> = ({
               </CardContent>
             </Card>
             
-            <Card className="bg-card/50 shadow-sm">
+            <Card className="shadow-sm bg-slate-900 rounded-lg">
               <CardHeader className="pb-0">
                 <CardTitle className="text-base">Focus Categories</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="rounded-lg">
                 {techniqueDistribution.length > 0 ? <>
                     <div className="h-[200px] flex items-center justify-center mt-2">
                       <ResponsiveContainer width="100%" height="100%">
