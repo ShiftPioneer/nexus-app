@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Star } from "lucide-react";
+import { Star, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface BookDialogProps {
@@ -14,17 +14,31 @@ interface BookDialogProps {
   onOpenChange: (open: boolean) => void;
   book?: any;
   onSave: (book: any) => void;
+  onDelete?: (bookId: string) => void;
+  coverImage?: string | null;
+  onCoverImageChange?: (image: string | null) => void;
 }
 
-const BookDialog: React.FC<BookDialogProps> = ({ open, onOpenChange, book, onSave }) => {
+const BookDialog: React.FC<BookDialogProps> = ({ 
+  open, 
+  onOpenChange, 
+  book, 
+  onSave, 
+  onDelete,
+  coverImage,
+  onCoverImageChange 
+}) => {
   const [formData, setFormData] = useState({
     title: "",
     author: "",
     category: "",
-    status: "want-to-read",
+    readingStatus: "Not Yet Read",
     rating: 0,
     pages: "",
-    notes: "",
+    description: "",
+    summary: "",
+    keyLessons: "",
+    relatedSkillsets: [] as string[],
     dateStarted: "",
     dateCompleted: "",
   });
@@ -37,10 +51,13 @@ const BookDialog: React.FC<BookDialogProps> = ({ open, onOpenChange, book, onSav
         title: book.title || "",
         author: book.author || "",
         category: book.category || "",
-        status: book.status || "want-to-read",
+        readingStatus: book.readingStatus || "Not Yet Read",
         rating: book.rating || 0,
         pages: book.pages?.toString() || "",
-        notes: book.notes || "",
+        description: book.description || "",
+        summary: book.summary || "",
+        keyLessons: book.keyLessons || "",
+        relatedSkillsets: book.relatedSkillsets || [],
         dateStarted: book.dateStarted || "",
         dateCompleted: book.dateCompleted || "",
       });
@@ -49,10 +66,13 @@ const BookDialog: React.FC<BookDialogProps> = ({ open, onOpenChange, book, onSav
         title: "",
         author: "",
         category: "",
-        status: "want-to-read",
+        readingStatus: "Not Yet Read",
         rating: 0,
         pages: "",
-        notes: "",
+        description: "",
+        summary: "",
+        keyLessons: "",
+        relatedSkillsets: [],
         dateStarted: "",
         dateCompleted: "",
       });
@@ -66,12 +86,20 @@ const BookDialog: React.FC<BookDialogProps> = ({ open, onOpenChange, book, onSav
       ...formData,
       id: book?.id || Date.now().toString(),
       pages: formData.pages ? parseInt(formData.pages) : undefined,
+      relatedSkillsets: formData.relatedSkillsets,
       createdAt: book?.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
 
     onSave(bookData);
     onOpenChange(false);
+  };
+
+  const handleDelete = () => {
+    if (book && onDelete) {
+      onDelete(book.id);
+      onOpenChange(false);
+    }
   };
 
   const renderStarRating = () => {
@@ -107,7 +135,20 @@ const BookDialog: React.FC<BookDialogProps> = ({ open, onOpenChange, book, onSav
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{book ? "Edit Book" : "Add New Book"}</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>{book ? "Edit Book" : "Add New Book"}</DialogTitle>
+            {book && onDelete && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleDelete}
+                className="text-destructive hover:text-destructive"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -134,28 +175,18 @@ const BookDialog: React.FC<BookDialogProps> = ({ open, onOpenChange, book, onSav
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
-            <Input
-              id="category"
-              value={formData.category}
-              onChange={(e) => setFormData(prev => ({ ...prev, category: e.target.value }))}
-              placeholder="e.g., Fiction, Non-fiction, Self-help"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="status">Reading Status</Label>
+            <Label htmlFor="readingStatus">Reading Status</Label>
             <Select
-              value={formData.status}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, status: value }))}
+              value={formData.readingStatus}
+              onValueChange={(value) => setFormData(prev => ({ ...prev, readingStatus: value }))}
             >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="want-to-read">Want to Read</SelectItem>
-                <SelectItem value="reading">Currently Reading</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="Not Yet Read">Want to Read</SelectItem>
+                <SelectItem value="Reading Now">Currently Reading</SelectItem>
+                <SelectItem value="Finished">Completed</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -166,47 +197,36 @@ const BookDialog: React.FC<BookDialogProps> = ({ open, onOpenChange, book, onSav
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="pages">Pages</Label>
-            <Input
-              id="pages"
-              type="number"
-              value={formData.pages}
-              onChange={(e) => setFormData(prev => ({ ...prev, pages: e.target.value }))}
-              placeholder="Number of pages"
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              value={formData.description}
+              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              placeholder="Brief description of the book"
+              rows={2}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="summary">Summary</Label>
             <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              placeholder="Your thoughts, quotes, or notes about this book"
-              rows={3}
+              id="summary"
+              value={formData.summary}
+              onChange={(e) => setFormData(prev => ({ ...prev, summary: e.target.value }))}
+              placeholder="Your summary of the book"
+              rows={2}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="dateStarted">Date Started</Label>
-              <Input
-                id="dateStarted"
-                type="date"
-                value={formData.dateStarted}
-                onChange={(e) => setFormData(prev => ({ ...prev, dateStarted: e.target.value }))}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="dateCompleted">Date Completed</Label>
-              <Input
-                id="dateCompleted"
-                type="date"
-                value={formData.dateCompleted}
-                onChange={(e) => setFormData(prev => ({ ...prev, dateCompleted: e.target.value }))}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="keyLessons">Key Lessons</Label>
+            <Textarea
+              id="keyLessons"
+              value={formData.keyLessons}
+              onChange={(e) => setFormData(prev => ({ ...prev, keyLessons: e.target.value }))}
+              placeholder="Key takeaways and lessons"
+              rows={2}
+            />
           </div>
 
           <div className="flex gap-3 pt-4">
