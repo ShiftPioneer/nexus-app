@@ -37,7 +37,7 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
   };
   const renderGoals = () => {
     return goals.map(goal => <Card key={goal.id} className="group hover:shadow-md transition-shadow cursor-pointer" onClick={() => onEditItem(goal)}>
-        <CardContent className="p-6 bg-slate-950">
+        <CardContent className="p-6 bg-slate-950 rounded-lg">
           <div className="flex flex-col gap-4">
             <div className="flex justify-between">
               <div className="flex items-center gap-2">
