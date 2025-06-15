@@ -38,11 +38,11 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
   };
   return <Card className="lg:col-span-2 bg-slate-950">
       <CardHeader className="bg-slate-950 rounded-lg">
-        <CardTitle>Focus Timer</CardTitle>
+        <CardTitle className="">Focus Timer</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6 rounded-lg bg-slate-950">
         {/* Mode selection */}
-        <div className="bg-muted rounded-lg p-1">
+        <div className="rounded-lg p-1 bg-slate-900">
           <div className="grid grid-cols-3 gap-1">
             <Button variant={timerMode === "focus" ? "default" : "ghost"} className={`w-full ${timerMode === "focus" ? "bg-orange-500 hover:bg-orange-600" : ""}`} onClick={() => onModeChange("focus")}>
               Focus
