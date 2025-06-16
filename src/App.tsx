@@ -12,7 +12,6 @@ import Habits from "./pages/Habits";
 import Journal from "./pages/Journal";
 import Planning from "./pages/Planning";
 import TimeDesign from "./pages/TimeDesign";
-import Finance from "./pages/Finance";
 import Knowledge from "./pages/Knowledge";
 import Energy from "./pages/Energy";
 import Mindset from "./pages/Mindset";
@@ -37,7 +36,6 @@ const App = () => (
               <Route path="/journal" element={<Journal />} />
               <Route path="/planning" element={<Planning />} />
               <Route path="/time-design" element={<TimeDesign />} />
-              <Route path="/finance" element={<Finance />} />
               <Route path="/knowledge" element={<Knowledge />} />
               <Route path="/energy" element={<Energy />} />
               <Route path="/mindset" element={<Mindset />} />
