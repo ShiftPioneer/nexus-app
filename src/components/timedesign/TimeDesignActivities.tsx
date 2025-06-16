@@ -54,7 +54,7 @@ const TimeDesignActivities: React.FC<TimeDesignActivitiesProps> = ({
                           {activity.description}
                         </p>
                         <div className="mt-2 flex items-center gap-2 flex-wrap">
-                          <span className="text-sm text-muted-foreground flex items-center">
+                          <span className="text-sm text-muted-foreground flex items-center text-violet-500">
                             <svg className="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                               <circle cx="12" cy="12" r="10" strokeWidth="1.5" />
                               <path strokeLinecap="round" strokeWidth="1.5" d="M12 6v6l4 2" />
