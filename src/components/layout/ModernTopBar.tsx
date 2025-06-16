@@ -57,7 +57,7 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
         </Button>
         
         {/* User Profile with Display Name */}
-        <div className="flex items-center gap-2 pl-1 sm:pl-2 user-info bg-slate-950 border-slate-950 h-1">
+        <div className="flex items-center gap-2 pl-1 sm:pl-2 user-info bg-slate-950 border-slate-950 h-1 rounded-lg">
           <Avatar className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 border-2 border-slate-300 shadow-md hover:border-primary/40 transition-all duration-200 flex-shrink-0">
             <AvatarImage src={user?.avatar} />
             <AvatarFallback className="bg-primary/10 text-primary font-semibold text-xs sm:text-sm border border-slate-300">
