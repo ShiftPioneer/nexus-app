@@ -117,7 +117,7 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
           
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="title">Habit Name</Label>
+              <Label htmlFor="title" className="text-orange-600">Habit Name</Label>
               <Input id="title" value={title} onChange={e => setTitle(e.target.value)} placeholder="What habit would you like to build?" required />
               <p className="text-xs text-muted-foreground">
                 Be specific (e.g., "Meditate for 10 minutes" instead of just "Meditate")
@@ -126,7 +126,7 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="type">Type</Label>
+                <Label htmlFor="type" className="text-orange-600">Type</Label>
                 <Select value={type} onValueChange={(val: "daily" | "weekly" | "monthly") => setType(val)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
@@ -140,7 +140,7 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="category">Category</Label>
+                <Label htmlFor="category" className="text-orange-600">Category</Label>
                 <Select value={category} onValueChange={(val: HabitCategory) => setCategory(val)}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
@@ -156,12 +156,12 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="duration">Duration</Label>
+                <Label htmlFor="duration" className="text-orange-600">Duration</Label>
                 <Input id="duration" value={duration} onChange={e => setDuration(e.target.value)} placeholder="e.g., 10 minutes" />
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="target">Initial Commitment</Label>
+                <Label htmlFor="target" className="text-orange-600">Initial Commitment</Label>
                 <Select value={target.toString()} onValueChange={val => setTarget(parseInt(val))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select commitment" />
@@ -180,18 +180,18 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="scoreValue">Score Value (when completed)</Label>
+                  <Label htmlFor="scoreValue" className="bg-background-DEFAULT text-orange-600">Score Value (when completed)</Label>
                   <div className="flex items-center">
                     <Input id="scoreValue" type="number" min={1} value={scoreValue} onChange={e => setScoreValue(parseInt(e.target.value))} className="rounded-r-none" />
-                    <span className="bg-muted px-3 py-2 border border-l-0 rounded-r-md text-muted-foreground">points</span>
+                    <span className="bg-muted px-3 py-2 border border-l-0 rounded-r-md text-muted-foreground text-orange-600 bg-gray-900 ">points</span>
                   </div>
                 </div>
                 
                 <div className="grid gap-2">
-                  <Label htmlFor="penaltyValue">Penalty Value (when missed)</Label>
+                  <Label htmlFor="penaltyValue" className="text-orange-600">Penalty Value (when missed)</Label>
                   <div className="flex items-center">
                     <Input id="penaltyValue" type="number" min={0} value={penaltyValue} onChange={e => setPenaltyValue(parseInt(e.target.value))} className="rounded-r-none" />
-                    <span className="bg-muted px-3 py-2 border border-l-0 rounded-r-md text-muted-foreground">points</span>
+                    <span className="bg-muted px-3 py-2 border border-l-0 rounded-r-md text-muted-foreground text-orange-600 bg-gray-900 ">points</span>
                   </div>
                 </div>
               </div>
