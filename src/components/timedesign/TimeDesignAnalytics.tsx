@@ -22,7 +22,7 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
     health: 50
   };
   return <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <Card className="lg:col-span-2">
+      <Card className="lg:col-span-2 bg-slate-950">
         <CardHeader className="rounded-lg bg-slate-950">
           <CardTitle>Time Usage Distribution</CardTitle>
         </CardHeader>
