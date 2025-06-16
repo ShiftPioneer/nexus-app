@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,25 +39,25 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
 
   const items = contentType === 'goals' ? goals : projects;
 
-  const formatDate = (date: string | Date | undefined) => {
+  function formatDate(date: string | Date | undefined) {
     if (!date) return "No deadline";
     try {
       return format(new Date(date), "MMM d, yyyy");
     } catch (error) {
       return "Invalid date";
     }
-  };
+  }
 
-  const isOverdue = (date: string | Date | undefined) => {
+  function isOverdue(date: string | Date | undefined) {
     if (!date) return false;
     try {
       return isAfter(new Date(), new Date(date));
     } catch (error) {
       return false;
     }
-  };
+  }
 
-  const isDueSoon = (date: string | Date | undefined) => {
+  function isDueSoon(date: string | Date | undefined) {
     if (!date) return false;
     try {
       const dueDate = new Date(date);
@@ -67,9 +66,9 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
     } catch (error) {
       return false;
     }
-  };
+  }
 
-  const getStatusColor = (status: string) => {
+  function getStatusColor(status: string) {
     switch (status) {
       case 'completed':
         return 'bg-green-500/20 text-green-400 border-green-500/30';
@@ -80,9 +79,9 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
       default:
         return 'bg-slate-500/20 text-slate-400 border-slate-500/30';
     }
-  };
+  }
 
-  const getStatusText = (status: string) => {
+  function getStatusText(status: string) {
     switch (status) {
       case 'completed':
         return 'Completed';
@@ -93,7 +92,7 @@ const PlanningListView: React.FC<PlanningListViewProps> = ({
       default:
         return 'Unknown';
     }
-  };
+  }
 
   const handleProgressChange = (item: Goal | Project, newProgress: number[]) => {
     console.log("Progress change:", item.title, newProgress[0]);
