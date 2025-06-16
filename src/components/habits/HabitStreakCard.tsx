@@ -15,22 +15,22 @@ const HabitStreakCard: React.FC<HabitStreakCardProps> = ({ habits }) => {
     .slice(0, 4);
 
   const getStreakColor = (streak: number) => {
-    if (streak >= 30) return "text-orange-400 bg-orange-400/20";
-    if (streak >= 14) return "text-yellow-400 bg-yellow-400/20";
-    if (streak >= 7) return "text-lime-400 bg-lime-400/20";
-    return "text-blue-400 bg-blue-400/20";
+    if (streak >= 30) return "text-primary bg-primary/20 border-slate-300";
+    if (streak >= 14) return "text-emerald-400 bg-emerald-400/20 border-slate-300";
+    if (streak >= 7) return "text-blue-400 bg-blue-400/20 border-slate-300";
+    return "text-slate-400 bg-slate-400/20 border-slate-300";
   };
 
   const getCategoryColor = (category: string) => {
     const colors = {
-      health: "bg-green-500/80",
+      health: "bg-emerald-500/80",
       mindfulness: "bg-blue-500/80",
       learning: "bg-purple-500/80",
-      productivity: "bg-orange-500/80",
+      productivity: "bg-primary/80",
       relationships: "bg-pink-500/80",
       finance: "bg-emerald-500/80",
       religion: "bg-amber-500/80",
-      other: "bg-gray-500/80"
+      other: "bg-slate-500/80"
     };
     return colors[category as keyof typeof colors] || colors.other;
   };
@@ -39,12 +39,12 @@ const HabitStreakCard: React.FC<HabitStreakCardProps> = ({ habits }) => {
   const longestStreak = Math.max(...habits.map(h => h.streak), 0);
 
   return (
-    <Card className="bg-slate-950/40 border-slate-300 shadow-lg hover:shadow-xl transition-all duration-300">
+    <Card className="card-enhanced">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-orange-500/20 rounded-lg">
-              <Flame className="h-5 w-5 text-orange-400" />
+            <div className="p-2 bg-primary/20 rounded-lg border border-slate-300">
+              <Flame className="h-5 w-5 text-primary" />
             </div>
             <div>
               <span className="text-white text-lg font-semibold">Active Streaks</span>
@@ -52,7 +52,7 @@ const HabitStreakCard: React.FC<HabitStreakCardProps> = ({ habits }) => {
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-orange-400">{sortedHabits.length}</div>
+            <div className="text-2xl font-bold text-primary">{sortedHabits.length}</div>
             <div className="text-xs text-slate-400">active</div>
           </div>
         </CardTitle>
@@ -65,7 +65,7 @@ const HabitStreakCard: React.FC<HabitStreakCardProps> = ({ habits }) => {
             <div className="text-xs text-slate-400">Total Days</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-bold text-orange-400">{longestStreak}</div>
+            <div className="text-lg font-bold text-primary">{longestStreak}</div>
             <div className="text-xs text-slate-400">Best Streak</div>
           </div>
         </div>

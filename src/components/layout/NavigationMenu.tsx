@@ -7,7 +7,6 @@ import {
   BookOpen, Settings, BarChartHorizontal, Target, RefreshCw, CheckSquare
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface NavigationMenuProps {
   isCollapsed?: boolean;
@@ -79,16 +78,11 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
       title: "Stats",
       path: "/stats",
       icon: BarChartHorizontal
-    },
-    {
-      title: "Settings",
-      path: "/settings",
-      icon: Settings
     }
   ];
 
   return (
-    <SidebarMenu className="space-y-1 scrollbar-none">
+    <SidebarMenu className="space-y-1 scrollbar-none px-2">
       {menuItems.map(item => (
         <SidebarMenuItem key={item.path}>
           <SidebarMenuButton 
@@ -96,36 +90,27 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
             isActive={currentPath === item.path} 
             tooltip={isCollapsed ? item.title : undefined} 
             className={cn(
-              "hover:bg-slate-800 transition-all duration-300 group", 
-              currentPath === item.path ? "bg-slate-800 text-primary" : "text-slate-300",
-              isCollapsed ? "justify-center" : "px-2"
+              "nav-item group transition-all duration-200 border border-slate-300",
+              currentPath === item.path 
+                ? "active bg-primary/10 text-primary border-primary/30" 
+                : "text-slate-300 hover:text-white hover:bg-slate-800/50",
+              isCollapsed ? "justify-center p-3" : "px-3 py-2.5"
             )}
           >
-            <motion.div 
-              className="w-full" 
-              whileHover={{ scale: 1.05 }} 
-              whileTap={{ scale: 0.95 }}
-            >
-              <Link to={item.path} className="w-full flex items-center gap-3">
-                <motion.div 
-                  whileHover={{ scale: 1.2 }} 
-                  transition={{ duration: 0.3 }}
-                >
-                  <item.icon 
-                    className={cn(
-                      "h-5 w-5 transition-transform transform duration-300", 
-                      currentPath === item.path ? "text-primary" : "text-slate-300"
-                    )} 
-                  />
-                </motion.div>
-                
-                {!isCollapsed && (
-                  <span className="transition-transform duration-300 group-hover:translate-x-1 text-base font-bold">
-                    {item.title}
-                  </span>
-                )}
-              </Link>
-            </motion.div>
+            <Link to={item.path} className="w-full flex items-center gap-3">
+              <item.icon 
+                className={cn(
+                  "h-5 w-5 transition-all duration-200 flex-shrink-0", 
+                  currentPath === item.path ? "text-primary" : "text-slate-300 group-hover:text-white"
+                )} 
+              />
+              
+              {!isCollapsed && (
+                <span className="transition-all duration-200 text-sm font-medium group-hover:translate-x-1">
+                  {item.title}
+                </span>
+              )}
+            </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
       ))}

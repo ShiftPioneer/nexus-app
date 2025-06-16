@@ -2,7 +2,6 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, CheckCircle, Circle, BarChart3 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface WeeklyActivityCardProps {
   habits: Habit[];
@@ -36,11 +35,11 @@ const WeeklyActivityCard: React.FC<WeeklyActivityCardProps> = ({ habits }) => {
     : 0;
 
   return (
-    <Card className="bg-slate-950/40 border-slate-300 shadow-lg hover:shadow-xl transition-all duration-300">
+    <Card className="card-enhanced">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-blue-500/20 rounded-lg">
+            <div className="p-2 bg-blue-500/20 rounded-lg border border-slate-300">
               <Calendar className="h-5 w-5 text-blue-400" />
             </div>
             <div>
@@ -77,7 +76,7 @@ const WeeklyActivityCard: React.FC<WeeklyActivityCardProps> = ({ habits }) => {
                     return (
                       <div key={index} className="flex justify-center">
                         {isCompleted ? (
-                          <CheckCircle className="h-5 w-5 text-green-400" />
+                          <CheckCircle className="h-5 w-5 text-emerald-400" />
                         ) : (
                           <Circle className="h-5 w-5 text-slate-600" />
                         )}
@@ -97,14 +96,14 @@ const WeeklyActivityCard: React.FC<WeeklyActivityCardProps> = ({ habits }) => {
           
           {/* Weekly Summary */}
           {displayHabits.length > 0 && (
-            <div className="mt-4 p-3 bg-gradient-to-r from-blue-500/10 to-green-500/10 rounded-lg border border-slate-300">
+            <div className="mt-4 p-3 bg-gradient-to-r from-blue-500/10 to-emerald-500/10 rounded-lg border border-slate-300">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-300">This week:</span>
                 <span className="text-white font-medium">{totalCompletions}/{totalPossibleCompletions} completed</span>
               </div>
-              <div className="mt-2 w-full bg-slate-700 rounded-full h-2">
+              <div className="mt-2 w-full bg-slate-700 rounded-full h-2 border border-slate-300">
                 <div 
-                  className="bg-gradient-to-r from-blue-400 to-green-400 h-2 rounded-full transition-all duration-500"
+                  className="bg-gradient-to-r from-blue-400 to-emerald-400 h-2 rounded-full transition-all duration-500"
                   style={{ width: `${completionRate}%` }}
                 />
               </div>
