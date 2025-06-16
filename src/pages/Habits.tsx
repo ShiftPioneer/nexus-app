@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,10 +25,46 @@ const Habits = () => {
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Use localStorage for data persistence
+  // Use localStorage for data persistence with sample data
   const [habits, setHabits] = useLocalStorage<Habit[]>("userHabits", [
-    // ... keep existing default habits data
+    {
+      id: "habit-1",
+      title: "Morning Meditation",
+      category: "mindfulness",
+      streak: 12,
+      target: 21,
+      status: "pending",
+      completionDates: [
+        new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+        new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+      ],
+      type: "daily",
+      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
+      duration: "10 minutes",
+      scoreValue: 10,
+      penaltyValue: 15
+    },
+    {
+      id: "habit-2", 
+      title: "Read 30 Pages",
+      category: "learning",
+      streak: 7,
+      target: 30,
+      status: "completed",
+      completionDates: [
+        new Date(),
+        new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+        new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
+      ],
+      type: "daily",
+      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
+      duration: "45 minutes",
+      scoreValue: 8,
+      penaltyValue: 12
+    }
   ]);
+  
   const [accountabilityScore, setAccountabilityScore] = useLocalStorage("accountabilityScore", 0);
 
   // Calculate real accountability score based on streaks and completions
@@ -46,7 +83,6 @@ const Habits = () => {
     const today = new Date().toDateString();
     const lastCheck = localStorage.getItem('lastHabitCheck');
     if (lastCheck !== today) {
-      // Reset daily habits that haven't been completed
       setHabits(prevHabits => prevHabits.map(habit => {
         if (habit.type === "daily" && habit.status === "completed") {
           const lastCompletion = habit.completionDates[0];
@@ -99,7 +135,6 @@ const Habits = () => {
     const today = new Date();
     setHabits(habits.map(habit => {
       if (habit.id === id) {
-        // Check if already completed today
         const completedToday = habit.completionDates.some(date => 
           new Date(date).toDateString() === today.toDateString()
         );
@@ -167,7 +202,7 @@ const Habits = () => {
 
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-6 p-6">
+      <div className="animate-fade-in space-y-6 h-full">
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-white">Habits</h1>
@@ -178,7 +213,7 @@ const Habits = () => {
               setSelectedHabit(null);
               setShowHabitDialog(true);
             }} 
-            className="gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20"
+            className="gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20 border-slate-300"
           >
             <Plus size={18} />
             New Habit
@@ -186,7 +221,7 @@ const Habits = () => {
         </div>
         
         {/* Accountability Score */}
-        <Card className="bg-gradient-to-br from-orange-950/30 to-orange-900/30 border-orange-800/50">
+        <Card className="bg-gradient-to-br from-orange-950/30 to-orange-900/30 border-slate-300 shadow-lg">
           <CardHeader className="pb-4">
             <CardTitle className="text-orange-200 flex items-center gap-2 text-xl">
               <Award className="h-6 w-6" />
@@ -202,7 +237,7 @@ const Habits = () => {
                 <p className="text-orange-300 mb-3">
                   Keep building your habits to increase your score!
                 </p>
-                <div className="w-full bg-orange-900/50 h-3 rounded-full">
+                <div className="w-full bg-orange-900/50 h-3 rounded-full border border-slate-300">
                   <div 
                     className="bg-orange-400 h-3 rounded-full transition-all duration-500" 
                     style={{ width: `${Math.min(100, accountabilityScore / 500 * 100)}%` }}
@@ -214,8 +249,8 @@ const Habits = () => {
         </Card>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="habits" className="space-y-6">
-          <TabsList className="bg-slate-900/50 border border-slate-800">
+        <Tabs defaultValue="habits" className="space-y-6 h-full">
+          <TabsList className="bg-slate-900/50 border border-slate-300">
             <TabsTrigger value="habits" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400">
               Track Habits
             </TabsTrigger>
@@ -233,7 +268,7 @@ const Habits = () => {
                   placeholder="Search habits..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-slate-900 border-slate-700 text-white"
+                  className="pl-10 bg-slate-900 border-slate-300 text-white"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -241,7 +276,7 @@ const Habits = () => {
                 <select 
                   value={filterCategory} 
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-slate-700 text-white"
+                  className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-slate-300 text-white"
                 >
                   {categories.map(cat => (
                     <option key={cat} value={cat}>
@@ -254,7 +289,7 @@ const Habits = () => {
 
             {/* Habits Grid */}
             {filteredHabits.length === 0 ? (
-              <Card className="border-slate-800 bg-slate-950/40">
+              <Card className="border-slate-300 bg-slate-950/40">
                 <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px]">
                   <Award className="h-16 w-16 text-slate-600 mb-4" />
                   <h3 className="text-xl font-semibold text-white mb-2">
@@ -272,7 +307,7 @@ const Habits = () => {
                         setSelectedHabit(null);
                         setShowHabitDialog(true);
                       }}
-                      className="bg-orange-500 hover:bg-orange-600 text-white"
+                      className="bg-orange-500 hover:bg-orange-600 text-white border-slate-300"
                     >
                       Create First Habit
                     </Button>
@@ -302,7 +337,7 @@ const Habits = () => {
             </div>
 
             {/* Detailed Statistics */}
-            <Card className="border-slate-800 bg-slate-950/40">
+            <Card className="border-slate-300 bg-slate-950/40">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl text-white">
                   <BarChart2 className="h-5 w-5 text-orange-400" />
@@ -311,7 +346,7 @@ const Habits = () => {
               </CardHeader>
               <CardContent>
                 <Tabs value={statisticsTab} onValueChange={setStatisticsTab}>
-                  <TabsList className="grid w-full grid-cols-4 mb-6 bg-slate-900">
+                  <TabsList className="grid w-full grid-cols-4 mb-6 bg-slate-900 border border-slate-300">
                     <TabsTrigger value="overview">Overview</TabsTrigger>
                     <TabsTrigger value="trends">Trends</TabsTrigger>
                     <TabsTrigger value="categories">Categories</TabsTrigger>

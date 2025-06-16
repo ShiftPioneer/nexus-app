@@ -34,15 +34,15 @@ const ModernAppLayout = ({ children }: ModernAppLayoutProps) => {
           />
           
           {/* Main Content Area */}
-          <div className="flex flex-col flex-1 overflow-hidden transition-all duration-300 ease-in-out min-w-0">
+          <div className="flex flex-col flex-1 overflow-hidden transition-all duration-300 ease-in-out min-w-0 h-full">
             <ModernTopBar 
               onToggleSidebar={toggleSidebar} 
               isCollapsed={isCollapsed} 
               isMobile={isMobile} 
             />
             
-            <main className="flex-1 overflow-y-auto scrollbar-none bg-slate-900">
-              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-white bg-slate-900">
+            <main className="flex-1 overflow-y-auto scrollbar-none bg-slate-900 h-full">
+              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-white bg-slate-900 min-h-full pb-8">
                 {children}
               </div>
             </main>

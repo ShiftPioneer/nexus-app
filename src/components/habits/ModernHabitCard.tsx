@@ -3,7 +3,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Flame, Clock, Calendar, Target } from "lucide-react";
+import { CheckCircle, Circle, Flame, Clock, Calendar, Target, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ModernHabitCardProps {
@@ -16,14 +16,14 @@ interface ModernHabitCardProps {
 const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, onSkip, onEdit }) => {
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'health': return 'bg-green-500/20 text-green-400 border-green-500/30';
-      case 'mindfulness': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-      case 'learning': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-      case 'productivity': return 'bg-orange-500/20 text-orange-400 border-orange-500/30';
-      case 'relationships': return 'bg-pink-500/20 text-pink-400 border-pink-500/30';
-      case 'finance': return 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30';
-      case 'religion': return 'bg-amber-500/20 text-amber-400 border-amber-500/30';
-      default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
+      case 'health': return 'bg-green-500/20 text-green-400 border-slate-300';
+      case 'mindfulness': return 'bg-blue-500/20 text-blue-400 border-slate-300';
+      case 'learning': return 'bg-purple-500/20 text-purple-400 border-slate-300';
+      case 'productivity': return 'bg-orange-500/20 text-orange-400 border-slate-300';
+      case 'relationships': return 'bg-pink-500/20 text-pink-400 border-slate-300';
+      case 'finance': return 'bg-emerald-500/20 text-emerald-400 border-slate-300';
+      case 'religion': return 'bg-amber-500/20 text-amber-400 border-slate-300';
+      default: return 'bg-gray-500/20 text-gray-400 border-slate-300';
     }
   };
 
@@ -46,12 +46,12 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
   return (
     <Card 
       className={cn(
-        "group relative overflow-hidden border transition-all duration-300 cursor-pointer hover:shadow-lg",
+        "group relative overflow-hidden border transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-slate-900/50",
         habit.status === "completed" 
-          ? "border-green-500/30 bg-green-950/20" 
+          ? "border-green-500/50 bg-green-950/20" 
           : habit.status === "missed" 
-          ? "border-red-500/30 bg-red-950/20"
-          : "border-slate-800 bg-slate-950/40 hover:border-slate-700"
+          ? "border-red-500/50 bg-red-950/20"
+          : "border-slate-300 bg-slate-950/40 hover:border-slate-200"
       )}
       onClick={() => onEdit(habit)}
     >
@@ -84,7 +84,7 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
           </Badge>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {/* Streak and Progress */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -105,7 +105,7 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
               <span className="text-slate-400">Progress</span>
               <span className="text-white font-medium">{progressPercentage}%</span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-2">
+            <div className="w-full bg-slate-800 rounded-full h-2 border border-slate-300">
               <div 
                 className={cn(
                   "h-2 rounded-full transition-all duration-500",
@@ -116,12 +116,24 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
             </div>
           </div>
 
+          {/* Score Display */}
+          <div className="flex items-center justify-between p-3 bg-slate-800/50 rounded-lg border border-slate-300">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-green-400" />
+              <span className="text-sm text-slate-300">Points</span>
+            </div>
+            <div className="text-right">
+              <span className="text-green-400 font-medium">+{habit.scoreValue || 5}</span>
+              <span className="text-slate-500 text-xs ml-2">/ -{habit.penaltyValue || 10}</span>
+            </div>
+          </div>
+
           {/* Action Buttons */}
           {habit.status === "pending" && (
             <div className="flex gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button 
                 size="sm" 
-                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white border-slate-300"
                 onClick={(e) => {
                   e.stopPropagation();
                   onComplete(habit.id);
@@ -132,7 +144,7 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="flex-1 border-red-500/30 text-red-400 hover:bg-red-500/10"
+                className="flex-1 border-slate-300 text-red-400 hover:bg-red-500/10"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSkip(habit.id);
