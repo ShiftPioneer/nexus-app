@@ -95,7 +95,7 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
         </div>
       </Card>
 
-      <Card>
+      <Card className="bg-slate-950">
         <CardHeader className="rounded-lg bg-slate-950">
           <CardTitle>Personal Time</CardTitle>
         </CardHeader>
