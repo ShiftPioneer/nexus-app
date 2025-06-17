@@ -1,10 +1,9 @@
-
 import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Award, BarChart2, Filter, Search } from "lucide-react";
+import { Plus, Award, BarChart2, Filter, Search, Trophy, Target } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -199,46 +198,73 @@ const Habits = () => {
 
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-6 h-full">
+      <div className="animate-fade-in space-y-8 h-full">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-white">Habits</h1>
-            <p className="text-slate-400 mt-2">Track your consistency and build momentum</p>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+              Habits
+            </h1>
+            <p className="text-slate-400 mt-2 text-lg">Track your consistency and build unstoppable momentum</p>
           </div>
           <Button 
             onClick={() => {
               setSelectedHabit(null);
               setShowHabitDialog(true);
             }} 
-            className="gap-2 bg-orange-500 hover:bg-orange-600 text-white shadow-lg shadow-orange-500/20 border-slate-300"
+            className="gap-2 bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-xl shadow-primary/25 border-none rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105"
           >
-            <Plus size={18} />
+            <Plus size={20} />
             New Habit
           </Button>
         </div>
         
-        {/* Accountability Score */}
-        <Card className="bg-gradient-to-br from-orange-950/30 to-orange-900/30 border-slate-300 shadow-lg">
-          <CardHeader className="pb-4">
-            <CardTitle className="text-orange-200 flex items-center gap-2 text-xl">
-              <Award className="h-6 w-6" />
-              Accountability Score
+        {/* Enhanced Accountability Score */}
+        <Card className="relative overflow-hidden bg-gradient-to-br from-slate-950/90 to-slate-900/80 border border-slate-700/30 shadow-2xl backdrop-blur-sm">
+          {/* Background pattern */}
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/30 via-emerald-500/20 to-transparent rounded-full blur-3xl" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-blue-500/20 via-purple-500/15 to-transparent rounded-full blur-2xl" />
+          </div>
+          
+          <CardHeader className="pb-6 relative z-10">
+            <CardTitle className="flex items-center gap-4">
+              <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 shadow-lg">
+                <Trophy className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                  Accountability Score
+                </span>
+                <p className="text-slate-400 text-sm mt-1">Your consistency and dedication meter</p>
+              </div>
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-6">
-              <div className="text-4xl font-bold text-orange-400">
-                {accountabilityScore}
+          <CardContent className="relative z-10">
+            <div className="flex items-center gap-8">
+              <div className="relative">
+                <div className="text-6xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                  {accountabilityScore}
+                </div>
+                <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 rounded-2xl blur-xl" />
               </div>
               <div className="flex-1">
-                <p className="text-orange-300 mb-3">
-                  Keep building your habits to increase your score!
-                </p>
-                <div className="w-full bg-orange-900/50 h-3 rounded-full border border-slate-300">
+                <div className="flex items-center gap-2 mb-4">
+                  <Target className="h-5 w-5 text-emerald-400" />
+                  <span className="text-emerald-300 font-semibold">
+                    Keep building momentum to unlock new achievements!
+                  </span>
+                </div>
+                <div className="relative w-full bg-slate-800/50 h-4 rounded-full border border-slate-700/30 overflow-hidden">
                   <div 
-                    className="bg-orange-400 h-3 rounded-full transition-all duration-500" 
+                    className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full transition-all duration-1000 ease-out relative" 
                     style={{ width: `${Math.min(100, accountabilityScore / 500 * 100)}%` }}
-                  />
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse" />
+                  </div>
+                </div>
+                <div className="flex justify-between text-xs text-slate-400 mt-2">
+                  <span>Getting Started</span>
+                  <span>Habit Master (500)</span>
                 </div>
               </div>
             </div>
@@ -246,17 +272,23 @@ const Habits = () => {
         </Card>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="habits" className="space-y-6 h-full">
-          <TabsList className="bg-slate-900/50 border border-slate-300">
-            <TabsTrigger value="habits" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400">
+        <Tabs defaultValue="habits" className="space-y-8 h-full">
+          <TabsList className="bg-slate-900/50 border border-slate-700/30 backdrop-blur-sm rounded-2xl p-2 shadow-lg">
+            <TabsTrigger 
+              value="habits" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-orange-500/20 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl px-6 py-3 font-semibold transition-all duration-300"
+            >
               Track Habits
             </TabsTrigger>
-            <TabsTrigger value="statistics" className="data-[state=active]:bg-orange-500/20 data-[state=active]:text-orange-400">
+            <TabsTrigger 
+              value="statistics" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-orange-500/20 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl px-6 py-3 font-semibold transition-all duration-300"
+            >
               Statistics
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="habits" className="space-y-6">
+          <TabsContent value="habits" className="space-y-8">
             {/* Controls */}
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
@@ -326,9 +358,9 @@ const Habits = () => {
             )}
           </TabsContent>
           
-          <TabsContent value="statistics" className="space-y-6">
+          <TabsContent value="statistics" className="space-y-8">
             {/* Statistics Cards */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               <HabitStreakCard habits={habits} />
               <WeeklyActivityCard habits={habits} />
             </div>

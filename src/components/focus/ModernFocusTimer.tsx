@@ -2,7 +2,7 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RotateCcw, Play, Pause, Volume2, Timer, Zap } from "lucide-react";
+import { RotateCcw, Play, Pause, Volume2, Timer, Target } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ModernFocusTimerProps {
@@ -43,24 +43,30 @@ const ModernFocusTimer: React.FC<ModernFocusTimerProps> = ({
     switch (timerMode) {
       case "focus":
         return {
-          gradient: "from-emerald-500 to-teal-600",
-          bgGradient: "from-emerald-500/10 to-teal-600/10",
-          shadowColor: "shadow-emerald-500/20",
-          label: "Deep Focus"
+          gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+          bgGradient: "from-emerald-500/5 via-teal-500/5 to-cyan-500/5",
+          borderGradient: "from-emerald-500/30 via-teal-500/30 to-cyan-500/30",
+          shadowColor: "shadow-emerald-500/10",
+          label: "Deep Focus",
+          color: "#10b981"
         };
       case "shortBreak":
         return {
-          gradient: "from-blue-500 to-indigo-600",
-          bgGradient: "from-blue-500/10 to-indigo-600/10",
-          shadowColor: "shadow-blue-500/20",
-          label: "Short Break"
+          gradient: "from-blue-500 via-indigo-500 to-purple-500",
+          bgGradient: "from-blue-500/5 via-indigo-500/5 to-purple-500/5",
+          borderGradient: "from-blue-500/30 via-indigo-500/30 to-purple-500/30",
+          shadowColor: "shadow-blue-500/10",
+          label: "Short Break",
+          color: "#3b82f6"
         };
       case "longBreak":
         return {
-          gradient: "from-purple-500 to-pink-600",
-          bgGradient: "from-purple-500/10 to-pink-600/10",
-          shadowColor: "shadow-purple-500/20",
-          label: "Long Break"
+          gradient: "from-purple-500 via-pink-500 to-rose-500",
+          bgGradient: "from-purple-500/5 via-pink-500/5 to-rose-500/5",
+          borderGradient: "from-purple-500/30 via-pink-500/30 to-rose-500/30",
+          shadowColor: "shadow-purple-500/10",
+          label: "Long Break",
+          color: "#8b5cf6"
         };
     }
   };
@@ -69,86 +75,89 @@ const ModernFocusTimer: React.FC<ModernFocusTimerProps> = ({
 
   return (
     <div className="lg:col-span-2">
-      <Card className="relative overflow-hidden bg-gradient-to-br from-slate-900/90 to-slate-950/90 border-slate-700/50 shadow-2xl">
-        {/* Animated background */}
-        <div className={`absolute inset-0 bg-gradient-to-br ${modeConfig.bgGradient} opacity-20 animate-pulse`} />
+      <Card className="relative overflow-hidden bg-gradient-to-br from-slate-950/90 to-slate-900/80 border border-slate-700/30 shadow-2xl backdrop-blur-sm">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className={`absolute inset-0 bg-gradient-to-br ${modeConfig.bgGradient}`} />
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-white/5 to-transparent rounded-full blur-3xl" />
+        </div>
         
-        <CardHeader className="relative z-10 text-center border-b border-slate-700/50 bg-gradient-to-r from-slate-900/50 to-slate-800/50 backdrop-blur-sm">
-          <CardTitle className="flex items-center justify-center gap-3 text-xl">
-            <div className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r ${modeConfig.gradient} shadow-lg`}>
-              <Timer className="h-5 w-5 text-white" />
+        <CardHeader className="relative z-10 text-center border-b border-slate-700/30 bg-gradient-to-r from-slate-900/30 to-slate-800/30 backdrop-blur-sm">
+          <CardTitle className="flex items-center justify-center gap-4">
+            <div className={`flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r ${modeConfig.gradient} shadow-lg`}>
+              <Timer className="h-6 w-6 text-white" />
             </div>
-            <span className="text-white font-semibold">Focus Session</span>
+            <div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">Focus Session</span>
+              <p className="text-slate-400 text-sm mt-1">Stay focused and productive</p>
+            </div>
           </CardTitle>
         </CardHeader>
         
-        <CardContent className="relative z-10 space-y-8 p-8">
+        <CardContent className="relative z-10 space-y-10 p-10">
           {/* Mode Selection */}
-          <div className="grid grid-cols-3 gap-2 p-2 bg-slate-800/50 rounded-xl border border-slate-700/50">
+          <div className="grid grid-cols-3 gap-3 p-3 bg-slate-800/30 rounded-2xl border border-slate-700/30 backdrop-blur-sm">
             {[
-              { mode: "focus", label: "Focus", gradient: "from-emerald-500 to-teal-600" },
-              { mode: "shortBreak", label: "Short Break", gradient: "from-blue-500 to-indigo-600" },
-              { mode: "longBreak", label: "Long Break", gradient: "from-purple-500 to-pink-600" }
-            ].map(({ mode, label, gradient }) => (
+              { mode: "focus", label: "Focus", gradient: "from-emerald-500 via-teal-500 to-cyan-500", bgGradient: "from-emerald-500/10 via-teal-500/10 to-cyan-500/10" },
+              { mode: "shortBreak", label: "Short Break", gradient: "from-blue-500 via-indigo-500 to-purple-500", bgGradient: "from-blue-500/10 via-indigo-500/10 to-purple-500/10" },
+              { mode: "longBreak", label: "Long Break", gradient: "from-purple-500 via-pink-500 to-rose-500", bgGradient: "from-purple-500/10 via-pink-500/10 to-rose-500/10" }
+            ].map(({ mode, label, gradient, bgGradient }) => (
               <Button
                 key={mode}
                 variant={timerMode === mode ? "default" : "ghost"}
                 className={`
-                  relative overflow-hidden transition-all duration-300 rounded-lg
+                  relative overflow-hidden transition-all duration-300 rounded-xl py-3 font-semibold
                   ${timerMode === mode 
-                    ? `bg-gradient-to-r ${gradient} text-white shadow-lg` 
-                    : 'hover:bg-slate-700/50 text-slate-300'
+                    ? `bg-gradient-to-r ${gradient} text-white shadow-lg border-none` 
+                    : 'hover:bg-slate-700/30 text-slate-300 hover:text-white border border-slate-700/30'
                   }
                 `}
                 onClick={() => onModeChange(mode as "focus" | "shortBreak" | "longBreak")}
               >
-                {label}
+                {timerMode === mode && (
+                  <div className={`absolute inset-0 bg-gradient-to-r ${bgGradient} opacity-20`} />
+                )}
+                <span className="relative z-10">{label}</span>
               </Button>
             ))}
           </div>
 
           {/* Timer Circle */}
           <div className="flex justify-center">
-            <div className="relative w-72 h-72">
-              {/* Outer glow ring */}
-              <div className={`absolute inset-0 rounded-full bg-gradient-to-r ${modeConfig.gradient} opacity-20 blur-md animate-pulse`} />
-              
+            <div className="relative w-80 h-80">
               {/* Progress circle */}
               <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                 <circle 
-                  cx="50" cy="50" r="45" 
+                  cx="50" cy="50" r="42" 
                   fill="none" 
                   stroke="currentColor" 
-                  strokeWidth="2" 
-                  className="text-slate-700/50" 
+                  strokeWidth="1" 
+                  className="text-slate-800/50" 
                 />
                 <circle 
-                  cx="50" cy="50" r="45" 
+                  cx="50" cy="50" r="42" 
                   fill="none" 
-                  stroke="url(#gradient)" 
-                  strokeWidth="4" 
+                  stroke={modeConfig.color}
+                  strokeWidth="3" 
                   strokeLinecap="round" 
-                  strokeDasharray="283" 
-                  strokeDashoffset={283 - (283 * progress) / 100} 
+                  strokeDasharray="264" 
+                  strokeDashoffset={264 - (264 * progress) / 100} 
                   className="transition-all duration-500 ease-out"
+                  style={{
+                    filter: 'drop-shadow(0 0 8px rgba(16, 185, 129, 0.3))'
+                  }}
                 />
-                <defs>
-                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor={timerMode === "focus" ? "#10b981" : timerMode === "shortBreak" ? "#3b82f6" : "#8b5cf6"} />
-                    <stop offset="100%" stopColor={timerMode === "focus" ? "#0d9488" : timerMode === "shortBreak" ? "#4f46e5" : "#ec4899"} />
-                  </linearGradient>
-                </defs>
               </svg>
               
               {/* Timer display */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="text-6xl font-bold text-white mb-2 font-mono tracking-wider">
+                <div className="text-7xl font-bold text-white mb-3 font-mono tracking-wide">
                   {formatTime()}
                 </div>
-                <div className={`text-lg font-medium bg-gradient-to-r ${modeConfig.gradient} bg-clip-text text-transparent`}>
+                <div className={`text-xl font-semibold bg-gradient-to-r ${modeConfig.gradient} bg-clip-text text-transparent mb-2`}>
                   {modeConfig.label}
                 </div>
-                <div className="text-sm text-slate-400 mt-2">
+                <div className="text-sm text-slate-400">
                   {isRunning ? "Session in progress..." : "Ready to focus"}
                 </div>
               </div>
@@ -157,38 +166,43 @@ const ModernFocusTimer: React.FC<ModernFocusTimerProps> = ({
 
           {/* Duration Selection for Focus Mode */}
           {timerMode === "focus" && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-5 gap-3">
+            <div className="space-y-6">
+              <div className="grid grid-cols-5 gap-4">
                 {[25, 45, 60, 90].map((duration) => (
                   <Button
                     key={duration}
                     variant={timerDuration === duration * 60 ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => onDurationChange(duration)}
                     className={`
-                      transition-all duration-300 border-slate-600
+                      transition-all duration-300 border-slate-600/50 rounded-xl py-3
                       ${timerDuration === duration * 60 
-                        ? `bg-gradient-to-r ${modeConfig.gradient} text-white shadow-lg border-transparent` 
-                        : 'hover:bg-slate-700/50 hover:border-slate-500 text-slate-300'
+                        ? `bg-gradient-to-r ${modeConfig.gradient} text-white shadow-lg border-none` 
+                        : 'hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white'
                       }
                     `}
+                    onClick={() => onDurationChange(duration)}
                   >
                     {duration}m
                   </Button>
                 ))}
-                <Button variant="outline" size="sm" className="border-slate-600 hover:bg-slate-700/50 hover:border-slate-500 text-slate-300">
+                <Button 
+                  variant="outline" 
+                  className="border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white rounded-xl py-3"
+                >
                   Custom
                 </Button>
               </div>
               
               {/* Category Selection */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-300">Focus Category</label>
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-slate-300 flex items-center gap-2">
+                  <Target className="h-4 w-4" />
+                  Focus Category
+                </label>
                 <Select value={category} onValueChange={(val) => onCategoryChange(val as FocusCategory)}>
-                  <SelectTrigger className="bg-slate-800/50 border-slate-600 text-white">
+                  <SelectTrigger className="bg-slate-800/30 border-slate-600/50 text-white rounded-xl backdrop-blur-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-slate-900 border-slate-700">
                     <SelectItem value="Deep Work">Deep Work</SelectItem>
                     <SelectItem value="Study">Study</SelectItem>
                     <SelectItem value="Creative">Creative</SelectItem>
@@ -201,12 +215,12 @@ const ModernFocusTimer: React.FC<ModernFocusTimerProps> = ({
           )}
 
           {/* Controls */}
-          <div className="flex justify-center items-center gap-4">
+          <div className="flex justify-center items-center gap-6">
             <Button 
               variant="outline" 
               size="icon" 
               onClick={onResetTimer}
-              className="w-12 h-12 rounded-xl border-slate-600 hover:bg-slate-700/50 hover:border-slate-500 text-slate-300"
+              className="w-14 h-14 rounded-2xl border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white transition-all duration-300"
             >
               <RotateCcw className="h-5 w-5" />
             </Button>
@@ -215,19 +229,19 @@ const ModernFocusTimer: React.FC<ModernFocusTimerProps> = ({
               onClick={onToggleTimer} 
               size="lg"
               className={`
-                px-8 py-4 rounded-xl bg-gradient-to-r ${modeConfig.gradient} 
-                hover:shadow-lg ${modeConfig.shadowColor} transition-all duration-300
-                text-white font-semibold
+                px-10 py-4 rounded-2xl bg-gradient-to-r ${modeConfig.gradient} 
+                hover:shadow-lg transition-all duration-300 hover:scale-105
+                text-white font-bold text-lg border-none
               `}
             >
               {isRunning ? (
                 <>
-                  <Pause className="h-5 w-5 mr-2" />
+                  <Pause className="h-6 w-6 mr-3" />
                   Pause Session
                 </>
               ) : (
                 <>
-                  <Play className="h-5 w-5 mr-2" />
+                  <Play className="h-6 w-6 mr-3" />
                   Start Session
                 </>
               )}
@@ -236,19 +250,19 @@ const ModernFocusTimer: React.FC<ModernFocusTimerProps> = ({
             <Button 
               variant="outline" 
               size="icon" 
-              className="w-12 h-12 rounded-xl border-slate-600 hover:bg-slate-700/50 hover:border-slate-500 text-slate-300"
+              className="w-14 h-14 rounded-2xl border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white transition-all duration-300"
             >
               <Volume2 className="h-5 w-5" />
             </Button>
           </div>
 
           {/* Motivation Message */}
-          <div className="text-center space-y-2 p-4 bg-gradient-to-r from-slate-800/30 to-slate-700/30 rounded-xl border border-slate-700/30">
-            <div className="flex items-center justify-center gap-2 text-slate-300">
-              <Zap className="h-4 w-4" />
-              <span className="font-medium">Stay focused and productive!</span>
+          <div className="text-center space-y-3 p-6 bg-gradient-to-r from-slate-800/20 to-slate-700/20 rounded-2xl border border-slate-700/20 backdrop-blur-sm">
+            <div className="flex items-center justify-center gap-3 text-slate-300">
+              <Target className="h-5 w-5" />
+              <span className="font-semibold text-lg">Stay focused and productive!</span>
             </div>
-            <p className="text-slate-400 text-sm">Complete focus sessions to unlock achievements and build momentum.</p>
+            <p className="text-slate-400">Complete focus sessions to unlock achievements and build unstoppable momentum.</p>
           </div>
         </CardContent>
       </Card>
