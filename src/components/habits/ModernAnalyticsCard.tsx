@@ -3,6 +3,7 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart2, TrendingUp, Calendar, Award, Target, Activity } from "lucide-react";
+import { cn } from "@/lib/utils";
 import HabitStatisticsOverview from "./HabitStatisticsOverview";
 import HabitStatisticsTrends from "./HabitStatisticsTrends";
 import HabitStatisticsCategories from "./HabitStatisticsCategories";
