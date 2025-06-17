@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -332,41 +333,12 @@ const Habits = () => {
               <WeeklyActivityCard habits={habits} />
             </div>
 
-            {/* Detailed Statistics */}
-            <Card className="border-slate-300 bg-slate-950/40">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-xl text-white">
-                  <BarChart2 className="h-5 w-5 text-orange-400" />
-                  Detailed Analytics
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs value={statisticsTab} onValueChange={setStatisticsTab}>
-                  <TabsList className="grid w-full grid-cols-4 mb-6 bg-slate-900 border border-slate-300">
-                    <TabsTrigger value="overview">Overview</TabsTrigger>
-                    <TabsTrigger value="trends">Trends</TabsTrigger>
-                    <TabsTrigger value="categories">Categories</TabsTrigger>
-                    <TabsTrigger value="streaks">Streaks</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="overview">
-                    <HabitStatisticsOverview habits={habits} />
-                  </TabsContent>
-                  
-                  <TabsContent value="trends">
-                    <HabitStatisticsTrends habits={habits} />
-                  </TabsContent>
-                  
-                  <TabsContent value="categories">
-                    <HabitStatisticsCategories habits={habits} />
-                  </TabsContent>
-                  
-                  <TabsContent value="streaks">
-                    <HabitStatisticsStreaks habits={habits} />
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+            {/* Modern Analytics Card */}
+            <ModernAnalyticsCard 
+              habits={habits}
+              statisticsTab={statisticsTab}
+              onStatisticsTabChange={setStatisticsTab}
+            />
           </TabsContent>
         </Tabs>
       </div>
