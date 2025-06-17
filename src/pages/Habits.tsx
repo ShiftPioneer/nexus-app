@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,10 +11,7 @@ import HabitCreationDialog from "@/components/habits/HabitCreationDialog";
 import ModernHabitCard from "@/components/habits/ModernHabitCard";
 import HabitStreakCard from "@/components/habits/HabitStreakCard";
 import WeeklyActivityCard from "@/components/habits/WeeklyActivityCard";
-import HabitStatisticsOverview from "@/components/habits/HabitStatisticsOverview";
-import HabitStatisticsTrends from "@/components/habits/HabitStatisticsTrends";
-import HabitStatisticsCategories from "@/components/habits/HabitStatisticsCategories";
-import HabitStatisticsStreaks from "@/components/habits/HabitStatisticsStreaks";
+import ModernAnalyticsCard from "@/components/habits/ModernAnalyticsCard";
 
 const Habits = () => {
   const { toast } = useToast();

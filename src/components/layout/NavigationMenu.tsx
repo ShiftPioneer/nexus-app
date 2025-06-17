@@ -22,67 +22,79 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
     {
       title: "Dashboard",
       path: "/",
-      icon: LayoutDashboard
+      icon: LayoutDashboard,
+      gradient: "from-blue-500 to-purple-600"
     },
     {
       title: "GTD",
       path: "/gtd",
-      icon: CheckSquare
+      icon: CheckSquare,
+      gradient: "from-emerald-500 to-teal-600"
     },
     {
       title: "Actions",
       path: "/actions",
-      icon: CheckCircle
+      icon: CheckCircle,
+      gradient: "from-orange-500 to-red-600"
     },
     {
       title: "Time Design",
       path: "/time-design",
-      icon: Clock
+      icon: Clock,
+      gradient: "from-cyan-500 to-blue-600"
     },
     {
       title: "Plans",
       path: "/planning",
-      icon: Target
+      icon: Target,
+      gradient: "from-purple-500 to-pink-600"
     },
     {
       title: "Habits",
       path: "/habits",
-      icon: RefreshCw
+      icon: RefreshCw,
+      gradient: "from-green-500 to-emerald-600"
     },
     {
       title: "Focus",
       path: "/focus",
-      icon: Brain
+      icon: Brain,
+      gradient: "from-indigo-500 to-purple-600"
     },
     {
       title: "Mindset",
       path: "/mindset",
-      icon: Zap
+      icon: Zap,
+      gradient: "from-yellow-500 to-orange-600"
     },
     {
       title: "Knowledge",
       path: "/knowledge",
-      icon: BookOpen
+      icon: BookOpen,
+      gradient: "from-teal-500 to-cyan-600"
     },
     {
       title: "Journal",
       path: "/journal",
-      icon: FileText
+      icon: FileText,
+      gradient: "from-pink-500 to-rose-600"
     },
     {
       title: "Energy",
       path: "/energy",
-      icon: Zap
+      icon: Zap,
+      gradient: "from-red-500 to-orange-600"
     },
     {
       title: "Stats",
       path: "/stats",
-      icon: BarChartHorizontal
+      icon: BarChartHorizontal,
+      gradient: "from-slate-500 to-gray-600"
     }
   ];
 
   return (
-    <SidebarMenu className="space-y-1 scrollbar-none px-2">
+    <SidebarMenu className="space-y-2 px-3">
       {menuItems.map(item => (
         <SidebarMenuItem key={item.path}>
           <SidebarMenuButton 
@@ -90,26 +102,54 @@ const NavigationMenu: React.FC<NavigationMenuProps> = ({
             isActive={currentPath === item.path} 
             tooltip={isCollapsed ? item.title : undefined} 
             className={cn(
-              "nav-item group transition-all duration-200 border border-slate-300",
+              "group relative overflow-hidden transition-all duration-300 ease-out rounded-xl border border-slate-700/50 hover:border-slate-600/50",
               currentPath === item.path 
-                ? "active bg-primary/10 text-primary border-primary/30" 
-                : "text-slate-300 hover:text-white hover:bg-slate-800/50",
-              isCollapsed ? "justify-center p-3" : "px-3 py-2.5"
+                ? "bg-gradient-to-r from-primary/20 to-primary/10 border-primary/30 shadow-lg shadow-primary/10" 
+                : "hover:bg-slate-800/70 hover:shadow-md hover:shadow-slate-900/20",
+              isCollapsed ? "justify-center p-3 mx-1" : "px-4 py-3"
             )}
           >
-            <Link to={item.path} className="w-full flex items-center gap-3">
-              <item.icon 
-                className={cn(
-                  "h-5 w-5 transition-all duration-200 flex-shrink-0", 
-                  currentPath === item.path ? "text-primary" : "text-slate-300 group-hover:text-white"
-                )} 
-              />
+            <Link to={item.path} className="w-full flex items-center gap-3 relative z-10">
+              {/* Animated background for active state */}
+              {currentPath === item.path && (
+                <div className={cn(
+                  "absolute inset-0 bg-gradient-to-r opacity-10 rounded-xl transition-opacity duration-300",
+                  item.gradient
+                )} />
+              )}
+              
+              {/* Icon with gradient background */}
+              <div className={cn(
+                "relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300",
+                currentPath === item.path 
+                  ? `bg-gradient-to-r ${item.gradient} shadow-lg` 
+                  : "bg-slate-800/50 group-hover:bg-slate-700/50"
+              )}>
+                <item.icon 
+                  className={cn(
+                    "h-4 w-4 transition-all duration-300", 
+                    currentPath === item.path 
+                      ? "text-white" 
+                      : "text-slate-400 group-hover:text-white"
+                  )} 
+                />
+              </div>
               
               {!isCollapsed && (
-                <span className="transition-all duration-200 text-sm font-medium group-hover:translate-x-1">
-                  {item.title}
-                </span>
+                <div className="flex flex-col">
+                  <span className={cn(
+                    "text-sm font-medium transition-all duration-300",
+                    currentPath === item.path 
+                      ? "text-white" 
+                      : "text-slate-300 group-hover:text-white"
+                  )}>
+                    {item.title}
+                  </span>
+                </div>
               )}
+              
+              {/* Hover effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl" />
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
