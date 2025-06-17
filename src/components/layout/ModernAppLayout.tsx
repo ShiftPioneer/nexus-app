@@ -42,7 +42,7 @@ const ModernAppLayout = ({ children }: ModernAppLayoutProps) => {
             />
             
             <main className="flex-1 overflow-y-auto scrollbar-none bg-slate-900 h-full">
-              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-white bg-slate-900 min-h-full pb-8">
+              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-white bg-slate-900 min-h-full">
                 {children}
               </div>
             </main>

@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -57,23 +56,6 @@ export default {
           foreground: '#FFFFFF'
         },
 
-        // CHANGED: Warning is now lime, not yellow/orange!
-        warning: {
-          DEFAULT: '#84cc16', // lime-500
-          50: '#f7fee7',     // lime-50
-          100: '#ecfccb',    // lime-100
-          200: '#d9f99d',    // lime-200
-          300: '#bef264',    // lime-300
-          400: '#a3e635',    // lime-400
-          500: '#84cc16',    // lime-500
-          600: '#65a30d',    // lime-600
-          700: '#4d7c0f',    // lime-700
-          800: '#3f6212',    // lime-800
-          900: '#365314',    // lime-900
-          foreground: '#FFFFFF'
-        },
-
-        // Remove any yellow/amber leftovers
         error: {
           DEFAULT: '#EF4444',
           50: '#FEF2F2',
@@ -94,12 +76,10 @@ export default {
           DEFAULT: '#FFFFFF',
           secondary: '#F8FAFC',
           tertiary: '#F1F5F9',
-          // CHANGED: Add slate950
           dark: {
             DEFAULT: '#0F172A',
             secondary: '#1E293B',
             tertiary: '#334155',
-            // Add custom key for slate950, or use direct Tailwind class where needed
             ultra: '#020617'
           }
         },
@@ -122,7 +102,7 @@ export default {
         // Status Colors
         status: {
           active: '#10B981',
-          pending: '#84cc16', // Changed from amber to lime-500
+          pending: '#FF6500',
           inactive: '#6B7280',
           completed: '#059669'
         },
@@ -186,54 +166,8 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))'
         },
-        
-        // Remap yellow to lime to fix hardcoded -yellow classes
-        yellow: {
-          50: '#f7fee7',
-          100: '#ecfccb',
-          200: '#d9f99d',
-          300: '#bef264',
-          400: '#a3e635',
-          500: '#84cc16',
-          600: '#65a30d',
-          700: '#4d7c0f',
-          800: '#3f6212',
-          900: '#365314',
-          950: '#1a2e05'
-        },
-        
-        // Make sure lime exists in base palette (for utility use also)
-        lime: {
-          50: '#f7fee7',
-          100: '#ecfccb',
-          200: '#d9f99d',
-          300: '#bef264',
-          400: '#a3e635',
-          500: '#84cc16',
-          600: '#65a30d',
-          700: '#4d7c0f',
-          800: '#3f6212',
-          900: '#365314',
-          950: '#1a2e05'
-        },
-
-        // Remap cyan to orange to fix hardcoded -cyan classes globally
-        cyan: {
-          50: '#FFF7ED',  // From primary color
-          100: '#FFEDD5',
-          200: '#FED7AA',
-          300: '#FDBA74',
-          400: '#FB923C',
-          500: '#FF6500',
-          600: '#EA580C',
-          700: '#C2410C',
-          800: '#9A3412',
-          900: '#7C2D12',
-          950: '#431407'
-        },
 
         slate: {
-          // normal tailwind slate palette (make sure 950 is defined)
           50: '#f8fafc',
           100: '#f1f5f9',
           200: '#e2e8f0',
@@ -244,7 +178,7 @@ export default {
           700: '#334155',
           800: '#1e293b',
           900: '#0f172a',
-          950: '#020617', // This is slate-950
+          950: '#020617',
         }
       },
 
