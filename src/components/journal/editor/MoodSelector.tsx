@@ -29,8 +29,8 @@ const MoodSelector: React.FC<MoodSelectorProps> = ({
         </div>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="negative" id="negative" />
-          <Label htmlFor="negative" className="flex items-center gap-1 cursor-pointer text-indigo-600">
-            <Frown className="h-5 w-5 text-destructive text-indigo-600" />
+          <Label htmlFor="negative" className="flex items-center gap-1 cursor-pointer text-red-600">
+            <Frown className="h-5 w-5 text-destructive text-red-600" />
             Negative
           </Label>
         </div>
