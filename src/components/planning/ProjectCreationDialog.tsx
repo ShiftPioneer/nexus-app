@@ -83,17 +83,17 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
         
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Project Title</Label>
+            <Label htmlFor="title" className=" text-orange-600">Project Title</Label>
             <Input id="title" value={title} onChange={e => setTitle(e.target.value)} placeholder="Enter your project title" />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe your project" rows={3} />
+            <Label htmlFor="description" className=" text-orange-600">Description</Label>
+            <Textarea id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder="Describe your project" rows={3} className="border-slate-300" />
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category" className=" text-orange-600">Category</Label>
             <Select value={category} onValueChange={val => setCategory(val as Project["category"])}>
               <SelectTrigger>
                 <SelectValue placeholder="Select category" />
@@ -111,7 +111,7 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Start Date</Label>
+              <Label className=" text-orange-600">Start Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !startDate && "text-muted-foreground")}>
@@ -126,7 +126,7 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
             </div>
             
             <div className="space-y-2">
-              <Label>End Date</Label>
+              <Label className=" text-orange-600">End Date</Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button variant={"outline"} className={cn("w-full justify-start text-left font-normal", !endDate && "text-muted-foreground")}>
@@ -143,7 +143,7 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
 
           {existingProjects.length > 0 && <>
               <div className="space-y-2">
-                <Label>Blocking</Label>
+                <Label className=" text-orange-600">Blocking</Label>
                 <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
                   {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).map(project => <div key={`blocking-${project.id}`} className="flex items-center space-x-2 mb-2">
                       <Checkbox id={`blocking-${project.id}`} checked={blockingProjects.includes(project.id)} onCheckedChange={checked => {
@@ -153,14 +153,14 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
                     setBlockingProjects(blockingProjects.filter(id => id !== project.id));
                   }
                 }} />
-                      <label htmlFor={`blocking-${project.id}`} className="text-sm">{project.title}</label>
+                      <label htmlFor={`blocking-${project.id}`} className="text-sm text-slate-300">{project.title}</label>
                     </div>)}
                   {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).length === 0 && <p className="text-sm text-muted-foreground">No existing projects to select</p>}
                 </div>
               </div>
 
               <div className="space-y-2">
-                <Label>Blocked By</Label>
+                <Label className=" text-orange-600">Blocked By</Label>
                 <div className="border rounded-md p-3 max-h-32 overflow-y-auto">
                   {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).map(project => <div key={`blockedby-${project.id}`} className="flex items-center space-x-2 mb-2">
                       <Checkbox id={`blockedby-${project.id}`} checked={blockedByProjects.includes(project.id)} onCheckedChange={checked => {
@@ -170,7 +170,7 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
                     setBlockedByProjects(blockedByProjects.filter(id => id !== project.id));
                   }
                 }} />
-                      <label htmlFor={`blockedby-${project.id}`} className="text-sm">{project.title}</label>
+                      <label htmlFor={`blockedby-${project.id}`} className="text-sm text-slate-300">{project.title}</label>
                     </div>)}
                   {existingProjects.filter(project => initialProject ? project.id !== initialProject.id : true).length === 0 && <p className="text-sm text-muted-foreground">No existing projects to select</p>}
                 </div>
