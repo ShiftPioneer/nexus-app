@@ -143,13 +143,13 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
               <TabsTrigger value="planning">Planning</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="details" className="space-y-4 pt-4 bg-slate-900">
+            <TabsContent value="details" className="space-y-4 pt-4 bg-slate-950">
               <div>
                 <Input placeholder="Task title" value={title} onChange={e => setTitle(e.target.value)} className="mb-2 bg-slate-900" />
               </div>
               
               <div>
-                <Textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} rows={3} className="bg-slate-900" />
+                <Textarea placeholder="Description" value={description} onChange={e => setDescription(e.target.value)} rows={3} className="bg-slate-900 border-slate-300" />
               </div>
               
               <div className="grid grid-cols-2 gap-4 bg-slate-900">
