@@ -136,7 +136,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
           <DialogTitle>{task ? "Edit Task" : "New Task"}</DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-4 bg-slate-950">
           <Tabs defaultValue="details">
             <TabsList className="grid grid-cols-2 justify-center items-center ">
               <TabsTrigger value="details">Details</TabsTrigger>
@@ -210,7 +210,7 @@ const TaskDialog: React.FC<TaskDialogProps> = ({
             
             <TabsContent value="planning" className="space-y-4 pt-4">
               <div>
-                <label className="text-sm font-medium mb-1 block bg-slate-900 text-primary">Link to Goal</label>
+                <label className="text-sm font-medium mb-1 block text-primary bg-slate-950">Link to Goal</label>
                 <GoalSelector value={goalId} onValueChange={setGoalId} />
                 
                 {goalId && goalId !== "none" && <div className="mt-2 text-xs text-muted-foreground">
