@@ -49,7 +49,7 @@ const ClarifyView: React.FC = () => {
     icon: <div className="bg-red-600 p-3 rounded-full text-white"><Trash2 className="h-6 w-6" /></div>,
     activeClass: "bg-red-600/20 border-red-500"
   }];
-  return <div className="space-y-8 bg-black/20 p-6 rounded-lg">
+  return <div className="space-y-8 bg-black/20 p-6 rounded-lg  text-orange-600">
       <h2 className="text-2xl font-semibold mb-4 text-orange-600">Clarify Your Inbox</h2>
       
       <InboxTasksList tasks={inboxTasks} onAddTask={handleAddTask} onGoToCapture={handleGoToCapture} />

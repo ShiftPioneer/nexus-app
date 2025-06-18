@@ -17,7 +17,7 @@ const OrganizeCard: React.FC<OrganizeCardProps> = ({
 }) => <Card className="bg-slate-900 border-slate-700 text-slate-200">
     <CardHeader className="p-4 pb-2 bg-slate-950 rounded-lg">
       <div className="flex justify-between items-center">
-        <CardTitle className="text-lg">{title}</CardTitle>
+        <CardTitle className="text-lg text-orange-600">{title}</CardTitle>
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-[#FF5722]">
           +
         </Button>
