@@ -120,7 +120,7 @@ const TimeDesignSettings: React.FC = () => {
                     Show your busy/free status from Google Calendar
                   </p>
                 </div>
-                <Switch id="sync-availability" />
+                <Switch id="sync-availability" className="text-orange-400 bg-orange-500 hover:bg-orange-400" />
               </div>
               <div className="flex items-center justify-between">
                 <div>
@@ -150,7 +150,7 @@ const TimeDesignSettings: React.FC = () => {
                     <Label className="text-orange-600">Work Calendar</Label>
                     <p className="text-xs text-muted-foreground">Work events</p>
                   </div>
-                  <Switch />
+                  <Switch className="bg-orange-400 hover:bg-orange-300" />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
