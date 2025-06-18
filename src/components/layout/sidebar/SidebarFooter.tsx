@@ -1,3 +1,4 @@
+
 import React from "react";
 import { SidebarFooter as BaseSidebarFooter } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -7,17 +8,19 @@ import { Settings, LogOut, User } from "lucide-react";
 import { Link } from "react-router-dom";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import { cn } from "@/lib/utils";
+
 interface SidebarFooterProps {
   isCollapsed: boolean;
 }
+
 const SidebarFooter: React.FC<SidebarFooterProps> = ({
   isCollapsed
 }) => {
-  const {
-    user
-  } = useUser();
+  const { user } = useUser();
+  
   if (isCollapsed) {
-    return <BaseSidebarFooter className="border-t border-slate-300 p-2">
+    return (
+      <BaseSidebarFooter className="border-t border-slate-300 p-2">
         <div className="flex flex-col items-center gap-2">
           <Avatar className="h-8 w-8 border border-slate-300">
             <AvatarImage src={user?.avatar} />
@@ -28,13 +31,23 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({
           <div className="w-full">
             <ThemeToggle sidebarTheme />
           </div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            asChild 
+            className="h-8 w-8 rounded-lg hover:bg-slate-800 transition-colors border border-slate-300 text-slate-300 hover:text-white"
+          >
+            <Link to="/settings">
+              <Settings className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
-      </BaseSidebarFooter>;
+      </BaseSidebarFooter>
+    );
   }
-  return <BaseSidebarFooter className="border-t border-slate-300 p-4 space-y-3">
-      {/* User Info Section */}
-      
-
+  
+  return (
+    <BaseSidebarFooter className="border-t border-slate-300 p-4 space-y-3">
       {/* Action Buttons */}
       <div className="flex gap-2">
         <Button variant="ghost" size="sm" asChild className="flex-1 justify-start gap-2 text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-300">
@@ -45,6 +58,8 @@ const SidebarFooter: React.FC<SidebarFooterProps> = ({
         </Button>
         <ThemeToggle sidebarTheme />
       </div>
-    </BaseSidebarFooter>;
+    </BaseSidebarFooter>
+  );
 };
+
 export default SidebarFooter;

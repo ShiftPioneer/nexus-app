@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Award, BarChart2, Filter, Search, Trophy, Target } from "lucide-react";
+import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
+import { Plus, Award, BarChart2, Filter, Search, Trophy, Target, CheckCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/use-local-storage";
@@ -219,7 +220,7 @@ const Habits = () => {
         </div>
         
         {/* Enhanced Accountability Score */}
-        <Card className="relative overflow-hidden bg-gradient-to-br from-slate-950/90 to-slate-900/80 border border-slate-700/30 shadow-2xl backdrop-blur-sm">
+        <Card className="relative overflow-hidden bg-slate-900/80 border border-slate-700/50 shadow-2xl backdrop-blur-sm">
           {/* Background pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/30 via-emerald-500/20 to-transparent rounded-full blur-3xl" />
@@ -228,11 +229,11 @@ const Habits = () => {
           
           <CardHeader className="pb-6 relative z-10">
             <CardTitle className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 shadow-lg">
+              <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-r from-primary via-orange-500 to-red-500 shadow-lg">
                 <Trophy className="h-7 w-7 text-white" />
               </div>
               <div>
-                <span className="text-2xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                <span className="text-2xl font-bold bg-gradient-to-r from-primary via-orange-400 to-red-400 bg-clip-text text-transparent">
                   Accountability Score
                 </span>
                 <p className="text-slate-400 text-sm mt-1">Your consistency and dedication meter</p>
@@ -242,21 +243,21 @@ const Habits = () => {
           <CardContent className="relative z-10">
             <div className="flex items-center gap-8">
               <div className="relative">
-                <div className="text-6xl font-bold bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 bg-clip-text text-transparent">
+                <div className="text-6xl font-bold bg-gradient-to-r from-primary via-orange-400 to-red-400 bg-clip-text text-transparent">
                   {accountabilityScore}
                 </div>
-                <div className="absolute -inset-2 bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-cyan-500/20 rounded-2xl blur-xl" />
+                <div className="absolute -inset-2 bg-gradient-to-r from-primary/20 via-orange-500/20 to-red-500/20 rounded-2xl blur-xl" />
               </div>
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-4">
-                  <Target className="h-5 w-5 text-emerald-400" />
-                  <span className="text-emerald-300 font-semibold">
+                  <Target className="h-5 w-5 text-primary" />
+                  <span className="text-primary font-semibold">
                     Keep building momentum to unlock new achievements!
                   </span>
                 </div>
                 <div className="relative w-full bg-slate-800/50 h-4 rounded-full border border-slate-700/30 overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 rounded-full transition-all duration-1000 ease-out relative" 
+                    className="h-full bg-gradient-to-r from-primary via-orange-500 to-red-500 rounded-full transition-all duration-1000 ease-out relative" 
                     style={{ width: `${Math.min(100, accountabilityScore / 500 * 100)}%` }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse" />
@@ -272,23 +273,25 @@ const Habits = () => {
         </Card>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="habits" className="space-y-8 h-full">
-          <TabsList className="bg-slate-900/50 border border-slate-700/30 backdrop-blur-sm rounded-2xl p-2 shadow-lg">
-            <TabsTrigger 
-              value="habits" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-orange-500/20 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl px-6 py-3 font-semibold transition-all duration-300"
+        <ModernTabs defaultValue="habits" className="space-y-8 h-full">
+          <ModernTabsList>
+            <ModernTabsTrigger 
+              value="habits"
+              icon={CheckCircle}
+              gradient="from-emerald-500 via-teal-500 to-cyan-500"
             >
               Track Habits
-            </TabsTrigger>
-            <TabsTrigger 
-              value="statistics" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary/20 data-[state=active]:to-orange-500/20 data-[state=active]:text-white data-[state=active]:shadow-lg rounded-xl px-6 py-3 font-semibold transition-all duration-300"
+            </ModernTabsTrigger>
+            <ModernTabsTrigger 
+              value="statistics"
+              icon={BarChart2}
+              gradient="from-purple-500 via-pink-500 to-rose-500"
             >
               Statistics
-            </TabsTrigger>
-          </TabsList>
+            </ModernTabsTrigger>
+          </ModernTabsList>
           
-          <TabsContent value="habits" className="space-y-8">
+          <ModernTabsContent value="habits" className="space-y-8">
             {/* Controls */}
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
@@ -297,7 +300,7 @@ const Habits = () => {
                   placeholder="Search habits..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-slate-900 border-slate-300 text-white"
+                  className="pl-10 bg-slate-900 border-slate-700 text-white"
                 />
               </div>
               <div className="flex items-center gap-2">
@@ -305,7 +308,7 @@ const Habits = () => {
                 <select 
                   value={filterCategory} 
                   onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-slate-300 text-white"
+                  className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-slate-700 text-white"
                 >
                   {categories.map(cat => (
                     <option key={cat} value={cat}>
@@ -318,7 +321,7 @@ const Habits = () => {
 
             {/* Habits Grid */}
             {filteredHabits.length === 0 ? (
-              <Card className="border-slate-300 bg-slate-950/40">
+              <Card className="border-slate-700 bg-slate-900/40">
                 <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px]">
                   <Award className="h-16 w-16 text-slate-600 mb-4" />
                   <h3 className="text-xl font-semibold text-white mb-2">
@@ -336,7 +339,7 @@ const Habits = () => {
                         setSelectedHabit(null);
                         setShowHabitDialog(true);
                       }}
-                      className="bg-orange-500 hover:bg-orange-600 text-white border-slate-300"
+                      className="bg-primary hover:bg-primary/90 text-white border-slate-700"
                     >
                       Create First Habit
                     </Button>
@@ -356,9 +359,9 @@ const Habits = () => {
                 ))}
               </div>
             )}
-          </TabsContent>
+          </ModernTabsContent>
           
-          <TabsContent value="statistics" className="space-y-8">
+          <ModernTabsContent value="statistics" className="space-y-8">
             {/* Statistics Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
               <HabitStreakCard habits={habits} />
@@ -371,8 +374,8 @@ const Habits = () => {
               statisticsTab={statisticsTab}
               onStatisticsTabChange={setStatisticsTab}
             />
-          </TabsContent>
-        </Tabs>
+          </ModernTabsContent>
+        </ModernTabs>
       </div>
       
       <HabitCreationDialog 

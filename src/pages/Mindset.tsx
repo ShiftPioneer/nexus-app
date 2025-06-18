@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import ModernAppLayout from '@/components/layout/ModernAppLayout';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from '@/components/ui/modern-tabs';
 import { Brain, Heart, Target, Sparkles, Eye } from 'lucide-react';
 import CoreValuesSection from '@/components/mindset/CoreValuesSection';
 import MissionSection from '@/components/mindset/MissionSection';
@@ -17,41 +17,31 @@ const Mindset = () => {
       value: 'core-values', 
       label: 'Core Values', 
       icon: Heart,
-      gradient: 'from-red-500 via-pink-500 to-rose-500',
-      bgGradient: 'from-red-500/10 via-pink-500/10 to-rose-500/10',
-      description: 'Your foundations'
+      gradient: 'from-red-500 via-pink-500 to-rose-500'
     },
     { 
       value: 'mission', 
       label: 'Mission', 
       icon: Target,
-      gradient: 'from-blue-500 via-indigo-500 to-purple-500',
-      bgGradient: 'from-blue-500/10 via-indigo-500/10 to-purple-500/10',
-      description: 'Your purpose'
+      gradient: 'from-blue-500 via-indigo-500 to-purple-500'
     },
     { 
       value: 'beliefs', 
       label: 'Beliefs', 
       icon: Brain,
-      gradient: 'from-purple-500 via-violet-500 to-indigo-500',
-      bgGradient: 'from-purple-500/10 via-violet-500/10 to-indigo-500/10',
-      description: 'Your mindset'
+      gradient: 'from-purple-500 via-violet-500 to-indigo-500'
     },
     { 
       value: 'affirmations', 
       label: 'Affirmations', 
       icon: Sparkles,
-      gradient: 'from-emerald-500 via-teal-500 to-cyan-500',
-      bgGradient: 'from-emerald-500/10 via-teal-500/10 to-cyan-500/10',
-      description: 'Daily mantras'
+      gradient: 'from-emerald-500 via-teal-500 to-cyan-500'
     },
     { 
       value: 'vision', 
       label: 'Vision Board', 
       icon: Eye,
-      gradient: 'from-yellow-500 via-orange-500 to-red-500',
-      bgGradient: 'from-yellow-500/10 via-orange-500/10 to-red-500/10',
-      description: 'Your dreams'
+      gradient: 'from-yellow-500 via-orange-500 to-red-500'
     }
   ];
 
@@ -68,60 +58,36 @@ const Mindset = () => {
           <p className="text-slate-400 mt-3 text-lg">Define your life philosophy and mental framework</p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="bg-slate-800/30 border border-slate-700/30 backdrop-blur-sm rounded-2xl p-2 shadow-lg grid grid-cols-5">
+        <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <ModernTabsList className="grid grid-cols-5">
             {tabItems.map((tab) => (
-              <TabsTrigger 
+              <ModernTabsTrigger 
                 key={tab.value}
                 value={tab.value}
-                className={`
-                  group relative flex flex-col items-center gap-2 px-4 py-4 rounded-xl transition-all duration-300 overflow-hidden
-                  data-[state=active]:shadow-lg data-[state=active]:shadow-black/20
-                  hover:bg-slate-700/30 text-slate-400 hover:text-slate-200
-                  ${activeTab === tab.value ? `bg-gradient-to-r ${tab.gradient} text-white shadow-xl` : ''}
-                `}
+                gradient={tab.gradient}
+                icon={tab.icon}
               >
-                {/* Background gradient for active state */}
-                {activeTab === tab.value && (
-                  <div className={`absolute inset-0 bg-gradient-to-r ${tab.bgGradient} opacity-20`} />
-                )}
-                
-                {/* Icon */}
-                <div className={`
-                  relative flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-300
-                  ${activeTab === tab.value ? 'bg-white/20 shadow-lg' : 'bg-slate-700/50 group-hover:bg-slate-600/50'}
-                `}>
-                  <tab.icon className="h-4 w-4" />
-                </div>
-                
-                {/* Text content */}
-                <div className="text-center">
-                  <span className="font-semibold text-xs">{tab.label}</span>
-                  <p className="text-xs opacity-80 mt-1">{tab.description}</p>
-                </div>
-                
-                {/* Hover shimmer effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 rounded-xl" />
-              </TabsTrigger>
+                {tab.label}
+              </ModernTabsTrigger>
             ))}
-          </TabsList>
+          </ModernTabsList>
 
-          <TabsContent value="core-values" className="mt-8">
+          <ModernTabsContent value="core-values">
             <CoreValuesSection />
-          </TabsContent>
-          <TabsContent value="mission" className="mt-8">
+          </ModernTabsContent>
+          <ModernTabsContent value="mission">
             <MissionSection />
-          </TabsContent>
-          <TabsContent value="beliefs" className="mt-8">
+          </ModernTabsContent>
+          <ModernTabsContent value="beliefs">
             <KeyBeliefsSection />
-          </TabsContent>
-          <TabsContent value="affirmations" className="mt-8">
+          </ModernTabsContent>
+          <ModernTabsContent value="affirmations">
             <AffirmationsSection />
-          </TabsContent>
-          <TabsContent value="vision" className="mt-8">
+          </ModernTabsContent>
+          <ModernTabsContent value="vision">
             <VisionBoardSection />
-          </TabsContent>
-        </Tabs>
+          </ModernTabsContent>
+        </ModernTabs>
       </div>
     </ModernAppLayout>
   );
