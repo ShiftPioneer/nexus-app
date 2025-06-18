@@ -29,7 +29,7 @@ const TasksSection: React.FC<TasksSectionProps> = ({
 }) => {
   return <Card className="bg-slate-950 border-slate-700 text-white">
       <CardHeader className="pb-2 bg-slate-950 rounded-lg">
-        <CardTitle className="flex items-center gap-2 text-white">
+        <CardTitle className="flex items-center gap-2 text-orange-600">
           {icon}
           {title}
         </CardTitle>

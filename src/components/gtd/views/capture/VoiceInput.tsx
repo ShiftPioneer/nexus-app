@@ -1,34 +1,31 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, MicOff } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-
 interface VoiceInputProps {
   onTranscription: (text: string) => void;
   isRecording?: boolean;
   onRecordingStateChange?: (isRecording: boolean) => void;
 }
-
-const VoiceInput: React.FC<VoiceInputProps> = ({ 
-  onTranscription, 
+const VoiceInput: React.FC<VoiceInputProps> = ({
+  onTranscription,
   isRecording = false,
-  onRecordingStateChange 
+  onRecordingStateChange
 }) => {
   const [isSupported, setIsSupported] = useState(false);
   const recognitionRef = useRef<any>(null);
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const finalTranscriptRef = useRef('');
-
   useEffect(() => {
     // Check if speech recognition is supported
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    
     if (SpeechRecognition) {
       setIsSupported(true);
       const recognition = new SpeechRecognition();
       recognitionRef.current = recognition;
-      
+
       // Configure speech recognition
       recognition.continuous = true;
       recognition.interimResults = true;
@@ -37,7 +34,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
       // Handle speech results
       recognition.onresult = (event: any) => {
         let interimTranscript = '';
-        
         for (let i = event.resultIndex; i < event.results.length; i++) {
           const transcript = event.results[i][0].transcript;
           if (event.results[i].isFinal) {
@@ -53,7 +49,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
       recognition.onerror = (event: any) => {
         console.error('Speech recognition error:', event.error);
         onRecordingStateChange?.(false);
-        
         let errorMessage = 'Speech recognition failed';
         switch (event.error) {
           case 'no-speech':
@@ -69,7 +64,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
             errorMessage = 'Network error occurred during speech recognition.';
             break;
         }
-        
         toast({
           title: "Speech Recognition Error",
           description: errorMessage,
@@ -84,7 +78,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
     } else {
       setIsSupported(false);
     }
-
     return () => {
       if (recognitionRef.current) {
         recognitionRef.current.stop();
@@ -92,7 +85,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
       }
     };
   }, [onTranscription, onRecordingStateChange, toast]);
-
   const startRecording = () => {
     if (!recognitionRef.current || !isSupported) {
       toast({
@@ -102,7 +94,6 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
       });
       return;
     }
-
     try {
       finalTranscriptRef.current = '';
       recognitionRef.current.start();
@@ -116,55 +107,22 @@ const VoiceInput: React.FC<VoiceInputProps> = ({
       });
     }
   };
-
   const stopRecording = () => {
     if (recognitionRef.current && isRecording) {
       recognitionRef.current.stop();
     }
   };
-
   if (!isSupported) {
-    return (
-      <Button
-        type="button"
-        variant="ghost"
-        size="sm"
-        disabled
-        className="flex items-center space-x-1 text-slate-500"
-        title="Speech recognition not supported in this browser"
-      >
+    return <Button type="button" variant="ghost" size="sm" disabled className="flex items-center space-x-1 text-slate-500" title="Speech recognition not supported in this browser">
         <MicOff className="h-4 w-4" />
-      </Button>
-    );
+      </Button>;
   }
-
-  return (
-    <div className="flex items-center space-x-2">
-      {!isRecording ? (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={startRecording}
-          className="flex items-center space-x-1 text-cyan-500 hover:text-cyan-400 transition-colors"
-          title="Start voice input"
-        >
+  return <div className="flex items-center space-x-2">
+      {!isRecording ? <Button type="button" variant="ghost" size="sm" onClick={startRecording} title="Start voice input" className="flex items-center space-x-1  text-orange-600 hover:text-orange-500 transition-colors">
           <Mic className="h-4 w-4" />
-        </Button>
-      ) : (
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={stopRecording}
-          className="flex items-center space-x-1 text-red-500 hover:text-red-400 animate-pulse"
-          title="Stop voice input"
-        >
+        </Button> : <Button type="button" variant="ghost" size="sm" onClick={stopRecording} className="flex items-center space-x-1 text-red-500 hover:text-red-400 animate-pulse" title="Stop voice input">
           <Mic className="h-4 w-4" />
-        </Button>
-      )}
-    </div>
-  );
+        </Button>}
+    </div>;
 };
-
 export default VoiceInput;

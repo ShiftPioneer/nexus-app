@@ -45,7 +45,7 @@ const Checklist: React.FC<ChecklistProps> = ({
   };
   return <Card className="border-slate-700 text-slate-200 h-full bg-slate-950 rounded-lg">
       <CardHeader className="pb-2 bg-slate-950 rounded-lg">
-        <CardTitle className="text-lg text-slate-200 flex items-center">
+        <CardTitle className="text-lg flex items-center text-orange-600">
           {icon}
           {title}
         </CardTitle>
@@ -63,10 +63,10 @@ const Checklist: React.FC<ChecklistProps> = ({
           </div>
 
           {showActions && <div className="flex justify-between pt-4">
-              <Button variant="outline" size="sm" onClick={handleResetAll} className="text-cyan-600 bg-background-DEFAULT">
+              <Button variant="outline" size="sm" onClick={handleResetAll} className=" text-orange-600 bg-background-DEFAULT">
                 Reset
               </Button>
-              <Button variant="default" size="sm" onClick={handleMarkAllComplete} className="text-cyan-50 bg-cyan-600 hover:bg-cyan-500">
+              <Button variant="default" size="sm" onClick={handleMarkAllComplete} className="text-cyan-50 bg-orange-600 hover:bg-orange-500">
                 Mark All Complete
               </Button>
             </div>}

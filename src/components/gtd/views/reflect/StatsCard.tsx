@@ -26,7 +26,7 @@ const StatsCard: React.FC<StatsCardProps> = ({
 }) => {
   return <Card className="border-slate-700 text-slate-200 bg-slate-950 rounded-lg">
       <CardHeader className="pb-2 bg-slate-950 rounded-lg">
-        <CardTitle className="flex items-center">
+        <CardTitle className="flex items-center  text-orange-600">
           <BarChart3 className="mr-2 h-5 w-5" />
           Stats & Insights
         </CardTitle>

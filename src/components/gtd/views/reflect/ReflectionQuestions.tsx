@@ -9,7 +9,7 @@ const ReflectionQuestions: React.FC<ReflectionQuestionsProps> = ({
 }) => {
   return <Card className="bg-slate-900 border-slate-700 text-slate-200">
       <CardHeader className="pb-2 rounded-lg bg-slate-950">
-        <CardTitle className="flex items-center">
+        <CardTitle className="flex items-center  text-orange-600">
           <HelpCircle className="mr-2 h-5 w-5" />
           Reflection Questions
         </CardTitle>

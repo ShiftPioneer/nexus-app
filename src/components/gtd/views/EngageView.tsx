@@ -88,7 +88,7 @@ const EngageView = () => {
 
       <Card className="bg-slate-950">
         <CardHeader className="bg-slate-950 rounded-lg">
-          <CardTitle>Your Progress</CardTitle>
+          <CardTitle className="text-orange-600">Your Progress</CardTitle>
           <CardDescription>
             Track your GTD workflow progress
           </CardDescription>

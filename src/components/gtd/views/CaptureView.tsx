@@ -18,7 +18,7 @@ const CaptureView: React.FC = () => {
       <GTDPrinciple />
       
       <div className="md:col-span-2">
-        <h3 className="text-xl font-medium mb-4 text-cyan-600">Inbox</h3>
+        <h3 className="text-xl font-medium mb-4  text-orange-600">Inbox</h3>
         <TasksList tasks={inboxTasks} />
       </div>
     </div>;

@@ -50,12 +50,12 @@ const ClarifyView: React.FC = () => {
     activeClass: "bg-red-600/20 border-red-500"
   }];
   return <div className="space-y-8 bg-black/20 p-6 rounded-lg">
-      <h2 className="text-2xl font-semibold mb-4 text-white">Clarify Your Inbox</h2>
+      <h2 className="text-2xl font-semibold mb-4 text-orange-600">Clarify Your Inbox</h2>
       
       <InboxTasksList tasks={inboxTasks} onAddTask={handleAddTask} onGoToCapture={handleGoToCapture} />
       
       <div className="grid gap-4">
-        <div className="text-xl font-medium text-white mb-1">Decide what to do with each item</div>
+        <div className="text-xl font-medium text-white mb-1 mb-1 text-orange-600 bg-background-DEFAULT">Decide what to do with each item</div>
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {decisionCards.map(card => <Droppable key={card.id} droppableId={card.id}>
               {(provided, snapshot) => <div ref={provided.innerRef} className="bg-slate-900 rounded-lg border">
