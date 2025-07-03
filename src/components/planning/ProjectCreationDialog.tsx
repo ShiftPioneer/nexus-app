@@ -49,7 +49,7 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
   }, [initialProject]);
   const handleSubmit = () => {
     const newProject: Project = {
-      id: initialProject?.id || "",
+      id: initialProject?.id || Date.now().toString(),
       title,
       description,
       category,
@@ -58,7 +58,8 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
       endDate,
       status: initialProject?.status || "not-started",
       blockingProjects,
-      blockedByProjects
+      blockedByProjects,
+      createdAt: initialProject?.createdAt || new Date()
     };
     onProjectCreate(newProject);
     resetForm();

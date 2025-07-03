@@ -103,7 +103,8 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
       endDate,
       milestones,
       status: initialGoal?.status || "not-started",
-      timeframeAnswers
+      timeframeAnswers,
+      createdAt: initialGoal?.createdAt || new Date()
     };
 
     onGoalCreate(goalData);

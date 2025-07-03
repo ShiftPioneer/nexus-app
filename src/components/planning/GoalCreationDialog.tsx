@@ -170,6 +170,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
       endDate: endDate,
       milestones: milestones,
       status: initialGoal?.status || "not-started",
+      createdAt: initialGoal?.createdAt || new Date()
     };
 
     onGoalCreate(newGoal);
