@@ -88,7 +88,7 @@ const PlanningListView = ({ goals, projects, contentType, onEditItem, onUpdatePr
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-semibold text-white truncate">{item.title}</h3>
-                        <p className="text-sm text-slate-400">{item.type}</p>
+                        <p className="text-sm text-slate-400">{item.category}</p>
                       </div>
                       
                       <div className="flex items-center gap-2 ml-4">
@@ -151,10 +151,10 @@ const PlanningListView = ({ goals, projects, contentType, onEditItem, onUpdatePr
                       {/* Footer Info */}
                       <div className="flex items-center justify-between pt-2 border-t border-slate-700/30">
                         <div className="flex items-center gap-4">
-                          {item.targetDate && (
+                          {item.endDate && (
                             <div className="flex items-center gap-1 text-slate-400 text-sm">
                               <Calendar className="h-4 w-4" />
-                              <span>{new Date(item.targetDate).toLocaleDateString()}</span>
+                              <span>{new Date(item.endDate).toLocaleDateString()}</span>
                             </div>
                           )}
                           

@@ -105,7 +105,7 @@ const GoalsList = ({ onCreateGoal, onEditGoal, onDeleteGoal }: GoalsListProps) =
                     </div>
                     <div>
                       <CardTitle className="text-lg font-bold text-white leading-tight">{goal.title}</CardTitle>
-                      <p className="text-slate-400 text-sm mt-1">{goal.type}</p>
+                      <p className="text-slate-400 text-sm mt-1">{goal.category}</p>
                     </div>
                   </div>
                   
@@ -153,10 +153,10 @@ const GoalsList = ({ onCreateGoal, onEditGoal, onDeleteGoal }: GoalsListProps) =
                     {goal.status.replace('-', ' ')}
                   </Badge>
                   
-                  {goal.targetDate && (
+                  {goal.endDate && (
                     <div className="flex items-center gap-1 text-slate-400 text-xs">
                       <Calendar className="h-3 w-3" />
-                      <span>{new Date(goal.targetDate).toLocaleDateString()}</span>
+                      <span>{new Date(goal.endDate).toLocaleDateString()}</span>
                     </div>
                   )}
                 </div>

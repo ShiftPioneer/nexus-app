@@ -44,7 +44,7 @@ const PlanningStatsDialog = ({ open, onOpenChange, item, type }: PlanningStatsDi
 
   const StatusIcon = getStatusIcon(item.status);
   const daysSinceCreated = Math.floor((new Date().getTime() - new Date(item.createdAt).getTime()) / (1000 * 60 * 60 * 24));
-  const daysUntilTarget = item.targetDate ? Math.floor((new Date(item.targetDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
+  const daysUntilTarget = item.endDate ? Math.floor((new Date(item.endDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -77,10 +77,10 @@ const PlanningStatsDialog = ({ open, onOpenChange, item, type }: PlanningStatsDi
             
             <Card className="bg-slate-800/50 border-slate-700/30">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-slate-400">Type</CardTitle>
+                <CardTitle className="text-sm font-medium text-slate-400">Category</CardTitle>
               </CardHeader>
               <CardContent>
-                <span className="text-white font-medium">{item.type}</span>
+                <span className="text-white font-medium">{item.category}</span>
               </CardContent>
             </Card>
           </div>

@@ -16,6 +16,7 @@ interface Goal {
     questionIndex: number;
     answer: string;
   }[];
+  createdAt: Date;
 }
 
 interface Project {
@@ -29,6 +30,7 @@ interface Project {
   status: "not-started" | "in-progress" | "completed";
   blockingProjects?: string[];
   blockedByProjects?: string[];
+  createdAt: Date;
 }
 
 interface Milestone {

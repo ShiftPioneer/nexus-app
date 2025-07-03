@@ -65,7 +65,7 @@ const PlanningBoardView = ({ goals, projects, contentType, onEditItem }: Plannin
               </div>
               <div className="flex-1 min-w-0">
                 <CardTitle className="text-sm font-semibold text-white leading-tight truncate">{item.title}</CardTitle>
-                <p className="text-xs text-slate-400 mt-1">{item.type}</p>
+                <p className="text-xs text-slate-400 mt-1">{item.category}</p>
               </div>
             </div>
             
@@ -96,10 +96,10 @@ const PlanningBoardView = ({ goals, projects, contentType, onEditItem }: Plannin
           
           {/* Footer */}
           <div className="flex items-center justify-between pt-2">
-            {item.targetDate && (
+            {item.endDate && (
               <div className="flex items-center gap-1 text-slate-400 text-xs">
                 <Calendar className="h-3 w-3" />
-                <span>{new Date(item.targetDate).toLocaleDateString()}</span>
+                <span>{new Date(item.endDate).toLocaleDateString()}</span>
               </div>
             )}
             
