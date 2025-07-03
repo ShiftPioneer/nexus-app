@@ -4,215 +4,177 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Circle, CircleDashed, CheckCircle2, Calendar, Clock, Edit, BarChart3 } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { Target, Calendar, TrendingUp, Edit, Trophy, Star, Briefcase } from "lucide-react";
 
 interface PlanningBoardViewProps {
-  goals?: Goal[];
-  projects?: Project[];
-  contentType: "goals" | "projects";
+  goals: Goal[];
+  projects: Project[];
+  contentType: 'goals' | 'projects';
   onEditItem: (item: Goal | Project) => void;
 }
 
-const PlanningBoardView: React.FC<PlanningBoardViewProps> = ({
-  goals = [],
-  projects = [],
-  contentType,
-  onEditItem,
-}) => {
-  const items = contentType === "goals" ? goals : projects;
-
-  const notStartedItems = items.filter(item => item.status === "not-started");
-  const inProgressItems = items.filter(item => item.status === "in-progress");
-  const completedItems = items.filter(item => item.status === "completed");
-
-  const formatDate = (date: string | Date | undefined) => {
-    if (!date) return "No deadline";
-    try {
-      return format(new Date(date), "MMM d");
-    } catch (error) {
-      return "Invalid date";
-    }
+const PlanningBoardView = ({ goals, projects, contentType, onEditItem }: PlanningBoardViewProps) => {
+  const items = contentType === 'goals' ? goals : projects;
+  
+  const getStatusItems = (status: string) => {
+    return items.filter(item => item.status === status);
   };
 
-  const getStatusConfig = (status: string) => {
+  const getStatusColor = (status: string) => {
     switch (status) {
-      case 'not-started':
-        return { 
-          icon: CircleDashed, 
-          title: 'Not Started', 
-          color: 'text-slate-400',
-          bgColor: 'bg-slate-500/10',
-          borderColor: 'border-slate-500/20'
-        };
-      case 'in-progress':
-        return { 
-          icon: Circle, 
-          title: 'In Progress', 
-          color: 'text-blue-400',
-          bgColor: 'bg-blue-500/10',
-          borderColor: 'border-blue-500/20'
-        };
       case 'completed':
-        return { 
-          icon: CheckCircle2, 
-          title: 'Completed', 
-          color: 'text-green-400',
-          bgColor: 'bg-green-500/10',
-          borderColor: 'border-green-500/20'
-        };
+        return 'from-emerald-500 to-teal-600';
+      case 'in-progress':
+        return 'from-primary to-orange-600';
+      case 'not-started':
+        return 'from-slate-600 to-slate-700';
       default:
-        return { 
-          icon: Circle, 
-          title: 'Unknown', 
-          color: 'text-slate-400',
-          bgColor: 'bg-slate-500/10',
-          borderColor: 'border-slate-500/20'
-        };
+        return 'from-slate-600 to-slate-700';
     }
   };
 
-  const renderItem = (item: Goal | Project, index: number) => {
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return Trophy;
+      case 'in-progress':
+        return TrendingUp;
+      case 'not-started':
+        return contentType === 'goals' ? Target : Briefcase;
+      default:
+        return contentType === 'goals' ? Target : Briefcase;
+    }
+  };
+
+  const columns = [
+    { id: 'not-started', title: 'Not Started', status: 'not-started' },
+    { id: 'in-progress', title: 'In Progress', status: 'in-progress' },
+    { id: 'completed', title: 'Completed', status: 'completed' }
+  ];
+
+  const renderCard = (item: Goal | Project) => {
+    const StatusIcon = getStatusIcon(item.status);
+    
     return (
-      <motion.div
-        key={item.id}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3, delay: index * 0.1 }}
-      >
-        <Card className="mb-3 bg-slate-950/60 border-slate-800 hover:bg-slate-900/60 hover:border-slate-700 transition-all duration-200 group">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="font-semibold text-slate-100 text-sm line-clamp-2 flex-1">
-                {item.title}
-              </h3>
-              <div className="flex gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => onEditItem(item)}
-                  className="h-6 w-6 p-0 text-slate-400 hover:text-white hover:bg-slate-800"
-                >
-                  <Edit className="h-3 w-3" />
-                </Button>
+      <Card key={item.id} className="bg-slate-900/50 border-slate-700/30 backdrop-blur-sm hover:bg-slate-800/50 transition-all duration-300 group cursor-pointer">
+        <CardHeader className="pb-3">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r ${getStatusColor(item.status)} shadow-lg`}>
+                <StatusIcon className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-sm font-semibold text-white leading-tight truncate">{item.title}</CardTitle>
+                <p className="text-xs text-slate-400 mt-1">{item.type}</p>
               </div>
             </div>
             
-            {item.description && (
-              <p className="text-xs text-slate-400 line-clamp-2 mb-3">
-                {item.description}
-              </p>
-            )}
-
-            <div className="space-y-3">
-              <div>
-                <div className="flex justify-between items-center mb-1">
-                  <span className="text-xs font-medium text-slate-400">Progress</span>
-                  <span className="text-xs font-semibold text-orange-400">{item.progress || 0}%</span>
-                </div>
-                <Progress 
-                  value={item.progress || 0} 
-                  className="h-1.5"
-                  indicatorClassName={cn(
-                    "transition-all duration-300",
-                    {
-                      "bg-green-400": (item.progress || 0) === 100,
-                      "bg-orange-400": (item.progress || 0) > 0 && (item.progress || 0) < 100,
-                      "bg-slate-600": (item.progress || 0) === 0
-                    }
-                  )}
-                />
-              </div>
-
-              <div className="flex items-center justify-between text-xs text-slate-400">
-                <div className="flex items-center gap-1">
-                  <Calendar className="h-3 w-3" />
-                  <span>{formatDate(item.endDate)}</span>
-                </div>
-                
-                {contentType === 'goals' && 'milestones' in item && item.milestones && (
-                  <div className="flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    <span>{item.milestones.filter(m => m.completed).length}/{item.milestones.length}</span>
-                  </div>
-                )}
-              </div>
-
-              <Badge 
-                variant="outline" 
-                className={cn(
-                  "text-xs w-fit capitalize",
-                  item.status === 'completed' ? 'border-green-500/30 text-green-400' :
-                  item.status === 'in-progress' ? 'border-blue-500/30 text-blue-400' :
-                  'border-slate-500/30 text-slate-400'
-                )}
-              >
-                {item.status.replace('-', ' ')}
-              </Badge>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEditItem(item)}
+              className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-slate-700/50 text-slate-400 hover:text-white"
+            >
+              <Edit className="h-3 w-3" />
+            </Button>
+          </div>
+        </CardHeader>
+        
+        <CardContent className="space-y-3">
+          {item.description && (
+            <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">{item.description}</p>
+          )}
+          
+          {/* Progress */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-slate-400">Progress</span>
+              <span className="text-xs font-semibold text-white">{item.progress}%</span>
             </div>
-          </CardContent>
-        </Card>
-      </motion.div>
-    );
-  };
-
-  const renderColumn = (status: string, items: (Goal | Project)[], index: number) => {
-    const config = getStatusConfig(status);
-    const IconComponent = config.icon;
-
-    return (
-      <motion.div
-        key={status}
-        initial={{ opacity: 0, x: 20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.3, delay: index * 0.1 }}
-        className="flex-1 min-w-0"
-      >
-        <Card className={cn("h-full bg-slate-950/20 backdrop-blur-sm border-slate-800", config.borderColor)}>
-          <CardHeader className={cn("pb-3", config.bgColor)}>
-            <CardTitle className="flex items-center gap-3 text-base">
-              <div className={cn("p-2 rounded-lg", config.bgColor, config.borderColor, "border")}>
-                <IconComponent className={cn("h-4 w-4", config.color)} />
-              </div>
-              <div className="flex-1">
-                <div className={cn("font-semibold", config.color)}>{config.title}</div>
-                <div className="text-xs text-slate-400 mt-0.5">
-                  {items.length} {contentType === 'goals' ? 'goals' : 'projects'}
-                </div>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-3 space-y-2">
-            {items.length > 0 ? (
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {items.map((item, itemIndex) => renderItem(item, itemIndex))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <div className={cn("w-12 h-12 rounded-full mx-auto mb-3 flex items-center justify-center", config.bgColor)}>
-                  <IconComponent className={cn("h-6 w-6", config.color)} />
-                </div>
-                <p className="text-sm text-slate-400 mb-2">No {contentType} here</p>
-                <p className="text-xs text-slate-500">
-                  {status === 'not-started' ? 'Create new items to get started' :
-                   status === 'in-progress' ? 'Move items here when working on them' :
-                   'Completed items will appear here'}
-                </p>
+            <Progress value={item.progress} className="h-1.5" />
+          </div>
+          
+          {/* Footer */}
+          <div className="flex items-center justify-between pt-2">
+            {item.targetDate && (
+              <div className="flex items-center gap-1 text-slate-400 text-xs">
+                <Calendar className="h-3 w-3" />
+                <span>{new Date(item.targetDate).toLocaleDateString()}</span>
               </div>
             )}
-          </CardContent>
-        </Card>
-      </motion.div>
+            
+            {'milestones' in item && item.milestones && item.milestones.length > 0 && (
+              <div className="flex items-center gap-1 text-slate-400 text-xs">
+                <Star className="h-3 w-3 text-primary" />
+                <span>{item.milestones.filter(m => m.completed).length}/{item.milestones.length}</span>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
     );
   };
+
+  if (items.length === 0) {
+    return (
+      <Card className="relative overflow-hidden bg-slate-900/50 border-slate-700/30 backdrop-blur-sm">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/30 via-emerald-500/20 to-transparent rounded-full blur-3xl" />
+        </div>
+        
+        <CardContent className="relative z-10 pt-16 pb-16 flex flex-col items-center justify-center text-center">
+          <div className="flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-primary to-orange-600 shadow-2xl mb-6">
+            {contentType === 'goals' ? <Target className="h-10 w-10 text-white" /> : <Briefcase className="h-10 w-10 text-white" />}
+          </div>
+          <h3 className="text-2xl font-bold text-white mb-3">No {contentType === 'goals' ? 'Goals' : 'Projects'} Yet</h3>
+          <p className="text-slate-400 text-lg max-w-md">
+            Start organizing your {contentType === 'goals' ? 'goals' : 'projects'} using this board view to track progress efficiently.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-      {renderColumn('not-started', notStartedItems, 0)}
-      {renderColumn('in-progress', inProgressItems, 1)}
-      {renderColumn('completed', completedItems, 2)}
+    <div className="space-y-6">
+      {/* Board View */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {columns.map((column) => {
+          const columnItems = getStatusItems(column.status);
+          
+          return (
+            <div key={column.id} className="space-y-4">
+              {/* Column Header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-r ${getStatusColor(column.status)} shadow-lg`}>
+                    <span className="text-white text-sm font-bold">{columnItems.length}</span>
+                  </div>
+                  <h3 className="text-lg font-semibold text-white">{column.title}</h3>
+                </div>
+                <Badge variant="secondary" className="bg-slate-800/50 text-slate-300 border-slate-700/50">
+                  {columnItems.length}
+                </Badge>
+              </div>
+              
+              {/* Column Content */}
+              <div className="space-y-3 min-h-[400px]">
+                {columnItems.length > 0 ? (
+                  columnItems.map(renderCard)
+                ) : (
+                  <Card className="bg-slate-900/30 border-slate-700/20 border-dashed">
+                    <CardContent className="pt-8 pb-8 flex flex-col items-center justify-center text-center">
+                      <div className="text-slate-500 text-sm">
+                        No {contentType === 'goals' ? 'goals' : 'projects'} {column.title.toLowerCase()}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

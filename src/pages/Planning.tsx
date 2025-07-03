@@ -119,6 +119,7 @@ const Planning = () => {
   return (
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8">
+        {/* Unified Page Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent flex items-center gap-4">
@@ -127,23 +128,24 @@ const Planning = () => {
               </div>
               Planning System
             </h1>
-            <p className="text-slate-400 mt-3 text-lg">Set goals, manage projects, and track your progress</p>
+            <p className="text-slate-400 mt-3 text-lg">Set goals, manage projects, and track your progress toward success</p>
           </div>
           
+          {/* Unified Button Styling */}
           <div className="flex gap-3">
             <Button
               onClick={handleCreateGoal}
-              className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white shadow-lg"
+              className="gap-2 bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-xl shadow-primary/25 border-none rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-5 w-5" />
               New Goal
             </Button>
             <Button
               onClick={handleCreateProject}
               variant="outline"
-              className="border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white"
+              className="gap-2 border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white rounded-xl px-6 py-3 font-semibold transition-all duration-300"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-5 w-5" />
               New Project
             </Button>
           </div>

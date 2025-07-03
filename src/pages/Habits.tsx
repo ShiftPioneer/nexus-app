@@ -200,12 +200,16 @@ const Habits = () => {
   return (
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8 h-full">
+        {/* Unified Page Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent flex items-center gap-4">
+              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 shadow-lg">
+                <Trophy className="h-6 w-6 text-white" />
+              </div>
               Habits
             </h1>
-            <p className="text-slate-400 mt-2 text-lg">Track your consistency and build unstoppable momentum</p>
+            <p className="text-slate-400 mt-3 text-lg">Track your consistency and build unstoppable momentum</p>
           </div>
           <Button 
             onClick={() => {

@@ -132,6 +132,7 @@ const TimeDesign = () => {
     <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="space-y-6 max-w-full overflow-hidden animate-fade-in">
+          {/* Unified Page Header and Button */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent flex items-center gap-4">
@@ -140,13 +141,13 @@ const TimeDesign = () => {
                 </div>
                 Time Design
               </h1>
-              <p className="text-slate-400 mt-3 text-lg">Plan your day and visualize how you spend your time</p>
+              <p className="text-slate-400 mt-3 text-lg">Plan your day and visualize how you spend your time effectively</p>
             </div>
             <Button 
               onClick={handleAddActivity} 
-              className="w-full md:w-auto gap-2 bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-xl border-none"
+              className="w-full md:w-auto gap-2 bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-xl shadow-primary/25 border-none rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105"
             >
-              <Plus size={18} />
+              <Plus size={20} />
               New Activity
             </Button>
           </div>
@@ -175,13 +176,28 @@ const TimeDesign = () => {
                 </div>
                 
                 <div className="flex items-center gap-3 flex-wrap justify-end">
-                  <Button variant="outline" size="sm" onClick={handlePrevious} className="border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handlePrevious} 
+                    className="border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white rounded-xl"
+                  >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleToday} className="border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleToday} 
+                    className="border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white rounded-xl"
+                  >
                     Today
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleNext} className="border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleNext} 
+                    className="border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white rounded-xl"
+                  >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
                   
@@ -190,7 +206,7 @@ const TimeDesign = () => {
                       variant={viewType === "day" ? "default" : "ghost"} 
                       size="sm" 
                       onClick={() => setViewType("day")} 
-                      className={viewType === "day" ? "bg-primary hover:bg-primary/90 text-white" : "hover:bg-slate-700/30 text-slate-300 hover:text-white"}
+                      className={viewType === "day" ? "bg-primary hover:bg-primary/90 text-white rounded-lg" : "hover:bg-slate-700/30 text-slate-300 hover:text-white rounded-lg"}
                     >
                       Day
                     </Button>
@@ -198,7 +214,7 @@ const TimeDesign = () => {
                       variant={viewType === "week" ? "default" : "ghost"} 
                       size="sm" 
                       onClick={() => setViewType("week")} 
-                      className={viewType === "week" ? "bg-primary hover:bg-primary/90 text-white" : "hover:bg-slate-700/30 text-slate-300 hover:text-white"}
+                      className={viewType === "week" ? "bg-primary hover:bg-primary/90 text-white rounded-lg" : "hover:bg-slate-700/30 text-slate-300 hover:text-white rounded-lg"}
                     >
                       Week
                     </Button>
