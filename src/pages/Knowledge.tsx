@@ -1,6 +1,6 @@
 
 import React, { useState } from "react";
-import ModernApp from "@/components/layout/ModernAppLayout";
+import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { SkillsetTab } from "@/components/knowledge/SkillsetTab";
 import { ResourcesTab } from "@/components/knowledge/ResourcesTab";
