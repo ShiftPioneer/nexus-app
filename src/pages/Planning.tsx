@@ -165,6 +165,7 @@ const Planning = () => {
           
           <ModernTabsContent value="goals">
             <GoalsList 
+              goals={goals}
               onCreateGoal={handleCreateGoal}
               onEditGoal={handleEditGoal}
               onDeleteGoal={handleDeleteGoal}
@@ -201,8 +202,9 @@ const Planning = () => {
         <GoalCreationDialog
           open={showGoalDialog}
           onOpenChange={setShowGoalDialog}
-          goal={editingItem as Goal}
-          onSave={(goal) => {
+          initialGoal={editingItem as Goal}
+          existingGoals={goals}
+          onGoalCreate={(goal) => {
             if (editingItem) {
               const updatedGoals = goals.map(g => g.id === goal.id ? goal : g);
               setGoals(updatedGoals);
@@ -220,8 +222,9 @@ const Planning = () => {
         <ProjectCreationDialog
           open={showProjectDialog}
           onOpenChange={setShowProjectDialog}
-          project={editingItem as Project}
-          onSave={(project) => {
+          initialProject={editingItem as Project}
+          existingProjects={projects}
+          onProjectCreate={(project) => {
             if (editingItem) {
               const updatedProjects = projects.map(p => p.id === project.id ? project : p);
               setProjects(updatedProjects);
