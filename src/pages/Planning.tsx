@@ -165,7 +165,6 @@ const Planning = () => {
           
           <ModernTabsContent value="goals">
             <GoalsList 
-              goals={goals}
               onCreateGoal={handleCreateGoal}
               onEditGoal={handleEditGoal}
               onDeleteGoal={handleDeleteGoal}
