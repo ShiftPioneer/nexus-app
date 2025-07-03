@@ -7,15 +7,15 @@ interface HabitStatisticsCategoriesProps {
 }
 
 const HabitStatisticsCategories = ({ habits }: HabitStatisticsCategoriesProps) => {
-  // Define colors for different categories using app's secondary colors
+  // Define colors using app's theme colors
   const categoryColors = {
-    health: "#7E69AB",      // Secondary Purple
-    mindfulness: "#6E59A5", // Tertiary Purple
-    learning: "#3b82f6",    // Blue
-    productivity: "#FF6500", // Primary Orange
-    relationships: "#ec4899",
-    finance: "#10b981",
-    other: "#94a3b8"
+    health: "#FF6500",        // Primary Orange
+    mindfulness: "#024CAA",   // Secondary Blue
+    learning: "#0B192C",      // Tertiary Dark Blue
+    productivity: "#10b981",  // Emerald
+    relationships: "#ec4899", // Pink
+    finance: "#8b5cf6",       // Purple
+    other: "#64748b"          // Slate
   };
 
   // Get habit count by category
@@ -23,7 +23,7 @@ const HabitStatisticsCategories = ({ habits }: HabitStatisticsCategoriesProps) =
     // If no habits, return empty data
     if (habits.length === 0) {
       return [
-        { name: "No Habits", value: 1, color: "#94a3b8" }
+        { name: "No Habits", value: 1, color: "#64748b" }
       ];
     }
     
@@ -45,7 +45,7 @@ const HabitStatisticsCategories = ({ habits }: HabitStatisticsCategoriesProps) =
         name: category,
         value: data.count,
         completionRate: Math.round((data.completed / (data.count * 30)) * 100),
-        color: categoryColors[category as keyof typeof categoryColors] || "#94a3b8"
+        color: categoryColors[category as keyof typeof categoryColors] || "#64748b"
       };
     });
   };
@@ -73,6 +73,12 @@ const HabitStatisticsCategories = ({ habits }: HabitStatisticsCategoriesProps) =
             </Pie>
             <Tooltip
               formatter={(value, name) => [`${value}`, `${name} habits`]}
+              contentStyle={{
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                border: '1px solid rgba(71, 85, 105, 0.3)',
+                borderRadius: '12px',
+                color: '#ffffff'
+              }}
             />
             <Legend />
           </PieChart>
@@ -81,17 +87,17 @@ const HabitStatisticsCategories = ({ habits }: HabitStatisticsCategoriesProps) =
       
       <div className="grid grid-cols-2 gap-4">
         {categoryData.map((category, index) => (
-          <div key={index} className="rounded-lg border p-3">
+          <div key={index} className="rounded-xl border border-slate-700/30 p-4 bg-slate-800/20 backdrop-blur-sm">
             <div className="flex items-center gap-2">
               <div 
                 className="h-3 w-3 rounded-full" 
                 style={{ backgroundColor: category.color }} 
               />
-              <p className="font-medium capitalize">{category.name}</p>
+              <p className="font-medium capitalize text-white">{category.name}</p>
             </div>
             <div className="mt-2 flex justify-between text-sm">
-              <p className="text-muted-foreground">Count: {category.value}</p>
-              <p className="text-muted-foreground">
+              <p className="text-slate-400">Count: {category.value}</p>
+              <p className="text-slate-400">
                 Completion: {category.completionRate}%
               </p>
             </div>

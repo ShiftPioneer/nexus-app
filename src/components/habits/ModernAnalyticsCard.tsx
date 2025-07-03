@@ -3,7 +3,6 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { BarChart2, TrendingUp, Target, Award, Activity } from "lucide-react";
-import { cn } from "@/lib/utils";
 import HabitStatisticsOverview from "./HabitStatisticsOverview";
 import HabitStatisticsTrends from "./HabitStatisticsTrends";
 import HabitStatisticsCategories from "./HabitStatisticsCategories";

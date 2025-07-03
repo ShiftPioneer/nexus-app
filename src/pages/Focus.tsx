@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import FocusSessionHistory from "@/components/focus/FocusSessionHistory";
 import FocusInsights from "@/components/focus/FocusInsights";
@@ -14,6 +14,7 @@ import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useFocusStats } from "@/hooks/use-focus-stats";
 import { useFocusHandlers } from "@/hooks/use-focus-handlers";
 import { prepareSessionsForHistory, prepareSessionsForStats } from "@/utils/focus-session-utils";
+import { Brain, Clock, BarChart2, Lightbulb } from "lucide-react";
 
 const FocusContent = () => {
   const [activeTab, setActiveTab] = useState("timer");
@@ -46,32 +47,62 @@ const FocusContent = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isTimerRunning]);
 
+  const tabItems = [
+    { 
+      value: "timer", 
+      label: "Focus Timer", 
+      icon: Clock,
+      gradient: "from-emerald-500 via-teal-500 to-cyan-500"
+    },
+    { 
+      value: "history", 
+      label: "Session History", 
+      icon: BarChart2,
+      gradient: "from-blue-500 via-indigo-500 to-purple-500"
+    },
+    { 
+      value: "insights", 
+      label: "Insights", 
+      icon: Brain,
+      gradient: "from-purple-500 via-pink-500 to-rose-500"
+    },
+    { 
+      value: "techniques", 
+      label: "Techniques", 
+      icon: Lightbulb,
+      gradient: "from-orange-500 via-red-500 to-pink-500"
+    }
+  ];
+
   return (
-    <div className="space-y-6 max-w-full animate-fade-in">
+    <div className="space-y-8 max-w-full animate-fade-in">
       <div>
-        <h1 className="text-3xl font-bold">Focus</h1>
-        <p className="text-muted-foreground mt-2">Enhance your productivity with focused work sessions</p>
+        <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent flex items-center gap-4">
+          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg">
+            <Brain className="h-6 w-6 text-white" />
+          </div>
+          Focus
+        </h1>
+        <p className="text-slate-400 mt-3 text-lg">Enhance your productivity with focused work sessions</p>
       </div>
 
       <SessionCompletionBanner isVisible={timerProgress === 100} onComplete={handleCompleteSession} />
 
-      <Tabs defaultValue="timer" value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm">
-          <TabsTrigger value="timer" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500/20 data-[state=active]:to-teal-600/20 data-[state=active]:text-white">
-            Focus Timer
-          </TabsTrigger>
-          <TabsTrigger value="history" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500/20 data-[state=active]:to-indigo-600/20 data-[state=active]:text-white">
-            Session History
-          </TabsTrigger>
-          <TabsTrigger value="insights" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500/20 data-[state=active]:to-pink-600/20 data-[state=active]:text-white">
-            Insights
-          </TabsTrigger>
-          <TabsTrigger value="techniques" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500/20 data-[state=active]:to-red-600/20 data-[state=active]:text-white">
-            Techniques
-          </TabsTrigger>
-        </TabsList>
+      <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <ModernTabsList>
+          {tabItems.map((tab) => (
+            <ModernTabsTrigger 
+              key={tab.value}
+              value={tab.value}
+              gradient={tab.gradient}
+              icon={tab.icon}
+            >
+              {tab.label}
+            </ModernTabsTrigger>
+          ))}
+        </ModernTabsList>
         
-        <TabsContent value="timer" className="mt-6">
+        <ModernTabsContent value="timer">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <ModernFocusTimer 
               timerMode={category === "Short Break" ? "shortBreak" : category === "Long Break" ? "longBreak" : "focus"}
@@ -88,23 +119,23 @@ const FocusContent = () => {
             />
             <FocusStatsCard stats={focusStats} />
           </div>
-        </TabsContent>
+        </ModernTabsContent>
         
-        <TabsContent value="history" className="mt-6">
+        <ModernTabsContent value="history">
           <FocusSessionHistory 
             sessions={prepareSessionsForHistory(focusSessions)} 
             onDeleteSession={deleteSession} 
           />
-        </TabsContent>
+        </ModernTabsContent>
         
-        <TabsContent value="insights" className="mt-6">
+        <ModernTabsContent value="insights">
           <FocusStats sessions={prepareSessionsForStats(focusSessions)} />
-        </TabsContent>
+        </ModernTabsContent>
         
-        <TabsContent value="techniques" className="mt-6">
+        <ModernTabsContent value="techniques">
           <FocusTechniques onStartTechnique={startTechnique} />
-        </TabsContent>
-      </Tabs>
+        </ModernTabsContent>
+      </ModernTabs>
     </div>
   );
 };
