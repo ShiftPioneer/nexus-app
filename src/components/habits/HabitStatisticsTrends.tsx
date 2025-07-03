@@ -1,144 +1,231 @@
 
 import React from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area } from "recharts";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { TrendingUp } from "lucide-react";
 
 interface HabitStatisticsTrendsProps {
   habits: Habit[];
 }
 
 const HabitStatisticsTrends = ({ habits }: HabitStatisticsTrendsProps) => {
-  // Calculate weekly completion data
-  const getWeeklyData = () => {
+  // Generate trend data for the last 30 days
+  const generateTrendData = () => {
     const data = [];
     const today = new Date();
     
-    // If no habits, return empty data for the last 12 weeks
-    if (habits.length === 0) {
-      return Array.from({ length: 12 }, (_, i) => {
-        const weekStart = new Date();
-        weekStart.setDate(weekStart.getDate() - ((11 - i) * 7));
-        return {
-          week: `W${i+1}`,
-          date: weekStart.toISOString().split('T')[0],
-          rate: 0,
-          completed: 0,
-          total: 0
-        };
-      });
-    }
-    
-    // Get data for the last 12 weeks
-    for (let i = 11; i >= 0; i--) {
-      // Calculate the start and end of the week
-      const weekEnd = new Date();
-      weekEnd.setDate(weekEnd.getDate() - (i * 7));
-      const weekStart = new Date(weekEnd);
-      weekStart.setDate(weekStart.getDate() - 6);
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateString = date.toDateString();
       
-      // Count completed habits this week
-      let completedCount = 0;
-      let totalPossible = 0;
+      const completedHabits = habits.filter(habit =>
+        habit.completionDates.some(completionDate =>
+          new Date(completionDate).toDateString() === dateString
+        )
+      ).length;
       
-      // Loop through each day of the week
-      for (let d = 0; d < 7; d++) {
-        const day = new Date(weekStart);
-        day.setDate(day.getDate() + d);
-        const dayString = day.toISOString().split('T')[0];
-        
-        // Get habits that existed on this day
-        const existingHabits = habits.filter(habit => {
-          const habitCreatedDate = new Date(habit.createdAt);
-          return habitCreatedDate <= day;
-        });
-        
-        // Count completed habits on this day
-        const completed = existingHabits.filter(habit => {
-          return habit.completionDates.some(d => 
-            new Date(d).toISOString().split('T')[0] === dayString
-          );
-        }).length;
-        
-        completedCount += completed;
-        totalPossible += existingHabits.length;
-      }
-      
-      const weekNum = 12 - i;
+      const completionRate = habits.length > 0 ? Math.round((completedHabits / habits.length) * 100) : 0;
       
       data.push({
-        week: `W${weekNum}`,
-        date: weekStart.toISOString().split('T')[0],
-        rate: totalPossible > 0 ? Math.round((completedCount / totalPossible) * 100) : 0,
-        completed: completedCount,
-        total: totalPossible
+        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        completed: completedHabits,
+        completionRate: completionRate,
+        total: habits.length
       });
     }
     
     return data;
   };
 
-  const weeklyData = getWeeklyData();
+  const trendData = generateTrendData();
   
-  // If no habits, show a placeholder empty chart
-  if (habits.length === 0) {
-    return (
-      <div className="text-center pt-10 pb-20">
-        <p className="text-muted-foreground mb-6">No habits data available yet</p>
-        <div className="h-[250px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={weeklyData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="week" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Line type="monotone" dataKey="rate" stroke="#7E69AB" name="Completion Rate (%)" />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    );
-  }
+  // Calculate weekly averages
+  const getWeeklyData = () => {
+    const weeks = [];
+    for (let i = 0; i < 4; i++) {
+      const weekData = trendData.slice(i * 7, (i + 1) * 7);
+      const avgCompleted = weekData.reduce((sum, day) => sum + day.completed, 0) / 7;
+      const avgRate = weekData.reduce((sum, day) => sum + day.completionRate, 0) / 7;
+      
+      weeks.push({
+        week: `Week ${i + 1}`,
+        avgCompleted: Math.round(avgCompleted * 10) / 10,
+        avgRate: Math.round(avgRate)
+      });
+    }
+    return weeks;
+  };
+
+  const weeklyData = getWeeklyData();
 
   return (
     <div className="space-y-8">
-      <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={weeklyData}>
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="week" />
-            <YAxis yAxisId="left" />
-            <YAxis yAxisId="right" orientation="right" domain={[0, 100]} />
-            <Tooltip />
-            <Legend />
-            <Line
-              yAxisId="left"
-              type="monotone"
-              dataKey="completed"
-              stroke="#7E69AB"
-              activeDot={{ r: 8 }}
-              name="Completed Habits"
-            />
-            <Line 
-              yAxisId="left" 
-              type="monotone" 
-              dataKey="total" 
-              stroke="#6E59A5" 
-              name="Total Possible" 
-            />
-            <Line
-              yAxisId="right"
-              type="monotone"
-              dataKey="rate"
-              stroke="#FF6500"
-              name="Completion Rate (%)"
-            />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      
-      <div className="text-sm text-muted-foreground text-center">
-        <p>Weekly trends show your habit completion over the last 12 weeks</p>
-        <p>A higher completion rate indicates better consistency in maintaining your habits</p>
+      {/* Daily Completion Trends */}
+      <Card className="bg-slate-900/50 border-slate-700/30 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 shadow-lg">
+              <TrendingUp className="h-5 w-5 text-white" />
+            </div>
+            Daily Completion Trends (Last 30 Days)
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={trendData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="completedGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.05}/>
+                  </linearGradient>
+                  <linearGradient id="rateGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#FF6500" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#FF6500" stopOpacity={0.05}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                <XAxis 
+                  dataKey="date" 
+                  stroke="#9ca3af"
+                  fontSize={12}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="#9ca3af"
+                  fontSize={12}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    border: '1px solid rgba(71, 85, 105, 0.3)',
+                    borderRadius: '12px',
+                    color: '#ffffff',
+                    backdropFilter: 'blur(12px)'
+                  }}
+                  labelStyle={{ color: '#e2e8f0' }}
+                />
+                <Legend 
+                  wrapperStyle={{ color: '#e2e8f0' }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="completed"
+                  stroke="#10b981"
+                  strokeWidth={2}
+                  fill="url(#completedGradient)"
+                  name="Habits Completed"
+                />
+                <Area
+                  type="monotone"
+                  dataKey="completionRate"
+                  stroke="#FF6500"
+                  strokeWidth={2}
+                  fill="url(#rateGradient)"
+                  name="Completion Rate (%)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Weekly Performance Comparison */}
+      <Card className="bg-slate-900/50 border-slate-700/30 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 shadow-lg">
+              <TrendingUp className="h-5 w-5 text-white" />
+            </div>
+            Weekly Performance Comparison
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={weeklyData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.3} />
+                <XAxis 
+                  dataKey="week" 
+                  stroke="#9ca3af"
+                  fontSize={12}
+                  tickLine={false}
+                />
+                <YAxis 
+                  stroke="#9ca3af"
+                  fontSize={12}
+                  tickLine={false}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    border: '1px solid rgba(71, 85, 105, 0.3)',
+                    borderRadius: '12px',
+                    color: '#ffffff',
+                    backdropFilter: 'blur(12px)'
+                  }}
+                  labelStyle={{ color: '#e2e8f0' }}
+                />
+                <Legend 
+                  wrapperStyle={{ color: '#e2e8f0' }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="avgCompleted"
+                  stroke="#3b82f6"
+                  strokeWidth={3}
+                  dot={{ fill: '#3b82f6', strokeWidth: 2, r: 6 }}
+                  name="Avg Habits/Day"
+                />
+                <Line
+                  type="monotone"
+                  dataKey="avgRate"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  dot={{ fill: '#10b981', strokeWidth: 2, r: 6 }}
+                  name="Avg Completion %"
+                />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Performance Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {[
+          {
+            title: "Best Day",
+            value: Math.max(...trendData.map(d => d.completed)),
+            subtitle: "Habits completed",
+            gradient: "from-emerald-500 to-teal-600"
+          },
+          {
+            title: "Average Daily",
+            value: Math.round(trendData.reduce((sum, d) => sum + d.completed, 0) / trendData.length * 10) / 10,
+            subtitle: "Habits per day",
+            gradient: "from-blue-500 to-indigo-600"
+          },
+          {
+            title: "Consistency",
+            value: `${Math.round(trendData.reduce((sum, d) => sum + d.completionRate, 0) / trendData.length)}%`,
+            subtitle: "Average rate",
+            gradient: "from-primary to-orange-600"
+          }
+        ].map((metric, index) => (
+          <Card key={index} className="bg-slate-900/50 border-slate-700/30 backdrop-blur-sm">
+            <CardContent className="p-6 text-center">
+              <div className={`inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r ${metric.gradient} shadow-lg mb-4`}>
+                <TrendingUp className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="text-sm font-medium text-slate-400 mb-2">{metric.title}</h3>
+              <p className="text-2xl font-bold text-white">{metric.value}</p>
+              <p className="text-xs text-slate-500">{metric.subtitle}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
     </div>
   );
