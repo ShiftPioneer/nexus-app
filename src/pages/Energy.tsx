@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { Zap, BarChart2, Dumbbell } from "lucide-react";
+import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import { DashboardTab } from "@/components/energy/DashboardTab";
 import { WorkoutsTab } from "@/components/energy/WorkoutsTab";
 import { AnalyticsTab } from "@/components/energy/AnalyticsTab";
@@ -34,16 +35,12 @@ const Energy = () => {
   return (
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8">
-        {/* Unified Page Header */}
-        <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent flex items-center gap-4">
-            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 shadow-lg">
-              <Zap className="h-6 w-6 text-white" />
-            </div>
-            Energy Hub
-          </h1>
-          <p className="text-slate-400 mt-3 text-lg">Track your workouts, analyze progress, and achieve your fitness goals</p>
-        </div>
+        <UnifiedPageHeader
+          title="Energy Hub"
+          description="Track your workouts, analyze progress, and achieve your fitness goals"
+          icon={Zap}
+          gradient="from-red-500 via-orange-500 to-yellow-500"
+        />
         
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <ModernTabsList>

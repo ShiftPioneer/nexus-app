@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,8 @@ import { Plus, Award, BarChart2, Filter, Search, Trophy, Target, CheckCircle } f
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
+import { UnifiedActionButton } from "@/components/ui/unified-action-button";
 import HabitCreationDialog from "@/components/habits/HabitCreationDialog";
 import ModernHabitCard from "@/components/habits/ModernHabitCard";
 import HabitStreakCard from "@/components/habits/HabitStreakCard";
@@ -200,27 +201,23 @@ const Habits = () => {
   return (
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8 h-full">
-        {/* Unified Page Header */}
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent flex items-center gap-4">
-              <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r from-purple-500 via-pink-500 to-rose-500 shadow-lg">
-                <Trophy className="h-6 w-6 text-white" />
-              </div>
-              Habits
-            </h1>
-            <p className="text-slate-400 mt-3 text-lg">Track your consistency and build unstoppable momentum</p>
-          </div>
-          <Button 
+          <UnifiedPageHeader
+            title="Habits"
+            description="Track your consistency and build unstoppable momentum"
+            icon={Trophy}
+            gradient="from-purple-500 via-pink-500 to-rose-500"
+          />
+          <UnifiedActionButton
             onClick={() => {
               setSelectedHabit(null);
               setShowHabitDialog(true);
-            }} 
-            className="gap-2 bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-xl shadow-primary/25 border-none rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105"
+            }}
+            icon={Plus}
+            variant="primary"
           >
-            <Plus size={20} />
             New Habit
-          </Button>
+          </UnifiedActionButton>
         </div>
         
         {/* Enhanced Accountability Score */}

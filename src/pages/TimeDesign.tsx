@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
@@ -5,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, ChevronLeft, ChevronRight, Plus, Clock, BarChart3, Settings } from "lucide-react";
 import { format, addDays, addWeeks, startOfWeek, endOfWeek } from "date-fns";
+import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
+import { UnifiedActionButton } from "@/components/ui/unified-action-button";
 import TimeDesignCalendar from "@/components/timedesign/TimeDesignCalendar";
 import TimeDesignAnalytics from "@/components/timedesign/TimeDesignAnalytics";
 import TimeDesignActivities from "@/components/timedesign/TimeDesignActivities";
@@ -132,24 +135,21 @@ const TimeDesign = () => {
     <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="space-y-6 max-w-full overflow-hidden animate-fade-in">
-          {/* Unified Page Header and Button */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent flex items-center gap-4">
-                <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 shadow-lg">
-                  <Calendar className="h-6 w-6 text-white" />
-                </div>
-                Time Design
-              </h1>
-              <p className="text-slate-400 mt-3 text-lg">Plan your day and visualize how you spend your time effectively</p>
-            </div>
-            <Button 
-              onClick={handleAddActivity} 
-              className="w-full md:w-auto gap-2 bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-xl shadow-primary/25 border-none rounded-xl px-6 py-3 font-semibold transition-all duration-300 hover:scale-105"
+            <UnifiedPageHeader
+              title="Time Design"
+              description="Plan your day and visualize how you spend your time effectively"
+              icon={Calendar}
+              gradient="from-blue-500 via-indigo-500 to-purple-500"
+            />
+            <UnifiedActionButton
+              onClick={handleAddActivity}
+              icon={Plus}
+              variant="primary"
+              className="w-full md:w-auto"
             >
-              <Plus size={20} />
               New Activity
-            </Button>
+            </UnifiedActionButton>
           </div>
           
           <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">

@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from "react";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
+import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import FocusSessionHistory from "@/components/focus/FocusSessionHistory";
 import FocusInsights from "@/components/focus/FocusInsights";
 import FocusTechniques from "@/components/focus/FocusTechniques";
@@ -76,16 +76,12 @@ const FocusContent = () => {
 
   return (
     <div className="space-y-8 max-w-full animate-fade-in">
-      {/* Unified Page Header */}
-      <div>
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent flex items-center gap-4">
-          <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 shadow-lg">
-            <Brain className="h-6 w-6 text-white" />
-          </div>
-          Focus
-        </h1>
-        <p className="text-slate-400 mt-3 text-lg">Enhance your productivity with focused work sessions and proven techniques</p>
-      </div>
+      <UnifiedPageHeader
+        title="Focus"
+        description="Enhance your productivity with focused work sessions and proven techniques"
+        icon={Brain}
+        gradient="from-indigo-500 via-purple-500 to-pink-500"
+      />
 
       <SessionCompletionBanner isVisible={timerProgress === 100} onComplete={handleCompleteSession} />
 
