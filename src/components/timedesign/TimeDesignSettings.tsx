@@ -1,265 +1,385 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
-import { ExternalLink, Calendar, CheckCircle, Loader2 } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-const TimeDesignSettings: React.FC = () => {
-  const [googleCalendarConnected, setGoogleCalendarConnected] = useState(false);
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [weekStartsOn, setWeekStartsOn] = useState("Sunday");
-  const [timeFormat, setTimeFormat] = useState("12-hour (AM/PM)");
-  const [workingHoursStart, setWorkingHoursStart] = useState("9:00 AM");
-  const [workingHoursEnd, setWorkingHoursEnd] = useState("5:00 PM");
-  const {
-    toast
-  } = useToast();
-  const {
-    user
-  } = useAuth();
 
-  // Check if Google Calendar is already connected
-  useEffect(() => {
-    // In a real app, this would fetch from your database
-    const savedState = localStorage.getItem('googleCalendarConnected');
-    if (savedState) {
-      setGoogleCalendarConnected(savedState === 'true');
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { Settings, Clock, Calendar, Bell, Palette, Save } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+const TimeDesignSettings = () => {
+  const { toast } = useToast();
+  const [settings, setSettings] = useState({
+    workingHours: {
+      enabled: true,
+      start: "09:00",
+      end: "17:00"
+    },
+    notifications: {
+      enabled: true,
+      beforeActivity: 15,
+      dailyPlanning: true,
+      weeklyReview: true
+    },
+    calendar: {
+      defaultView: "week",
+      weekStartsOn: "monday",
+      showWeekends: true,
+      timeSlotDuration: 30
+    },
+    appearance: {
+      theme: "system",
+      colorScheme: "default",
+      showActivityColors: true,
+      compactMode: false
+    },
+    automation: {
+      autoSchedule: false,
+      smartSuggestions: true,
+      breakReminders: true,
+      focusMode: false
     }
-  }, []);
-  const handleGoogleCalendarConnect = async () => {
-    // In a real implementation, this would use OAuth 2.0 flow to connect to Google Calendar API
-    setIsConnecting(true);
-    try {
-      // Simulate connection process
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      const newConnectionState = !googleCalendarConnected;
-      setGoogleCalendarConnected(newConnectionState);
-      localStorage.setItem('googleCalendarConnected', String(newConnectionState));
-      if (newConnectionState) {
-        toast({
-          title: "Google Calendar Connected",
-          description: "Your Google Calendar has been successfully connected."
-        });
-      } else {
-        toast({
-          title: "Google Calendar Disconnected",
-          description: "Your Google Calendar has been disconnected.",
-          variant: "destructive"
-        });
+  });
+
+  const handleSettingChange = (category: string, key: string, value: any) => {
+    setSettings(prev => ({
+      ...prev,
+      [category]: {
+        ...prev[category as keyof typeof prev],
+        [key]: value
       }
-    } catch (error) {
-      toast({
-        title: "Connection Failed",
-        description: "Failed to connect to Google Calendar. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsConnecting(false);
-    }
+    }));
   };
-  return <Card className="bg-slate-950">
-      <CardHeader className="bg-slate-950 rounded-lg">
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-primary" />
-          Google Calendar Integration
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 bg-slate-950 rounded-lg">
-        <div className="flex items-center justify-between">
-          <div>
-            <Label htmlFor="google-calendar" className="font-medium text-orange-600">Connect your Google Calendar to sync activities</Label>
-            <p className="text-sm text-muted-foreground mt-1">
-              {googleCalendarConnected ? <span className="flex items-center gap-1 text-green-500">
-                  <CheckCircle className="h-4 w-4" /> Connected
-                </span> : "Not Connected"}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant={isConnecting ? "outline" : googleCalendarConnected ? "default" : "outline"} size="sm" onClick={handleGoogleCalendarConnect} disabled={isConnecting} className="min-w-[120px] flex items-center justify-center gap-2">
-              {isConnecting ? <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Connecting...
-                </> : googleCalendarConnected ? "Disconnect" : "Connect"}
-            </Button>
-            
-            {googleCalendarConnected && <Button variant="outline" size="sm" className="flex items-center gap-1" onClick={() => window.open("https://calendar.google.com", "_blank")}>
-                <ExternalLink className="h-3 w-3" />
-                Open Calendar
-              </Button>}
-          </div>
-        </div>
-        
-        {googleCalendarConnected && <div className="mt-4 p-4 rounded-md bg-slate-950">
-            <h4 className="font-medium mb-2">Synchronization Options</h4>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <div className="text-orange-600">
-                  <Label htmlFor="sync-two-way">Two-way Synchronization</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Changes in either calendar will sync to the other
-                  </p>
-                </div>
-                <Switch id="sync-two-way" defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="sync-notifications" className="text-orange-600">Sync Notifications</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Receive notifications for synced calendar events
-                  </p>
-                </div>
-                <Switch id="sync-notifications" defaultChecked />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="sync-availability" className="text-orange-600">Sync Availability Status</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Show your busy/free status from Google Calendar
-                  </p>
-                </div>
-                <Switch id="sync-availability" className="text-orange-400 bg-orange-500 hover:bg-orange-400" />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label htmlFor="auto-block" className="text-orange-600">Auto-block Focus Time</Label>
-                  <p className="text-xs text-muted-foreground">
-                    Automatically block focus time on your Google Calendar
-                  </p>
-                </div>
-                <Switch id="auto-block" />
-              </div>
+
+  const handleSaveSettings = () => {
+    localStorage.setItem('timeDesignSettings', JSON.stringify(settings));
+    toast({
+      title: "Settings Saved",
+      description: "Your Time Design preferences have been updated successfully.",
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Working Hours */}
+        <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Clock className="h-5 w-5 text-primary" />
+              Working Hours
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="working-hours" className="text-slate-200">Enable working hours</Label>
+              <Switch
+                id="working-hours"
+                checked={settings.workingHours.enabled}
+                onCheckedChange={(checked) => handleSettingChange('workingHours', 'enabled', checked)}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+              />
             </div>
             
-            <div className="mt-4 pt-4 border-t">
-              <h4 className="font-medium mb-2">Calendar Selection</h4>
-              <div className="space-y-3">
+            {settings.workingHours.enabled && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-slate-200">Start Time</Label>
+                  <Input
+                    type="time"
+                    value={settings.workingHours.start}
+                    onChange={(e) => handleSettingChange('workingHours', 'start', e.target.value)}
+                    className="bg-slate-800 border-slate-600 text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-slate-200">End Time</Label>
+                  <Input
+                    type="time"
+                    value={settings.workingHours.end}
+                    onChange={(e) => handleSettingChange('workingHours', 'end', e.target.value)}
+                    className="bg-slate-800 border-slate-600 text-white"
+                  />
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Notifications */}
+        <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Bell className="h-5 w-5 text-primary" />
+              Notifications
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label className="text-slate-200">Enable notifications</Label>
+              <Switch
+                checked={settings.notifications.enabled}
+                onCheckedChange={(checked) => handleSettingChange('notifications', 'enabled', checked)}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+              />
+            </div>
+            
+            {settings.notifications.enabled && (
+              <>
+                <div className="space-y-2">
+                  <Label className="text-slate-200">Remind before activity (minutes)</Label>
+                  <Select
+                    value={settings.notifications.beforeActivity.toString()}
+                    onValueChange={(value) => handleSettingChange('notifications', 'beforeActivity', parseInt(value))}
+                  >
+                    <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-slate-800 border-slate-600">
+                      <SelectItem value="5" className="text-white">5 minutes</SelectItem>
+                      <SelectItem value="10" className="text-white">10 minutes</SelectItem>
+                      <SelectItem value="15" className="text-white">15 minutes</SelectItem>
+                      <SelectItem value="30" className="text-white">30 minutes</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-orange-600">Primary Calendar</Label>
-                    <p className="text-xs text-muted-foreground">
-                      {user?.email || "Your primary calendar"}
-                    </p>
-                  </div>
-                  <Switch defaultChecked />
+                  <Label className="text-slate-200">Daily planning reminder</Label>
+                  <Switch
+                    checked={settings.notifications.dailyPlanning}
+                    onCheckedChange={(checked) => handleSettingChange('notifications', 'dailyPlanning', checked)}
+                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+                  />
                 </div>
+                
                 <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-orange-600">Work Calendar</Label>
-                    <p className="text-xs text-muted-foreground">Work events</p>
-                  </div>
-                  <Switch className="bg-orange-400 hover:bg-orange-300" />
+                  <Label className="text-slate-200">Weekly review reminder</Label>
+                  <Switch
+                    checked={settings.notifications.weeklyReview}
+                    onCheckedChange={(checked) => handleSettingChange('notifications', 'weeklyReview', checked)}
+                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+                  />
                 </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-orange-600">Personal Calendar</Label>
-                    <p className="text-xs text-muted-foreground">Personal events</p>
-                  </div>
-                  <Switch defaultChecked />
-                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Calendar Settings */}
+        <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Calendar className="h-5 w-5 text-primary" />
+              Calendar Preferences
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-slate-200">Default View</Label>
+              <Select
+                value={settings.calendar.defaultView}
+                onValueChange={(value) => handleSettingChange('calendar', 'defaultView', value)}
+              >
+                <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-600">
+                  <SelectItem value="day" className="text-white">Day View</SelectItem>
+                  <SelectItem value="week" className="text-white">Week View</SelectItem>
+                  <SelectItem value="month" className="text-white">Month View</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-slate-200">Week Starts On</Label>
+              <Select
+                value={settings.calendar.weekStartsOn}
+                onValueChange={(value) => handleSettingChange('calendar', 'weekStartsOn', value)}
+              >
+                <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-600">
+                  <SelectItem value="sunday" className="text-white">Sunday</SelectItem>
+                  <SelectItem value="monday" className="text-white">Monday</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <Label className="text-slate-200">Show weekends</Label>
+              <Switch
+                checked={settings.calendar.showWeekends}
+                onCheckedChange={(checked) => handleSettingChange('calendar', 'showWeekends', checked)}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-slate-200">Time Slot Duration</Label>
+              <Select
+                value={settings.calendar.timeSlotDuration.toString()}
+                onValueChange={(value) => handleSettingChange('calendar', 'timeSlotDuration', parseInt(value))}
+              >
+                <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-slate-800 border-slate-600">
+                  <SelectItem value="15" className="text-white">15 minutes</SelectItem>
+                  <SelectItem value="30" className="text-white">30 minutes</SelectItem>
+                  <SelectItem value="60" className="text-white">1 hour</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Automation & AI */}
+        <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Settings className="h-5 w-5 text-primary" />
+              Automation & AI
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-slate-200">Auto-schedule tasks</Label>
+                <p className="text-xs text-slate-400">Automatically find time slots for your tasks</p>
               </div>
+              <Switch
+                checked={settings.automation.autoSchedule}
+                onCheckedChange={(checked) => handleSettingChange('automation', 'autoSchedule', checked)}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+              />
             </div>
             
-            <div className="flex justify-end mt-4">
-              <Button variant="outline" size="sm" className="flex items-center gap-1">
-                <Calendar className="h-4 w-4" />
-                Sync Now
-              </Button>
-            </div>
-          </div>}
-        
-        <div className="pt-4 border-t">
-          <h3 className="font-medium mb-2">Calendar Settings</h3>
-          <div className="grid gap-4">
             <div className="flex items-center justify-between">
-              <Label htmlFor="week-starts" className="text-orange-600">Week Starts On</Label>
-              <Select value={weekStartsOn} onValueChange={setWeekStartsOn}>
-                <SelectTrigger className="w-auto min-w-[180px]">
+              <div className="space-y-1">
+                <Label className="text-slate-200">Smart suggestions</Label>
+                <p className="text-xs text-slate-400">Get AI-powered scheduling recommendations</p>
+              </div>
+              <Switch
+                checked={settings.automation.smartSuggestions}
+                onCheckedChange={(checked) => handleSettingChange('automation', 'smartSuggestions', checked)}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-slate-200">Break reminders</Label>
+                <p className="text-xs text-slate-400">Remind me to take regular breaks</p>
+              </div>
+              <Switch
+                checked={settings.automation.breakReminders}
+                onCheckedChange={(checked) => handleSettingChange('automation', 'breakReminders', checked)}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <Label className="text-slate-200">Focus mode</Label>
+                <p className="text-xs text-slate-400">Block distracting websites during work</p>
+              </div>
+              <Switch
+                checked={settings.automation.focusMode}
+                onCheckedChange={(checked) => handleSettingChange('automation', 'focusMode', checked)}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+              />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Appearance Settings */}
+      <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-white">
+            <Palette className="h-5 w-5 text-primary" />
+            Appearance
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label className="text-slate-200">Theme</Label>
+              <Select
+                value={settings.appearance.theme}
+                onValueChange={(value) => handleSettingChange('appearance', 'theme', value)}
+              >
+                <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Sunday">Sunday</SelectItem>
-                  <SelectItem value="Monday">Monday</SelectItem>
+                <SelectContent className="bg-slate-800 border-slate-600">
+                  <SelectItem value="light" className="text-white">Light</SelectItem>
+                  <SelectItem value="dark" className="text-white">Dark</SelectItem>
+                  <SelectItem value="system" className="text-white">System</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             
-            <div className="flex items-center justify-between">
-              <Label htmlFor="time-format" className="text-orange-600">Time Format</Label>
-              <Select value={timeFormat} onValueChange={setTimeFormat}>
-                <SelectTrigger className="w-auto min-w-[180px]">
+            <div className="space-y-2">
+              <Label className="text-slate-200">Color Scheme</Label>
+              <Select
+                value={settings.appearance.colorScheme}
+                onValueChange={(value) => handleSettingChange('appearance', 'colorScheme', value)}
+              >
+                <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="12-hour (AM/PM)">12-hour (AM/PM)</SelectItem>
-                  <SelectItem value="24-hour">24-hour</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <Label htmlFor="working-hours-start" className="text-orange-600">Working Hours Start</Label>
-              <Select value={workingHoursStart} onValueChange={setWorkingHoursStart}>
-                <SelectTrigger className="w-auto min-w-[180px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="6:00 AM">6:00 AM</SelectItem>
-                  <SelectItem value="7:00 AM">7:00 AM</SelectItem>
-                  <SelectItem value="8:00 AM">8:00 AM</SelectItem>
-                  <SelectItem value="9:00 AM">9:00 AM</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <Label htmlFor="working-hours-end" className="text-orange-600">Working Hours End</Label>
-              <Select value={workingHoursEnd} onValueChange={setWorkingHoursEnd}>
-                <SelectTrigger className="w-auto min-w-[180px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="5:00 PM">5:00 PM</SelectItem>
-                  <SelectItem value="6:00 PM">6:00 PM</SelectItem>
-                  <SelectItem value="7:00 PM">7:00 PM</SelectItem>
-                  <SelectItem value="8:00 PM">8:00 PM</SelectItem>
+                <SelectContent className="bg-slate-800 border-slate-600">
+                  <SelectItem value="default" className="text-white">Default</SelectItem>
+                  <SelectItem value="blue" className="text-white">Blue</SelectItem>
+                  <SelectItem value="green" className="text-white">Green</SelectItem>
+                  <SelectItem value="purple" className="text-white">Purple</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
-        </div>
-        
-        <div className="pt-4 border-t">
-          <h3 className="font-medium mb-2">Notifications</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="email-notifications" className="bg-secondary-DEFAULT text-orange-600">Email Notifications</Label>
-                <p className="text-sm text-muted-foreground">
-                  Receive email reminders for upcoming activities
-                </p>
-              </div>
-              <Switch id="email-notifications" />
-            </div>
-            
-            <div className="flex items-center justify-between">
-              <div>
-                <Label htmlFor="browser-notifications" className="text-orange-600">Browser Notifications</Label>
-                <p className="text-sm text-muted-foreground">
-                  Get browser alerts before activities start
-                </p>
-              </div>
-              <Switch id="browser-notifications" />
-            </div>
+          
+          <div className="flex items-center justify-between">
+            <Label className="text-slate-200">Show activity colors</Label>
+            <Switch
+              checked={settings.appearance.showActivityColors}
+              onCheckedChange={(checked) => handleSettingChange('appearance', 'showActivityColors', checked)}
+              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+            />
           </div>
-        </div>
-        
-        <div className="flex justify-end pt-4">
-          <Button className="bg-primary-DEFAULT">Save Settings</Button>
-        </div>
-      </CardContent>
-    </Card>;
+          
+          <div className="flex items-center justify-between">
+            <Label className="text-slate-200">Compact mode</Label>
+            <Switch
+              checked={settings.appearance.compactMode}
+              onCheckedChange={(checked) => handleSettingChange('appearance', 'compactMode', checked)}
+              className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+            />
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Save Button */}
+      <div className="flex justify-end">
+        <Button
+          onClick={handleSaveSettings}
+          className="bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-xl shadow-primary/25"
+        >
+          <Save className="h-4 w-4 mr-2" />
+          Save Settings
+        </Button>
+      </div>
+    </div>
+  );
 };
+
 export default TimeDesignSettings;
