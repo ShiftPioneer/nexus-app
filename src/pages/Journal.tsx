@@ -13,9 +13,19 @@ const Journal = () => {
   const [activeTab, setActiveTab] = useState("write");
 
   // Placeholder data and handlers
-  const [entries] = useState([]);
+  const [entries] = useState<JournalEntry[]>([]);
 
-  const handleSave = (entry: any) => {
+  // Create a default initial entry for the editor
+  const initialEntry: JournalEntry = {
+    id: '',
+    title: '',
+    content: '',
+    date: new Date(),
+    tags: [],
+    mood: 'neutral'
+  };
+
+  const handleSave = (entry: JournalEntry) => {
     console.log('Save entry:', entry);
   };
 
@@ -23,12 +33,16 @@ const Journal = () => {
     console.log('Cancel editing');
   };
 
-  const handleEditEntry = (id: string) => {
-    console.log('Edit entry:', id);
+  const handleEditEntry = (entry: JournalEntry) => {
+    console.log('Edit entry:', entry);
   };
 
   const handleDeleteEntry = (id: string) => {
     console.log('Delete entry:', id);
+  };
+
+  const handleViewEntry = (entry: JournalEntry) => {
+    console.log('View entry:', entry);
   };
 
   const handleTabChange = (tab: string) => {
@@ -88,6 +102,7 @@ const Journal = () => {
           
           <ModernTabsContent value="write">
             <JournalEditor 
+              initialEntry={initialEntry}
               onSave={handleSave}
               onCancel={handleCancel}
             />
@@ -100,7 +115,7 @@ const Journal = () => {
               onTabChange={handleTabChange}
               onEditEntry={handleEditEntry}
               onDeleteEntry={handleDeleteEntry}
-              onViewEntry={handleEditEntry}
+              onViewEntry={handleViewEntry}
             />
           </ModernTabsContent>
           

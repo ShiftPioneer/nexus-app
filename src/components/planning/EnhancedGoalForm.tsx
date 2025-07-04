@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -103,8 +104,13 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
       endDate,
       milestones,
       status: initialGoal?.status || "not-started",
+      priority: initialGoal?.priority || "medium",
+      tags: initialGoal?.tags || [],
+      motivationalQuotes: initialGoal?.motivationalQuotes || [],
+      reflectionAnswers: initialGoal?.reflectionAnswers || {},
       timeframeAnswers,
-      createdAt: initialGoal?.createdAt || new Date()
+      createdAt: initialGoal?.createdAt || new Date(),
+      updatedAt: new Date()
     };
 
     onGoalCreate(goalData);
