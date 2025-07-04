@@ -41,8 +41,8 @@ const Journal = () => {
     console.log('Delete entry:', id);
   };
 
-  const handleViewEntry = (entry: JournalEntry) => {
-    console.log('View entry:', entry);
+  const handleNewEntry = () => {
+    console.log('New entry');
   };
 
   const handleTabChange = (tab: string) => {
@@ -115,7 +115,7 @@ const Journal = () => {
               onTabChange={handleTabChange}
               onEditEntry={handleEditEntry}
               onDeleteEntry={handleDeleteEntry}
-              onViewEntry={handleViewEntry}
+              onNewEntry={handleNewEntry}
             />
           </ModernTabsContent>
           
