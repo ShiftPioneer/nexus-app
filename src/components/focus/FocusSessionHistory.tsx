@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, XCircle, Award, Trash2, Filter } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";

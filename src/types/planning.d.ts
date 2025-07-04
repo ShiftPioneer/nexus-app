@@ -10,6 +10,10 @@ interface Goal {
   endDate: Date;
   milestones: Milestone[];
   status: "not-started" | "in-progress" | "completed";
+  priority: "low" | "medium" | "high";
+  tags: string[];
+  motivationalQuotes: string[];
+  reflectionAnswers: Record<string, string>;
   blockingGoals?: string[];
   blockedByGoals?: string[];
   timeframeAnswers?: {
@@ -17,6 +21,7 @@ interface Goal {
     answer: string;
   }[];
   createdAt: Date;
+  updatedAt?: Date;
 }
 
 interface Project {

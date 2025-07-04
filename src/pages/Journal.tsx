@@ -12,6 +12,29 @@ import JournalPrompts from "@/components/journal/JournalPrompts";
 const Journal = () => {
   const [activeTab, setActiveTab] = useState("write");
 
+  // Placeholder data and handlers
+  const [entries] = useState([]);
+
+  const handleSave = (entry: any) => {
+    console.log('Save entry:', entry);
+  };
+
+  const handleCancel = () => {
+    console.log('Cancel editing');
+  };
+
+  const handleEditEntry = (id: string) => {
+    console.log('Edit entry:', id);
+  };
+
+  const handleDeleteEntry = (id: string) => {
+    console.log('Delete entry:', id);
+  };
+
+  const handleTabChange = (tab: string) => {
+    console.log('Tab change:', tab);
+  };
+
   const tabItems = [
     { 
       value: "write", 
@@ -64,15 +87,25 @@ const Journal = () => {
           </ModernTabsList>
           
           <ModernTabsContent value="write">
-            <JournalEditor />
+            <JournalEditor 
+              onSave={handleSave}
+              onCancel={handleCancel}
+            />
           </ModernTabsContent>
           
           <ModernTabsContent value="entries">
-            <JournalEntriesList />
+            <JournalEntriesList 
+              entries={entries}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              onEditEntry={handleEditEntry}
+              onDeleteEntry={handleDeleteEntry}
+              onViewEntry={handleEditEntry}
+            />
           </ModernTabsContent>
           
           <ModernTabsContent value="insights">
-            <JournalStats />
+            <JournalStats entries={entries} />
           </ModernTabsContent>
           
           <ModernTabsContent value="prompts">

@@ -12,6 +12,23 @@ import TimeDesignSettings from "@/components/timedesign/TimeDesignSettings";
 const TimeDesign = () => {
   const [activeTab, setActiveTab] = useState("calendar");
 
+  // Placeholder data and handlers
+  const [activities] = useState([]);
+  const [currentDate] = useState(new Date());
+  const [viewType] = useState<"day" | "week">("week");
+
+  const handleEditActivity = (activity: any) => {
+    console.log('Edit activity:', activity);
+  };
+
+  const handleCreateActivity = (data: any) => {
+    console.log('Create activity:', data);
+  };
+
+  const handleDeleteActivity = (id: string) => {
+    console.log('Delete activity:', id);
+  };
+
   const tabItems = [
     { 
       value: "calendar", 
@@ -64,15 +81,25 @@ const TimeDesign = () => {
           </ModernTabsList>
           
           <ModernTabsContent value="calendar">
-            <TimeDesignCalendar />
+            <TimeDesignCalendar 
+              currentDate={currentDate}
+              viewType={viewType}
+              activities={activities}
+              onEditActivity={handleEditActivity}
+              onCreateActivity={handleCreateActivity}
+            />
           </ModernTabsContent>
           
           <ModernTabsContent value="activities">
-            <TimeDesignActivities />
+            <TimeDesignActivities 
+              activities={activities}
+              onEditActivity={handleEditActivity}
+              onDeleteActivity={handleDeleteActivity}
+            />
           </ModernTabsContent>
           
           <ModernTabsContent value="analytics">
-            <TimeDesignAnalytics />
+            <TimeDesignAnalytics activities={activities} />
           </ModernTabsContent>
           
           <ModernTabsContent value="settings">

@@ -13,6 +13,30 @@ const Actions = () => {
   const [activeTab, setActiveTab] = useState("todo");
   const [showDeletedTasks, setShowDeletedTasks] = useState(false);
 
+  // Placeholder data and handlers
+  const [tasks] = useState([]);
+  const [deletedTasks] = useState([]);
+
+  const handleTaskUpdate = (id: string, updates: any) => {
+    // Placeholder implementation
+    console.log('Task update:', id, updates);
+  };
+
+  const handleTaskClick = (id: string) => {
+    // Placeholder implementation
+    console.log('Task clicked:', id);
+  };
+
+  const handleRestoreTask = (id: string) => {
+    // Placeholder implementation
+    console.log('Restore task:', id);
+  };
+
+  const handlePermanentlyDeleteTask = (id: string) => {
+    // Placeholder implementation
+    console.log('Permanently delete task:', id);
+  };
+
   const tabItems = [
     { 
       value: "todo", 
@@ -59,11 +83,15 @@ const Actions = () => {
           </ModernTabsList>
           
           <ModernTabsContent value="todo">
-            <TasksTabView onShowDeletedTasks={() => setShowDeletedTasks(true)} />
+            <TasksTabView />
           </ModernTabsContent>
           
           <ModernTabsContent value="not-todo">
-            <NotToDoMatrix />
+            <NotToDoMatrix 
+              tasks={tasks}
+              onTaskUpdate={handleTaskUpdate}
+              onTaskClick={handleTaskClick}
+            />
           </ModernTabsContent>
           
           <ModernTabsContent value="matrix">
@@ -73,7 +101,10 @@ const Actions = () => {
 
         <DeletedTasksDialog 
           open={showDeletedTasks} 
-          onOpenChange={setShowDeletedTasks} 
+          onOpenChange={setShowDeletedTasks}
+          deletedTasks={deletedTasks}
+          onRestoreTask={handleRestoreTask}
+          onPermanentlyDeleteTask={handlePermanentlyDeleteTask}
         />
       </div>
     </ModernAppLayout>

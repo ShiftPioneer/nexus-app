@@ -23,21 +23,21 @@ interface GoalCreationDialogProps {
 }
 
 const categories = [
-  { value: 'wealth', label: 'Wealth & Finance', icon: '💰' },
-  { value: 'health', label: 'Health & Fitness', icon: '🏃' },
-  { value: 'relationships', label: 'Relationships', icon: '❤️' },
-  { value: 'spirituality', label: 'Spirituality', icon: '🧘' },
-  { value: 'education', label: 'Education & Learning', icon: '📚' },
-  { value: 'career', label: 'Career & Business', icon: '💼' }
+  { value: 'wealth' as const, label: 'Wealth & Finance', icon: '💰' },
+  { value: 'health' as const, label: 'Health & Fitness', icon: '🏃' },
+  { value: 'relationships' as const, label: 'Relationships', icon: '❤️' },
+  { value: 'spirituality' as const, label: 'Spirituality', icon: '🧘' },
+  { value: 'education' as const, label: 'Education & Learning', icon: '📚' },
+  { value: 'career' as const, label: 'Career & Business', icon: '💼' }
 ];
 
 const timeframes = [
-  { value: 'week', label: 'Weekly Goal', duration: '1 week' },
-  { value: 'month', label: 'Monthly Goal', duration: '1 month' },
-  { value: 'quarter', label: 'Quarterly Goal', duration: '3 months' },
-  { value: 'year', label: 'Annual Goal', duration: '1 year' },
-  { value: 'decade', label: 'Decade Goal', duration: '10 years' },
-  { value: 'lifetime', label: 'Lifetime Goal', duration: 'Lifetime' }
+  { value: 'week' as const, label: 'Weekly Goal', duration: '1 week' },
+  { value: 'month' as const, label: 'Monthly Goal', duration: '1 month' },
+  { value: 'quarter' as const, label: 'Quarterly Goal', duration: '3 months' },
+  { value: 'year' as const, label: 'Annual Goal', duration: '1 year' },
+  { value: 'decade' as const, label: 'Decade Goal', duration: '10 years' },
+  { value: 'lifetime' as const, label: 'Lifetime Goal', duration: 'Lifetime' }
 ];
 
 const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
@@ -50,14 +50,14 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category: '',
-    timeframe: '',
+    category: '' as Goal['category'] | '',
+    timeframe: '' as Goal['timeframe'] | '',
     startDate: new Date(),
     endDate: new Date(),
-    priority: 'medium' as 'low' | 'medium' | 'high',
-    status: 'not-started' as 'not-started' | 'in-progress' | 'completed',
+    priority: 'medium' as Goal['priority'],
+    status: 'not-started' as Goal['status'],
     progress: 0,
-    milestones: [] as Array<{ id: string; title: string; completed: boolean; dueDate?: Date }>,
+    milestones: [] as Array<{ id: string; title: string; completed: boolean; dueDate: Date }>,
     tags: [] as string[],
     motivationalQuotes: [] as string[],
     reflectionAnswers: {} as Record<string, string>
@@ -74,12 +74,12 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
         description: initialGoal.description || '',
         category: initialGoal.category,
         timeframe: initialGoal.timeframe,
-        startDate: new Date(initialGoal.startDate),
-        endDate: new Date(initialGoal.endDate),
+        startDate: initialGoal.startDate,
+        endDate: initialGoal.endDate,
         priority: initialGoal.priority,
         status: initialGoal.status,
         progress: initialGoal.progress,
-        milestones: initialGoal.milestones || [],
+        milestones: initialGoal.milestones.map(m => ({ ...m, dueDate: m.dueDate })),
         tags: initialGoal.tags || [],
         motivationalQuotes: initialGoal.motivationalQuotes || [],
         reflectionAnswers: initialGoal.reflectionAnswers || {}
@@ -103,7 +103,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
     }
   }, [initialGoal, open]);
 
-  const handleTimeframeChange = (timeframe: string) => {
+  const handleTimeframeChange = (timeframe: Goal['timeframe']) => {
     setFormData(prev => ({ ...prev, timeframe }));
     setShowTimeframeQuestions(true);
   };
@@ -117,7 +117,8 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
       const milestone = {
         id: `milestone-${Date.now()}`,
         title: newMilestone.trim(),
-        completed: false
+        completed: false,
+        dueDate: new Date()
       };
       setFormData(prev => ({
         ...prev,
@@ -154,14 +155,19 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   const handleSubmit = () => {
     if (!formData.title || !formData.category || !formData.timeframe) return;
 
+    const timeframeAnswers = Object.entries(formData.reflectionAnswers).map(([key, answer], index) => ({
+      questionIndex: index,
+      answer
+    }));
+
     const goal: Goal = {
       id: initialGoal?.id || `goal-${Date.now()}`,
       title: formData.title,
       description: formData.description,
-      category: formData.category,
-      timeframe: formData.timeframe,
-      startDate: formData.startDate.toISOString(),
-      endDate: formData.endDate.toISOString(),
+      category: formData.category as Goal['category'],
+      timeframe: formData.timeframe as Goal['timeframe'],
+      startDate: formData.startDate,
+      endDate: formData.endDate,
       priority: formData.priority,
       status: formData.status,
       progress: formData.progress,
@@ -169,8 +175,9 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
       tags: formData.tags,
       motivationalQuotes: formData.motivationalQuotes,
       reflectionAnswers: formData.reflectionAnswers,
-      createdAt: initialGoal?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      timeframeAnswers,
+      createdAt: initialGoal?.createdAt || new Date(),
+      updatedAt: new Date()
     };
 
     onGoalCreate(goal);
@@ -204,7 +211,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="category" className="text-white">Category *</Label>
-              <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+              <Select value={formData.category} onValueChange={(value: Goal['category']) => setFormData(prev => ({ ...prev, category: value }))}>
                 <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -323,7 +330,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <Label className="text-white">Priority</Label>
-              <Select value={formData.priority} onValueChange={(value: 'low' | 'medium' | 'high') => setFormData(prev => ({ ...prev, priority: value }))}>
+              <Select value={formData.priority} onValueChange={(value: Goal['priority']) => setFormData(prev => ({ ...prev, priority: value }))}>
                 <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                   <SelectValue />
                 </SelectTrigger>
@@ -337,7 +344,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
 
             <div className="space-y-2">
               <Label className="text-white">Status</Label>
-              <Select value={formData.status} onValueChange={(value: 'not-started' | 'in-progress' | 'completed') => setFormData(prev => ({ ...prev, status: value }))}>
+              <Select value={formData.status} onValueChange={(value: Goal['status']) => setFormData(prev => ({ ...prev, status: value }))}>
                 <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
                   <SelectValue />
                 </SelectTrigger>
