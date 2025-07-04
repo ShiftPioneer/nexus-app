@@ -43,6 +43,7 @@ const Journal = () => {
 
   const handleNewEntry = () => {
     console.log('New entry');
+    setActiveTab("write");
   };
 
   const handleTabChange = (tab: string) => {
@@ -87,44 +88,53 @@ const Journal = () => {
         />
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList>
+          <ModernTabsList className="grid w-full grid-cols-4">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
                 value={tab.value}
                 gradient={tab.gradient}
                 icon={tab.icon}
+                className="flex-1"
               >
                 {tab.label}
               </ModernTabsTrigger>
             ))}
           </ModernTabsList>
           
-          <ModernTabsContent value="write">
-            <JournalEditor 
-              initialEntry={initialEntry}
-              onSave={handleSave}
-              onCancel={handleCancel}
-            />
+          <ModernTabsContent value="write" className="mt-8">
+            <div className="max-w-4xl mx-auto">
+              <JournalEditor 
+                initialEntry={initialEntry}
+                onSave={handleSave}
+                onCancel={handleCancel}
+              />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="entries">
-            <JournalEntriesList 
-              entries={entries}
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              onEditEntry={handleEditEntry}
-              onDeleteEntry={handleDeleteEntry}
-              onNewEntry={handleNewEntry}
-            />
+          <ModernTabsContent value="entries" className="mt-8">
+            <div className="max-w-6xl mx-auto">
+              <JournalEntriesList 
+                entries={entries}
+                activeTab={activeTab}
+                onTabChange={handleTabChange}
+                onEditEntry={handleEditEntry}
+                onDeleteEntry={handleDeleteEntry}
+                onNewEntry={handleNewEntry}
+              />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="insights">
-            <JournalStats entries={entries} />
+          <ModernTabsContent value="insights" className="mt-8">
+            <div className="max-w-6xl mx-auto">
+              <JournalStats entries={entries} />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="prompts">
-            <JournalPrompts />
+          <ModernTabsContent value="prompts" className="mt-8">
+            <div className="max-w-4xl mx-auto">
+              <JournalPrompts />
+            </div>
           </ModernTabsContent>
         </ModernTabs>
       </div>

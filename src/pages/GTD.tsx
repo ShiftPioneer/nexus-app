@@ -59,37 +59,48 @@ const GTD = () => {
           />
 
           <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <ModernTabsList>
+            <ModernTabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto">
               {tabItems.map((tab) => (
                 <ModernTabsTrigger 
                   key={tab.value}
                   value={tab.value}
                   gradient={tab.gradient}
                   icon={tab.icon}
+                  className="flex-1"
                 >
                   {tab.label}
                 </ModernTabsTrigger>
               ))}
             </ModernTabsList>
             
-            <ModernTabsContent value="capture">
-              <CaptureView />
+            <ModernTabsContent value="capture" className="mt-8">
+              <div className="max-w-4xl mx-auto">
+                <CaptureView />
+              </div>
             </ModernTabsContent>
             
-            <ModernTabsContent value="clarify">
-              <ClarifyView />
+            <ModernTabsContent value="clarify" className="mt-8">
+              <div className="max-w-6xl mx-auto">
+                <ClarifyView />
+              </div>
             </ModernTabsContent>
             
-            <ModernTabsContent value="organize">
-              <OrganizeView />
+            <ModernTabsContent value="organize" className="mt-8">
+              <div className="max-w-6xl mx-auto">
+                <OrganizeView />
+              </div>
             </ModernTabsContent>
             
-            <ModernTabsContent value="engage">
-              <EngageView />
+            <ModernTabsContent value="engage" className="mt-8">
+              <div className="max-w-6xl mx-auto">
+                <EngageView />
+              </div>
             </ModernTabsContent>
             
-            <ModernTabsContent value="reflect">
-              <ReflectView />
+            <ModernTabsContent value="reflect" className="mt-8">
+              <div className="max-w-4xl mx-auto">
+                <ReflectView />
+              </div>
             </ModernTabsContent>
           </ModernTabs>
         </div>

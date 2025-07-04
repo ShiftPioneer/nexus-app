@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
+import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import { SkillsetTab } from "@/components/knowledge/SkillsetTab";
 import { ResourcesTab } from "@/components/knowledge/ResourcesTab";
 import BookshelfTab from "@/components/knowledge/BookshelfTab";
@@ -34,40 +35,44 @@ const Knowledge = () => {
   return (
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8 max-w-full overflow-hidden">
-        <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent flex items-center gap-4">
-            <div className="flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-500 shadow-lg">
-              <Lightbulb className="h-6 w-6 text-white" />
-            </div>
-            Knowledge Hub
-          </h1>
-          <p className="text-slate-400 mt-3 text-lg">Track your learning progress and manage your educational resources</p>
-        </div>
+        <UnifiedPageHeader
+          title="Knowledge Hub"
+          description="Track your learning progress and manage your educational resources"
+          icon={Lightbulb}
+          gradient="from-teal-500 via-cyan-500 to-blue-500"
+        />
         
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList>
+          <ModernTabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
                 value={tab.value}
                 gradient={tab.gradient}
                 icon={tab.icon}
+                className="flex-1"
               >
                 {tab.label}
               </ModernTabsTrigger>
             ))}
           </ModernTabsList>
           
-          <ModernTabsContent value="skillsets">
-            <SkillsetTab />
+          <ModernTabsContent value="skillsets" className="mt-8">
+            <div className="max-w-6xl mx-auto">
+              <SkillsetTab />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="resources">
-            <ResourcesTab />
+          <ModernTabsContent value="resources" className="mt-8">
+            <div className="max-w-6xl mx-auto">
+              <ResourcesTab />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="bookshelf">
-            <BookshelfTab />
+          <ModernTabsContent value="bookshelf" className="mt-8">
+            <div className="max-w-6xl mx-auto">
+              <BookshelfTab />
+            </div>
           </ModernTabsContent>
         </ModernTabs>
       </div>

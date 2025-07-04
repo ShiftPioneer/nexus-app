@@ -57,37 +57,48 @@ const Mindset = () => {
         />
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList>
+          <ModernTabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
                 value={tab.value}
                 gradient={tab.gradient}
                 icon={tab.icon}
+                className="flex-1"
               >
                 {tab.label}
               </ModernTabsTrigger>
             ))}
           </ModernTabsList>
           
-          <ModernTabsContent value="vision">
-            <VisionBoardSection />
+          <ModernTabsContent value="vision" className="mt-8">
+            <div className="max-w-6xl mx-auto">
+              <VisionBoardSection />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="mission">
-            <MissionSection />
+          <ModernTabsContent value="mission" className="mt-8">
+            <div className="max-w-4xl mx-auto">
+              <MissionSection />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="values">
-            <CoreValuesSection />
+          <ModernTabsContent value="values" className="mt-8">
+            <div className="max-w-4xl mx-auto">
+              <CoreValuesSection />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="beliefs">
-            <KeyBeliefsSection />
+          <ModernTabsContent value="beliefs" className="mt-8">
+            <div className="max-w-4xl mx-auto">
+              <KeyBeliefsSection />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="affirmations">
-            <AffirmationsSection />
+          <ModernTabsContent value="affirmations" className="mt-8">
+            <div className="max-w-4xl mx-auto">
+              <AffirmationsSection />
+            </div>
           </ModernTabsContent>
         </ModernTabs>
       </div>
