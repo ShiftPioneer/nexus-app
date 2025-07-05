@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
@@ -146,44 +147,51 @@ const Planning = () => {
         </div>
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList>
+          <ModernTabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
                 value={tab.value}
                 gradient={tab.gradient}
                 icon={tab.icon}
+                className="flex-1"
               >
                 {tab.label}
               </ModernTabsTrigger>
             ))}
           </ModernTabsList>
           
-          <ModernTabsContent value="goals">
-            <GoalsList 
-              onCreateGoal={handleCreateGoal}
-              onEditGoal={handleEditGoal}
-              onDeleteGoal={handleDeleteGoal}
-            />
+          <ModernTabsContent value="goals" className="mt-8">
+            <div className="max-w-6xl mx-auto">
+              <GoalsList 
+                onCreateGoal={handleCreateGoal}
+                onEditGoal={handleEditGoal}
+                onDeleteGoal={handleDeleteGoal}
+              />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="board">
-            <PlanningBoardView 
-              goals={goals}
-              projects={projects}
-              contentType={activeTab === 'goals' ? 'goals' : 'projects'}
-              onEditItem={handleEditItem}
-            />
+          <ModernTabsContent value="board" className="mt-8">
+            <div className="max-w-7xl mx-auto">
+              <PlanningBoardView 
+                goals={goals}
+                projects={projects}
+                contentType={activeTab === 'goals' ? 'goals' : 'projects'}
+                onEditItem={handleEditItem}
+              />
+            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="list">
-            <PlanningListView 
-              goals={goals}
-              projects={projects}
-              contentType={activeTab === 'goals' ? 'goals' : 'projects'}
-              onEditItem={handleEditItem}
-              onUpdateProgress={handleUpdateProgress}
-            />
+          <ModernTabsContent value="list" className="mt-8">
+            <div className="max-w-6xl mx-auto">
+              <PlanningListView 
+                goals={goals}
+                projects={projects}
+                contentType={activeTab === 'goals' ? 'goals' : 'projects'}
+                onEditItem={handleEditItem}
+                onUpdateProgress={handleUpdateProgress}
+              />
+            </div>
           </ModernTabsContent>
         </ModernTabs>
 

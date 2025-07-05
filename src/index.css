@@ -291,6 +291,28 @@
   border: 1px solid rgb(255 101 0 / 0.3);
 }
 
+/* Ensure consistent background colors */
+.bg-background {
+  background-color: rgb(2 6 23) !important;
+}
+
+.bg-card {
+  background-color: rgb(2 6 23) !important;
+}
+
+.bg-slate-900 {
+  background-color: rgb(15 23 42) !important;
+}
+
+.bg-slate-950 {
+  background-color: rgb(2 6 23) !important;
+}
+
+/* Tab content consistency */
+[data-state="active"] {
+  background-color: transparent !important;
+}
+
 /* Responsive utilities */
 @media (max-width: 768px) {
   .container {

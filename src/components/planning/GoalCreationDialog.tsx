@@ -156,9 +156,9 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
     if (!formData.title || !formData.category || !formData.timeframe) return;
 
     // Convert reflection answers to the correct array format for timeframeAnswers
-    const timeframeAnswers: { questionIndex: number; answer: string; }[] = Object.entries(formData.reflectionAnswers).map(([question, answer], index) => ({
+    const timeframeAnswers = Object.entries(formData.reflectionAnswers || {}).map(([_, answer], index) => ({
       questionIndex: index,
-      answer
+      answer: answer || ''
     }));
 
     const goal: Goal = {

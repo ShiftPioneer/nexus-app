@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
-import { Inbox, Search, Folder, CheckCircle, Eye, RotateCcw } from "lucide-react";
+import { Inbox, Search, Folder, CheckCircle, RotateCcw } from "lucide-react";
 import CaptureView from "@/components/gtd/views/CaptureView";
 import ClarifyView from "@/components/gtd/views/ClarifyView";
 import OrganizeView from "@/components/gtd/views/OrganizeView";

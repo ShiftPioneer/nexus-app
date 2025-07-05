@@ -11,8 +11,8 @@ interface TimeframeQuestion {
 
 interface TimeframeQuestionsProps {
   timeframe: string;
-  answers: { questionIndex: number; answer: string }[];
-  onAnswerChange: (questionIndex: number, answer: string) => void;
+  answers: Record<string, string>;
+  onAnswersChange: (answers: Record<string, string>) => void;
 }
 
 const timeframeQuestions: Record<string, TimeframeQuestion[]> = {
@@ -173,11 +173,16 @@ const timeframeQuestions: Record<string, TimeframeQuestion[]> = {
 const TimeframeQuestions: React.FC<TimeframeQuestionsProps> = ({ 
   timeframe, 
   answers, 
-  onAnswerChange 
+  onAnswersChange 
 }) => {
   const questions = timeframeQuestions[timeframe] || [];
   
   if (questions.length === 0) return null;
+
+  const handleAnswerChange = (questionId: string, answer: string) => {
+    const updatedAnswers = { ...answers, [questionId]: answer };
+    onAnswersChange(updatedAnswers);
+  };
 
   const getTimeframeTitle = (timeframe: string) => {
     switch (timeframe) {
@@ -216,8 +221,8 @@ const TimeframeQuestions: React.FC<TimeframeQuestionsProps> = ({
       </div>
       
       <div className="space-y-6">
-        {questions.map((question, index) => {
-          const currentAnswer = answers.find(a => a.questionIndex === index)?.answer || '';
+        {questions.map((question) => {
+          const currentAnswer = answers[question.id] || '';
           
           return (
             <div key={question.id} className="space-y-3">
@@ -226,7 +231,7 @@ const TimeframeQuestions: React.FC<TimeframeQuestionsProps> = ({
               </Label>
               <Textarea
                 value={currentAnswer}
-                onChange={(e) => onAnswerChange(index, e.target.value)}
+                onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                 placeholder={question.placeholder}
                 className="min-h-[120px] bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 resize-none"
                 rows={4}

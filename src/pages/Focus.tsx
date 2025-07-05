@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
@@ -86,51 +87,62 @@ const FocusContent = () => {
       <SessionCompletionBanner isVisible={timerProgress === 100} onComplete={handleCompleteSession} />
 
       <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <ModernTabsList>
+        <ModernTabsList className="grid w-full grid-cols-4 max-w-4xl mx-auto">
           {tabItems.map((tab) => (
             <ModernTabsTrigger 
               key={tab.value}
               value={tab.value}
               gradient={tab.gradient}
               icon={tab.icon}
+              className="flex-1"
             >
               {tab.label}
             </ModernTabsTrigger>
           ))}
         </ModernTabsList>
         
-        <ModernTabsContent value="timer">
+        <ModernTabsContent value="timer" className="mt-8">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <ModernFocusTimer 
-              timerMode={category === "Short Break" ? "shortBreak" : category === "Long Break" ? "longBreak" : "focus"}
-              timerDuration={timeRemaining.minutes * 60 + timeRemaining.seconds}
-              time={timeRemaining}
-              progress={timerProgress}
-              category={category as FocusCategory}
-              isRunning={isTimerRunning}
-              onModeChange={handleModeChange}
-              onDurationChange={updateTimerDuration}
-              onCategoryChange={handleCategoryChange}
-              onToggleTimer={toggleTimer}
-              onResetTimer={resetTimer}
-            />
-            <FocusStatsCard stats={focusStats} />
+            <div className="lg:col-span-4">
+              <ModernFocusTimer 
+                timerMode={category === "Short Break" ? "shortBreak" : category === "Long Break" ? "longBreak" : "focus"}
+                timerDuration={timeRemaining.minutes * 60 + timeRemaining.seconds}
+                time={timeRemaining}
+                progress={timerProgress}
+                category={category as FocusCategory}
+                isRunning={isTimerRunning}
+                onModeChange={handleModeChange}
+                onDurationChange={updateTimerDuration}
+                onCategoryChange={handleCategoryChange}
+                onToggleTimer={toggleTimer}
+                onResetTimer={resetTimer}
+              />
+            </div>
+            <div className="lg:col-span-1">
+              <FocusStatsCard stats={focusStats} />
+            </div>
           </div>
         </ModernTabsContent>
         
-        <ModernTabsContent value="history">
-          <FocusSessionHistory 
-            sessions={prepareSessionsForHistory(focusSessions)} 
-            onDeleteSession={deleteSession} 
-          />
+        <ModernTabsContent value="history" className="mt-8">
+          <div className="max-w-6xl mx-auto">
+            <FocusSessionHistory 
+              sessions={prepareSessionsForHistory(focusSessions)} 
+              onDeleteSession={deleteSession} 
+            />
+          </div>
         </ModernTabsContent>
         
-        <ModernTabsContent value="insights">
-          <FocusStats sessions={prepareSessionsForStats(focusSessions)} />
+        <ModernTabsContent value="insights" className="mt-8">
+          <div className="max-w-6xl mx-auto">
+            <FocusStats sessions={prepareSessionsForStats(focusSessions)} />
+          </div>
         </ModernTabsContent>
         
-        <ModernTabsContent value="techniques">
-          <FocusTechniques onStartTechnique={startTechnique} />
+        <ModernTabsContent value="techniques" className="mt-8">
+          <div className="max-w-4xl mx-auto">
+            <FocusTechniques onStartTechnique={startTechnique} />
+          </div>
         </ModernTabsContent>
       </ModernTabs>
     </div>
