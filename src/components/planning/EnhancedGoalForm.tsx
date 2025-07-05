@@ -33,7 +33,7 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [milestones, setMilestones] = useState<Milestone[]>([]);
-  const [timeframeAnswers, setTimeframeAnswers] = useState<{ questionIndex: number; answer: string }[]>([]);
+  const [timeframeAnswersRecord, setTimeframeAnswersRecord] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (initialGoal) {
@@ -44,7 +44,15 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
       setStartDate(new Date(initialGoal.startDate));
       setEndDate(new Date(initialGoal.endDate));
       setMilestones(initialGoal.milestones || []);
-      setTimeframeAnswers(initialGoal.timeframeAnswers || []);
+      
+      // Convert timeframeAnswers array to Record format for TimeframeQuestions
+      const answersRecord: Record<string, string> = {};
+      if (initialGoal.timeframeAnswers) {
+        initialGoal.timeframeAnswers.forEach((item, index) => {
+          answersRecord[`question-${index}`] = item.answer;
+        });
+      }
+      setTimeframeAnswersRecord(answersRecord);
     } else {
       resetForm();
     }
@@ -58,18 +66,11 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
     setStartDate(new Date());
     setEndDate(new Date());
     setMilestones([]);
-    setTimeframeAnswers([]);
+    setTimeframeAnswersRecord({});
   };
 
-  const handleTimeframeAnswerChange = (questionIndex: number, answer: string) => {
-    setTimeframeAnswers(prev => {
-      const existing = prev.find(a => a.questionIndex === questionIndex);
-      if (existing) {
-        return prev.map(a => a.questionIndex === questionIndex ? { ...a, answer } : a);
-      } else {
-        return [...prev, { questionIndex, answer }];
-      }
-    });
+  const handleTimeframeAnswerChange = (answers: Record<string, string>) => {
+    setTimeframeAnswersRecord(answers);
   };
 
   const addMilestone = () => {
@@ -93,6 +94,12 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Convert Record format back to array format for storage
+    const timeframeAnswers = Object.entries(timeframeAnswersRecord).map(([key, answer], index) => ({
+      questionIndex: index,
+      answer: answer || ''
+    }));
+
     const goalData: Goal = {
       id: initialGoal?.id || Date.now().toString(),
       title,
@@ -174,7 +181,7 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
                 <Label htmlFor="timeframe" className="text-white font-medium">Timeframe</Label>
                 <Select value={timeframe} onValueChange={(value) => {
                   setTimeframe(value);
-                  setTimeframeAnswers([]); // Reset answers when timeframe changes
+                  setTimeframeAnswersRecord({}); // Reset answers when timeframe changes
                 }}>
                   <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
                     <SelectValue placeholder="Select timeframe" />
@@ -284,8 +291,8 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
 
           <TimeframeQuestions
             timeframe={timeframe}
-            answers={timeframeAnswers}
-            onAnswerChange={handleTimeframeAnswerChange}
+            answers={timeframeAnswersRecord}
+            onAnswersChange={handleTimeframeAnswerChange}
           />
 
           <div className="flex justify-end gap-3 pt-6 border-t border-slate-800">
