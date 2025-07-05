@@ -156,7 +156,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
     if (!formData.title || !formData.category || !formData.timeframe) return;
 
     // Convert reflection answers to the correct array format for timeframeAnswers
-    const timeframeAnswers = Object.entries(formData.reflectionAnswers).map(([question, answer], index) => ({
+    const timeframeAnswers: { questionIndex: number; answer: string; }[] = Object.entries(formData.reflectionAnswers).map(([question, answer], index) => ({
       questionIndex: index,
       answer
     }));
@@ -176,7 +176,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
       tags: formData.tags,
       motivationalQuotes: formData.motivationalQuotes,
       reflectionAnswers: formData.reflectionAnswers,
-      timeframeAnswers,
+      timeframeAnswers: timeframeAnswers,
       createdAt: initialGoal?.createdAt || new Date(),
       updatedAt: new Date()
     };
