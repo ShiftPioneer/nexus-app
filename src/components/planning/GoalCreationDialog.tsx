@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -175,7 +174,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
       milestones: formData.milestones,
       tags: formData.tags,
       motivationalQuotes: formData.motivationalQuotes,
-      reflectionAnswers: formData.reflectionAnswers,
+      reflectionAnswers: {},
       timeframeAnswers,
       createdAt: initialGoal?.createdAt || new Date(),
       updatedAt: new Date()
