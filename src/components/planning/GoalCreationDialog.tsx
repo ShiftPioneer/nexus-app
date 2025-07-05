@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -154,7 +155,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   const handleSubmit = () => {
     if (!formData.title || !formData.category || !formData.timeframe) return;
 
-    // Convert reflection answers to the correct array format
+    // Convert reflection answers to the correct array format for timeframeAnswers
     const timeframeAnswers = Object.entries(formData.reflectionAnswers).map(([question, answer], index) => ({
       questionIndex: index,
       answer
