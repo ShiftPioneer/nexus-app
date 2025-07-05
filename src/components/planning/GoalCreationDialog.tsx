@@ -174,7 +174,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
       milestones: formData.milestones,
       tags: formData.tags,
       motivationalQuotes: formData.motivationalQuotes,
-      reflectionAnswers: {},
+      reflectionAnswers: formData.reflectionAnswers,
       timeframeAnswers,
       createdAt: initialGoal?.createdAt || new Date(),
       updatedAt: new Date()
