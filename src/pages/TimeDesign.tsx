@@ -138,6 +138,7 @@ const TimeDesign = () => {
         <ActivityDialog
           open={showActivityDialog}
           onOpenChange={setShowActivityDialog}
+          activity={null}
           onSave={handleCreateActivity}
         />
       </div>
