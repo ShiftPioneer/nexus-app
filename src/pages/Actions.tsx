@@ -3,35 +3,110 @@ import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
-import { CheckSquare, XSquare, Layout, BarChart3, Kanban } from "lucide-react";
-import TasksTabView from "@/components/tasks/TasksTabView";
-import NotToDoMatrix from "@/components/tasks/NotToDoMatrix";
-import EisenhowerMatrix from "@/components/tasks/EisenhowerMatrix";
-import KanbanBoard from "@/components/tasks/KanbanBoard";
-import DeletedTasksDialog from "@/components/tasks/DeletedTasksDialog";
+import { CheckSquare, X, Kanban, Grid3x3 } from "lucide-react";
+import ModernTasksList from "@/components/actions/ModernTasksList";
+import { useLocalStorage } from "@/hooks/use-local-storage";
+
+interface Task {
+  id: string;
+  title: string;
+  description?: string;
+  completed: boolean;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  category: string;
+  dueDate?: Date;
+  createdAt: Date;
+  tags?: string[];
+  type: 'todo' | 'not-todo';
+}
 
 const Actions = () => {
   const [activeTab, setActiveTab] = useState("todo");
-  const [showDeletedTasks, setShowDeletedTasks] = useState(false);
+  const [tasks, setTasks] = useLocalStorage<Task[]>("tasks", []);
 
-  // Placeholder data and handlers
-  const [tasks] = useState([]);
-  const [deletedTasks] = useState([]);
+  // Sample data for demonstration
+  React.useEffect(() => {
+    if (tasks.length === 0) {
+      const sampleTasks: Task[] = [
+        {
+          id: '1',
+          title: 'Complete project proposal',
+          description: 'Finish the quarterly project proposal for the marketing team',
+          completed: false,
+          priority: 'high',
+          category: 'Work',
+          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+          createdAt: new Date(),
+          tags: ['urgent', 'work'],
+          type: 'todo'
+        },
+        {
+          id: '2',
+          title: 'Check social media',
+          description: 'Avoid mindless scrolling during work hours',
+          completed: false,
+          priority: 'medium',
+          category: 'Habits',
+          createdAt: new Date(),
+          tags: ['distraction', 'habits'],
+          type: 'not-todo'
+        },
+        {
+          id: '3',
+          title: 'Exercise for 30 minutes',
+          description: 'Morning workout routine',
+          completed: true,
+          priority: 'high',
+          category: 'Health',
+          createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+          tags: ['health', 'routine'],
+          type: 'todo'
+        },
+        {
+          id: '4',
+          title: 'Skip breakfast',
+          description: 'Maintain healthy eating habits',
+          completed: false,
+          priority: 'medium',
+          category: 'Health',
+          createdAt: new Date(),
+          tags: ['health', 'nutrition'],
+          type: 'not-todo'
+        }
+      ];
+      setTasks(sampleTasks);
+    }
+  }, []);
 
-  const handleTaskUpdate = (id: string, updates: any) => {
-    console.log('Task update:', id, updates);
+  const todoTasks = tasks.filter(task => task.type === 'todo');
+  const notTodoTasks = tasks.filter(task => task.type === 'not-todo');
+
+  const handleTaskComplete = (taskId: string) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId ? { ...task, completed: !task.completed } : task
+    ));
   };
 
-  const handleTaskClick = (id: string) => {
-    console.log('Task clicked:', id);
+  const handleTaskEdit = (task: Task) => {
+    // TODO: Open edit dialog
+    console.log('Edit task:', task);
   };
 
-  const handleRestoreTask = (id: string) => {
-    console.log('Restore task:', id);
+  const handleTaskDelete = (taskId: string) => {
+    setTasks(tasks.filter(task => task.id !== taskId));
   };
 
-  const handlePermanentlyDeleteTask = (id: string) => {
-    console.log('Permanently delete task:', id);
+  const handleAddTask = (type: 'todo' | 'not-todo') => {
+    const newTask: Task = {
+      id: Date.now().toString(),
+      title: type === 'todo' ? 'New Task' : 'New Avoidance Item',
+      completed: false,
+      priority: 'medium',
+      category: 'General',
+      createdAt: new Date(),
+      type
+    };
+    setTasks([...tasks, newTask]);
   };
 
   const tabItems = [
@@ -39,13 +114,13 @@ const Actions = () => {
       value: "todo", 
       label: "To Do", 
       icon: CheckSquare,
-      gradient: "from-emerald-500 via-teal-500 to-cyan-500"
+      gradient: "from-green-500 via-emerald-500 to-teal-500"
     },
     { 
       value: "not-todo", 
       label: "Not To Do", 
-      icon: XSquare,
-      gradient: "from-red-500 via-rose-500 to-pink-500"
+      icon: X,
+      gradient: "from-red-500 via-pink-500 to-rose-500"
     },
     { 
       value: "kanban", 
@@ -55,9 +130,9 @@ const Actions = () => {
     },
     { 
       value: "matrix", 
-      label: "Priority Matrix", 
-      icon: Layout,
-      gradient: "from-purple-500 via-indigo-500 to-blue-500"
+      label: "Matrix", 
+      icon: Grid3x3,
+      gradient: "from-orange-500 via-amber-500 to-yellow-500"
     }
   ];
 
@@ -66,13 +141,13 @@ const Actions = () => {
       <div className="animate-fade-in space-y-8">
         <UnifiedPageHeader
           title="Actions"
-          description="Manage your tasks, priorities, and action items effectively"
+          description="Manage your tasks and focus on what matters most"
           icon={CheckSquare}
-          gradient="from-emerald-500 via-teal-500 to-cyan-500"
+          gradient="from-green-500 via-emerald-500 to-teal-500"
         />
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
+          <ModernTabsList className="grid w-full grid-cols-4 max-w-4xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
@@ -88,40 +163,53 @@ const Actions = () => {
           
           <ModernTabsContent value="todo" className="mt-8">
             <div className="max-w-6xl mx-auto">
-              <TasksTabView />
+              <ModernTasksList
+                tasks={todoTasks}
+                onTaskComplete={handleTaskComplete}
+                onTaskEdit={handleTaskEdit}
+                onTaskDelete={handleTaskDelete}
+                onAddTask={() => handleAddTask('todo')}
+                title="Tasks To Do"
+                emptyMessage="No tasks yet. Add your first task to get started with productivity!"
+              />
             </div>
           </ModernTabsContent>
           
           <ModernTabsContent value="not-todo" className="mt-8">
             <div className="max-w-6xl mx-auto">
-              <NotToDoMatrix 
-                tasks={tasks}
-                onTaskUpdate={handleTaskUpdate}
-                onTaskClick={handleTaskClick}
+              <ModernTasksList
+                tasks={notTodoTasks}
+                onTaskComplete={handleTaskComplete}
+                onTaskEdit={handleTaskEdit}
+                onTaskDelete={handleTaskDelete}
+                onAddTask={() => handleAddTask('not-todo')}
+                title="Things to Avoid"
+                emptyMessage="No avoidance items yet. Add habits or activities you want to avoid."
+                showCompleted={false}
               />
             </div>
           </ModernTabsContent>
           
           <ModernTabsContent value="kanban" className="mt-8">
             <div className="max-w-7xl mx-auto">
-              <KanbanBoard />
+              <div className="glass rounded-2xl p-6 border border-slate-700/50 text-center">
+                <Kanban className="h-16 w-16 text-slate-500 mx-auto mb-4 opacity-50" />
+                <h3 className="text-xl font-semibold text-white mb-2">Kanban View</h3>
+                <p className="text-slate-400">Modern Kanban board coming soon...</p>
+              </div>
             </div>
           </ModernTabsContent>
           
           <ModernTabsContent value="matrix" className="mt-8">
             <div className="max-w-6xl mx-auto">
-              <EisenhowerMatrix />
+              <div className="glass rounded-2xl p-6 border border-slate-700/50 text-center">
+                <Grid3x3 className="h-16 w-16 text-slate-500 mx-auto mb-4 opacity-50" />
+                <h3 className="text-xl font-semibold text-white mb-2">Eisenhower Matrix</h3>
+                <p className="text-slate-400">Priority matrix view coming soon...</p>
+              </div>
             </div>
           </ModernTabsContent>
         </ModernTabs>
-
-        <DeletedTasksDialog 
-          open={showDeletedTasks} 
-          onOpenChange={setShowDeletedTasks}
-          deletedTasks={deletedTasks}
-          onRestoreTask={handleRestoreTask}
-          onPermanentlyDeleteTask={handlePermanentlyDeleteTask}
-        />
       </div>
     </ModernAppLayout>
   );
