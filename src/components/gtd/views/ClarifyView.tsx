@@ -2,282 +2,211 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Clock, Flag, ArrowRight, CheckCircle2, X, Calendar } from "lucide-react";
+import { Search, Plus, CheckCircle, Clock, Users, Archive, Trash2 } from "lucide-react";
+import { motion } from "framer-motion";
 import { useGTD } from "../GTDContext";
-import { GTDTask, TaskPriority, TaskCategory } from "@/types/gtd";
+import InboxTasksList from "./clarify/InboxTasksList";
+import ClarifyCard from "./clarify/ClarifyCard";
 
 const ClarifyView = () => {
   const { tasks, updateTask, deleteTask } = useGTD();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState<string>("all");
-  const [selectedTask, setSelectedTask] = useState<GTDTask | null>(null);
+  const [selectedTask, setSelectedTask] = useState<any>(null);
 
-  const unclarifiedTasks = tasks.filter(task => 
-    !task.clarified && 
-    (searchTerm === "" || task.title.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (priorityFilter === "all" || task.priority === priorityFilter)
-  );
+  const inboxTasks = tasks.filter(task => task.status === 'inbox' && !task.clarified);
+  const clarifyingTask = selectedTask || inboxTasks[0];
 
-  const handleClarifyTask = (task: GTDTask, updates: Partial<GTDTask>) => {
-    updateTask(task.id, { ...updates, clarified: true });
-    setSelectedTask(null);
+  const clarifyOptions = [
+    {
+      id: 'do-it',
+      title: 'Do It',
+      description: 'If it takes less than 2 minutes, do it now.',
+      icon: CheckCircle,
+      color: 'from-green-500 to-emerald-600',
+      action: () => handleClarifyAction('next-actions')
+    },
+    {
+      id: 'delegate',
+      title: 'Delegate It',
+      description: 'If someone else should do it, delegate and track.',
+      icon: Users,
+      color: 'from-blue-500 to-indigo-600',
+      action: () => handleClarifyAction('waiting-for')
+    },
+    {
+      id: 'defer',
+      title: 'Defer It',
+      description: 'Schedule it for later if it requires more time.',
+      icon: Clock,
+      color: 'from-purple-500 to-pink-600',
+      action: () => handleClarifyAction('calendar')
+    },
+    {
+      id: 'reference',
+      title: 'Reference',
+      description: 'Store it if it might be useful later.',
+      icon: Archive,
+      color: 'from-emerald-500 to-teal-600',
+      action: () => handleClarifyAction('reference')
+    },
+    {
+      id: 'delete',
+      title: 'Delete It',
+      description: 'Remove it if it\'s no longer relevant or needed.',
+      icon: Trash2,
+      color: 'from-red-500 to-pink-600',
+      action: () => handleDeleteAction()
+    }
+  ];
+
+  const handleClarifyAction = (newStatus: string) => {
+    if (clarifyingTask) {
+      updateTask(clarifyingTask.id, {
+        status: newStatus,
+        clarified: true,
+        category: newStatus
+      });
+      setSelectedTask(null);
+    }
+  };
+
+  const handleDeleteAction = () => {
+    if (clarifyingTask) {
+      deleteTask(clarifyingTask.id);
+      setSelectedTask(null);
+    }
   };
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="glass rounded-2xl p-6 border border-slate-700/50">
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2">Clarify</h2>
-            <p className="text-slate-300">Transform captured items into actionable tasks</p>
+    <div className="space-y-8 max-w-7xl mx-auto">
+      {/* Header */}
+      <motion.div 
+        className="text-center space-y-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex items-center justify-center gap-3 mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 flex items-center justify-center shadow-lg">
+            <Search className="h-6 w-6 text-white" />
           </div>
-          <Badge variant="outline" className="bg-blue-500/10 border-blue-500/30 text-blue-300">
-            {unclarifiedTasks.length} items to clarify
-          </Badge>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
+            Clarify Your Inbox
+          </h1>
         </div>
+        <p className="text-slate-400 text-lg max-w-3xl mx-auto">
+          Transform your captured items into actionable tasks. Decide what each item means and what action, if any, is required.
+        </p>
+      </motion.div>
 
-        {/* Search and Filter */}
-        <div className="flex flex-col sm:flex-row gap-3 mt-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-            <Input
-              placeholder="Search tasks..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-800/50 border-slate-600 text-white"
-            />
-          </div>
-          <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-            <SelectTrigger className="w-[180px] bg-slate-800/50 border-slate-600 text-white">
-              <Filter className="h-4 w-4 mr-2" />
-              <SelectValue placeholder="Filter by priority" />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700">
-              <SelectItem value="all">All Priorities</SelectItem>
-              <SelectItem value="urgent">Urgent</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Tasks Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {unclarifiedTasks.length === 0 ? (
-          <div className="lg:col-span-2">
-            <Card className="bg-slate-900/50 border-slate-700/50 text-center p-12">
-              <CheckCircle2 className="h-16 w-16 text-green-500 mx-auto mb-4 opacity-50" />
-              <h3 className="text-xl font-semibold text-white mb-2">All caught up!</h3>
-              <p className="text-slate-400">No items need clarification right now.</p>
-            </Card>
-          </div>
-        ) : (
-          unclarifiedTasks.map((task) => (
-            <Card key={task.id} className="bg-slate-900/80 border-slate-700/50 hover:border-blue-500/30 transition-all duration-300 group">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <CardTitle className="text-white text-lg group-hover:text-blue-300 transition-colors">
-                      {task.title}
-                    </CardTitle>
-                    {task.description && (
-                      <p className="text-slate-400 text-sm mt-1 line-clamp-2">{task.description}</p>
-                    )}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Side - Items to Process */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <Card className="bg-slate-950/80 backdrop-blur-sm border-slate-700/50 h-fit">
+            <CardHeader className="pb-4">
+              <div className="flex justify-between items-center">
+                <CardTitle className="text-xl font-semibold text-white flex items-center gap-2">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                    <Search className="h-4 w-4 text-blue-400" />
                   </div>
-                  <div className="flex items-center gap-2 ml-4">
-                    <Badge variant="outline" className={`
-                      ${task.priority === 'urgent' ? 'border-red-500/50 text-red-300 bg-red-500/10' : ''}
-                      ${task.priority === 'high' ? 'border-orange-500/50 text-orange-300 bg-orange-500/10' : ''}
-                      ${task.priority === 'medium' ? 'border-yellow-500/50 text-yellow-300 bg-yellow-500/10' : ''}
-                      ${task.priority === 'low' ? 'border-green-500/50 text-green-300 bg-green-500/10' : ''}
-                    `}>
-                      {task.priority}
-                    </Badge>
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent className="pt-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4 text-sm text-slate-400">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      <span>{new Date(task.createdAt).toLocaleDateString()}</span>
-                    </div>
-                    <Badge variant="secondary" className="bg-slate-700/50 text-slate-300">
-                      {task.category}
-                    </Badge>
-                  </div>
-                  
-                  <Button
-                    onClick={() => setSelectedTask(task)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    size="sm"
-                  >
-                    Clarify
-                    <ArrowRight className="h-4 w-4 ml-1" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))
-        )}
-      </div>
-
-      {/* Clarification Dialog */}
-      {selectedTask && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-2xl bg-slate-900 border-slate-700 max-h-[90vh] overflow-y-auto">
-            <CardHeader className="border-b border-slate-700/50">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-white">Clarify Task</CardTitle>
+                  Items to Process
+                </CardTitle>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
-                  onClick={() => setSelectedTask(null)}
-                  className="text-slate-400 hover:text-white"
+                  className="border-slate-600 text-slate-300 hover:bg-slate-800"
+                  onClick={() => {/* Navigate to capture */}}
                 >
-                  <X className="h-4 w-4" />
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Task
                 </Button>
               </div>
+              <p className="text-sm text-slate-400">
+                {inboxTasks.length} items waiting to be clarified
+              </p>
             </CardHeader>
-            
-            <CardContent className="p-6">
-              <ClarificationForm
-                task={selectedTask}
-                onSave={(updates) => handleClarifyTask(selectedTask, updates)}
-                onCancel={() => setSelectedTask(null)}
+            <CardContent>
+              <InboxTasksList 
+                tasks={inboxTasks}
+                selectedTask={selectedTask}
+                onSelectTask={setSelectedTask}
               />
             </CardContent>
           </Card>
-        </div>
-      )}
+        </motion.div>
+
+        {/* Right Side - Clarification Actions */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          {clarifyingTask ? (
+            <ClarifyCard 
+              task={clarifyingTask}
+              options={clarifyOptions}
+            />
+          ) : (
+            <Card className="bg-slate-950/80 backdrop-blur-sm border-slate-700/50">
+              <CardContent className="p-8 text-center">
+                <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="h-8 w-8 text-slate-400" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">All Caught Up!</h3>
+                <p className="text-slate-400 mb-6">
+                  No tasks in your inbox to process right now.
+                </p>
+                <Button 
+                  className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+                  onClick={() => {/* Navigate to capture */}}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Go to Capture
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Decision Framework */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.6 }}
+      >
+        <Card className="bg-gradient-to-r from-purple-950/20 to-pink-950/20 border-purple-500/20 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="text-lg text-purple-300">GTD Decision Framework</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="space-y-2">
+                <h4 className="font-medium text-white">1. What is it?</h4>
+                <p className="text-sm text-slate-300">
+                  Define what the item actually represents
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-medium text-white">2. Is it actionable?</h4>
+                <p className="text-sm text-slate-300">
+                  Can you do something about it right now?
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="font-medium text-white">3. What's the next action?</h4>
+                <p className="text-sm text-slate-300">
+                  What's the very next physical action required?
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
-  );
-};
-
-const ClarificationForm = ({ task, onSave, onCancel }: {
-  task: GTDTask;
-  onSave: (updates: Partial<GTDTask>) => void;
-  onCancel: () => void;
-}) => {
-  const [title, setTitle] = useState(task.title);
-  const [description, setDescription] = useState(task.description || "");
-  const [category, setCategory] = useState<TaskCategory>(task.category);
-  const [priority, setPriority] = useState<TaskPriority>(task.priority);
-  const [context, setContext] = useState(task.context || "");
-  const [nextAction, setNextAction] = useState("");
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSave({
-      title,
-      description,
-      category,
-      priority,
-      context,
-      nextAction: nextAction || undefined,
-      status: nextAction ? 'next-action' : 'clarified'
-    });
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <Label htmlFor="title" className="text-white font-medium">Task Title</Label>
-        <Input
-          id="title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="bg-slate-800 border-slate-600 text-white mt-1"
-          required
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="description" className="text-white font-medium">Description</Label>
-        <Textarea
-          id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="bg-slate-800 border-slate-600 text-white mt-1"
-          rows={3}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <Label htmlFor="category" className="text-white font-medium">Category</Label>
-          <Select value={category} onValueChange={(value: string) => setCategory(value as TaskCategory)}>
-            <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700">
-              <SelectItem value="inbox">Inbox</SelectItem>
-              <SelectItem value="next-actions">Next Actions</SelectItem>
-              <SelectItem value="projects">Projects</SelectItem>
-              <SelectItem value="waiting-for">Waiting For</SelectItem>
-              <SelectItem value="someday-maybe">Someday/Maybe</SelectItem>
-              <SelectItem value="reference">Reference</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label htmlFor="priority" className="text-white font-medium">Priority</Label>
-          <Select value={priority} onValueChange={(value: string) => setPriority(value as TaskPriority)}>
-            <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-800 border-slate-700">
-              <SelectItem value="urgent">Urgent</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div>
-        <Label htmlFor="context" className="text-white font-medium">Context</Label>
-        <Input
-          id="context"
-          value={context}
-          onChange={(e) => setContext(e.target.value)}
-          placeholder="@home, @office, @phone, etc."
-          className="bg-slate-800 border-slate-600 text-white mt-1"
-        />
-      </div>
-
-      <div>
-        <Label htmlFor="nextAction" className="text-white font-medium">Next Action (Optional)</Label>
-        <Input
-          id="nextAction"
-          value={nextAction}
-          onChange={(e) => setNextAction(e.target.value)}
-          placeholder="What's the very next physical action?"
-          className="bg-slate-800 border-slate-600 text-white mt-1"
-        />
-      </div>
-
-      <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/50">
-        <Button type="button" variant="outline" onClick={onCancel} className="border-slate-600 text-slate-300">
-          Cancel
-        </Button>
-        <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">
-          Save & Clarify
-        </Button>
-      </div>
-    </form>
   );
 };
 

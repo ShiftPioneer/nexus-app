@@ -7,6 +7,7 @@ import { CheckSquare, X, Kanban, Grid3x3 } from "lucide-react";
 import ModernTasksList from "@/components/actions/ModernTasksList";
 import KanbanView from "@/components/actions/KanbanView";
 import MatrixView from "@/components/actions/MatrixView";
+import TaskCreationDialog from "@/components/actions/TaskCreationDialog";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 interface Task {
@@ -25,6 +26,8 @@ interface Task {
 const Actions = () => {
   const [activeTab, setActiveTab] = useState("todo");
   const [tasks, setTasks] = useLocalStorage<Task[]>("tasks", []);
+  const [isCreatingTask, setIsCreatingTask] = useState(false);
+  const [taskType, setTaskType] = useState<'todo' | 'not-todo'>('todo');
 
   // Sample data for demonstration
   React.useEffect(() => {
@@ -110,17 +113,26 @@ const Actions = () => {
   };
 
   const handleAddTask = (type?: 'todo' | 'not-todo') => {
-    const taskType = type || (activeTab === 'not-todo' ? 'not-todo' : 'todo');
+    const newTaskType = type || (activeTab === 'not-todo' ? 'not-todo' : 'todo');
+    setTaskType(newTaskType);
+    setIsCreatingTask(true);
+  };
+
+  const handleCreateTask = (taskData: Partial<Task>) => {
     const newTask: Task = {
       id: Date.now().toString(),
-      title: taskType === 'todo' ? 'New Task' : 'New Avoidance Item',
+      title: taskData.title || '',
+      description: taskData.description || '',
       completed: false,
-      priority: 'medium',
-      category: 'General',
+      priority: taskData.priority || 'medium',
+      category: taskData.category || 'General',
       createdAt: new Date(),
-      type: taskType
+      tags: taskData.tags || [],
+      type: taskType,
+      dueDate: taskData.dueDate
     };
     setTasks([...tasks, newTask]);
+    setIsCreatingTask(false);
   };
 
   const tabItems = [
@@ -217,17 +229,35 @@ const Actions = () => {
           </ModernTabsContent>
           
           <ModernTabsContent value="matrix" className="mt-8">
-            <div className="max-w-full mx-auto">
+            <div className="max-w-full mx-auto space-y-8">
               <MatrixView
-                tasks={tasks}
+                tasks={todoTasks}
                 onTaskComplete={handleTaskComplete}
                 onTaskEdit={handleTaskEdit}
                 onTaskDelete={handleTaskDelete}
-                onAddTask={() => handleAddTask()}
+                onAddTask={() => handleAddTask('todo')}
+                title="To-Do Matrix"
+                type="todo"
+              />
+              <MatrixView
+                tasks={notTodoTasks}
+                onTaskComplete={handleTaskComplete}
+                onTaskEdit={handleTaskEdit}
+                onTaskDelete={handleTaskDelete}
+                onAddTask={() => handleAddTask('not-todo')}
+                title="Not-To-Do Matrix"
+                type="not-todo"
               />
             </div>
           </ModernTabsContent>
         </ModernTabs>
+
+        <TaskCreationDialog
+          open={isCreatingTask}
+          onOpenChange={setIsCreatingTask}
+          onCreateTask={handleCreateTask}
+          taskType={taskType}
+        />
       </div>
     </ModernAppLayout>
   );
