@@ -5,7 +5,6 @@ import { Droppable } from "react-beautiful-dnd";
 import { cn } from "@/lib/utils";
 
 interface ClarifyCardProps {
-  id?: string; // Changed from required to optional
   droppableId: string;
   title: string;
   description: string;
@@ -17,7 +16,6 @@ interface ClarifyCardProps {
 }
 
 const ClarifyCard: React.FC<ClarifyCardProps> = ({
-  id,
   icon,
   title,
   description,

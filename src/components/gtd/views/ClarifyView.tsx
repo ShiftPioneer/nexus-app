@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { useGTD } from "../GTDContext";
 import InboxTasksList from "./clarify/InboxTasksList";
 import ClarifyCard from "./clarify/ClarifyCard";
+import { TaskStatus, TaskCategory } from "@/types/gtd";
 
 const ClarifyView = () => {
   const { tasks, updateTask, deleteTask } = useGTD();
@@ -22,7 +23,7 @@ const ClarifyView = () => {
       description: 'If it takes less than 2 minutes, do it now.',
       icon: CheckCircle,
       color: 'from-green-500 to-emerald-600',
-      action: () => handleClarifyAction('next-actions')
+      action: () => handleClarifyAction('next-actions' as TaskStatus, 'next-actions' as TaskCategory)
     },
     {
       id: 'delegate',
@@ -30,7 +31,7 @@ const ClarifyView = () => {
       description: 'If someone else should do it, delegate and track.',
       icon: Users,
       color: 'from-blue-500 to-indigo-600',
-      action: () => handleClarifyAction('waiting-for')
+      action: () => handleClarifyAction('waiting-for' as TaskStatus, 'waiting-for' as TaskCategory)
     },
     {
       id: 'defer',
@@ -38,7 +39,7 @@ const ClarifyView = () => {
       description: 'Schedule it for later if it requires more time.',
       icon: Clock,
       color: 'from-purple-500 to-pink-600',
-      action: () => handleClarifyAction('calendar')
+      action: () => handleClarifyAction('someday' as TaskStatus, 'someday-maybe' as TaskCategory)
     },
     {
       id: 'reference',
@@ -46,7 +47,7 @@ const ClarifyView = () => {
       description: 'Store it if it might be useful later.',
       icon: Archive,
       color: 'from-emerald-500 to-teal-600',
-      action: () => handleClarifyAction('reference')
+      action: () => handleClarifyAction('reference' as TaskStatus, 'reference' as TaskCategory)
     },
     {
       id: 'delete',
@@ -58,12 +59,12 @@ const ClarifyView = () => {
     }
   ];
 
-  const handleClarifyAction = (newStatus: string) => {
+  const handleClarifyAction = (newStatus: TaskStatus, newCategory: TaskCategory) => {
     if (clarifyingTask) {
       updateTask(clarifyingTask.id, {
         status: newStatus,
         clarified: true,
-        category: newStatus
+        category: newCategory
       });
       setSelectedTask(null);
     }
@@ -131,8 +132,8 @@ const ClarifyView = () => {
             <CardContent>
               <InboxTasksList 
                 tasks={inboxTasks}
-                selectedTask={selectedTask}
-                onSelectTask={setSelectedTask}
+                onAddTask={() => {/* Navigate to capture */}}
+                onGoToCapture={() => {/* Navigate to capture */}}
               />
             </CardContent>
           </Card>
@@ -145,10 +146,40 @@ const ClarifyView = () => {
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           {clarifyingTask ? (
-            <ClarifyCard 
-              task={clarifyingTask}
-              options={clarifyOptions}
-            />
+            <Card className="bg-slate-950/80 backdrop-blur-sm border-slate-700/50">
+              <CardHeader>
+                <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <Search className="h-5 w-5 text-purple-400" />
+                  What should you do with this?
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Task Preview */}
+                <div className="p-4 bg-slate-900/50 rounded-lg border border-slate-700">
+                  <h3 className="font-medium text-white mb-2">{clarifyingTask.title}</h3>
+                  {clarifyingTask.description && (
+                    <p className="text-sm text-slate-400">{clarifyingTask.description}</p>
+                  )}
+                </div>
+
+                {/* Clarification Options */}
+                <div className="grid grid-cols-1 gap-3">
+                  {clarifyOptions.map((option) => (
+                    <Button
+                      key={option.id}
+                      onClick={option.action}
+                      className={`h-auto p-4 flex flex-col items-start text-left bg-gradient-to-r ${option.color} hover:opacity-90 transition-opacity`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <option.icon className="h-5 w-5" />
+                        <span className="font-medium">{option.title}</span>
+                      </div>
+                      <span className="text-sm opacity-90">{option.description}</span>
+                    </Button>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
           ) : (
             <Card className="bg-slate-950/80 backdrop-blur-sm border-slate-700/50">
               <CardContent className="p-8 text-center">
