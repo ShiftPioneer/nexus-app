@@ -1,27 +1,12 @@
 
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Search, 
-  Filter, 
-  Plus, 
-  Clock, 
-  Flag, 
-  Calendar,
-  Star,
-  MoreHorizontal,
-  CheckCircle2,
-  Circle,
-  AlertTriangle,
-  Trash2,
-  Edit3
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Plus, MoreHorizontal, Calendar, Clock, Tag, Edit, Trash2, Archive } from "lucide-react";
+import { motion } from "framer-motion";
 
 interface Task {
   id: string;
@@ -33,6 +18,7 @@ interface Task {
   dueDate?: Date;
   createdAt: Date;
   tags?: string[];
+  type: 'todo' | 'not-todo';
 }
 
 interface ModernTasksListProps {
@@ -56,322 +42,268 @@ const ModernTasksList: React.FC<ModernTasksListProps> = ({
   emptyMessage,
   showCompleted = true
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [priorityFilter, setPriorityFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("dueDate");
-  const [viewMode, setViewMode] = useState<"all" | "active" | "completed">("all");
-
-  const filteredTasks = tasks
-    .filter(task => {
-      const matchesSearch = searchTerm === "" || 
-        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (task.description && task.description.toLowerCase().includes(searchTerm.toLowerCase()));
-        
-      const matchesPriority = priorityFilter === "all" || task.priority === priorityFilter;
-      
-      const matchesViewMode = viewMode === "all" || 
-        (viewMode === "active" && !task.completed) ||
-        (viewMode === "completed" && task.completed);
-      
-      return matchesSearch && matchesPriority && matchesViewMode;
-    })
-    .sort((a, b) => {
-      switch (sortBy) {
-        case "priority":
-          const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
-          return priorityOrder[a.priority] - priorityOrder[b.priority];
-        case "dueDate":
-          if (!a.dueDate && !b.dueDate) return 0;
-          if (!a.dueDate) return 1;
-          if (!b.dueDate) return -1;
-          return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-        case "title":
-          return a.title.localeCompare(b.title);
-        default:
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-      }
-    });
+  const [filter, setFilter] = useState<'all' | 'active' | 'completed' | 'deleted'>('all');
+  
+  const filteredTasks = tasks.filter(task => {
+    switch (filter) {
+      case 'active':
+        return !task.completed;
+      case 'completed':
+        return task.completed;
+      case 'deleted':
+        return false; // Will be handled separately
+      default:
+        return true;
+    }
+  });
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "urgent":
-        return "bg-red-500/10 border-red-500/30 text-red-300";
-      case "high":
-        return "bg-orange-500/10 border-orange-500/30 text-orange-300";
-      case "medium":
-        return "bg-yellow-500/10 border-yellow-500/30 text-yellow-300";
-      case "low":
-        return "bg-green-500/10 border-green-500/30 text-green-300";
-      default:
-        return "bg-slate-500/10 border-slate-500/30 text-slate-300";
+      case 'urgent': return 'bg-red-500';
+      case 'high': return 'bg-orange-500';
+      case 'medium': return 'bg-yellow-500';
+      case 'low': return 'bg-green-500';
+      default: return 'bg-gray-500';
     }
   };
 
-  const getPriorityIcon = (priority: string) => {
+  const getPriorityBadgeColor = (priority: string) => {
     switch (priority) {
-      case "urgent":
-        return <AlertTriangle className="h-3 w-3" />;
-      case "high":
-        return <Flag className="h-3 w-3" />;
-      case "medium":
-        return <Circle className="h-3 w-3" />;
-      case "low":
-        return <Circle className="h-3 w-3 opacity-50" />;
-      default:
-        return <Circle className="h-3 w-3" />;
+      case 'urgent': return 'border-red-500 text-red-400';
+      case 'high': return 'border-orange-500 text-orange-400';
+      case 'medium': return 'border-yellow-500 text-yellow-400';
+      case 'low': return 'border-green-500 text-green-400';
+      default: return 'border-gray-500 text-gray-400';
     }
   };
 
-  const activeTasks = tasks.filter(task => !task.completed).length;
-  const completedTasks = tasks.filter(task => task.completed).length;
+  const handleTaskAction = (action: string, task: Task) => {
+    switch (action) {
+      case 'edit':
+        onTaskEdit(task);
+        break;
+      case 'delete':
+        onTaskDelete(task.id);
+        break;
+      case 'complete':
+        onTaskComplete(task.id);
+        break;
+      default:
+        break;
+    }
+  };
+
+  if (filteredTasks.length === 0) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center py-12"
+      >
+        <Card className="bg-slate-950/80 backdrop-blur-sm border-slate-700/50">
+          <CardContent className="p-8">
+            <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">
+              <Plus className="h-8 w-8 text-slate-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">No Tasks Yet</h3>
+            <p className="text-slate-400 mb-6">{emptyMessage}</p>
+            <Button 
+              onClick={onAddTask}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Your First Task
+            </Button>
+          </CardContent>
+        </Card>
+      </motion.div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      {/* Header with Stats */}
-      <div className="glass rounded-2xl p-6 border border-slate-700/50">
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
-            <div className="flex items-center gap-4 text-sm text-slate-400">
-              <span>{activeTasks} active</span>
-              <span>•</span>
-              <span>{completedTasks} completed</span>
-              <span>•</span>
-              <span>{tasks.length} total</span>
-            </div>
+      {/* Header with Filters */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex justify-between items-center"
+      >
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-2">{title}</h2>
+          <p className="text-slate-400">
+            {filteredTasks.filter(t => !t.completed).length} active, {filteredTasks.filter(t => t.completed).length} completed
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          {/* Filter Buttons */}
+          <div className="flex bg-slate-800/50 rounded-lg p-1">
+            {[
+              { key: 'all', label: 'All' },
+              { key: 'active', label: 'Active' },
+              { key: 'completed', label: 'Done' }
+            ].map(({ key, label }) => (
+              <Button
+                key={key}
+                variant={filter === key ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setFilter(key as any)}
+                className={filter === key ? "bg-blue-500 text-white" : "text-slate-400 hover:text-white"}
+              >
+                {label}
+              </Button>
+            ))}
           </div>
           
-          <Button
+          <Button 
             onClick={onAddTask}
-            className="bg-primary hover:bg-primary/80 text-white gap-2"
+            className="bg-gradient-to-r from-green-500 to-emerald-600 text-white hover:from-green-600 hover:to-emerald-700"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-4 w-4 mr-2" />
             Add Task
           </Button>
         </div>
-
-        {/* Filters */}
-        <div className="flex flex-col lg:flex-row gap-4 mt-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-4 w-4" />
-            <Input
-              placeholder="Search tasks..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-800/50 border-slate-600 text-white"
-            />
-          </div>
-          
-          <div className="flex gap-2">
-            <Select value={viewMode} onValueChange={(value: any) => setViewMode(value)}>
-              <SelectTrigger className="w-[140px] bg-slate-800/50 border-slate-600 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="all">All Tasks</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-              <SelectTrigger className="w-[140px] bg-slate-800/50 border-slate-600 text-white">
-                <Filter className="h-4 w-4 mr-2" />
-                <SelectValue placeholder="Priority" />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="all">All Priorities</SelectItem>
-                <SelectItem value="urgent">Urgent</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="low">Low</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-[140px] bg-slate-800/50 border-slate-600 text-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-slate-800 border-slate-700">
-                <SelectItem value="dueDate">Due Date</SelectItem>
-                <SelectItem value="priority">Priority</SelectItem>
-                <SelectItem value="title">Title</SelectItem>
-                <SelectItem value="created">Created</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
+      </motion.div>
 
       {/* Tasks List */}
-      {filteredTasks.length === 0 ? (
-        <Card className="bg-slate-900/50 border-slate-700/50 text-center p-12">
-          <CheckCircle2 className="h-16 w-16 text-slate-500 mx-auto mb-4 opacity-50" />
-          <h3 className="text-xl font-semibold text-white mb-2">No tasks found</h3>
-          <p className="text-slate-400 mb-6">{emptyMessage}</p>
-          <Button onClick={onAddTask} className="bg-primary hover:bg-primary/80 text-white">
-            Create Your First Task
-          </Button>
-        </Card>
-      ) : (
-        <div className="space-y-3">
-          <AnimatePresence>
-            {filteredTasks.map((task, index) => (
-              <motion.div
-                key={task.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -300 }}
-                transition={{ duration: 0.2, delay: index * 0.05 }}
-              >
-                <TaskCard
-                  task={task}
-                  onComplete={() => onTaskComplete(task.id)}
-                  onEdit={() => onTaskEdit(task)}
-                  onDelete={() => onTaskDelete(task.id)}
-                  getPriorityColor={getPriorityColor}
-                  getPriorityIcon={getPriorityIcon}
-                />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-        </div>
-      )}
-    </div>
-  );
-};
+      <div className="space-y-3">
+        {filteredTasks.map((task, index) => (
+          <motion.div
+            key={task.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+          >
+            <Card className={`bg-slate-950/80 backdrop-blur-sm border-slate-700/50 hover:border-slate-600 transition-all duration-200 ${task.completed ? 'opacity-75' : ''}`}>
+              <CardContent className="p-4">
+                <div className="flex items-start gap-4">
+                  {/* Checkbox */}
+                  <div className="pt-1">
+                    <Checkbox
+                      checked={task.completed}
+                      onCheckedChange={() => onTaskComplete(task.id)}
+                      className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                    />
+                  </div>
 
-const TaskCard = ({ 
-  task, 
-  onComplete, 
-  onEdit, 
-  onDelete, 
-  getPriorityColor, 
-  getPriorityIcon 
-}: {
-  task: Task;
-  onComplete: () => void;
-  onEdit: () => void;
-  onDelete: () => void;
-  getPriorityColor: (priority: string) => string;
-  getPriorityIcon: (priority: string) => React.ReactNode;
-}) => {
-  const [showActions, setShowActions] = useState(false);
+                  {/* Task Content */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className={`font-medium ${task.completed ? 'line-through text-slate-500' : 'text-white'}`}>
+                          {task.title}
+                        </h3>
+                        {task.description && (
+                          <p className="text-sm text-slate-400 mt-1 line-clamp-2">
+                            {task.description}
+                          </p>
+                        )}
+                      </div>
 
-  const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !task.completed;
-  const isDueToday = task.dueDate && 
-    new Date(task.dueDate).toDateString() === new Date().toDateString();
-
-  return (
-    <Card 
-      className={`
-        bg-slate-900/80 border-slate-700/50 hover:border-blue-500/30 transition-all duration-300 group
-        ${task.completed ? 'opacity-60' : ''}
-        ${isOverdue ? 'border-red-500/30 bg-red-500/5' : ''}
-      `}
-      onMouseEnter={() => setShowActions(true)}
-      onMouseLeave={() => setShowActions(false)}
-    >
-      <CardContent className="p-4">
-        <div className="flex items-start gap-4">
-          {/* Checkbox */}
-          <div className="mt-1">
-            <Checkbox
-              checked={task.completed}
-              onCheckedChange={onComplete}
-              className="data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
-            />
-          </div>
-
-          {/* Task Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-start justify-between gap-4">
-              <div className="flex-1">
-                <h3 className={`
-                  font-medium text-white group-hover:text-blue-300 transition-colors
-                  ${task.completed ? 'line-through text-slate-400' : ''}
-                `}>
-                  {task.title}
-                </h3>
-                
-                {task.description && (
-                  <p className="text-sm text-slate-400 mt-1 line-clamp-2">
-                    {task.description}
-                  </p>
-                )}
-
-                {/* Meta Information */}
-                <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
-                  <Badge variant="outline" className={getPriorityColor(task.priority)}>
-                    {getPriorityIcon(task.priority)}
-                    <span className="ml-1 capitalize">{task.priority}</span>
-                  </Badge>
-
-                  {task.dueDate && (
-                    <div className={`
-                      flex items-center gap-1
-                      ${isOverdue ? 'text-red-400' : isDueToday ? 'text-yellow-400' : 'text-slate-400'}
-                    `}>
-                      <Calendar className="h-3 w-3" />
-                      <span>
-                        {isDueToday ? 'Due today' : 
-                         isOverdue ? 'Overdue' : 
-                         `Due ${new Date(task.dueDate).toLocaleDateString()}`}
-                      </span>
+                      {/* Actions Menu */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-slate-400 hover:text-white hover:bg-slate-800"
+                          >
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 bg-slate-900 border-slate-700">
+                          <DropdownMenuItem 
+                            onClick={() => handleTaskAction('edit', task)}
+                            className="text-slate-300 hover:text-white hover:bg-slate-800"
+                          >
+                            <Edit className="h-4 w-4 mr-2" />
+                            Edit Task
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => handleTaskAction('complete', task)}
+                            className="text-slate-300 hover:text-white hover:bg-slate-800"
+                          >
+                            {task.completed ? (
+                              <>
+                                <Archive className="h-4 w-4 mr-2" />
+                                Mark Incomplete
+                              </>
+                            ) : (
+                              <>
+                                <Calendar className="h-4 w-4 mr-2" />
+                                Mark Complete
+                              </>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator className="bg-slate-700" />
+                          <DropdownMenuItem 
+                            onClick={() => handleTaskAction('delete', task)}
+                            className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete Task
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
-                  )}
 
-                  <div className="flex items-center gap-1">
-                    <Clock className="h-3 w-3" />
-                    <span>{new Date(task.createdAt).toLocaleDateString()}</span>
+                    {/* Task Metadata */}
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center gap-3">
+                        {/* Priority Badge */}
+                        <Badge variant="outline" className={`text-xs ${getPriorityBadgeColor(task.priority)}`}>
+                          <div className={`w-2 h-2 rounded-full ${getPriorityColor(task.priority)} mr-1`} />
+                          {task.priority}
+                        </Badge>
+
+                        {/* Category */}
+                        <span className="text-xs text-slate-500">{task.category}</span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Due Date */}
+                        {task.dueDate && (
+                          <div className="flex items-center gap-1 text-xs text-slate-400">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(task.dueDate).toLocaleDateString()}
+                          </div>
+                        )}
+
+                        {/* Tags */}
+                        {task.tags && task.tags.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            <Tag className="h-3 w-3 text-slate-500" />
+                            <span className="text-xs text-slate-500">
+                              {task.tags.length} tag{task.tags.length > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Tags Display */}
+                    {task.tags && task.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {task.tags.slice(0, 3).map(tag => (
+                          <Badge key={tag} variant="outline" className="text-xs py-0 px-1 text-slate-400 border-slate-600">
+                            {tag}
+                          </Badge>
+                        ))}
+                        {task.tags.length > 3 && (
+                          <Badge variant="outline" className="text-xs py-0 px-1 text-slate-400 border-slate-600">
+                            +{task.tags.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Tags */}
-                {task.tags && task.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {task.tags.map((tag, index) => (
-                      <Badge key={index} variant="secondary" className="text-xs bg-slate-700/50 text-slate-300">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Actions */}
-              <AnimatePresence>
-                {showActions && (
-                  <motion.div
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 10 }}
-                    className="flex items-center gap-1"
-                  >
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={onEdit}
-                      className="h-8 w-8 p-0 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10"
-                    >
-                      <Edit3 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={onDelete}
-                      className="h-8 w-8 p-0 text-slate-400 hover:text-red-400 hover:bg-red-500/10"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 };
 

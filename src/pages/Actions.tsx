@@ -3,11 +3,12 @@ import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
-import { CheckSquare, X, Kanban, Grid3x3 } from "lucide-react";
+import { CheckSquare, X, Kanban, Grid3x3, Trash2 } from "lucide-react";
 import ModernTasksList from "@/components/actions/ModernTasksList";
 import KanbanView from "@/components/actions/KanbanView";
 import MatrixView from "@/components/actions/MatrixView";
 import TaskCreationDialog from "@/components/actions/TaskCreationDialog";
+import DeletedTasksView from "@/components/actions/DeletedTasksView";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 interface Task {
@@ -21,6 +22,8 @@ interface Task {
   createdAt: Date;
   tags?: string[];
   type: 'todo' | 'not-todo';
+  deleted?: boolean;
+  deletedAt?: Date;
 }
 
 const Actions = () => {
@@ -28,6 +31,7 @@ const Actions = () => {
   const [tasks, setTasks] = useLocalStorage<Task[]>("tasks", []);
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [taskType, setTaskType] = useState<'todo' | 'not-todo'>('todo');
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   // Sample data for demonstration
   React.useEffect(() => {
@@ -95,8 +99,10 @@ const Actions = () => {
     }
   }, []);
 
-  const todoTasks = tasks.filter(task => task.type === 'todo');
-  const notTodoTasks = tasks.filter(task => task.type === 'not-todo');
+  const activeTasks = tasks.filter(task => !task.deleted);
+  const deletedTasks = tasks.filter(task => task.deleted);
+  const todoTasks = activeTasks.filter(task => task.type === 'todo');
+  const notTodoTasks = activeTasks.filter(task => task.type === 'not-todo');
 
   const handleTaskComplete = (taskId: string) => {
     setTasks(tasks.map(task => 
@@ -105,34 +111,59 @@ const Actions = () => {
   };
 
   const handleTaskEdit = (task: Task) => {
-    console.log('Edit task:', task);
+    setEditingTask(task);
+    setTaskType(task.type);
+    setIsCreatingTask(true);
   };
 
   const handleTaskDelete = (taskId: string) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId ? { ...task, deleted: true, deletedAt: new Date() } : task
+    ));
+  };
+
+  const handleTaskRestore = (taskId: string) => {
+    setTasks(tasks.map(task => 
+      task.id === taskId ? { ...task, deleted: false, deletedAt: undefined } : task
+    ));
+  };
+
+  const handleTaskPermanentDelete = (taskId: string) => {
     setTasks(tasks.filter(task => task.id !== taskId));
   };
 
   const handleAddTask = (type?: 'todo' | 'not-todo') => {
     const newTaskType = type || (activeTab === 'not-todo' ? 'not-todo' : 'todo');
     setTaskType(newTaskType);
+    setEditingTask(null);
     setIsCreatingTask(true);
   };
 
   const handleCreateTask = (taskData: Partial<Task>) => {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: taskData.title || '',
-      description: taskData.description || '',
-      completed: false,
-      priority: taskData.priority || 'medium',
-      category: taskData.category || 'General',
-      createdAt: new Date(),
-      tags: taskData.tags || [],
-      type: taskType,
-      dueDate: taskData.dueDate
-    };
-    setTasks([...tasks, newTask]);
+    if (editingTask) {
+      // Update existing task
+      setTasks(tasks.map(task => 
+        task.id === editingTask.id ? { ...task, ...taskData } : task
+      ));
+    } else {
+      // Create new task
+      const newTask: Task = {
+        id: Date.now().toString(),
+        title: taskData.title || '',
+        description: taskData.description || '',
+        completed: false,
+        priority: taskData.priority || 'medium',
+        category: taskData.category || 'General',
+        createdAt: new Date(),
+        tags: taskData.tags || [],
+        type: taskType,
+        dueDate: taskData.dueDate,
+        deleted: false
+      };
+      setTasks([...tasks, newTask]);
+    }
     setIsCreatingTask(false);
+    setEditingTask(null);
   };
 
   const tabItems = [
@@ -159,6 +190,12 @@ const Actions = () => {
       label: "Matrix", 
       icon: Grid3x3,
       gradient: "from-orange-500 via-amber-500 to-yellow-500"
+    },
+    { 
+      value: "deleted", 
+      label: "Deleted", 
+      icon: Trash2,
+      gradient: "from-gray-500 via-slate-500 to-zinc-500"
     }
   ];
 
@@ -173,7 +210,7 @@ const Actions = () => {
         />
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList className="grid w-full grid-cols-4 max-w-4xl mx-auto">
+          <ModernTabsList className="grid w-full grid-cols-5 max-w-5xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
@@ -219,7 +256,7 @@ const Actions = () => {
           <ModernTabsContent value="kanban" className="mt-8">
             <div className="max-w-full mx-auto">
               <KanbanView
-                tasks={tasks}
+                tasks={activeTasks}
                 onTaskComplete={handleTaskComplete}
                 onTaskEdit={handleTaskEdit}
                 onTaskDelete={handleTaskDelete}
@@ -250,6 +287,16 @@ const Actions = () => {
               />
             </div>
           </ModernTabsContent>
+
+          <ModernTabsContent value="deleted" className="mt-8">
+            <div className="max-w-6xl mx-auto">
+              <DeletedTasksView
+                tasks={deletedTasks}
+                onTaskRestore={handleTaskRestore}
+                onTaskPermanentDelete={handleTaskPermanentDelete}
+              />
+            </div>
+          </ModernTabsContent>
         </ModernTabs>
 
         <TaskCreationDialog
@@ -257,6 +304,7 @@ const Actions = () => {
           onOpenChange={setIsCreatingTask}
           onCreateTask={handleCreateTask}
           taskType={taskType}
+          editingTask={editingTask}
         />
       </div>
     </ModernAppLayout>
