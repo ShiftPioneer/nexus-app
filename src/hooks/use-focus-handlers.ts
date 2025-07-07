@@ -1,115 +1,110 @@
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
-import { useToast } from "@/hooks/use-toast";
-import { useFocusTimer } from "@/components/focus/FocusTimerService";
-
-export const useFocusHandlers = (
-  focusSessions: FocusSession[],
-  setFocusSessions: (value: FocusSession[] | ((val: FocusSession[]) => FocusSession[])) => void
-) => {
-  const { 
-    isTimerRunning, 
-    timeRemaining, 
-    timerProgress, 
-    category,
-    startTimer,
-    pauseTimer,
-    resumeTimer,
-    stopTimer,
-    resetTimer
-  } = useFocusTimer();
+export const useFocusHandlers = () => {
   const { toast } = useToast();
+  const [sessions, setSessions] = useState<FocusSession[]>(() => {
+    const saved = localStorage.getItem('focusSessions');
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  const updateTimerDuration = (minutes: number) => {
-    resetTimer();
-    startTimer(minutes, category);
+  const [currentSession, setCurrentSession] = useState<FocusSession | null>(null);
+  const [isActive, setIsActive] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    localStorage.setItem('focusSessions', JSON.stringify(sessions));
+  }, [sessions]);
+
+  const formatTime = (timeInSeconds: number): string => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handleModeChange = (mode: "focus" | "shortBreak" | "longBreak") => {
-    resetTimer();
-    
-    let minutes = 25;
-    let newCategory = "Deep Work";
-    if (mode === "shortBreak") {
-      minutes = 5;
-      newCategory = "Short Break";
-    } else if (mode === "longBreak") {
-      minutes = 15;
-      newCategory = "Long Break";
-    }
-    
-    startTimer(minutes, newCategory);
-  };
+  const startSession = useCallback((duration: number, category: FocusCategory, notes?: string) => {
+    const newSession: FocusSession = {
+      id: Date.now().toString(),
+      date: new Date(),
+      duration: duration,
+      category: category,
+      completed: false,
+      xpEarned: 0,
+      notes: notes || ""
+    };
+    setCurrentSession(newSession);
+    setIsActive(true);
+    setTimeLeft(duration * 60);
+    setTotalTime(duration * 60);
 
-  const handleCategoryChange = (newCategory: FocusCategory) => {
-    if (isTimerRunning) {
-      toast({
-        title: "Category Change",
-        description: `Changed category to ${newCategory}`,
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setTimeLeft(prevTime => {
+        if (prevTime <= 0) {
+          clearInterval(intervalRef.current as NodeJS.Timeout);
+          completeSession();
+          return 0;
+        } else {
+          return prevTime - 1;
+        }
       });
+    }, 1000);
+  }, [completeSession]);
+
+  const pauseSession = useCallback(() => {
+    setIsActive(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
     }
-    startTimer(timeRemaining.minutes, newCategory);
-  };
+  }, []);
 
-  const toggleTimer = () => {
-    if (isTimerRunning) {
-      pauseTimer();
-    } else {
-      if (timerProgress > 0) {
-        resumeTimer();
-      } else {
-        startTimer(timeRemaining.minutes, category);
-      }
+  const stopSession = useCallback(() => {
+    setIsActive(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
     }
-  };
+    setCurrentSession(null);
+    setTimeLeft(0);
+    setTotalTime(0);
+  }, []);
 
-  const startTechnique = (technique: FocusTechnique) => {
-    startTimer(technique.duration, technique.name as FocusCategory);
-  };
-
-  const handleCompleteSession = () => {
-    const sessionDuration = Math.round(timerProgress * timeRemaining.minutes / 100);
-    
-    if (sessionDuration > 0) {
-      const newSession: FocusSession = {
-        id: `session-${Date.now()}`,
-        date: new Date(),
-        duration: sessionDuration,
-        category: category as FocusCategory,
-        xpEarned: sessionDuration,
-        notes: `${category} session completed`
+  const completeSession = useCallback(() => {
+    if (currentSession) {
+      const completedSession: FocusSession = {
+        ...currentSession,
+        duration: Math.round((totalTime - timeLeft) / 60),
+        completed: true,
+        xpEarned: Math.round((totalTime - timeLeft) / 60) * 10,
+        notes: currentSession.notes || ""
       };
-      
-      setFocusSessions(prev => [newSession, ...prev]);
+
+      setSessions(prev => [...prev, completedSession]);
       
       toast({
-        title: "Session Completed! 🎉",
-        description: `Your ${sessionDuration} minute ${category} session has been recorded. +${sessionDuration} XP earned!`,
+        title: "Session Complete!",
+        description: `Great job! You earned ${completedSession.xpEarned} XP.`,
       });
-      
-      resetTimer();
-    }
-  };
 
-  const deleteSession = (sessionId: string) => {
-    setFocusSessions(prev => prev.filter(session => session.id !== sessionId));
-    toast({
-      title: "Session Deleted",
-      description: "Focus session has been removed from your history",
-    });
-  };
+      // Reset state
+      setCurrentSession(null);
+      setIsActive(false);
+      setTimeLeft(0);
+      setTotalTime(0);
+    }
+  }, [currentSession, totalTime, timeLeft, toast]);
 
   return {
-    isTimerRunning,
-    timeRemaining,
-    timerProgress,
-    category,
-    updateTimerDuration,
-    handleModeChange,
-    handleCategoryChange,
-    toggleTimer,
-    startTechnique,
-    handleCompleteSession,
-    deleteSession,
-    resetTimer
+    sessions,
+    currentSession,
+    isActive,
+    timeLeft,
+    totalTime,
+    startSession,
+    pauseSession,
+    stopSession,
+    completeSession,
+    formatTime
   };
 };

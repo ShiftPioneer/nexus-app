@@ -12,25 +12,24 @@ import { Label } from "@/components/ui/label";
 import { TaskAttachment } from "@/types/gtd";
 import VoiceInput from "./VoiceInput";
 import AttachmentInput from "./AttachmentInput";
+
 const QuickCaptureForm = () => {
-  const {
-    addTask
-  } = useGTD();
-  const {
-    toast
-  } = useToast();
+  const { addTask } = useGTD();
+  const { toast } = useToast();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<TaskPriority>("Medium");
+  const [priority, setPriority] = useState<TaskPriority>("medium");
   const [isToDoNot, setIsToDoNot] = useState<boolean>(false);
   const [attachments, setAttachments] = useState<TaskAttachment[]>([]);
   const [isRecordingTitle, setIsRecordingTitle] = useState(false);
   const [isRecordingDescription, setIsRecordingDescription] = useState(false);
   const baseTitleRef = useRef("");
   const baseDescriptionRef = useRef("");
+
   const handleVoiceTranscriptionTitle = (text: string) => {
     setTitle(baseTitleRef.current + text);
   };
+
   const handleRecordingStateChangeTitle = (isRecording: boolean) => {
     setIsRecordingTitle(isRecording);
     if (isRecording) {
@@ -42,9 +41,11 @@ const QuickCaptureForm = () => {
       });
     }
   };
+
   const handleVoiceTranscriptionDescription = (text: string) => {
     setDescription(baseDescriptionRef.current + text);
   };
+
   const handleRecordingStateChangeDescription = (isRecording: boolean) => {
     setIsRecordingDescription(isRecording);
     if (isRecording) {
@@ -56,6 +57,7 @@ const QuickCaptureForm = () => {
       });
     }
   };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
@@ -71,6 +73,8 @@ const QuickCaptureForm = () => {
       description,
       priority,
       status: "inbox",
+      category: "inbox",
+      clarified: false,
       isToDoNot,
       attachment: attachments.length > 0 ? attachments[0] : undefined
     });
@@ -78,7 +82,7 @@ const QuickCaptureForm = () => {
     // Clear the form
     setTitle("");
     setDescription("");
-    setPriority("Medium");
+    setPriority("medium");
     setIsToDoNot(false);
     setAttachments([]);
 
@@ -88,7 +92,9 @@ const QuickCaptureForm = () => {
       description: "Your task has been added to the inbox"
     });
   };
-  return <Card className="bg-slate-950">
+
+  return (
+    <Card className="bg-slate-950">
       <CardHeader className="bg-slate-950 rounded-lg">
         <CardTitle className="text-xl text-orange-600">Quick Capture</CardTitle>
       </CardHeader>
@@ -103,7 +109,7 @@ const QuickCaptureForm = () => {
           </div>
           
           <div className="space-y-2">
-            <label className="text-sm font-medium t text-orange-600">Details</label>
+            <label className="text-sm font-medium text-orange-600">Details</label>
             <div className="flex items-start space-x-2">
               <Textarea placeholder="Add details (optional)" value={description} onChange={e => setDescription(e.target.value)} className="flex-1 min-h-[100px] focus:ring-2 focus:ring-primary bg-slate-900 border-slate-300 rounded-lg" />
               <div className="pt-2">
@@ -114,22 +120,31 @@ const QuickCaptureForm = () => {
 
           {/* Attachments Section */}
           <div className="space-y-2">
-            <label className="text-sm font-medium  text-orange-600">Attachments</label>
+            <label className="text-sm font-medium text-orange-600">Attachments</label>
             <AttachmentInput attachments={attachments} onAttachmentsChange={setAttachments} />
           </div>
           
           <div className="space-y-3">
-            <label className="text-sm font-medium  text-orange-600">Priority</label>
+            <label className="text-sm font-medium text-orange-600">Priority</label>
             <div className="flex flex-wrap gap-2">
-              {["Very Low", "Low", "Medium", "High", "Very High"].map(p => <Button key={p} type="button" size="sm" variant={priority === p ? "default" : "outline"} onClick={() => setPriority(p as TaskPriority)} className={priority === p ? "bg-primary text-primary-foreground" : ""}>
-                  {p}
+              {(["low", "medium", "high", "urgent"] as TaskPriority[]).map(p => (
+                <Button
+                  key={p}
+                  type="button"
+                  size="sm"
+                  variant={priority === p ? "default" : "outline"}
+                  onClick={() => setPriority(p)}
+                  className={priority === p ? "bg-primary text-primary-foreground" : ""}
+                >
+                  {p.charAt(0).toUpperCase() + p.slice(1)}
                   {priority === p && <Check className="ml-2 h-4 w-4" />}
-                </Button>)}
+                </Button>
+              ))}
             </div>
           </div>
           
           <div className="space-y-3">
-            <label className="text-sm font-medium  text-orange-600">Type</label>
+            <label className="text-sm font-medium text-orange-600">Type</label>
             <RadioGroup defaultValue="todo" className="flex flex-col space-y-1">
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="todo" id="todo" checked={!isToDoNot} onClick={() => setIsToDoNot(false)} />
@@ -147,6 +162,8 @@ const QuickCaptureForm = () => {
           </Button>
         </form>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default QuickCaptureForm;

@@ -171,8 +171,8 @@ const ClarificationForm = ({ task, onSave, onCancel }: {
 }) => {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description || "");
-  const [category, setCategory] = useState(task.category);
-  const [priority, setPriority] = useState(task.priority);
+  const [category, setCategory] = useState<TaskCategory>(task.category);
+  const [priority, setPriority] = useState<TaskPriority>(task.priority);
   const [context, setContext] = useState(task.context || "");
   const [nextAction, setNextAction] = useState("");
 
@@ -181,8 +181,8 @@ const ClarificationForm = ({ task, onSave, onCancel }: {
     onSave({
       title,
       description,
-      category: category as TaskCategory,
-      priority: priority as TaskPriority,
+      category,
+      priority,
       context,
       nextAction: nextAction || undefined,
       status: nextAction ? 'next-action' : 'clarified'
@@ -216,7 +216,7 @@ const ClarificationForm = ({ task, onSave, onCancel }: {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="category" className="text-white font-medium">Category</Label>
-          <Select value={category} onValueChange={setCategory}>
+          <Select value={category} onValueChange={(value: string) => setCategory(value as TaskCategory)}>
             <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
               <SelectValue />
             </SelectTrigger>
@@ -233,7 +233,7 @@ const ClarificationForm = ({ task, onSave, onCancel }: {
 
         <div>
           <Label htmlFor="priority" className="text-white font-medium">Priority</Label>
-          <Select value={priority} onValueChange={setPriority}>
+          <Select value={priority} onValueChange={(value: string) => setPriority(value as TaskPriority)}>
             <SelectTrigger className="bg-slate-800 border-slate-600 text-white mt-1">
               <SelectValue />
             </SelectTrigger>

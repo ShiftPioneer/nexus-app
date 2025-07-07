@@ -67,9 +67,9 @@ const DeletedTasksDialog: React.FC<DeletedTasksDialogProps> = ({
                     <h4 className="font-medium">{task.title}</h4>
                     {task.priority && (
                       <Badge variant={
-                        task.priority === "High" || task.priority === "Very High" 
+                        task.priority === "high" || task.priority === "urgent" 
                           ? "destructive" 
-                          : task.priority === "Medium" 
+                          : task.priority === "medium" 
                             ? "default" 
                             : "outline"
                       }>
