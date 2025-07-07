@@ -1,8 +1,7 @@
-
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
-export const useFocusHandlers = () => {
+export const useFocusHandlers = (setFocusSessions?: React.Dispatch<React.SetStateAction<FocusSession[]>>) => {
   const { toast } = useToast();
   const [sessions, setSessions] = useState<FocusSession[]>(() => {
     const saved = localStorage.getItem('focusSessions');
@@ -16,15 +15,12 @@ export const useFocusHandlers = () => {
   const [category, setCategory] = useState<FocusCategory>('Deep Work');
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Use external setFocusSessions if provided, otherwise use internal setSessions
+  const updateSessions = setFocusSessions || setSessions;
+
   useEffect(() => {
     localStorage.setItem('focusSessions', JSON.stringify(sessions));
   }, [sessions]);
-
-  const formatTime = (timeInSeconds: number): string => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = timeInSeconds % 60;
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
 
   const completeSession = useCallback(() => {
     if (currentSession) {
@@ -36,7 +32,7 @@ export const useFocusHandlers = () => {
         notes: currentSession.notes || ""
       };
 
-      setSessions(prev => [...prev, completedSession]);
+      updateSessions(prev => [...prev, completedSession]);
       
       toast({
         title: "Session Complete!",
@@ -49,7 +45,7 @@ export const useFocusHandlers = () => {
       setTimeLeft(0);
       setTotalTime(0);
     }
-  }, [currentSession, totalTime, timeLeft, toast]);
+  }, [currentSession, totalTime, timeLeft, toast, updateSessions]);
 
   const startSession = useCallback((duration: number, sessionCategory: FocusCategory, notes?: string) => {
     const newSession: FocusSession = {
@@ -130,9 +126,9 @@ export const useFocusHandlers = () => {
     if (mode === "focus") {
       setCategory('Deep Work');
     } else if (mode === "shortBreak") {
-      setCategory('Short Break' as FocusCategory);
+      setCategory('Deep Work');
     } else {
-      setCategory('Long Break' as FocusCategory);
+      setCategory('Deep Work');
     }
   }, []);
 
@@ -147,7 +143,6 @@ export const useFocusHandlers = () => {
   }, []);
 
   const startTechnique = useCallback((technique: any) => {
-    // Start a technique-based focus session
     const duration = technique.duration || 25;
     startSession(duration, 'Deep Work', `Using ${technique.name} technique`);
   }, [startSession]);
@@ -157,8 +152,14 @@ export const useFocusHandlers = () => {
   }, [completeSession]);
 
   const deleteSession = useCallback((sessionId: string) => {
-    setSessions(prev => prev.filter(session => session.id !== sessionId));
-  }, []);
+    updateSessions(prev => prev.filter(session => session.id !== sessionId));
+  }, [updateSessions]);
+
+  const formatTime = (timeInSeconds: number): string => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  };
 
   // Calculate timer properties
   const timeRemaining = {
