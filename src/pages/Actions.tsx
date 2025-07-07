@@ -5,6 +5,8 @@ import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import { CheckSquare, X, Kanban, Grid3x3 } from "lucide-react";
 import ModernTasksList from "@/components/actions/ModernTasksList";
+import KanbanView from "@/components/actions/KanbanView";
+import MatrixView from "@/components/actions/MatrixView";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 interface Task {
@@ -72,6 +74,18 @@ const Actions = () => {
           createdAt: new Date(),
           tags: ['health', 'nutrition'],
           type: 'not-todo'
+        },
+        {
+          id: '5',
+          title: 'Review quarterly reports',
+          description: 'Analyze Q4 performance metrics',
+          completed: false,
+          priority: 'urgent',
+          category: 'Work',
+          dueDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000),
+          createdAt: new Date(),
+          tags: ['analytics', 'deadline'],
+          type: 'todo'
         }
       ];
       setTasks(sampleTasks);
@@ -88,7 +102,6 @@ const Actions = () => {
   };
 
   const handleTaskEdit = (task: Task) => {
-    // TODO: Open edit dialog
     console.log('Edit task:', task);
   };
 
@@ -96,15 +109,16 @@ const Actions = () => {
     setTasks(tasks.filter(task => task.id !== taskId));
   };
 
-  const handleAddTask = (type: 'todo' | 'not-todo') => {
+  const handleAddTask = (type?: 'todo' | 'not-todo') => {
+    const taskType = type || (activeTab === 'not-todo' ? 'not-todo' : 'todo');
     const newTask: Task = {
       id: Date.now().toString(),
-      title: type === 'todo' ? 'New Task' : 'New Avoidance Item',
+      title: taskType === 'todo' ? 'New Task' : 'New Avoidance Item',
       completed: false,
       priority: 'medium',
       category: 'General',
       createdAt: new Date(),
-      type
+      type: taskType
     };
     setTasks([...tasks, newTask]);
   };
@@ -191,22 +205,26 @@ const Actions = () => {
           </ModernTabsContent>
           
           <ModernTabsContent value="kanban" className="mt-8">
-            <div className="max-w-7xl mx-auto">
-              <div className="glass rounded-2xl p-6 border border-slate-700/50 text-center">
-                <Kanban className="h-16 w-16 text-slate-500 mx-auto mb-4 opacity-50" />
-                <h3 className="text-xl font-semibold text-white mb-2">Kanban View</h3>
-                <p className="text-slate-400">Modern Kanban board coming soon...</p>
-              </div>
+            <div className="max-w-full mx-auto">
+              <KanbanView
+                tasks={tasks}
+                onTaskComplete={handleTaskComplete}
+                onTaskEdit={handleTaskEdit}
+                onTaskDelete={handleTaskDelete}
+                onAddTask={() => handleAddTask()}
+              />
             </div>
           </ModernTabsContent>
           
           <ModernTabsContent value="matrix" className="mt-8">
-            <div className="max-w-6xl mx-auto">
-              <div className="glass rounded-2xl p-6 border border-slate-700/50 text-center">
-                <Grid3x3 className="h-16 w-16 text-slate-500 mx-auto mb-4 opacity-50" />
-                <h3 className="text-xl font-semibold text-white mb-2">Eisenhower Matrix</h3>
-                <p className="text-slate-400">Priority matrix view coming soon...</p>
-              </div>
+            <div className="max-w-full mx-auto">
+              <MatrixView
+                tasks={tasks}
+                onTaskComplete={handleTaskComplete}
+                onTaskEdit={handleTaskEdit}
+                onTaskDelete={handleTaskDelete}
+                onAddTask={() => handleAddTask()}
+              />
             </div>
           </ModernTabsContent>
         </ModernTabs>

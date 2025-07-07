@@ -1,88 +1,130 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Clock, Calendar } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Clock, Target, Zap, TrendingUp } from "lucide-react";
+import { motion } from "framer-motion";
+
+interface FocusStats {
+  totalSessions: number;
+  totalMinutes: number;
+  todayMinutes: number;
+  currentStreak: number;
+  weeklyGoal: number;
+  completionRate: number;
+}
+
 interface FocusStatsCardProps {
   stats: FocusStats;
 }
-const FocusStatsCard: React.FC<FocusStatsCardProps> = ({
-  stats
-}) => {
-  return <Card className="lg:col-span-3 rounded-lg bg-slate-950">
-      <CardHeader className="bg-slate-950 rounded-lg">
-        <CardTitle>Focus Stats</CardTitle>
-        <CardDescription>Your productivity insights</CardDescription>
+
+const FocusStatsCard: React.FC<FocusStatsCardProps> = ({ stats }) => {
+  const progressPercentage = (stats.todayMinutes / stats.weeklyGoal) * 100;
+
+  return (
+    <Card className="h-fit bg-slate-950/80 backdrop-blur-sm border-slate-700/50 shadow-xl">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+          <TrendingUp className="h-5 w-5 text-emerald-400" />
+          Focus Stats
+        </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="text-blue-400">
-                <Clock className="h-5 w-5" />
-              </div>
-              <span className="text-blue-400">Today</span>
-            </div>
-            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">{stats.todayMinutes || 0} minutes</span>
+      <CardContent className="space-y-4">
+        {/* Today's Progress */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <span className="text-sm text-slate-300">Today's Focus</span>
+            <Badge variant="outline" className="text-emerald-400 border-emerald-400/50">
+              {stats.todayMinutes}m
+            </Badge>
           </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="text-green-500">
-                <Calendar className="h-5 w-5" />
-              </div>
-              <span className="text-green-500">This Week</span>
-            </div>
-            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs">{stats.weekMinutes || 0} minutes</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="text-orange-500">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-lime-600">
-                  <path d="M8 2V5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M16 2V5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  <path d="M3 7.5H21" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M12 14L16 16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  <circle cx="12" cy="14" r="2" stroke="currentColor" strokeWidth="1.5" />
-                  <path fillRule="evenodd" clipRule="evenodd" d="M19 22H5C3.895 22 3 21.105 3 20V9C3 7.895 3.895 7 5 7H19C20.105 7 21 7.895 21 9V20C21 21.105 20.105 22 19 22Z" stroke="currentColor" strokeWidth="1.5" />
-                </svg>
-              </div>
-              <span className="text-lime-600">Current Streak</span>
-            </div>
-            <span className="px-3 py-1 bg-lime-100 text-lime-600 rounded-full text-xs">{stats.currentStreak || 0} days</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="text-purple-500">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="1.5" />
-                </svg>
-              </div>
-              <span className="text-purple-500">Total Sessions</span>
-            </div>
-            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">{stats.totalSessions || 0} sessions</span>
+          <div className="w-full bg-slate-800 rounded-full h-2">
+            <motion.div 
+              className="bg-gradient-to-r from-emerald-500 to-teal-500 h-2 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(progressPercentage, 100)}%` }}
+              transition={{ duration: 1, delay: 0.2 }}
+            />
           </div>
         </div>
 
-        <div className="pt-4 border-t">
-          <h4 className="font-medium mb-3">Top Focus Categories</h4>
-          {stats.categoryStats && stats.categoryStats.length > 0 ? <div className="space-y-3">
-              {stats.categoryStats.map((stat, index) => <div key={index} className="space-y-1">
-                  <div className="flex justify-between">
-                    <span>{stat.category}</span>
-                    <span>{stat.sessions} sessions</span>
-                  </div>
-                  <div className="w-full bg-muted rounded-full h-2">
-                    <div className={`h-2 rounded-full ${stat.category === "Deep Work" ? "bg-purple-600" : stat.category === "Study" ? "bg-blue-500" : stat.category === "Creative" ? "bg-orange-500" : "bg-green-500"}`} style={{
-                width: `${stat.percentage}%`
-              }}></div>
-                  </div>
-                </div>)}
-            </div> : <div className="text-center py-4 text-muted-foreground">
-              <p>Complete focus sessions to see your stats</p>
-            </div>}
+        {/* Stats Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <motion.div 
+            className="bg-slate-900/50 rounded-lg p-3 border border-slate-700/30"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-blue-400" />
+              <div>
+                <p className="text-xs text-slate-400">Total Sessions</p>
+                <p className="text-lg font-semibold text-white">{stats.totalSessions}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            className="bg-slate-900/50 rounded-lg p-3 border border-slate-700/30"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex items-center gap-2">
+              <Target className="h-4 w-4 text-purple-400" />
+              <div>
+                <p className="text-xs text-slate-400">Total Minutes</p>
+                <p className="text-lg font-semibold text-white">{stats.totalMinutes}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            className="bg-slate-900/50 rounded-lg p-3 border border-slate-700/30"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-orange-400" />
+              <div>
+                <p className="text-xs text-slate-400">Streak</p>
+                <p className="text-lg font-semibold text-white">{stats.currentStreak}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div 
+            className="bg-slate-900/50 rounded-lg p-3 border border-slate-700/30"
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-4 w-4 text-emerald-400" />
+              <div>
+                <p className="text-xs text-slate-400">Success Rate</p>
+                <p className="text-lg font-semibold text-white">{stats.completionRate}%</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Weekly Goal Progress */}
+        <div className="space-y-2 pt-2 border-t border-slate-700/30">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-slate-400">Weekly Goal Progress</span>
+            <span className="text-xs text-slate-300">{stats.todayMinutes}/{stats.weeklyGoal}m</span>
+          </div>
+          <div className="w-full bg-slate-800 rounded-full h-1.5">
+            <motion.div 
+              className="bg-gradient-to-r from-purple-500 to-pink-500 h-1.5 rounded-full"
+              initial={{ width: 0 }}
+              animate={{ width: `${Math.min(progressPercentage, 100)}%` }}
+              transition={{ duration: 1, delay: 0.4 }}
+            />
+          </div>
         </div>
       </CardContent>
-    </Card>;
+    </Card>
+  );
 };
+
 export default FocusStatsCard;

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
@@ -107,8 +108,8 @@ const FocusContent = () => {
         </ModernTabsList>
         
         <ModernTabsContent value="timer" className="mt-8">
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-4">
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 max-w-7xl mx-auto">
+            <div className="xl:col-span-3">
               <ModernFocusTimer 
                 timerMode={timerMode}
                 timerDuration={timeRemaining.minutes * 60 + timeRemaining.seconds}
@@ -123,7 +124,7 @@ const FocusContent = () => {
                 onResetTimer={resetTimer}
               />
             </div>
-            <div className="lg:col-span-1">
+            <div className="xl:col-span-1">
               <FocusStatsCard stats={focusStats} />
             </div>
           </div>
