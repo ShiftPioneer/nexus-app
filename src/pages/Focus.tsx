@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
@@ -20,6 +19,7 @@ import { Brain, Clock, BarChart2, Lightbulb } from "lucide-react";
 const FocusContent = () => {
   const [activeTab, setActiveTab] = useState("timer");
   const [focusSessions, setFocusSessions] = useLocalStorage<FocusSession[]>("focusSessions", []);
+  const [timerMode, setTimerMode] = useState<"focus" | "shortBreak" | "longBreak">("focus");
   const focusStats = useFocusStats(focusSessions);
   const {
     isTimerRunning,
@@ -34,7 +34,7 @@ const FocusContent = () => {
     handleCompleteSession,
     deleteSession,
     resetTimer
-  } = useFocusHandlers();
+  } = useFocusHandlers(setFocusSessions);
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -47,6 +47,11 @@ const FocusContent = () => {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [isTimerRunning]);
+
+  const handleModeChangeLocal = (mode: "focus" | "shortBreak" | "longBreak") => {
+    setTimerMode(mode);
+    handleModeChange(mode);
+  };
 
   const tabItems = [
     { 
@@ -105,13 +110,13 @@ const FocusContent = () => {
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             <div className="lg:col-span-4">
               <ModernFocusTimer 
-                timerMode={category === "Short Break" ? "shortBreak" : category === "Long Break" ? "longBreak" : "focus"}
+                timerMode={timerMode}
                 timerDuration={timeRemaining.minutes * 60 + timeRemaining.seconds}
                 time={timeRemaining}
                 progress={timerProgress}
-                category={category as FocusCategory}
+                category={category}
                 isRunning={isTimerRunning}
-                onModeChange={handleModeChange}
+                onModeChange={handleModeChangeLocal}
                 onDurationChange={updateTimerDuration}
                 onCategoryChange={handleCategoryChange}
                 onToggleTimer={toggleTimer}
