@@ -1,15 +1,23 @@
 
 import { useState, useEffect } from 'react';
 
+interface FocusStatsCardData {
+  totalSessions: number;
+  totalMinutes: number;
+  todayMinutes: number;
+  currentStreak: number;
+  weeklyGoal: number;
+  completionRate: number;
+}
+
 export const useFocusStats = (focusSessions: FocusSession[]) => {
-  const [focusStats, setFocusStats] = useState<FocusStats>({
+  const [focusStats, setFocusStats] = useState<FocusStatsCardData>({
     todayMinutes: 0,
-    weekMinutes: 0,
+    totalMinutes: 0,
     currentStreak: 0,
     totalSessions: 0,
-    categoryStats: [],
-    longestSession: { duration: 0, date: new Date() },
-    weeklyImprovement: 0
+    weeklyGoal: 150, // Default weekly goal of 150 minutes
+    completionRate: 0
   });
 
   const calculateCurrentStreak = (): number => {
@@ -37,57 +45,11 @@ export const useFocusStats = (focusSessions: FocusSession[]) => {
     return streak;
   };
 
-  const calculateCategoryStats = () => {
-    const categoryTotals = focusSessions.reduce((acc, session) => {
-      acc[session.category] = (acc[session.category] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+  const calculateCompletionRate = (): number => {
+    if (focusSessions.length === 0) return 0;
     
-    return Object.entries(categoryTotals).map(([category, sessions]) => ({
-      category: category as FocusCategory,
-      sessions,
-      percentage: Math.round((sessions / Math.max(focusSessions.length, 1)) * 100)
-    }));
-  };
-
-  const findLongestSession = () => {
-    if (focusSessions.length === 0) {
-      return { duration: 0, date: new Date() };
-    }
-    
-    const longest = focusSessions.reduce((max, session) => 
-      session.duration > max.duration ? session : max
-    );
-    
-    return {
-      duration: longest.duration,
-      date: new Date(longest.date)
-    };
-  };
-
-  const calculateWeeklyImprovement = (): number => {
-    const completedThisWeek = focusSessions.filter(session => {
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const sessionDate = new Date(session.date);
-      return sessionDate >= weekAgo;
-    });
-
-    const thisWeekMinutes = completedThisWeek.reduce((sum, session) => sum + session.duration, 0);
-    
-    const lastWeekSessions = focusSessions.filter(session => {
-      const twoWeeksAgo = new Date();
-      twoWeeksAgo.setDate(twoWeeksAgo.getDate() - 14);
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const sessionDate = new Date(session.date);
-      return sessionDate >= twoWeeksAgo && sessionDate < weekAgo;
-    });
-    
-    const lastWeekMinutes = lastWeekSessions.reduce((sum, session) => sum + session.duration, 0);
-    
-    if (lastWeekMinutes === 0) return thisWeekMinutes > 0 ? 100 : 0;
-    return Math.round(((thisWeekMinutes - lastWeekMinutes) / lastWeekMinutes) * 100);
+    const completedSessions = focusSessions.filter(session => session.completed);
+    return Math.round((completedSessions.length / focusSessions.length) * 100);
   };
 
   useEffect(() => {
@@ -97,24 +59,16 @@ export const useFocusStats = (focusSessions: FocusSession[]) => {
       return sessionDate === today;
     });
     
-    const completedThisWeek = focusSessions.filter(session => {
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      const sessionDate = new Date(session.date);
-      return sessionDate >= weekAgo;
-    });
-    
     const todayMinutes = completedToday.reduce((sum, session) => sum + session.duration, 0);
-    const weekMinutes = completedThisWeek.reduce((sum, session) => sum + session.duration, 0);
+    const totalMinutes = focusSessions.reduce((sum, session) => sum + session.duration, 0);
 
     setFocusStats({
       todayMinutes,
-      weekMinutes,
+      totalMinutes,
       currentStreak: calculateCurrentStreak(),
       totalSessions: focusSessions.length,
-      categoryStats: calculateCategoryStats(),
-      longestSession: findLongestSession(),
-      weeklyImprovement: calculateWeeklyImprovement()
+      weeklyGoal: 150, // Default weekly goal
+      completionRate: calculateCompletionRate()
     });
   }, [focusSessions]);
 
