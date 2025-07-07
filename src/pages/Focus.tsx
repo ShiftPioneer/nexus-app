@@ -34,7 +34,7 @@ const FocusContent = () => {
     handleCompleteSession,
     deleteSession,
     resetTimer
-  } = useFocusHandlers(focusSessions, setFocusSessions);
+  } = useFocusHandlers();
 
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
