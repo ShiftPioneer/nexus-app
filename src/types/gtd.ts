@@ -1,5 +1,6 @@
+
 // Define TaskPriority and TaskStatus types with all possible values
-export type TaskPriority = "Very Low" | "Low" | "Medium" | "High" | "Very High";
+export type TaskPriority = "urgent" | "high" | "medium" | "low";
 
 export type TaskStatus = 
   | "inbox" 
@@ -15,7 +16,16 @@ export type TaskStatus =
   | "in-progress" 
   | "do-it" 
   | "delegate-it" 
-  | "defer-it";
+  | "defer-it"
+  | "clarified";
+
+export type TaskCategory = 
+  | "inbox"
+  | "next-actions"
+  | "projects"
+  | "waiting-for"
+  | "someday-maybe"
+  | "reference";
 
 export interface TaskAttachment {
   name: string;
@@ -30,6 +40,8 @@ export interface GTDTask {
   description?: string;
   priority: TaskPriority;
   status: TaskStatus;
+  category: TaskCategory; // Added missing category property
+  clarified: boolean; // Added missing clarified property
   dueDate?: Date;
   createdAt: Date;
   tags?: string[];
@@ -40,6 +52,7 @@ export interface GTDTask {
   delegatedTo?: string;
   attachment?: TaskAttachment;
   isToDoNot?: boolean; // Field to differentiate between to-do and not-to-do tasks
+  nextAction?: string; // Added missing nextAction property
 }
 
 export type GTDView = "capture" | "clarify" | "organize" | "reflect" | "engage";

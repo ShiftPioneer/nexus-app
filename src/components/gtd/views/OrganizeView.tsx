@@ -19,6 +19,7 @@ import {
   Flag
 } from "lucide-react";
 import { useGTD } from "../GTDContext";
+import { GTDTask, TaskCategory } from "@/types/gtd";
 
 const OrganizeView = () => {
   const { tasks, updateTask } = useGTD();
@@ -41,7 +42,7 @@ const OrganizeView = () => {
     };
   }, [clarifiedTasks, searchTerm]);
 
-  const moveTask = (taskId: string, newCategory: GTDTask['category']) => {
+  const moveTask = (taskId: string, newCategory: TaskCategory) => {
     updateTask(taskId, { category: newCategory });
   };
 
@@ -164,7 +165,7 @@ const CategorySection = ({
 }: {
   title: string;
   tasks: GTDTask[];
-  onMoveTask: (taskId: string, category: GTDTask['category']) => void;
+  onMoveTask: (taskId: string, category: TaskCategory) => void;
   emptyMessage: string;
   icon: any;
 }) => {
@@ -187,7 +188,7 @@ const CategorySection = ({
   );
 };
 
-const TaskCard = ({ task, onMoveTask }: { task: GTDTask; onMoveTask: (taskId: string, category: GTDTask['category']) => void }) => {
+const TaskCard = ({ task, onMoveTask }: { task: GTDTask; onMoveTask: (taskId: string, category: TaskCategory) => void }) => {
   return (
     <Card className="bg-slate-900/80 border-slate-700/50 hover:border-blue-500/30 transition-all duration-300 group">
       <CardHeader className="pb-3">

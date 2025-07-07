@@ -7,8 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, Clock, Flag, ArrowRight, CheckCircle2, X } from "lucide-react";
+import { Search, Filter, Clock, Flag, ArrowRight, CheckCircle2, X, Calendar } from "lucide-react";
 import { useGTD } from "../GTDContext";
+import { GTDTask, TaskPriority, TaskCategory } from "@/types/gtd";
 
 const ClarifyView = () => {
   const { tasks, updateTask, deleteTask } = useGTD();
@@ -180,8 +181,8 @@ const ClarificationForm = ({ task, onSave, onCancel }: {
     onSave({
       title,
       description,
-      category: category as GTDTask['category'],
-      priority: priority as GTDTask['priority'],
+      category: category as TaskCategory,
+      priority: priority as TaskPriority,
       context,
       nextAction: nextAction || undefined,
       status: nextAction ? 'next-action' : 'clarified'
