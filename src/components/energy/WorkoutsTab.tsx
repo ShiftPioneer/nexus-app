@@ -29,7 +29,6 @@ export const WorkoutsTab = () => {
   const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null);
   const [isWorkoutDialogOpen, setIsWorkoutDialogOpen] = useState(false);
 
-  // Mock workout data
   const workouts = [
     {
       id: "1",
@@ -293,8 +292,12 @@ export const WorkoutsTab = () => {
 
       {/* Workout Dialog */}
       <WorkoutDialog
-        isOpen={isWorkoutDialogOpen}
-        onClose={() => setIsWorkoutDialogOpen(false)}
+        open={isWorkoutDialogOpen}
+        onOpenChange={setIsWorkoutDialogOpen}
+        onSave={(workout) => {
+          console.log('Saving workout:', workout);
+          setIsWorkoutDialogOpen(false);
+        }}
       />
     </div>
   );
