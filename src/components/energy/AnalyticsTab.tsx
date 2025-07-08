@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   TrendingUp, 
   Target, 
@@ -18,6 +17,7 @@ import {
   Award
 } from "lucide-react";
 import { motion } from "framer-motion";
+import { AnalyticsOverview } from './analytics-components/AnalyticsOverview';
 
 export const AnalyticsTab = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("week");
@@ -49,6 +49,41 @@ export const AnalyticsTab = () => {
     { name: "Arms", sessions: 5, progress: 90 },
     { name: "Core", sessions: 3, progress: 70 },
     { name: "Shoulders", sessions: 2, progress: 55 }
+  ];
+
+  const performanceInsights = [
+    {
+      title: "Strength Gains",
+      description: "Your upper body strength has improved by 15% this month. Great progress on bench press and pull-ups!",
+      icon: TrendingUp,
+      color: "from-green-500/10 to-emerald-500/10",
+      borderColor: "border-green-500/20",
+      iconColor: "text-green-400"
+    },
+    {
+      title: "Energy Levels",
+      description: "Your energy peaks on Tuesdays and Thursdays. Consider scheduling intense workouts on these days.",
+      icon: Zap,
+      color: "from-blue-500/10 to-cyan-500/10",
+      borderColor: "border-blue-500/20",
+      iconColor: "text-blue-400"
+    },
+    {
+      title: "Consistency",
+      description: "You've maintained a 80% workout consistency this month. Try to reach 85% for optimal results.",
+      icon: Trophy,
+      color: "from-purple-500/10 to-indigo-500/10",
+      borderColor: "border-purple-500/20",
+      iconColor: "text-purple-400"
+    },
+    {
+      title: "Focus Areas",
+      description: "Consider increasing leg training frequency. Your lower body could benefit from more attention.",
+      icon: Target,
+      color: "from-red-500/10 to-orange-500/10",
+      borderColor: "border-red-500/20",
+      iconColor: "text-red-400"
+    }
   ];
 
   const StatCard = ({ 
@@ -175,98 +210,92 @@ export const AnalyticsTab = () => {
         />
       </div>
 
-      {/* Main Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Weekly Progress */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="lg:col-span-2"
-        >
-          <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-primary" />
-                Weekly Progress
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {weeklyProgress.map((day, index) => (
-                <motion.div
-                  key={day.day}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 + index * 0.05 }}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className={`w-3 h-3 rounded-full ${
-                        day.completed ? "bg-green-500" : "bg-slate-600"
-                      }`} />
-                      <span className="text-white font-medium">{day.day}</span>
+      {/* Analytics Overview with Charts */}
+      <AnalyticsOverview />
+
+      {/* Weekly Progress */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-primary" />
+              Weekly Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {weeklyProgress.map((day, index) => (
+              <motion.div
+                key={day.day}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 + index * 0.05 }}
+                className="space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      day.completed ? "bg-green-500" : "bg-slate-600"
+                    }`} />
+                    <span className="text-white font-medium">{day.day}</span>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm">
+                    <div className="flex items-center gap-1">
+                      <Clock className="h-3 w-3 text-slate-400" />
+                      <span className="text-slate-400">{day.duration}m</span>
                     </div>
-                    <div className="flex items-center gap-4 text-sm">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3 text-slate-400" />
-                        <span className="text-slate-400">{day.duration}m</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Flame className="h-3 w-3 text-red-400" />
-                        <span className="text-red-400">{day.calories} cal</span>
-                      </div>
+                    <div className="flex items-center gap-1">
+                      <Flame className="h-3 w-3 text-red-400" />
+                      <span className="text-red-400">{day.calories} cal</span>
                     </div>
                   </div>
-                  <Progress 
-                    value={day.completed ? 100 : 0} 
-                    className="h-2"
-                  />
-                </motion.div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
+                </div>
+                <Progress 
+                  value={day.completed ? 100 : 0} 
+                  className="h-2"
+                />
+              </motion.div>
+            ))}
+          </CardContent>
+        </Card>
 
         {/* Muscle Groups */}
-        <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3 }}
-        >
-          <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Target className="h-5 w-5 text-primary" />
-                Muscle Groups
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {muscleGroups.map((group, index) => (
-                <motion.div
-                  key={group.name}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 + index * 0.05 }}
-                  className="space-y-2"
-                >
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-white font-medium">{group.name}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-400">{group.sessions} sessions</span>
-                      <span className="text-primary font-medium">{group.progress}%</span>
-                    </div>
+        <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50">
+          <CardHeader>
+            <CardTitle className="text-white flex items-center gap-2">
+              <Target className="h-5 w-5 text-primary" />
+              Muscle Groups
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {muscleGroups.map((group, index) => (
+              <motion.div
+                key={group.name}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 + index * 0.05 }}
+                className="space-y-2"
+              >
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-white font-medium">{group.name}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400">{group.sessions} sessions</span>
+                    <span className="text-primary font-medium">{group.progress}%</span>
                   </div>
-                  <Progress 
-                    value={group.progress} 
-                    className="h-2"
-                  />
-                </motion.div>
-              ))}
-            </CardContent>
-          </Card>
-        </motion.div>
-      </div>
+                </div>
+                <Progress 
+                  value={group.progress} 
+                  className="h-2"
+                />
+              </motion.div>
+            ))}
+          </CardContent>
+        </Card>
+      </motion.div>
 
       {/* Performance Insights */}
       <motion.div
@@ -280,42 +309,23 @@ export const AnalyticsTab = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-green-400" />
-                  <span className="text-green-400 font-medium">Strength Gains</span>
-                </div>
-                <p className="text-sm text-slate-300">
-                  Your upper body strength has improved by 15% this month. Great progress on bench press and pull-ups!
-                </p>
-              </div>
-              <div className="p-4 bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-500/20 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Zap className="h-4 w-4 text-blue-400" />
-                  <span className="text-blue-400 font-medium">Energy Levels</span>
-                </div>
-                <p className="text-sm text-slate-300">
-                  Your energy peaks on Tuesdays and Thursdays. Consider scheduling intense workouts on these days.
-                </p>
-              </div>
-              <div className="p-4 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 border border-purple-500/20 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Trophy className="h-4 w-4 text-purple-400" />
-                  <span className="text-purple-400 font-medium">Consistency</span>
-                </div>
-                <p className="text-sm text-slate-300">
-                  You've maintained a 80% workout consistency this month. Try to reach 85% for optimal results.
-                </p>
-              </div>
-              <div className="p-4 bg-gradient-to-r from-red-500/10 to-orange-500/10 border border-red-500/20 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
-                  <Target className="h-4 w-4 text-red-400" />
-                  <span className="text-red-400 font-medium">Focus Areas</span>
-                </div>
-                <p className="text-sm text-slate-300">
-                  Consider increasing leg training frequency. Your lower body could benefit from more attention.
-                </p>
-              </div>
+              {performanceInsights.map((insight, index) => (
+                <motion.div
+                  key={insight.title}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + index * 0.1 }}
+                  className={`p-4 bg-gradient-to-r ${insight.color} border ${insight.borderColor} rounded-lg`}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <insight.icon className={`h-4 w-4 ${insight.iconColor}`} />
+                    <span className={`${insight.iconColor} font-medium`}>{insight.title}</span>
+                  </div>
+                  <p className="text-sm text-slate-300">
+                    {insight.description}
+                  </p>
+                </motion.div>
+              ))}
             </div>
           </CardContent>
         </Card>
