@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,8 +21,8 @@ import {
   Trash2
 } from "lucide-react";
 import { motion } from "framer-motion";
-import WorkoutDialog from './WorkoutDialog';
-import ExerciseLibrary from './ExerciseLibrary';
+import { WorkoutDialog } from './WorkoutDialog';
+import { ExerciseLibrary } from './ExerciseLibrary';
 
 export const WorkoutsTab = () => {
   const [activeView, setActiveView] = useState("myWorkouts");
