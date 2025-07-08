@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -33,13 +33,15 @@ interface TaskCreationDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreateTask: (task: Partial<Task>) => void;
   taskType: 'todo' | 'not-todo';
+  editingTask?: Task | null;
 }
 
 const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
   open,
   onOpenChange,
   onCreateTask,
-  taskType
+  taskType,
+  editingTask
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -48,6 +50,28 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+
+  // Reset form when dialog opens/closes or editingTask changes
+  useEffect(() => {
+    if (open && editingTask) {
+      // Populate form with existing task data
+      setTitle(editingTask.title || "");
+      setDescription(editingTask.description || "");
+      setPriority(editingTask.priority || 'medium');
+      setCategory(editingTask.category || "");
+      setDueDate(editingTask.dueDate ? new Date(editingTask.dueDate) : undefined);
+      setTags(editingTask.tags || []);
+    } else if (open && !editingTask) {
+      // Reset form for new task
+      setTitle("");
+      setDescription("");
+      setPriority('medium');
+      setCategory("");
+      setDueDate(undefined);
+      setTags([]);
+    }
+    setTagInput("");
+  }, [open, editingTask]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -86,12 +110,14 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
+  const isEditMode = !!editingTask;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="bg-slate-950 border-slate-700 max-w-md">
         <DialogHeader>
           <DialogTitle className="text-white">
-            Create New {taskType === 'todo' ? 'Task' : 'Avoidance Item'}
+            {isEditMode ? 'Edit' : 'Create New'} {taskType === 'todo' ? 'Task' : 'Avoidance Item'}
           </DialogTitle>
         </DialogHeader>
 
@@ -209,7 +235,7 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
               type="submit"
               className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
             >
-              Create {taskType === 'todo' ? 'Task' : 'Avoidance Item'}
+              {isEditMode ? 'Update' : 'Create'} {taskType === 'todo' ? 'Task' : 'Avoidance Item'}
             </Button>
           </div>
         </form>
