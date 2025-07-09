@@ -1,189 +1,277 @@
-import React, { useState, useRef } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus, Image, X, Check } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { motion, AnimatePresence } from 'framer-motion';
-import { v4 as uuidv4 } from 'uuid';
+
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Plus, Eye, Image, Target, Star, Heart, Sparkles, X } from "lucide-react";
+import { motion } from "framer-motion";
+
 interface VisionItem {
   id: string;
-  imageUrl: string;
-  caption: string;
-  createdAt: Date;
+  title: string;
+  description: string;
+  category: "career" | "health" | "relationships" | "personal" | "financial";
+  isAchieved: boolean;
 }
+
 const VisionBoardSection = () => {
-  const [visionItems, setVisionItems] = useState<VisionItem[]>(() => {
-    const savedItems = localStorage.getItem('visionBoardItems');
-    return savedItems ? JSON.parse(savedItems) : [];
+  const [visionItems, setVisionItems] = useState<VisionItem[]>([
+    {
+      id: "1",
+      title: "Launch My Dream Business",
+      description: "Create a sustainable business that aligns with my values and makes a positive impact.",
+      category: "career",
+      isAchieved: false
+    },
+    {
+      id: "2", 
+      title: "Run a Marathon",
+      description: "Complete a full marathon while maintaining excellent health and fitness.",
+      category: "health",
+      isAchieved: false
+    }
+  ]);
+
+  const [newItem, setNewItem] = useState({
+    title: "",
+    description: "",
+    category: "personal" as const
   });
-  const [isAddingNewItem, setIsAddingNewItem] = useState(false);
-  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-  const [caption, setCaption] = useState('');
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const {
-    toast
-  } = useToast();
 
-  // Save vision items to localStorage when it changes
-  React.useEffect(() => {
-    localStorage.setItem('visionBoardItems', JSON.stringify(visionItems));
-  }, [visionItems]);
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const [showForm, setShowForm] = useState(false);
 
-    // Check file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: 'Invalid file type',
-        description: 'Please upload an image file',
-        variant: 'destructive'
-      });
-      return;
-    }
+  const categories = [
+    { key: "career", label: "Career", icon: Target, color: "text-blue-400", bg: "bg-blue-500/20" },
+    { key: "health", label: "Health", icon: Heart, color: "text-red-400", bg: "bg-red-500/20" },
+    { key: "relationships", label: "Relationships", icon: Star, color: "text-pink-400", bg: "bg-pink-500/20" },
+    { key: "personal", label: "Personal", icon: Sparkles, color: "text-purple-400", bg: "bg-purple-500/20" },
+    { key: "financial", label: "Financial", icon: Target, color: "text-green-400", bg: "bg-green-500/20" }
+  ];
 
-    // Check file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: 'File too large',
-        description: 'Please upload an image smaller than 5MB',
-        variant: 'destructive'
-      });
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = evt => {
-      setUploadedImage(evt.target?.result as string);
+  const handleAddVision = () => {
+    if (!newItem.title.trim()) return;
+
+    const vision: VisionItem = {
+      id: Date.now().toString(),
+      title: newItem.title.trim(),
+      description: newItem.description.trim(),
+      category: newItem.category,
+      isAchieved: false
     };
-    reader.readAsDataURL(file);
+
+    setVisionItems([...visionItems, vision]);
+    setNewItem({ title: "", description: "", category: "personal" });
+    setShowForm(false);
   };
-  const handleAddItem = () => {
-    if (!uploadedImage) {
-      toast({
-        title: 'Missing image',
-        description: 'Please upload an image for your vision board',
-        variant: 'destructive'
-      });
-      return;
-    }
-    const newItem: VisionItem = {
-      id: uuidv4(),
-      imageUrl: uploadedImage,
-      caption: caption || 'My Vision',
-      createdAt: new Date()
-    };
-    setVisionItems([...visionItems, newItem]);
-    setUploadedImage(null);
-    setCaption('');
-    setIsAddingNewItem(false);
-    toast({
-      title: 'Vision added',
-      description: 'Your vision has been added to the board'
-    });
+
+  const toggleAchieved = (id: string) => {
+    setVisionItems(items =>
+      items.map(item =>
+        item.id === id ? { ...item, isAchieved: !item.isAchieved } : item
+      )
+    );
   };
-  const handleDeleteItem = (id: string) => {
-    setVisionItems(visionItems.filter(item => item.id !== id));
-    toast({
-      title: 'Vision removed',
-      description: 'The vision has been removed from your board'
-    });
+
+  const removeVision = (id: string) => {
+    setVisionItems(items => items.filter(item => item.id !== id));
   };
-  const handleCancel = () => {
-    setUploadedImage(null);
-    setCaption('');
-    setIsAddingNewItem(false);
+
+  const getCategoryInfo = (category: string) => {
+    return categories.find(cat => cat.key === category) || categories[0];
   };
-  return <div className="space-y-6">
-      <Card className="bg-slate-950">
-        <CardHeader className="bg-slate-950 rounded-lg">
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Vision Board</CardTitle>
-              <CardDescription>
-                Visualize your goals and aspirations
-              </CardDescription>
-            </div>
-            {!isAddingNewItem && <Button onClick={() => setIsAddingNewItem(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Vision
-              </Button>}
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center justify-between"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+            <Eye className="h-6 w-6 text-white" />
           </div>
-        </CardHeader>
-        <CardContent className="bg-slate-950 rounded-lg">
-          {isAddingNewItem && <Card className="mb-6 border-dashed">
-              <CardContent className="p-4 space-y-4">
-                <div className="flex justify-center">
-                  {!uploadedImage ? <div className="w-full h-48 bg-accent/10 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-accent/20 transition-colors" onClick={() => fileInputRef.current?.click()}>
-                      <Image className="h-10 w-10 text-accent/50 mb-2" />
-                      <p className="text-sm text-muted-foreground">Click to upload an image</p>
-                      <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileUpload} />
-                    </div> : <div className="relative">
-                      <img src={uploadedImage} alt="Preview" className="max-h-48 rounded-lg object-cover" />
-                      <Button size="icon" variant="destructive" className="absolute top-2 right-2 h-6 w-6" onClick={() => setUploadedImage(null)}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>}
-                </div>
-                
-                <div>
-                  <Input placeholder="Add caption (optional)" value={caption} onChange={e => setCaption(e.target.value)} />
-                </div>
-                
-                <div className="flex justify-end space-x-2">
-                  <Button variant="outline" onClick={handleCancel}>
-                    Cancel
-                  </Button>
-                  <Button onClick={handleAddItem} disabled={!uploadedImage}>
-                    <Check className="h-4 w-4 mr-2" />
-                    Add to Board
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>}
+          <div>
+            <h2 className="text-2xl font-bold text-white">Vision Board</h2>
+            <p className="text-slate-400">Visualize your dreams and aspirations</p>
+          </div>
+        </div>
+        <Button
+          onClick={() => setShowForm(!showForm)}
+          className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Vision
+        </Button>
+      </motion.div>
 
-          {visionItems.length === 0 && !isAddingNewItem ? <div className="text-center py-8">
-              <Image className="h-12 w-12 mx-auto text-muted-foreground mb-3" />
-              <h3 className="text-lg font-medium">Your vision board is empty</h3>
-              <p className="text-muted-foreground mb-4">
-                Add images that represent your goals and aspirations
-              </p>
-              <Button onClick={() => setIsAddingNewItem(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Vision
-              </Button>
-            </div> : <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              <AnimatePresence>
-                {visionItems.map(item => <motion.div key={item.id} initial={{
-              opacity: 0,
-              scale: 0.8
-            }} animate={{
-              opacity: 1,
-              scale: 1
-            }} exit={{
-              opacity: 0,
-              scale: 0.8
-            }} transition={{
-              duration: 0.3
-            }}>
-                    <Card className="overflow-hidden">
-                      <div className="relative">
-                        <img src={item.imageUrl} alt={item.caption} className="w-full h-40 object-cover" />
-                        <Button size="icon" variant="destructive" className="absolute top-2 right-2 h-6 w-6 opacity-80 hover:opacity-100" onClick={() => handleDeleteItem(item.id)}>
-                          <X className="h-4 w-4" />
-                        </Button>
+      {/* Add Vision Form */}
+      {showForm && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.95 }}
+        >
+          <Card className="bg-slate-900/50 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Plus className="h-5 w-5 text-primary" />
+                Create New Vision
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium text-slate-300 mb-2 block">Vision Title</label>
+                <Input
+                  value={newItem.title}
+                  onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
+                  placeholder="What do you want to achieve?"
+                  className="bg-slate-800/50 border-slate-600 text-white"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-300 mb-2 block">Description</label>
+                <Textarea
+                  value={newItem.description}
+                  onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                  placeholder="Describe your vision in detail..."
+                  rows={3}
+                  className="bg-slate-800/50 border-slate-600 text-white resize-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium text-slate-300 mb-2 block">Category</label>
+                <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category.key}
+                      type="button"
+                      onClick={() => setNewItem({ ...newItem, category: category.key as any })}
+                      className={`p-3 rounded-lg border transition-all duration-200 ${
+                        newItem.category === category.key
+                          ? `${category.bg} border-primary/50`
+                          : "bg-slate-800/30 border-slate-600/50 hover:bg-slate-700/30"
+                      }`}
+                    >
+                      <category.icon className={`h-4 w-4 mx-auto mb-1 ${
+                        newItem.category === category.key ? category.color : "text-slate-400"
+                      }`} />
+                      <div className={`text-xs ${
+                        newItem.category === category.key ? "text-white" : "text-slate-400"
+                      }`}>
+                        {category.label}
                       </div>
-                      <CardFooter className="p-2">
-                        <p className="text-sm font-medium truncate w-full text-center">
-                          {item.caption}
-                        </p>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>)}
-              </AnimatePresence>
-            </div>}
-        </CardContent>
-      </Card>
-    </div>;
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button onClick={handleAddVision} className="bg-primary hover:bg-primary/90">
+                  Create Vision
+                </Button>
+                <Button variant="outline" onClick={() => setShowForm(false)} className="border-slate-600 text-slate-300">
+                  Cancel
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      )}
+
+      {/* Vision Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {visionItems.map((item, index) => {
+          const categoryInfo = getCategoryInfo(item.category);
+          return (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <Card className={`relative overflow-hidden transition-all duration-300 hover:scale-105 ${
+                item.isAchieved 
+                  ? "bg-gradient-to-br from-green-900/20 to-emerald-900/20 border-green-500/30" 
+                  : "bg-slate-900/50 border-slate-700 hover:border-slate-600"
+              }`}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-lg ${categoryInfo.bg} flex items-center justify-center`}>
+                        <categoryInfo.icon className={`h-5 w-5 ${categoryInfo.color}`} />
+                      </div>
+                      <Badge variant="secondary" className="bg-slate-800 text-slate-300">
+                        {categoryInfo.label}
+                      </Badge>
+                    </div>
+                    <button
+                      onClick={() => removeVision(item.id)}
+                      className="text-slate-500 hover:text-red-400 transition-colors"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="pt-0">
+                  <h3 className={`font-semibold mb-2 ${item.isAchieved ? "text-green-300" : "text-white"}`}>
+                    {item.title}
+                  </h3>
+                  <p className="text-slate-400 text-sm mb-4 line-clamp-3">
+                    {item.description}
+                  </p>
+                  
+                  <Button
+                    onClick={() => toggleAchieved(item.id)}
+                    variant={item.isAchieved ? "default" : "outline"}
+                    size="sm"
+                    className={item.isAchieved 
+                      ? "bg-green-600 hover:bg-green-700 text-white" 
+                      : "border-slate-600 text-slate-300 hover:bg-slate-700"
+                    }
+                  >
+                    {item.isAchieved ? "✓ Achieved" : "Mark as Achieved"}
+                  </Button>
+                </CardContent>
+
+                {item.isAchieved && (
+                  <div className="absolute top-2 right-2">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <Star className="h-3 w-3 text-white" />
+                    </div>
+                  </div>
+                )}
+              </Card>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      {visionItems.length === 0 && !showForm && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center py-12"
+        >
+          <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Image className="h-8 w-8 text-slate-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-slate-300 mb-2">No visions yet</h3>
+          <p className="text-slate-500 mb-4">Start building your vision board by adding your first dream or goal.</p>
+          <Button onClick={() => setShowForm(true)} className="bg-primary hover:bg-primary/90">
+            <Plus className="h-4 w-4 mr-2" />
+            Add Your First Vision
+          </Button>
+        </motion.div>
+      )}
+    </div>
+  );
 };
+
 export default VisionBoardSection;

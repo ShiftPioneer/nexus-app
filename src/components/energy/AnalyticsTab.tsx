@@ -1,158 +1,109 @@
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { 
+  BarChart3, 
   TrendingUp, 
   Target, 
-  Zap, 
   Calendar,
-  Trophy,
   Activity,
-  BarChart3,
-  Clock,
-  Flame,
-  Award
+  Award,
+  Plus,
+  ChevronRight
 } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell, Area, AreaChart } from "recharts";
 import { motion } from "framer-motion";
-import { AnalyticsOverview } from './analytics-components/AnalyticsOverview';
 
-export const AnalyticsTab = () => {
+const AnalyticsTab = () => {
   const [selectedPeriod, setSelectedPeriod] = useState("week");
 
-  // Mock data for analytics
-  const workoutStats = {
-    totalWorkouts: 12,
-    totalDuration: 720, // minutes
-    avgDuration: 60,
-    caloriesBurned: 3200,
-    personalBests: 5,
-    currentStreak: 8
-  };
-
-  const weeklyProgress = [
-    { day: "Mon", duration: 60, calories: 450, completed: true },
-    { day: "Tue", duration: 45, calories: 350, completed: true },
-    { day: "Wed", duration: 0, calories: 0, completed: false },
-    { day: "Thu", duration: 75, calories: 520, completed: true },
-    { day: "Fri", duration: 50, calories: 380, completed: true },
-    { day: "Sat", duration: 90, calories: 650, completed: true },
-    { day: "Sun", duration: 0, calories: 0, completed: false }
+  // Sample data for charts
+  const workoutProgressData = [
+    { name: 'Mon', workouts: 2, calories: 350, duration: 45 },
+    { name: 'Tue', workouts: 1, calories: 200, duration: 30 },
+    { name: 'Wed', workouts: 3, calories: 500, duration: 60 },
+    { name: 'Thu', workouts: 2, calories: 380, duration: 50 },
+    { name: 'Fri', workouts: 1, calories: 180, duration: 25 },
+    { name: 'Sat', workouts: 2, calories: 420, duration: 55 },
+    { name: 'Sun', workouts: 1, calories: 250, duration: 35 }
   ];
 
-  const muscleGroups = [
-    { name: "Chest", sessions: 3, progress: 75 },
-    { name: "Back", sessions: 4, progress: 85 },
-    { name: "Legs", sessions: 2, progress: 60 },
-    { name: "Arms", sessions: 5, progress: 90 },
-    { name: "Core", sessions: 3, progress: 70 },
-    { name: "Shoulders", sessions: 2, progress: 55 }
+  const strengthProgressData = [
+    { exercise: 'Bench Press', current: 185, target: 200, improvement: 15 },
+    { exercise: 'Squat', current: 225, target: 250, improvement: 25 },
+    { exercise: 'Deadlift', current: 275, target: 300, improvement: 25 },
+    { exercise: 'Pull-ups', current: 12, target: 15, improvement: 3 }
   ];
 
-  const performanceInsights = [
-    {
-      title: "Strength Gains",
-      description: "Your upper body strength has improved by 15% this month. Great progress on bench press and pull-ups!",
-      icon: TrendingUp,
-      color: "from-green-500/10 to-emerald-500/10",
-      borderColor: "border-green-500/20",
-      iconColor: "text-green-400"
+  const workoutTypeData = [
+    { name: 'Strength', value: 45, color: '#FF6500' },
+    { name: 'Cardio', value: 30, color: '#024CAA' },
+    { name: 'Flexibility', value: 15, color: '#0B192C' },
+    { name: 'Sports', value: 10, color: '#D1D5DB' }
+  ];
+
+  const monthlyTrendsData = [
+    { month: 'Jan', workouts: 18, avgDuration: 42, calories: 5400 },
+    { month: 'Feb', workouts: 22, avgDuration: 45, calories: 6600 },
+    { month: 'Mar', workouts: 25, avgDuration: 48, calories: 7500 },
+    { month: 'Apr', workouts: 28, avgDuration: 50, calories: 8400 },
+    { month: 'May', workouts: 30, avgDuration: 52, calories: 9000 },
+    { month: 'Jun', workouts: 32, avgDuration: 55, calories: 9600 }
+  ];
+
+  const statCards = [
+    { 
+      label: "Total Workouts", 
+      value: "156", 
+      change: "+12%", 
+      icon: Activity, 
+      color: "text-blue-400",
+      trend: "up"
     },
-    {
-      title: "Energy Levels",
-      description: "Your energy peaks on Tuesdays and Thursdays. Consider scheduling intense workouts on these days.",
-      icon: Zap,
-      color: "from-blue-500/10 to-cyan-500/10",
-      borderColor: "border-blue-500/20",
-      iconColor: "text-blue-400"
+    { 
+      label: "Avg Duration", 
+      value: "52min", 
+      change: "+8min", 
+      icon: BarChart3, 
+      color: "text-green-400",
+      trend: "up"
     },
-    {
-      title: "Consistency",
-      description: "You've maintained a 80% workout consistency this month. Try to reach 85% for optimal results.",
-      icon: Trophy,
-      color: "from-purple-500/10 to-indigo-500/10",
-      borderColor: "border-purple-500/20",
-      iconColor: "text-purple-400"
+    { 
+      label: "Calories Burned", 
+      value: "45.2k", 
+      change: "+2.1k", 
+      icon: TrendingUp, 
+      color: "text-orange-400",
+      trend: "up"
     },
-    {
-      title: "Focus Areas",
-      description: "Consider increasing leg training frequency. Your lower body could benefit from more attention.",
-      icon: Target,
-      color: "from-red-500/10 to-orange-500/10",
-      borderColor: "border-red-500/20",
-      iconColor: "text-red-400"
+    { 
+      label: "Streak Record", 
+      value: "21 days", 
+      change: "Personal best", 
+      icon: Award, 
+      color: "text-purple-400",
+      trend: "up"
     }
   ];
-
-  const StatCard = ({ 
-    title, 
-    value, 
-    subtitle, 
-    icon: Icon, 
-    trend, 
-    color = "primary" 
-  }: {
-    title: string;
-    value: string;
-    subtitle: string;
-    icon: React.ElementType;
-    trend?: number;
-    color?: string;
-  }) => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: 1.02 }}
-      transition={{ duration: 0.2 }}
-    >
-      <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 hover:border-slate-600/50 transition-all duration-200">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className={`p-3 rounded-xl bg-gradient-to-r ${
-              color === "red" ? "from-red-500/20 to-orange-500/20" :
-              color === "green" ? "from-green-500/20 to-emerald-500/20" :
-              color === "blue" ? "from-blue-500/20 to-cyan-500/20" :
-              color === "purple" ? "from-purple-500/20 to-indigo-500/20" :
-              "from-primary/20 to-orange-500/20"
-            }`}>
-              <Icon className={`h-6 w-6 ${
-                color === "red" ? "text-red-400" :
-                color === "green" ? "text-green-400" :
-                color === "blue" ? "text-blue-400" :
-                color === "purple" ? "text-purple-400" :
-                "text-primary"
-              }`} />
-            </div>
-            {trend && (
-              <Badge className={`${trend > 0 ? "bg-green-500/20 text-green-300" : "bg-red-500/20 text-red-300"}`}>
-                <TrendingUp className="h-3 w-3 mr-1" />
-                {trend > 0 ? "+" : ""}{trend}%
-              </Badge>
-            )}
-          </div>
-          <div className="space-y-1">
-            <h3 className="font-semibold text-white text-2xl">{value}</h3>
-            <p className="text-slate-400 text-sm">{title}</p>
-            <p className="text-slate-500 text-xs">{subtitle}</p>
-          </div>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
+        className="flex items-center justify-between"
       >
-        <div className="flex items-center gap-2">
-          <BarChart3 className="h-6 w-6 text-primary" />
-          <h2 className="text-2xl font-bold text-white">Energy Analytics</h2>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 flex items-center justify-center">
+            <BarChart3 className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-white">Performance Analytics</h2>
+            <p className="text-slate-400">Track your progress and insights</p>
+          </div>
         </div>
         
         <div className="flex gap-2">
@@ -162,11 +113,10 @@ export const AnalyticsTab = () => {
               variant={selectedPeriod === period ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedPeriod(period)}
-              className={`${
-                selectedPeriod === period
-                  ? "bg-primary text-white"
-                  : "bg-slate-800/50 text-slate-300 border-slate-700 hover:bg-slate-700"
-              }`}
+              className={selectedPeriod === period 
+                ? "bg-primary text-white" 
+                : "border-slate-600 text-slate-300 hover:bg-slate-700"
+              }
             >
               {period.charAt(0).toUpperCase() + period.slice(1)}
             </Button>
@@ -174,157 +124,262 @@ export const AnalyticsTab = () => {
         </div>
       </motion.div>
 
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Workouts"
-          value={workoutStats.totalWorkouts.toString()}
-          subtitle="This week"
-          icon={Activity}
-          trend={15}
-          color="red"
-        />
-        <StatCard
-          title="Calories Burned"
-          value={workoutStats.caloriesBurned.toLocaleString()}
-          subtitle="This week"
-          icon={Flame}
-          trend={8}
-          color="red"
-        />
-        <StatCard
-          title="Current Streak"
-          value={`${workoutStats.currentStreak} days`}
-          subtitle="Keep it up!"
-          icon={Trophy}
-          trend={12}
-          color="green"
-        />
-        <StatCard
-          title="Personal Bests"
-          value={workoutStats.personalBests.toString()}
-          subtitle="This month"
-          icon={Award}
-          trend={25}
-          color="purple"
-        />
+      {/* Stats Overview */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {statCards.map((stat, index) => (
+          <motion.div
+            key={stat.label}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 hover:border-slate-600/50 transition-all duration-300">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`w-10 h-10 rounded-lg bg-slate-800/50 flex items-center justify-center`}>
+                    <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                  </div>
+                  <Badge className={`${
+                    stat.trend === 'up' 
+                      ? 'bg-green-500/20 text-green-300 border-green-500/30' 
+                      : 'bg-red-500/20 text-red-300 border-red-500/30'
+                  } text-xs`}>
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    {stat.change}
+                  </Badge>
+                </div>
+                <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
+                <div className="text-sm text-slate-400">{stat.label}</div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Analytics Overview with Charts */}
-      <AnalyticsOverview />
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Weekly Workout Progress */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3 }}
+        >
+          <Card className="bg-slate-900/50 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Activity className="h-5 w-5 text-blue-400" />
+                Weekly Progress
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <AreaChart data={workoutProgressData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis dataKey="name" stroke="#9CA3AF" />
+                  <YAxis stroke="#9CA3AF" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#1F2937', 
+                      border: '1px solid #374151',
+                      borderRadius: '8px',
+                      color: '#F9FAFB'
+                    }} 
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="calories" 
+                    stroke="#FF6500" 
+                    fill="url(#colorCalories)" 
+                    strokeWidth={2}
+                  />
+                  <defs>
+                    <linearGradient id="colorCalories" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#FF6500" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#FF6500" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
 
-      {/* Weekly Progress */}
+        {/* Workout Distribution */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <Card className="bg-slate-900/50 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Target className="h-5 w-5 text-green-400" />
+                Workout Distribution
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie
+                    data={workoutTypeData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={100}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {workoutTypeData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#1F2937', 
+                      border: '1px solid #374151',
+                      borderRadius: '8px',
+                      color: '#F9FAFB'
+                    }} 
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex flex-wrap gap-2 mt-4">
+                {workoutTypeData.map((item) => (
+                  <div key={item.name} className="flex items-center gap-2">
+                    <div 
+                      className="w-3 h-3 rounded-full" 
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <span className="text-sm text-slate-300">{item.name}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Strength Progress */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+        >
+          <Card className="bg-slate-900/50 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Award className="h-5 w-5 text-purple-400" />
+                Strength Progress
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {strengthProgressData.map((exercise, index) => (
+                  <div key={exercise.exercise} className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-white font-medium">{exercise.exercise}</span>
+                      <span className="text-slate-400">{exercise.current}/{exercise.target}</span>
+                    </div>
+                    <div className="w-full bg-slate-800 rounded-full h-2">
+                      <motion.div
+                        className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${(exercise.current / exercise.target) * 100}%` }}
+                        transition={{ delay: 0.5 + index * 0.1, duration: 1 }}
+                      />
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      +{exercise.improvement} improvement
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Monthly Trends */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
+        >
+          <Card className="bg-slate-900/50 border-slate-700">
+            <CardHeader>
+              <CardTitle className="text-white flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-cyan-400" />
+                Monthly Trends
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={monthlyTrendsData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                  <XAxis dataKey="month" stroke="#9CA3AF" />
+                  <YAxis stroke="#9CA3AF" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: '#1F2937', 
+                      border: '1px solid #374151',
+                      borderRadius: '8px',
+                      color: '#F9FAFB'
+                    }} 
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="workouts" 
+                    stroke="#024CAA" 
+                    strokeWidth={3}
+                    dot={{ fill: '#024CAA', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: '#024CAA', strokeWidth: 2 }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Goals & Achievements */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+        transition={{ delay: 0.7 }}
       >
-        <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50">
+        <Card className="bg-slate-900/50 border-slate-700">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-primary" />
-              Weekly Progress
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-white flex items-center gap-2">
+                <Target className="h-5 w-5 text-orange-400" />
+                Goals & Achievements
+              </CardTitle>
+              <Button size="sm" className="bg-orange-500 hover:bg-orange-600 text-white">
+                <Plus className="h-4 w-4 mr-2" />
+                Set Goal
+              </Button>
+            </div>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {weeklyProgress.map((day, index) => (
-              <motion.div
-                key={day.day}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 + index * 0.05 }}
-                className="space-y-2"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-3 h-3 rounded-full ${
-                      day.completed ? "bg-green-500" : "bg-slate-600"
-                    }`} />
-                    <span className="text-white font-medium">{day.day}</span>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {[
+                { title: "Weekly Workout Goal", current: 5, target: 6, unit: "workouts" },
+                { title: "Monthly Calories", current: 8400, target: 10000, unit: "cal" },
+                { title: "Strength Milestone", current: 185, target: 200, unit: "lbs" }
+              ].map((goal, index) => (
+                <div key={goal.title} className="p-4 bg-slate-800/30 rounded-lg border border-slate-600/30">
+                  <h4 className="font-medium text-white mb-2">{goal.title}</h4>
+                  <div className="flex items-center justify-between text-sm text-slate-400 mb-2">
+                    <span>{goal.current} / {goal.target} {goal.unit}</span>
+                    <span>{Math.round((goal.current / goal.target) * 100)}%</span>
                   </div>
-                  <div className="flex items-center gap-4 text-sm">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-3 w-3 text-slate-400" />
-                      <span className="text-slate-400">{day.duration}m</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Flame className="h-3 w-3 text-red-400" />
-                      <span className="text-red-400">{day.calories} cal</span>
-                    </div>
+                  <div className="w-full bg-slate-700 rounded-full h-2">
+                    <motion.div
+                      className="bg-gradient-to-r from-orange-500 to-red-500 h-2 rounded-full"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${(goal.current / goal.target) * 100}%` }}
+                      transition={{ delay: 0.8 + index * 0.1, duration: 1 }}
+                    />
                   </div>
                 </div>
-                <Progress 
-                  value={day.completed ? 100 : 0} 
-                  className="h-2"
-                />
-              </motion.div>
-            ))}
-          </CardContent>
-        </Card>
-
-        {/* Muscle Groups */}
-        <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50">
-          <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
-              <Target className="h-5 w-5 text-primary" />
-              Muscle Groups
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {muscleGroups.map((group, index) => (
-              <motion.div
-                key={group.name}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.05 }}
-                className="space-y-2"
-              >
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-white font-medium">{group.name}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-400">{group.sessions} sessions</span>
-                    <span className="text-primary font-medium">{group.progress}%</span>
-                  </div>
-                </div>
-                <Progress 
-                  value={group.progress} 
-                  className="h-2"
-                />
-              </motion.div>
-            ))}
-          </CardContent>
-        </Card>
-      </motion.div>
-
-      {/* Performance Insights */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
-      >
-        <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50">
-          <CardHeader>
-            <CardTitle className="text-white">Performance Insights</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {performanceInsights.map((insight, index) => (
-                <motion.div
-                  key={insight.title}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                  className={`p-4 bg-gradient-to-r ${insight.color} border ${insight.borderColor} rounded-lg`}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <insight.icon className={`h-4 w-4 ${insight.iconColor}`} />
-                    <span className={`${insight.iconColor} font-medium`}>{insight.title}</span>
-                  </div>
-                  <p className="text-sm text-slate-300">
-                    {insight.description}
-                  </p>
-                </motion.div>
               ))}
             </div>
           </CardContent>
@@ -333,3 +388,5 @@ export const AnalyticsTab = () => {
     </div>
   );
 };
+
+export default AnalyticsTab;
