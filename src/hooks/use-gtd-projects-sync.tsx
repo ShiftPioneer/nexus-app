@@ -1,3 +1,4 @@
+
 import { useEffect } from 'react';
 
 export const useGTDProjectsSync = () => {
@@ -5,7 +6,7 @@ export const useGTDProjectsSync = () => {
     try {
       // Get GTD tasks that are projects
       const gtdTasks = JSON.parse(localStorage.getItem('gtdTasks') || '[]');
-      const gtdProjects = gtdTasks.filter((task: any) => task.type === 'project');
+      const gtdProjects = gtdTasks.filter((task: any) => task.status === 'project');
 
       // Get existing planning projects
       const planningProjects = JSON.parse(localStorage.getItem('planningProjects') || '[]');
@@ -21,10 +22,10 @@ export const useGTDProjectsSync = () => {
             ...existingProject,
             title: gtdProject.title,
             description: gtdProject.description || '',
-            status: gtdProject.status === 'completed' ? 'completed' : 
-                   gtdProject.status === 'in-progress' ? 'in-progress' : 'not-started',
-            progress: gtdProject.progress || 0,
-            gtdId: gtdProject.id
+            status: gtdProject.completed ? 'completed' : 'in-progress',
+            progress: gtdProject.completed ? 100 : existingProject.progress || 0,
+            gtdId: gtdProject.id,
+            updatedAt: new Date()
           };
         } else {
           // Create new project from GTD task
@@ -34,14 +35,14 @@ export const useGTDProjectsSync = () => {
             title: gtdProject.title,
             description: gtdProject.description || '',
             category: 'career' as const,
-            progress: 0,
+            progress: gtdProject.completed ? 100 : 0,
             startDate: gtdProject.createdAt ? new Date(gtdProject.createdAt) : new Date(),
             endDate: gtdProject.dueDate ? new Date(gtdProject.dueDate) : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-            status: gtdProject.status === 'completed' ? 'completed' : 
-                   gtdProject.status === 'in-progress' ? 'in-progress' : 'not-started',
+            status: gtdProject.completed ? 'completed' : 'in-progress',
             blockingProjects: [],
             blockedByProjects: [],
-            createdAt: gtdProject.createdAt ? new Date(gtdProject.createdAt) : new Date()
+            createdAt: gtdProject.createdAt ? new Date(gtdProject.createdAt) : new Date(),
+            updatedAt: new Date()
           };
         }
       });
@@ -54,6 +55,9 @@ export const useGTDProjectsSync = () => {
       
       // Save back to localStorage
       localStorage.setItem('planningProjects', JSON.stringify(allProjects));
+      
+      // Dispatch custom event to notify other components
+      window.dispatchEvent(new CustomEvent('projectsUpdated', { detail: allProjects }));
       
       console.log('GTD Projects synced to Planning:', allProjects);
       
@@ -68,13 +72,18 @@ export const useGTDProjectsSync = () => {
 
     // Listen for GTD task updates
     const handleTaskUpdate = () => {
-      syncGTDProjects();
+      setTimeout(syncGTDProjects, 100); // Small delay to ensure GTD updates are saved
     };
 
+    // Listen for custom events
     window.addEventListener('tasksUpdated', handleTaskUpdate);
+    window.addEventListener('gtdTaskCreated', handleTaskUpdate);
+    window.addEventListener('gtdTaskUpdated', handleTaskUpdate);
     
     return () => {
       window.removeEventListener('tasksUpdated', handleTaskUpdate);
+      window.removeEventListener('gtdTaskCreated', handleTaskUpdate);
+      window.removeEventListener('gtdTaskUpdated', handleTaskUpdate);
     };
   }, []);
 

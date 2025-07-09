@@ -62,139 +62,141 @@ const Mindset = () => {
 
   return (
     <ModernAppLayout>
-      <motion.div 
-        className="animate-fade-in space-y-8 min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        <UnifiedPageHeader
-          title="Mindset OS"
-          description="Shape your mindset, clarify your vision, and align with your values"
-          icon={Brain}
-          gradient="from-purple-500 via-pink-500 to-rose-500"
-        />
-
-        {/* Enhanced Progress Overview */}
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
         <motion.div 
-          className="max-w-7xl mx-auto px-6"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          className="animate-fade-in space-y-8 p-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
         >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            {mindsetStats.map((stat, index) => (
-              <motion.div
-                key={stat.label}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 * index }}
-              >
-                <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 hover:border-slate-600/50 transition-all duration-300">
-                  <CardContent className="p-4 text-center">
-                    <div className={`w-10 h-10 rounded-lg bg-slate-800/50 flex items-center justify-center mx-auto mb-3`}>
-                      <stat.icon className={`h-5 w-5 ${stat.color}`} />
-                    </div>
-                    <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
-                    <div className="text-sm text-slate-400">{stat.label}</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
+          <UnifiedPageHeader
+            title="Mindset OS"
+            description="Shape your mindset, clarify your vision, and align with your values"
+            icon={Brain}
+            gradient="from-purple-500 via-pink-500 to-rose-500"
+          />
 
-          {/* Daily Inspiration Card */}
-          <motion.div
+          {/* Enhanced Progress Overview */}
+          <motion.div 
+            className="max-w-7xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mb-8"
+            transition={{ delay: 0.2 }}
           >
-            <Card className="bg-gradient-to-r from-purple-950/20 to-pink-950/20 border-purple-500/20 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                    <Lightbulb className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Daily Inspiration</h3>
-                    <p className="text-sm text-slate-400">Your mindset shapes your reality</p>
-                  </div>
-                </div>
-                <blockquote className="text-lg text-purple-200 italic border-l-4 border-purple-500/30 pl-4">
-                  "The mind is everything. What you think you become." - Buddha
-                </blockquote>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </motion.div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {mindsetStats.map((stat, index) => (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 * index }}
+                >
+                  <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 hover:border-slate-600/50 transition-all duration-300">
+                    <CardContent className="p-4 text-center">
+                      <div className={`w-10 h-10 rounded-lg bg-slate-800/50 flex items-center justify-center mx-auto mb-3`}>
+                        <stat.icon className={`h-5 w-5 ${stat.color}`} />
+                      </div>
+                      <div className="text-2xl font-bold text-white mb-1">{stat.value}</div>
+                      <div className="text-sm text-slate-400">{stat.label}</div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
 
-        <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-7xl mx-auto px-6">
-          <ModernTabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto bg-slate-900/50 backdrop-blur-sm border border-slate-700/50">
-            {tabItems.map((tab) => (
-              <ModernTabsTrigger 
-                key={tab.value}
-                value={tab.value}
-                gradient={tab.gradient}
-                icon={tab.icon}
-                className="flex-1 data-[state=active]:bg-slate-800/50"
+            {/* Daily Inspiration Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="mb-8"
+            >
+              <Card className="bg-slate-900/30 border-purple-500/20 backdrop-blur-sm">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+                      <Lightbulb className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">Daily Inspiration</h3>
+                      <p className="text-sm text-slate-400">Your mindset shapes your reality</p>
+                    </div>
+                  </div>
+                  <blockquote className="text-lg text-purple-200 italic border-l-4 border-purple-500/30 pl-4">
+                    "The mind is everything. What you think you become." - Buddha
+                  </blockquote>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </motion.div>
+
+          <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-7xl mx-auto">
+            <ModernTabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto bg-slate-900/50 backdrop-blur-sm border border-slate-700/50">
+              {tabItems.map((tab) => (
+                <ModernTabsTrigger 
+                  key={tab.value}
+                  value={tab.value}
+                  gradient={tab.gradient}
+                  icon={tab.icon}
+                  className="flex-1 data-[state=active]:bg-slate-800/50"
+                >
+                  {tab.label}
+                </ModernTabsTrigger>
+              ))}
+            </ModernTabsList>
+            
+            <ModernTabsContent value="vision" className="mt-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
               >
-                {tab.label}
-              </ModernTabsTrigger>
-            ))}
-          </ModernTabsList>
-          
-          <ModernTabsContent value="vision" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <VisionBoardSection />
-            </motion.div>
-          </ModernTabsContent>
-          
-          <ModernTabsContent value="mission" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <MissionSection />
-            </motion.div>
-          </ModernTabsContent>
-          
-          <ModernTabsContent value="values" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <CoreValuesSection />
-            </motion.div>
-          </ModernTabsContent>
-          
-          <ModernTabsContent value="beliefs" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <KeyBeliefsSection />
-            </motion.div>
-          </ModernTabsContent>
-          
-          <ModernTabsContent value="affirmations" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <AffirmationsSection />
-            </motion.div>
-          </ModernTabsContent>
-        </ModernTabs>
-      </motion.div>
+                <VisionBoardSection />
+              </motion.div>
+            </ModernTabsContent>
+            
+            <ModernTabsContent value="mission" className="mt-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <MissionSection />
+              </motion.div>
+            </ModernTabsContent>
+            
+            <ModernTabsContent value="values" className="mt-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <CoreValuesSection />
+              </motion.div>
+            </ModernTabsContent>
+            
+            <ModernTabsContent value="beliefs" className="mt-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <KeyBeliefsSection />
+              </motion.div>
+            </ModernTabsContent>
+            
+            <ModernTabsContent value="affirmations" className="mt-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <AffirmationsSection />
+              </motion.div>
+            </ModernTabsContent>
+          </ModernTabs>
+        </motion.div>
+      </div>
     </ModernAppLayout>
   );
 };

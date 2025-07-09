@@ -2,6 +2,7 @@
 import React from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface TimeframeQuestion {
   id: string;
@@ -200,7 +201,7 @@ const TimeframeQuestions: React.FC<TimeframeQuestionsProps> = ({
     switch (timeframe) {
       case 'week': return '📅';
       case 'month': return '🗓️';
-      case 'quarter': return '🏁';
+      case 'quarter': return '⚡';
       case 'year': return '🎯';
       case 'decade': return '🏆';
       case 'lifetime': return '👑';
@@ -208,39 +209,51 @@ const TimeframeQuestions: React.FC<TimeframeQuestionsProps> = ({
     }
   };
 
+  const getTimeframeGradient = (timeframe: string) => {
+    switch (timeframe) {
+      case 'week': return 'from-red-500/10 to-orange-500/10';
+      case 'month': return 'from-orange-500/10 to-yellow-500/10';
+      case 'quarter': return 'from-blue-500/10 to-cyan-500/10';
+      case 'year': return 'from-purple-500/10 to-pink-500/10';
+      case 'decade': return 'from-indigo-500/10 to-purple-500/10';
+      case 'lifetime': return 'from-pink-500/10 to-rose-500/10';
+      default: return 'from-slate-500/10 to-slate-600/10';
+    }
+  };
+
   return (
-    <div className="space-y-6 p-6 bg-slate-900/50 rounded-lg border border-slate-800">
-      <div className="text-center space-y-2">
-        <h3 className="text-xl font-bold text-white flex items-center justify-center gap-2">
+    <Card className={`bg-gradient-to-br ${getTimeframeGradient(timeframe)} border-slate-700/50 backdrop-blur-sm`}>
+      <CardHeader className="text-center pb-4">
+        <CardTitle className="text-xl font-bold text-white flex items-center justify-center gap-3">
           <span className="text-2xl">{getTimeframeIcon(timeframe)}</span>
           {getTimeframeTitle(timeframe)}
-        </h3>
-        <p className="text-slate-400 text-sm">
+        </CardTitle>
+        <p className="text-slate-400 text-sm mt-2">
           Answer these questions to clarify your goal and increase your chances of success.
         </p>
-      </div>
+      </CardHeader>
       
-      <div className="space-y-6">
+      <CardContent className="space-y-6">
         {questions.map((question) => {
           const currentAnswer = answers[question.id] || '';
           
           return (
             <div key={question.id} className="space-y-3">
-              <Label className="text-white font-medium text-base leading-relaxed">
+              <Label className="text-white font-medium text-base leading-relaxed block">
                 {question.question}
               </Label>
               <Textarea
                 value={currentAnswer}
                 onChange={(e) => handleAnswerChange(question.id, e.target.value)}
                 placeholder={question.placeholder}
-                className="min-h-[120px] bg-slate-800 border-slate-700 text-white placeholder:text-slate-500 resize-none"
-                rows={4}
+                className="min-h-[100px] bg-slate-800/50 border-slate-700/50 text-white placeholder:text-slate-500 resize-none focus:border-primary/50 transition-colors"
+                rows={3}
               />
             </div>
           );
         })}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

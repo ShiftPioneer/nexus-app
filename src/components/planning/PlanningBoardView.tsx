@@ -1,10 +1,10 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Target, Calendar, TrendingUp, Edit, Trophy, Star, Briefcase } from "lucide-react";
+import { Target, Calendar, TrendingUp, Edit, Trophy, Star, Briefcase, Plus } from "lucide-react";
 
 interface PlanningBoardViewProps {
   goals: Goal[];
@@ -13,9 +13,23 @@ interface PlanningBoardViewProps {
   onEditItem: (item: Goal | Project) => void;
 }
 
-const PlanningBoardView = ({ goals, projects, contentType, onEditItem }: PlanningBoardViewProps) => {
-  const items = contentType === 'goals' ? goals : projects;
-  
+const PlanningBoardView = ({ contentType, onEditItem }: PlanningBoardViewProps) => {
+  const [items, setItems] = useState<(Goal | Project)[]>([]);
+
+  useEffect(() => {
+    if (contentType === 'goals') {
+      const savedGoals = localStorage.getItem('planningGoals');
+      if (savedGoals) {
+        setItems(JSON.parse(savedGoals));
+      }
+    } else {
+      const savedProjects = localStorage.getItem('planningProjects');
+      if (savedProjects) {
+        setItems(JSON.parse(savedProjects));
+      }
+    }
+  }, [contentType]);
+
   const getStatusItems = (status: string) => {
     return items.filter(item => item.status === status);
   };
