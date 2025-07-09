@@ -31,8 +31,8 @@ const GoalsList: React.FC<GoalsListProps> = ({ onCreateGoal, onEditGoal, onDelet
         ? { 
             ...goal, 
             progress: newProgress,
-            status: newProgress === 100 ? 'completed' : 
-                   newProgress > 0 ? 'in-progress' : 'not-started'
+            status: (newProgress === 100 ? 'completed' : 
+                   newProgress > 0 ? 'in-progress' : 'not-started') as "completed" | "in-progress" | "not-started"
           }
         : goal
     );
