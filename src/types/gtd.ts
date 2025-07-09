@@ -27,6 +27,8 @@ export type TaskCategory =
   | "someday-maybe"
   | "reference";
 
+export type TaskType = "task" | "idea" | "project" | "reference";
+
 export interface TaskAttachment {
   name: string;
   type: string;
@@ -40,19 +42,20 @@ export interface GTDTask {
   description?: string;
   priority: TaskPriority;
   status: TaskStatus;
-  category: TaskCategory; // Added missing category property
-  clarified: boolean; // Added missing clarified property
+  category: TaskCategory;
+  clarified: boolean;
+  type: TaskType; // Added missing type property
   dueDate?: Date;
   createdAt: Date;
   tags?: string[];
   context?: string;
   project?: string;
-  goalId?: string; // Link to a goal
+  goalId?: string;
   timeEstimate?: number;
   delegatedTo?: string;
   attachment?: TaskAttachment;
-  isToDoNot?: boolean; // Field to differentiate between to-do and not-to-do tasks
-  nextAction?: string; // Added missing nextAction property
+  isToDoNot?: boolean;
+  nextAction?: string;
 }
 
 export type GTDView = "capture" | "clarify" | "organize" | "reflect" | "engage";

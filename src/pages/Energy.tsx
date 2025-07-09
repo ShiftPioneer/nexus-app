@@ -6,7 +6,7 @@ import { Zap, BarChart2, Dumbbell } from "lucide-react";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import { DashboardTab } from "@/components/energy/DashboardTab";
 import { WorkoutsTab } from "@/components/energy/WorkoutsTab";
-import { AnalyticsTab } from "@/components/energy/AnalyticsTab";
+import AnalyticsTab from "@/components/energy/AnalyticsTab";
 
 const Energy = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
