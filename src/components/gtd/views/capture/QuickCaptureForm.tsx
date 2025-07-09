@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -189,7 +190,7 @@ const QuickCaptureForm = () => {
               <p className="text-xs text-slate-500">Use @ to specify where or how this can be done</p>
             </motion.div>
 
-            {/* Submit Button */}
+            {/* Submit Button - Updated styling */}
             <motion.div 
               className="pt-4"
               initial={{ opacity: 0, y: 20 }}
@@ -199,7 +200,7 @@ const QuickCaptureForm = () => {
               <Button 
                 type="submit" 
                 disabled={!title.trim()}
-                className="w-full h-12 bg-gradient-to-r from-primary to-blue-500 hover:from-primary/90 hover:to-blue-500/90 text-white font-semibold shadow-lg shadow-primary/20 transition-all duration-200"
+                className="w-full h-12 bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white font-semibold shadow-xl shadow-primary/25 border-none rounded-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
                 <Plus className="h-5 w-5 mr-2" />
                 Capture to Inbox

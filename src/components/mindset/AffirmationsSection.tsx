@@ -1,252 +1,281 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Plus, Edit, Trash, Calendar, CheckCircle2 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { v4 as uuidv4 } from 'uuid';
-import { format } from 'date-fns';
-interface Affirmation {
-  id: string;
-  text: string;
-  category: string;
-  createdAt: Date;
-  lastEditedAt: Date;
-  completed: boolean;
-}
+
+import React, { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, Plus, X, Play, Pause, RotateCcw, Heart, Star } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+
 const AffirmationsSection = () => {
-  const {
-    toast
-  } = useToast();
-  const [affirmations, setAffirmations] = useState<Affirmation[]>(() => {
-    const saved = localStorage.getItem('mindset-affirmations');
-    return saved ? JSON.parse(saved) : [{
-      id: uuidv4(),
-      text: 'I am capable of achieving my goals through consistent effort.',
-      category: 'Self-Confidence',
-      createdAt: new Date(),
-      lastEditedAt: new Date(),
-      completed: false
-    }, {
-      id: uuidv4(),
-      text: 'Each day I am becoming a better version of myself.',
-      category: 'Growth',
-      createdAt: new Date(),
-      lastEditedAt: new Date(),
-      completed: false
-    }];
-  });
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [currentAffirmation, setCurrentAffirmation] = useState<Affirmation | null>(null);
-  const [newText, setNewText] = useState('');
-  const [newCategory, setNewCategory] = useState('');
+  const [affirmations, setAffirmations] = useState([
+    "I am confident, capable, and worthy of success",
+    "Every day I am becoming the best version of myself",
+    "I attract abundance and positivity into my life",
+    "I am grateful for all the opportunities that come my way",
+    "I have the power to create the life I desire"
+  ]);
+  
+  const [newAffirmation, setNewAffirmation] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [dailyAffirmations, setDailyAffirmations] = useState<string[]>([]);
+  const { toast } = useToast();
+
+  // Auto-cycle through affirmations
   useEffect(() => {
-    localStorage.setItem('mindset-affirmations', JSON.stringify(affirmations));
-  }, [affirmations]);
-  const handleAddAffirmation = () => {
-    setCurrentAffirmation(null);
-    setNewText('');
-    setNewCategory('');
-    setIsDialogOpen(true);
-  };
-  const handleEditAffirmation = (affirmation: Affirmation) => {
-    setCurrentAffirmation(affirmation);
-    setNewText(affirmation.text);
-    setNewCategory(affirmation.category);
-    setIsDialogOpen(true);
-  };
-  const handleDeleteAffirmation = (id: string) => {
-    setAffirmations(affirmations.filter(affirmation => affirmation.id !== id));
-    toast({
-      title: "Affirmation Deleted",
-      description: "Your affirmation has been removed."
-    });
-  };
-  const handleToggleComplete = (id: string) => {
-    setAffirmations(affirmations.map(affirmation => affirmation.id === id ? {
-      ...affirmation,
-      completed: !affirmation.completed
-    } : affirmation));
-  };
-  const handleSaveAffirmation = () => {
-    if (!newText.trim()) {
-      toast({
-        title: "Required Field Missing",
-        description: "Please enter an affirmation text.",
-        variant: "destructive"
-      });
-      return;
+    let interval: NodeJS.Timeout;
+    if (isPlaying && affirmations.length > 0) {
+      interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % affirmations.length);
+      }, 5000);
     }
-    if (currentAffirmation) {
-      // Edit existing affirmation
-      setAffirmations(affirmations.map(affirmation => affirmation.id === currentAffirmation.id ? {
-        ...affirmation,
-        text: newText,
-        category: newCategory,
-        lastEditedAt: new Date()
-      } : affirmation));
-      toast({
-        title: "Affirmation Updated",
-        description: "Your affirmation has been updated."
-      });
-    } else {
-      // Add new affirmation
-      const newAffirmation: Affirmation = {
-        id: uuidv4(),
-        text: newText,
-        category: newCategory,
-        createdAt: new Date(),
-        lastEditedAt: new Date(),
-        completed: false
-      };
-      setAffirmations([...affirmations, newAffirmation]);
+    return () => clearInterval(interval);
+  }, [isPlaying, affirmations.length]);
+
+  // Generate daily affirmations
+  useEffect(() => {
+    const getRandomAffirmations = () => {
+      const shuffled = [...affirmations].sort(() => 0.5 - Math.random());
+      return shuffled.slice(0, 3);
+    };
+    setDailyAffirmations(getRandomAffirmations());
+  }, [affirmations]);
+
+  const addAffirmation = () => {
+    if (newAffirmation.trim() && !affirmations.includes(newAffirmation.trim())) {
+      setAffirmations([...affirmations, newAffirmation.trim()]);
+      setNewAffirmation("");
       toast({
         title: "Affirmation Added",
-        description: "Your new affirmation has been added."
+        description: "New affirmation has been added to your collection!"
       });
     }
-    setIsDialogOpen(false);
   };
 
-  // Reset completion status every day at midnight
-  useEffect(() => {
-    const today = new Date().setHours(0, 0, 0, 0);
-    const lastReset = Number(localStorage.getItem('mindset-affirmations-last-reset')) || 0;
-    if (today > lastReset) {
-      setAffirmations(prev => prev.map(affirmation => ({
-        ...affirmation,
-        completed: false
-      })));
-      localStorage.setItem('mindset-affirmations-last-reset', today.toString());
+  const removeAffirmation = (index: number) => {
+    const newAffirmations = affirmations.filter((_, i) => i !== index);
+    setAffirmations(newAffirmations);
+    if (currentIndex >= newAffirmations.length) {
+      setCurrentIndex(0);
     }
-  }, []);
-  const categories = [...new Set(affirmations.map(a => a.category).filter(Boolean))];
-  const completedCount = affirmations.filter(a => a.completed).length;
-  const totalCount = affirmations.length;
-  return <>
-      <Card className="bg-slate-950">
-        <CardHeader className="flex flex-row items-center justify-between bg-slate-950 rounded-lg">
-          <div>
-            <CardTitle>Daily Affirmations</CardTitle>
-            <CardDescription>Reinforce positive beliefs and mindset</CardDescription>
-          </div>
-          <Button onClick={handleAddAffirmation}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Affirmation
-          </Button>
-        </CardHeader>
-        <CardContent className="space-y-4 bg-slate-950 rounded-lg">
-          <div className="bg-secondary/20 rounded-lg p-3 flex justify-between items-center">
-            <div className="text-sm">
-              <p>Today's progress: <span className="font-bold">{completedCount}/{totalCount} affirmed</span></p>
-            </div>
-            <div className="w-32 h-2 bg-gray-300 rounded-full overflow-hidden">
-              <div className="h-full bg-green-500" style={{
-              width: `${totalCount ? completedCount / totalCount * 100 : 0}%`
-            }}></div>
-            </div>
-          </div>
+    toast({
+      title: "Affirmation Removed",
+      description: "Affirmation has been removed from your collection."
+    });
+  };
 
-          {affirmations.length === 0 ? <div className="text-center py-6 text-muted-foreground">
-              No affirmations defined yet. Add your first one!
-            </div> : <>
-              {categories.length > 0 && categories.map(category => <div key={category} className="space-y-3">
-                  <h3 className="font-medium text-sm text-muted-foreground uppercase">{category || 'Uncategorized'}</h3>
-                  
-                  {affirmations.filter(a => a.category === category).map(affirmation => <Card key={affirmation.id} className={`bg-gradient-to-r ${affirmation.completed ? 'from-green-500/20 to-green-500/10' : 'from-orange-500/10 to-orange-500/5'}`}>
-                        <CardContent className="p-4 bg-slate-900 rounded-lg">
-                          <div className="flex justify-between items-start">
-                            <div className="flex items-start gap-3 flex-1">
-                              <Button variant="ghost" size="icon" onClick={() => handleToggleComplete(affirmation.id)} className={`mt-1 ${affirmation.completed ? 'text-green-500' : 'text-muted-foreground'}`}>
-                                <CheckCircle2 className="h-5 w-5" />
-                              </Button>
-                              <p className={`${affirmation.completed ? 'line-through text-muted-foreground' : ''}`}>
-                                {affirmation.text}
-                              </p>
-                            </div>
-                            <div className="flex space-x-1 ml-2">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditAffirmation(affirmation)} className="text-cyan-600">
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" onClick={() => handleDeleteAffirmation(affirmation.id)} className="text-red-600">
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex items-center mt-3 text-xs text-muted-foreground ml-8 text-lime-600">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            <span className="text-lime-600">Last edited: {format(new Date(affirmation.lastEditedAt), 'MMM d, yyyy')}</span>
-                          </div>
-                        </CardContent>
-                      </Card>)}
-                </div>)}
+  const togglePlayback = () => {
+    setIsPlaying(!isPlaying);
+    toast({
+      title: isPlaying ? "Paused" : "Playing",
+      description: isPlaying ? "Affirmation cycle paused" : "Affirmation cycle started"
+    });
+  };
 
-              {/* Uncategorized affirmations */}
-              {affirmations.filter(a => !a.category).length > 0 && <div className="space-y-3">
-                  <h3 className="font-medium text-sm text-muted-foreground uppercase">Uncategorized</h3>
-                  
-                  {affirmations.filter(a => !a.category).map(affirmation => <Card key={affirmation.id} className={`bg-gradient-to-r ${affirmation.completed ? 'from-green-500/20 to-green-500/10' : 'from-orange-500/10 to-orange-500/5'}`}>
-                        <CardContent className="p-4">
-                          <div className="flex justify-between items-start">
-                            <div className="flex items-start gap-3 flex-1">
-                              <Button variant="ghost" size="icon" onClick={() => handleToggleComplete(affirmation.id)} className={`mt-1 ${affirmation.completed ? 'text-green-500' : 'text-muted-foreground'}`}>
-                                <CheckCircle2 className="h-5 w-5" />
-                              </Button>
-                              <p className={`${affirmation.completed ? 'line-through text-muted-foreground' : ''}`}>
-                                {affirmation.text}
-                              </p>
-                            </div>
-                            <div className="flex space-x-1 ml-2">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditAffirmation(affirmation)}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="text-destructive" onClick={() => handleDeleteAffirmation(affirmation.id)}>
-                                <Trash className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          </div>
-                          <div className="flex items-center mt-3 text-xs text-muted-foreground ml-8">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            <span>Last edited: {format(new Date(affirmation.lastEditedAt), 'MMM d, yyyy')}</span>
-                          </div>
-                        </CardContent>
-                      </Card>)}
-                </div>}
-            </>}
-        </CardContent>
-      </Card>
+  const resetCycle = () => {
+    setCurrentIndex(0);
+    setIsPlaying(false);
+  };
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {currentAffirmation ? "Edit Affirmation" : "Add Affirmation"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div>
-              <label htmlFor="text" className="text-sm font-medium block mb-1">Affirmation</label>
-              <Textarea id="text" placeholder="e.g., I am becoming stronger and healthier every day." rows={3} value={newText} onChange={e => setNewText(e.target.value)} />
+  const affirmationCategories = [
+    { name: "Self-Love", icon: Heart, count: affirmations.filter(a => a.toLowerCase().includes('worthy') || a.toLowerCase().includes('love')).length },
+    { name: "Success", icon: Star, count: affirmations.filter(a => a.toLowerCase().includes('success') || a.toLowerCase().includes('achieve')).length },
+    { name: "Growth", icon: Sparkles, count: affirmations.filter(a => a.toLowerCase().includes('grow') || a.toLowerCase().includes('better')).length }
+  ];
+
+  return (
+    <div className="space-y-6">
+      {/* Daily Affirmations Spotlight */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <Card className="bg-gradient-to-br from-purple-950/20 to-pink-950/20 border-purple-500/20 backdrop-blur-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center shadow-lg">
+                  <Sparkles className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-2xl font-bold text-white">Today's Affirmations</CardTitle>
+                  <p className="text-purple-200">Your daily dose of positivity</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-2">
+                <Button
+                  onClick={togglePlayback}
+                  variant="outline"
+                  className="border-purple-500/30 hover:bg-purple-500/20 text-purple-200 hover:text-white"
+                >
+                  {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                </Button>
+                
+                <Button
+                  onClick={resetCycle}
+                  variant="outline"
+                  className="border-purple-500/30 hover:bg-purple-500/20 text-purple-200 hover:text-white"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <div>
-              <label htmlFor="category" className="text-sm font-medium block mb-1">Category (Optional)</label>
-              <Input id="category" placeholder="e.g., Health, Career, Relationships" value={newCategory} onChange={e => setNewCategory(e.target.value)} />
-              {categories.length > 0 && <div className="mt-2 flex flex-wrap gap-1">
-                  <span className="text-xs text-muted-foreground mr-1">Existing:</span>
-                  {categories.map(category => <button key={category} type="button" className="text-xs px-2 py-1 bg-secondary/30 rounded-full hover:bg-secondary/50" onClick={() => setNewCategory(category)}>
-                      {category}
-                    </button>)}
-                </div>}
+          </CardHeader>
+
+          <CardContent>
+            {affirmations.length > 0 && (
+              <motion.div
+                key={currentIndex}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="text-center p-8 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl border border-purple-500/20"
+              >
+                <p className="text-2xl font-semibold text-white mb-4 leading-relaxed">
+                  {affirmations[currentIndex]}
+                </p>
+                
+                <div className="flex items-center justify-center gap-2">
+                  {affirmations.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentIndex ? 'bg-purple-400 scale-125' : 'bg-purple-400/30'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </motion.div>
+            )}
+
+            {/* Daily Highlights */}
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              {dailyAffirmations.slice(0, 3).map((affirmation, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="p-4 bg-slate-800/30 border border-slate-700/50 rounded-lg text-center"
+                >
+                  <p className="text-sm text-slate-300 font-medium">{affirmation}</p>
+                </motion.div>
+              ))}
             </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSaveAffirmation}>Save Affirmation</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>;
+          </CardContent>
+        </Card>
+      </motion.div>
+
+      {/* Statistics */}
+      <div className="grid grid-cols-3 gap-4">
+        {affirmationCategories.map((category, index) => (
+          <motion.div
+            key={category.name}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+          >
+            <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm border-slate-700/50">
+              <CardContent className="p-4 text-center">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mx-auto mb-3">
+                  <category.icon className="h-5 w-5 text-white" />
+                </div>
+                <div className="text-2xl font-bold text-white mb-1">{category.count}</div>
+                <div className="text-sm text-slate-400">{category.name}</div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Affirmations Management */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.4 }}
+      >
+        <Card className="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm border-slate-700/50">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Sparkles className="h-5 w-5 text-primary" />
+              My Affirmations Collection
+            </CardTitle>
+            <p className="text-slate-400">Manage your personal affirmations library</p>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+            {/* Add New Affirmation */}
+            <div className="flex gap-3">
+              <Input
+                value={newAffirmation}
+                onChange={(e) => setNewAffirmation(e.target.value)}
+                placeholder="Add a new positive affirmation..."
+                className="flex-1 bg-slate-800/50 border-slate-600/50 text-white placeholder-slate-400 focus:border-primary focus:ring-primary/20"
+                onKeyPress={(e) => e.key === 'Enter' && addAffirmation()}
+              />
+              <Button 
+                onClick={addAffirmation}
+                disabled={!newAffirmation.trim()}
+                className="bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-lg"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Affirmations List */}
+            <div className="grid gap-3">
+              <AnimatePresence>
+                {affirmations.map((affirmation, index) => (
+                  <motion.div
+                    key={affirmation}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    className={`group flex items-center justify-between p-4 rounded-xl border transition-all duration-200 ${
+                      index === currentIndex && isPlaying
+                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 border-purple-500/30 shadow-lg'
+                        : 'bg-slate-800/30 border-slate-700/50 hover:bg-slate-700/30'
+                    }`}
+                  >
+                    <p className="text-slate-200 font-medium flex-1">{affirmation}</p>
+                    
+                    <div className="flex items-center gap-2">
+                      {index === currentIndex && isPlaying && (
+                        <Badge variant="secondary" className="bg-purple-500/20 text-purple-300 border-purple-500/30">
+                          Playing
+                        </Badge>
+                      )}
+                      
+                      <Button
+                        onClick={() => removeAffirmation(index)}
+                        variant="ghost"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500/20 hover:text-red-400"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+            </div>
+
+            {/* Affirmation Tips */}
+            <div className="p-4 bg-gradient-to-r from-green-950/20 to-emerald-950/20 border border-green-500/20 rounded-xl">
+              <p className="text-sm text-green-200">
+                <strong>Tip:</strong> Effective affirmations are positive, present-tense, personal, and specific. 
+                Repeat them daily with conviction and emotion for maximum impact.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    </div>
+  );
 };
+
 export default AffirmationsSection;
