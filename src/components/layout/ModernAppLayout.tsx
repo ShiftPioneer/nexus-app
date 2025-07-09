@@ -1,56 +1,41 @@
-
 import React from "react";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import ModernTopBar from "./ModernTopBar";
 import ModernSidebar from "./ModernSidebar";
 import { GTDProvider } from "@/components/gtd/GTDContext";
-
 interface ModernAppLayoutProps {
   children: React.ReactNode;
 }
-
-const ModernAppLayout = ({ children }: ModernAppLayoutProps) => {
-  const { isCollapsed, isMobile, toggleSidebar } = useSidebar();
-
-  return (
-    <div className="flex h-screen w-full overflow-hidden bg-slate-950">
+const ModernAppLayout = ({
+  children
+}: ModernAppLayoutProps) => {
+  const {
+    isCollapsed,
+    isMobile,
+    toggleSidebar
+  } = useSidebar();
+  return <div className="flex h-screen w-full overflow-hidden bg-slate-950">
       <SidebarProvider>
         <GTDProvider>
           {/* Mobile Overlay */}
-          {isMobile && !isCollapsed && (
-            <div 
-              className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm transition-opacity duration-300" 
-              onClick={toggleSidebar}
-              aria-label="Close sidebar"
-            />
-          )}
+          {isMobile && !isCollapsed && <div className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm transition-opacity duration-300" onClick={toggleSidebar} aria-label="Close sidebar" />}
           
           {/* Sidebar */}
-          <ModernSidebar 
-            isCollapsed={isCollapsed} 
-            isMobile={isMobile} 
-            onToggle={toggleSidebar} 
-          />
+          <ModernSidebar isCollapsed={isCollapsed} isMobile={isMobile} onToggle={toggleSidebar} />
           
           {/* Main Content Area */}
           <div className="flex flex-col flex-1 overflow-hidden transition-all duration-300 ease-in-out min-w-0 h-full">
-            <ModernTopBar 
-              onToggleSidebar={toggleSidebar} 
-              isCollapsed={isCollapsed} 
-              isMobile={isMobile} 
-            />
+            <ModernTopBar onToggleSidebar={toggleSidebar} isCollapsed={isCollapsed} isMobile={isMobile} />
             
             <main className="flex-1 overflow-y-auto scrollbar-none bg-slate-900 h-full">
-              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-white bg-slate-900 min-h-full">
+              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-white min-h-full bg-slate-900">
                 {children}
               </div>
             </main>
           </div>
         </GTDProvider>
       </SidebarProvider>
-    </div>
-  );
+    </div>;
 };
-
 export default ModernAppLayout;
