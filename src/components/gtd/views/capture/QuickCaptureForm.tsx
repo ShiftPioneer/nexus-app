@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +27,9 @@ const QuickCaptureForm = () => {
       priority,
       context: context.trim() || undefined,
       type,
-      status: "inbox"
+      status: "inbox",
+      category: "inbox",
+      clarified: false
     });
 
     // Reset form
