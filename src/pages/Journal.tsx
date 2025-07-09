@@ -3,11 +3,10 @@ import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
-import { PenTool, BookOpen, BarChart3, Lightbulb, Calendar, TrendingUp, Star, Heart } from "lucide-react";
+import { PenTool, BookOpen, BarChart3, Calendar, TrendingUp, Star, Heart } from "lucide-react";
 import JournalEditor from "@/components/journal/JournalEditor";
 import JournalEntriesList from "@/components/journal/JournalEntriesList";
 import JournalStats from "@/components/journal/JournalStats";
-import JournalPrompts from "@/components/journal/JournalPrompts";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -74,13 +73,6 @@ const Journal = () => {
       icon: BarChart3,
       gradient: "from-emerald-500 via-teal-500 to-cyan-500",
       description: "Analyze patterns and growth"
-    },
-    { 
-      value: "prompts", 
-      label: "Prompts", 
-      icon: Lightbulb,
-      gradient: "from-orange-500 via-red-500 to-pink-500",
-      description: "Discover new writing ideas"
     }
   ];
 
@@ -89,13 +81,6 @@ const Journal = () => {
     { label: "Current Streak", value: "14 days", icon: Calendar, color: "text-green-400", trend: "+3 days" },
     { label: "Words Written", value: "12.5k", icon: PenTool, color: "text-purple-400", trend: "+2.1k" },
     { label: "Avg. Mood", value: "7.8/10", icon: Heart, color: "text-red-400", trend: "+0.5" }
-  ];
-
-  const recentPrompts = [
-    "What made you smile today?",
-    "Describe a moment of clarity you had recently",
-    "What challenge are you currently working through?",
-    "List three things you're grateful for"
   ];
 
   return (
@@ -148,42 +133,6 @@ const Journal = () => {
             ))}
           </div>
 
-          {/* Quick Prompts Card */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mb-8"
-          >
-            <Card className="bg-gradient-to-r from-purple-950/20 to-pink-950/20 border-purple-500/20 backdrop-blur-sm">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
-                    <Lightbulb className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Quick Prompts</h3>
-                    <p className="text-sm text-slate-400">Start writing with these suggestions</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {recentPrompts.map((prompt, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.5 + index * 0.1 }}
-                      className="p-3 bg-slate-800/30 rounded-lg border border-slate-700/30 hover:border-purple-500/30 transition-all duration-200 cursor-pointer"
-                      onClick={() => setActiveTab("write")}
-                    >
-                      <p className="text-sm text-slate-300">{prompt}</p>
-                    </motion.div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
-
           {/* Today's Mood Tracker */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -227,7 +176,7 @@ const Journal = () => {
         </motion.div>
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-7xl mx-auto px-6">
-          <ModernTabsList className="grid w-full grid-cols-4 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50">
+          <ModernTabsList className="grid w-full grid-cols-3 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
@@ -279,16 +228,6 @@ const Journal = () => {
               transition={{ duration: 0.3 }}
             >
               <JournalStats entries={entries} />
-            </motion.div>
-          </ModernTabsContent>
-          
-          <ModernTabsContent value="prompts" className="mt-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-            >
-              <JournalPrompts />
             </motion.div>
           </ModernTabsContent>
         </ModernTabs>
