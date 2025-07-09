@@ -1,11 +1,11 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Eye, Image, Target, Star, Heart, Sparkles, X } from "lucide-react";
+import { Plus, Eye, Image, Target, Star, Heart, Sparkles, X, Upload, Camera } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface VisionItem {
@@ -14,6 +14,7 @@ interface VisionItem {
   description: string;
   category: "career" | "health" | "relationships" | "personal" | "financial";
   isAchieved: boolean;
+  imageUrl?: string;
 }
 
 const VisionBoardSection = () => {
@@ -37,10 +38,12 @@ const VisionBoardSection = () => {
   const [newItem, setNewItem] = useState({
     title: "",
     description: "",
-    category: "personal" as const
+    category: "personal" as const,
+    imageUrl: ""
   });
 
   const [showForm, setShowForm] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const categories = [
     { key: "career", label: "Career", icon: Target, color: "text-blue-400", bg: "bg-blue-500/20" },
@@ -50,6 +53,17 @@ const VisionBoardSection = () => {
     { key: "financial", label: "Financial", icon: Target, color: "text-green-400", bg: "bg-green-500/20" }
   ];
 
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setNewItem({ ...newItem, imageUrl: e.target?.result as string });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleAddVision = () => {
     if (!newItem.title.trim()) return;
 
@@ -58,11 +72,12 @@ const VisionBoardSection = () => {
       title: newItem.title.trim(),
       description: newItem.description.trim(),
       category: newItem.category,
-      isAchieved: false
+      isAchieved: false,
+      imageUrl: newItem.imageUrl || undefined
     };
 
     setVisionItems([...visionItems, vision]);
-    setNewItem({ title: "", description: "", category: "personal" });
+    setNewItem({ title: "", description: "", category: "personal", imageUrl: "" });
     setShowForm(false);
   };
 
@@ -144,6 +159,48 @@ const VisionBoardSection = () => {
                 />
               </div>
 
+              {/* Image Upload */}
+              <div>
+                <label className="text-sm font-medium text-slate-300 mb-2 block">Vision Image (Optional)</label>
+                <div className="flex gap-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="border-slate-600 text-slate-300 hover:bg-slate-700/50"
+                  >
+                    <Upload className="h-4 w-4 mr-2" />
+                    Upload Image
+                  </Button>
+                  {newItem.imageUrl && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => setNewItem({ ...newItem, imageUrl: "" })}
+                      className="text-red-400 hover:text-red-300 hover:bg-red-500/20"
+                    >
+                      Remove Image
+                    </Button>
+                  )}
+                </div>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  accept="image/*"
+                  className="hidden"
+                />
+                {newItem.imageUrl && (
+                  <div className="mt-3">
+                    <img
+                      src={newItem.imageUrl}
+                      alt="Vision preview"
+                      className="w-full h-32 object-cover rounded-lg border border-slate-600"
+                    />
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="text-sm font-medium text-slate-300 mb-2 block">Category</label>
                 <div className="grid grid-cols-3 md:grid-cols-5 gap-2">
@@ -200,6 +257,19 @@ const VisionBoardSection = () => {
                   ? "bg-gradient-to-br from-green-900/20 to-emerald-900/20 border-green-500/30" 
                   : "bg-slate-900/50 border-slate-700 hover:border-slate-600"
               }`}>
+                
+                {/* Image Section */}
+                {item.imageUrl && (
+                  <div className="relative h-48 overflow-hidden">
+                    <img
+                      src={item.imageUrl}
+                      alt={item.title}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent" />
+                  </div>
+                )}
+                
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">

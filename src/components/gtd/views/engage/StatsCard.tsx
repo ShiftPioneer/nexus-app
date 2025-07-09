@@ -10,9 +10,9 @@ interface StatsCardProps {
 
 const StatsCard: React.FC<StatsCardProps> = ({ title, value, bgClass, textClass }) => {
   return (
-    <div className={`p-4 rounded-lg ${bgClass}`}>
-      <h3 className={`text-lg font-medium ${textClass}`}>{value}</h3>
-      <p className={`text-sm ${textClass} opacity-90`}>{title}</p>
+    <div className={`p-4 rounded-xl ${bgClass} border border-slate-700/30 backdrop-blur-sm`}>
+      <div className={`text-2xl font-bold ${textClass} mb-1`}>{value}</div>
+      <div className="text-sm text-slate-400">{title}</div>
     </div>
   );
 };

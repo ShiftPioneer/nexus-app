@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
@@ -11,6 +10,7 @@ import PlanningListView from "@/components/planning/PlanningListView";
 import PlanningStatsDialog from "@/components/planning/PlanningStatsDialog";
 import GoalCreationDialog from "@/components/planning/GoalCreationDialog";
 import ProjectCreationDialog from "@/components/planning/ProjectCreationDialog";
+import { useGTDProjectsSync } from "@/hooks/use-gtd-projects-sync";
 
 const Planning = () => {
   const [activeTab, setActiveTab] = useState("goals");
@@ -21,6 +21,9 @@ const Planning = () => {
   const [editingItem, setEditingItem] = useState<Goal | Project | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+
+  // Enable GTD-Planning sync
+  useGTDProjectsSync();
 
   // Load data from localStorage on component mount
   React.useEffect(() => {

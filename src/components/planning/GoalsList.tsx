@@ -1,12 +1,12 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Calendar, Clock, Target, TrendingUp, Star, Edit, Trash2, BarChart3 } from "lucide-react";
 import { format } from "date-fns";
 import { UnifiedActionButton } from "@/components/ui/unified-action-button";
+import GoalProgressControl from "./GoalProgressControl";
+import { useToast } from "@/hooks/use-toast";
 
 interface GoalsListProps {
   onCreateGoal: () => void;
@@ -16,6 +16,7 @@ interface GoalsListProps {
 
 const GoalsList: React.FC<GoalsListProps> = ({ onCreateGoal, onEditGoal, onDeleteGoal }) => {
   const [goals, setGoals] = useState<Goal[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     const savedGoals = localStorage.getItem('planningGoals');
@@ -23,6 +24,27 @@ const GoalsList: React.FC<GoalsListProps> = ({ onCreateGoal, onEditGoal, onDelet
       setGoals(JSON.parse(savedGoals));
     }
   }, []);
+
+  const updateGoalProgress = (goalId: string, newProgress: number) => {
+    const updatedGoals = goals.map(goal => 
+      goal.id === goalId 
+        ? { 
+            ...goal, 
+            progress: newProgress,
+            status: newProgress === 100 ? 'completed' : 
+                   newProgress > 0 ? 'in-progress' : 'not-started'
+          }
+        : goal
+    );
+    
+    setGoals(updatedGoals);
+    localStorage.setItem('planningGoals', JSON.stringify(updatedGoals));
+    
+    toast({
+      title: "Progress Updated",
+      description: `Goal progress updated to ${newProgress}%`
+    });
+  };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -151,22 +173,12 @@ const GoalsList: React.FC<GoalsListProps> = ({ onCreateGoal, onEditGoal, onDelet
                 <TrendingUp className="h-3 w-3 mr-1" />
                 {goal.status.replace('-', ' ')}
               </Badge>
-              <div className="text-right">
-                <div className="text-2xl font-bold text-white">{goal.progress}%</div>
-                <div className="text-xs text-slate-400">Progress</div>
-              </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Progress</span>
-                <span className="text-primary font-medium">{goal.progress}%</span>
-              </div>
-              <Progress 
-                value={goal.progress} 
-                className="h-2 bg-slate-800"
-              />
-            </div>
+            <GoalProgressControl
+              currentProgress={goal.progress}
+              onUpdateProgress={(newProgress) => updateGoalProgress(goal.id, newProgress)}
+            />
 
             <div className="flex items-center justify-between text-sm text-slate-400">
               <div className="flex items-center gap-1">
