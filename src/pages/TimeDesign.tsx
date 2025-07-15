@@ -4,6 +4,7 @@ import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { Calendar, Activity, BarChart3, Settings } from "lucide-react";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
+import { navigationIcons } from "@/lib/navigation-icons";
 import TimeDesignCalendar from "@/components/timedesign/TimeDesignCalendar";
 import TimeDesignActivities from "@/components/timedesign/TimeDesignActivities";
 import TimeDesignAnalytics from "@/components/timedesign/TimeDesignAnalytics";
@@ -106,11 +107,11 @@ const TimeDesign = () => {
 
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-8">
+      <div className="animate-fade-in space-y-8 bg-slate-900 min-h-full">
         <UnifiedPageHeader
           title="Time Design"
           description="Design your perfect day and optimize your time allocation"
-          icon={Calendar}
+          icon={navigationIcons.timeDesign}
           gradient="from-blue-500 via-indigo-500 to-purple-500"
         />
 

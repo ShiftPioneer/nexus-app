@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { UnifiedActionButton } from "@/components/ui/unified-action-button";
 import { 
   Activity, 
   Calendar, 
@@ -20,10 +19,12 @@ import {
 import { motion } from "framer-motion";
 import { WorkoutDialog } from "./WorkoutDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export const DashboardTab = () => {
   const [showWorkoutDialog, setShowWorkoutDialog] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleStartWorkout = () => {
     setShowWorkoutDialog(true);
@@ -34,18 +35,44 @@ export const DashboardTab = () => {
   };
 
   const handleLogActivity = () => {
+    // Navigate to workouts tab
+    const energyPageUrl = new URL(window.location.href);
+    energyPageUrl.hash = '';
+    energyPageUrl.pathname = '/energy';
+    const newUrl = energyPageUrl.toString() + '#workouts';
+    window.location.href = newUrl;
+    
     toast({
-      title: "Activity Logged",
-      description: "Your workout activity has been recorded successfully.",
+      title: "Logging Activity",
+      description: "Redirecting to workout management...",
     });
-    console.log('Logging activity');
   };
 
   const handleScheduleSession = () => {
-    setShowWorkoutDialog(true);
+    // Navigate to time design with activity creation
+    navigate('/time-design');
+    
+    // Create a time design activity for workout
+    setTimeout(() => {
+      const activityData = {
+        startDate: new Date(),
+        endDate: new Date(),
+        startTime: new Date().getHours().toString().padStart(2, '0') + ':00',
+        endTime: (new Date().getHours() + 1).toString().padStart(2, '0') + ':00',
+        title: 'Workout Session',
+        category: 'health' as const,
+        description: 'Scheduled workout session'
+      };
+      
+      // Dispatch event to create activity in Time Design
+      window.dispatchEvent(new CustomEvent('createTimeDesignActivity', { 
+        detail: activityData 
+      }));
+    }, 100);
+    
     toast({
       title: "Schedule Session",
-      description: "Plan your next workout session.",
+      description: "Redirecting to Time Design to schedule your workout...",
     });
   };
 
@@ -136,29 +163,27 @@ export const DashboardTab = () => {
         </div>
         
         <div className="flex gap-3">
-          <Button
+          <UnifiedActionButton
             onClick={handleStartWorkout}
-            className="bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-lg px-6 py-3 font-semibold"
+            icon={Play}
+            variant="primary"
           >
-            <Play className="h-5 w-5 mr-2" />
             Start Workout
-          </Button>
-          <Button
+          </UnifiedActionButton>
+          <UnifiedActionButton
             onClick={handleLogActivity}
-            variant="outline"
-            className="border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white px-6 py-3 font-semibold"
+            icon={Plus}
+            variant="secondary"
           >
-            <Plus className="h-5 w-5 mr-2" />
             Log Activity
-          </Button>
-          <Button
+          </UnifiedActionButton>
+          <UnifiedActionButton
             onClick={handleScheduleSession}
-            variant="outline"
-            className="border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white px-6 py-3 font-semibold"
+            icon={Calendar}
+            variant="secondary"
           >
-            <Calendar className="h-5 w-5 mr-2" />
             Schedule Session
-          </Button>
+          </UnifiedActionButton>
         </div>
       </motion.div>
 
@@ -170,7 +195,7 @@ export const DashboardTab = () => {
         className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6"
       >
         {stats.map((stat, index) => (
-          <Card key={index} className="bg-slate-900/80 border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300">
+          <Card key={index} className="bg-slate-950/90 border-slate-700/50 shadow-xl hover:shadow-2xl transition-all duration-300">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${stat.gradient} shadow-lg flex items-center justify-center`}>
@@ -208,7 +233,7 @@ export const DashboardTab = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <Card className="bg-slate-900/80 border-slate-700/50 shadow-xl">
+        <Card className="bg-slate-950/90 border-slate-700/50 shadow-xl">
           <CardHeader>
             <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
               <Activity className="h-5 w-5 text-primary" />
@@ -217,7 +242,7 @@ export const DashboardTab = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             {recentWorkouts.map((workout) => (
-              <div key={workout.id} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-xl border border-slate-700/20 hover:bg-slate-800/50 transition-all duration-200">
+              <div key={workout.id} className="flex items-center justify-between p-4 bg-slate-900/50 rounded-xl border border-slate-700/30 hover:bg-slate-900/70 transition-all duration-200">
                 <div className="flex items-center gap-4">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
                     workout.status === 'completed' 
@@ -254,13 +279,13 @@ export const DashboardTab = () => {
             ))}
             
             <div className="pt-4 text-center">
-              <Button 
-                variant="outline" 
-                className="border-slate-600/50 hover:bg-slate-700/30 hover:border-primary/50 text-slate-300 hover:text-white"
+              <UnifiedActionButton 
+                onClick={handleLogActivity}
+                icon={TrendingUp}
+                variant="secondary"
               >
-                <TrendingUp className="h-4 w-4 mr-2" />
                 View All Workouts
-              </Button>
+              </UnifiedActionButton>
             </div>
           </CardContent>
         </Card>

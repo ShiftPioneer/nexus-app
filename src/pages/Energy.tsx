@@ -2,8 +2,9 @@
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
-import { Zap, BarChart2, Dumbbell } from "lucide-react";
+import { BarChart2, Dumbbell } from "lucide-react";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
+import { navigationIcons } from "@/lib/navigation-icons";
 import { DashboardTab } from "@/components/energy/DashboardTab";
 import { WorkoutsTab } from "@/components/energy/WorkoutsTab";
 import AnalyticsTab from "@/components/energy/AnalyticsTab";
@@ -15,7 +16,7 @@ const Energy = () => {
     { 
       value: "dashboard", 
       label: "Dashboard", 
-      icon: Zap,
+      icon: navigationIcons.energy,
       gradient: "from-red-500 via-orange-500 to-yellow-500"
     },
     { 
@@ -34,11 +35,11 @@ const Energy = () => {
 
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-8">
+      <div className="animate-fade-in space-y-8 bg-slate-900 min-h-full">
         <UnifiedPageHeader
           title="Energy Hub"
           description="Track your workouts, analyze performance, and achieve your fitness goals"
-          icon={Zap}
+          icon={navigationIcons.energy}
           gradient="from-red-500 via-orange-500 to-yellow-500"
         />
         

@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { UnifiedActionButton } from "@/components/ui/unified-action-button";
 import { 
   Plus, 
   Dumbbell, 
@@ -20,12 +22,12 @@ import {
   Edit,
   Trash2,
   Star,
-  Search
+  Search,
+  Filter
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { WorkoutDialog } from './WorkoutDialog';
 import { ExerciseLibrary } from './ExerciseLibrary';
-import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 
 export const WorkoutsTab = () => {
@@ -33,6 +35,7 @@ export const WorkoutsTab = () => {
   const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null);
   const [isWorkoutDialogOpen, setIsWorkoutDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState<"all" | "planned" | "completed">("all");
   
   const { toast } = useToast();
 
@@ -50,7 +53,8 @@ export const WorkoutsTab = () => {
       ],
       status: "completed",
       progress: 100,
-      difficulty: "intermediate"
+      difficulty: "intermediate",
+      rating: 4
     },
     {
       id: "2", 
@@ -65,7 +69,24 @@ export const WorkoutsTab = () => {
       ],
       status: "planned",
       progress: 0,
-      difficulty: "advanced"
+      difficulty: "advanced",
+      rating: 0
+    },
+    {
+      id: "3",
+      name: "Cardio HIIT",
+      date: "2024-12-21",
+      duration: 30,
+      calories: 280,
+      exercises: [
+        { name: "Burpees", sets: 4, reps: "15", weight: "bodyweight" },
+        { name: "Mountain Climbers", sets: 4, reps: "30", weight: "bodyweight" },
+        { name: "Jump Squats", sets: 4, reps: "20", weight: "bodyweight" }
+      ],
+      status: "completed",
+      progress: 100,
+      difficulty: "beginner",
+      rating: 5
     }
   ];
 
@@ -90,6 +111,10 @@ export const WorkoutsTab = () => {
     console.log('Deleting workout:', workoutId);
   };
 
+  const handleCreateWorkout = () => {
+    setIsWorkoutDialogOpen(true);
+  };
+
   const WorkoutCard = ({ workout }: { workout: typeof workouts[0] }) => (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -97,29 +122,39 @@ export const WorkoutsTab = () => {
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="bg-slate-900/90 backdrop-blur-sm border-slate-700/50 hover:border-primary/30 transition-all duration-300 shadow-xl hover:shadow-2xl">
+      <Card className="bg-slate-950/90 backdrop-blur-sm border-slate-700/50 hover:border-primary/50 transition-all duration-300 shadow-xl hover:shadow-2xl overflow-hidden">
         <CardHeader className="pb-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
-              <div className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg ${
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg ${
                 workout.status === "completed" 
                   ? "bg-gradient-to-br from-emerald-500 to-green-600" 
                   : "bg-gradient-to-br from-primary via-orange-500 to-red-500"
               }`}>
                 {workout.status === "completed" ? (
-                  <CheckCircle className="h-7 w-7 text-white" />
+                  <CheckCircle className="h-8 w-8 text-white" />
                 ) : (
-                  <Dumbbell className="h-7 w-7 text-white" />
+                  <Dumbbell className="h-8 w-8 text-white" />
                 )}
               </div>
-              <div>
-                <CardTitle className="text-white text-xl font-bold mb-1">{workout.name}</CardTitle>
-                <p className="text-sm text-slate-400 flex items-center gap-2">
-                  <Calendar className="h-4 w-4" />
-                  {workout.date}
-                </p>
+              <div className="space-y-2">
+                <CardTitle className="text-white text-xl font-bold">{workout.name}</CardTitle>
+                <div className="flex items-center gap-4 text-sm text-slate-400">
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    {workout.date}
+                  </div>
+                  {workout.status === "completed" && workout.rating > 0 && (
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: workout.rating }).map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
+            
             <div className="flex items-center gap-2">
               <Badge className={`px-3 py-1 font-medium ${
                 workout.status === "completed"
@@ -128,9 +163,28 @@ export const WorkoutsTab = () => {
               }`}>
                 {workout.status === "completed" ? "Completed" : "Planned"}
               </Badge>
-              <Badge variant="outline" className="text-slate-400 border-slate-600">
+              <Badge variant="outline" className="text-slate-400 border-slate-600 capitalize">
                 {workout.difficulty}
               </Badge>
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-slate-400 hover:text-white hover:bg-slate-800"
+                onClick={() => handleEditWorkout(workout.id)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+                onClick={() => handleDeleteWorkout(workout.id)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </CardHeader>
@@ -138,30 +192,30 @@ export const WorkoutsTab = () => {
         <CardContent className="space-y-6">
           {/* Workout Stats */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700/30">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                <Clock className="h-5 w-5 text-blue-400" />
+            <div className="flex items-center gap-3 p-4 bg-slate-900/50 rounded-xl border border-slate-700/30">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-blue-500/20 to-indigo-500/20 flex items-center justify-center">
+                <Clock className="h-6 w-6 text-blue-400" />
               </div>
               <div>
-                <span className="text-lg font-bold text-white">{workout.duration}</span>
+                <span className="text-xl font-bold text-white">{workout.duration}</span>
                 <p className="text-xs text-slate-400">minutes</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700/30">
-              <div className="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
-                <Flame className="h-5 w-5 text-orange-400" />
+            <div className="flex items-center gap-3 p-4 bg-slate-900/50 rounded-xl border border-slate-700/30">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-orange-500/20 to-red-500/20 flex items-center justify-center">
+                <Flame className="h-6 w-6 text-orange-400" />
               </div>
               <div>
-                <span className="text-lg font-bold text-white">{workout.calories}</span>
+                <span className="text-xl font-bold text-white">{workout.calories}</span>
                 <p className="text-xs text-slate-400">calories</p>
               </div>
             </div>
-            <div className="flex items-center gap-3 p-3 bg-slate-800/50 rounded-xl border border-slate-700/30">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                <Target className="h-5 w-5 text-purple-400" />
+            <div className="flex items-center gap-3 p-4 bg-slate-900/50 rounded-xl border border-slate-700/30">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-r from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+                <Target className="h-6 w-6 text-purple-400" />
               </div>
               <div>
-                <span className="text-lg font-bold text-white">{workout.exercises.length}</span>
+                <span className="text-xl font-bold text-white">{workout.exercises.length}</span>
                 <p className="text-xs text-slate-400">exercises</p>
               </div>
             </div>
@@ -189,16 +243,16 @@ export const WorkoutsTab = () => {
               <Activity className="h-4 w-4 text-primary" />
               Exercises ({workout.exercises.length})
             </h4>
-            <div className="space-y-2 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600">
+            <div className="space-y-2 max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-600">
               {workout.exercises.map((exercise, index) => (
                 <div key={index} className="flex items-center gap-3 p-3 bg-slate-800/30 rounded-lg border border-slate-700/20">
                   <div className="w-2 h-2 rounded-full bg-gradient-to-r from-primary to-orange-500" />
-                  <span className="text-sm text-slate-300 flex-1">
-                    <span className="font-medium text-white">{exercise.name}</span>
-                    <span className="text-slate-400 ml-2">
-                      {exercise.sets} × {exercise.reps} @ {exercise.weight}
-                    </span>
-                  </span>
+                  <div className="flex-1">
+                    <span className="text-sm font-medium text-white">{exercise.name}</span>
+                    <div className="text-xs text-slate-400">
+                      {exercise.sets} sets × {exercise.reps} reps @ {exercise.weight}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -207,48 +261,61 @@ export const WorkoutsTab = () => {
           {/* Action Buttons */}
           <div className="flex gap-3 pt-2">
             {workout.status === "planned" ? (
-              <Button
-                size="lg"
-                className="flex-1 bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+              <UnifiedActionButton
                 onClick={() => handleStartWorkout(workout.id)}
+                icon={Play}
+                variant="primary"
+                className="flex-1"
               >
-                <Play className="h-4 w-4 mr-2" />
                 Start Workout
-              </Button>
+              </UnifiedActionButton>
             ) : (
-              <Button
-                size="lg"
-                variant="outline"
-                className="flex-1 bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-primary/50"
+              <UnifiedActionButton
+                onClick={() => console.log('View results')}
+                icon={TrendingUp}
+                variant="secondary"
+                className="flex-1"
               >
-                <TrendingUp className="h-4 w-4 mr-2" />
                 View Results
-              </Button>
+              </UnifiedActionButton>
             )}
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-primary/50"
-              onClick={() => handleEditWorkout(workout.id)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white hover:border-red-500/50 hover:text-red-400"
-              onClick={() => handleDeleteWorkout(workout.id)}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
           </div>
         </CardContent>
       </Card>
     </motion.div>
   );
 
-  const filteredWorkouts = workouts.filter(workout =>
-    workout.name.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredWorkouts = workouts.filter(workout => {
+    const matchesSearch = workout.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterStatus === "all" || workout.status === filterStatus;
+    return matchesSearch && matchesFilter;
+  });
+
+  const EmptyState = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="text-center py-16"
+    >
+      <Card className="bg-slate-950/90 border-slate-700/50 shadow-xl max-w-lg mx-auto">
+        <CardContent className="p-12">
+          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary via-orange-500 to-red-500 flex items-center justify-center mx-auto mb-8 shadow-lg">
+            <Dumbbell className="h-12 w-12 text-white" />
+          </div>
+          <h3 className="text-2xl font-bold text-white mb-4">Start Your Fitness Journey</h3>
+          <p className="text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
+            Create your first workout plan and begin tracking your progress towards your fitness goals.
+          </p>
+          <UnifiedActionButton 
+            onClick={handleCreateWorkout}
+            icon={Plus}
+            variant="primary"
+          >
+            Create Your First Workout
+          </UnifiedActionButton>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 
   return (
@@ -272,25 +339,25 @@ export const WorkoutsTab = () => {
         <div className="flex items-center gap-4">
           <div className="flex gap-2">
             <Badge className="bg-primary/20 text-orange-300 border-primary/30 px-3 py-1">
-              1 Planned
+              {workouts.filter(w => w.status === 'planned').length} Planned
             </Badge>
             <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 px-3 py-1">
-              1 Completed
+              {workouts.filter(w => w.status === 'completed').length} Completed
             </Badge>
           </div>
-          <Button
-            onClick={() => setIsWorkoutDialogOpen(true)}
-            className="bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-lg px-8 py-3 font-semibold"
+          <UnifiedActionButton
+            onClick={handleCreateWorkout}
+            icon={Plus}
+            variant="primary"
           >
-            <Plus className="h-5 w-5 mr-2" />
             Create Workout
-          </Button>
+          </UnifiedActionButton>
         </div>
       </motion.div>
 
       {/* Tab Navigation */}
       <Tabs value={activeView} onValueChange={setActiveView}>
-        <TabsList className="bg-slate-900/80 border border-slate-700 p-1 rounded-xl w-fit">
+        <TabsList className="bg-slate-950/80 border border-slate-700/50 p-1 rounded-xl w-fit">
           <TabsTrigger 
             value="myWorkouts"
             className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-orange-500 data-[state=active]:text-white px-8 py-3 rounded-lg font-semibold transition-all"
@@ -313,7 +380,7 @@ export const WorkoutsTab = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="flex flex-col sm:flex-row gap-4 items-center justify-between"
+            className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-950/50 rounded-2xl p-6 border border-slate-700/50"
           >
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
@@ -325,35 +392,54 @@ export const WorkoutsTab = () => {
               />
             </div>
             
-            {/* Quick Stats */}
-            <div className="grid grid-cols-3 gap-4">
-              <Card className="bg-slate-900/60 border-slate-700/50 shadow-lg">
-                <CardContent className="p-4 text-center">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-orange-500 flex items-center justify-center mx-auto mb-2 shadow-lg">
-                    <Calendar className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="text-xl font-bold text-white mb-1">12</div>
-                  <div className="text-xs text-slate-400">This Month</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-slate-900/60 border-slate-700/50 shadow-lg">
-                <CardContent className="p-4 text-center">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-2 shadow-lg">
-                    <Clock className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="text-xl font-bold text-white mb-1">720</div>
-                  <div className="text-xs text-slate-400">Total Minutes</div>
-                </CardContent>
-              </Card>
-              <Card className="bg-slate-900/60 border-slate-700/50 shadow-lg">
-                <CardContent className="p-4 text-center">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 flex items-center justify-center mx-auto mb-2 shadow-lg">
-                    <Award className="h-5 w-5 text-white" />
-                  </div>
-                  <div className="text-xl font-bold text-white mb-1">8</div>
-                  <div className="text-xs text-slate-400">Active Days</div>
-                </CardContent>
-              </Card>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-slate-400" />
+                <select 
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as any)}
+                  className="bg-slate-800/50 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm"
+                >
+                  <option value="all">All Status</option>
+                  <option value="planned">Planned</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+              
+              {/* Quick Stats */}
+              <div className="grid grid-cols-3 gap-4">
+                <Card className="bg-slate-900/60 border-slate-700/50 shadow-lg">
+                  <CardContent className="p-4 text-center">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-primary to-orange-500 flex items-center justify-center mx-auto mb-2 shadow-lg">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-xl font-bold text-white mb-1">{workouts.length}</div>
+                    <div className="text-xs text-slate-400">Total</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-900/60 border-slate-700/50 shadow-lg">
+                  <CardContent className="p-4 text-center">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center mx-auto mb-2 shadow-lg">
+                      <Clock className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-xl font-bold text-white mb-1">
+                      {workouts.reduce((sum, w) => sum + w.duration, 0)}
+                    </div>
+                    <div className="text-xs text-slate-400">Minutes</div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-900/60 border-slate-700/50 shadow-lg">
+                  <CardContent className="p-4 text-center">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-emerald-500 to-green-600 flex items-center justify-center mx-auto mb-2 shadow-lg">
+                      <Award className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-xl font-bold text-white mb-1">
+                      {workouts.filter(w => w.status === 'completed').length}
+                    </div>
+                    <div className="text-xs text-slate-400">Completed</div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </motion.div>
 
@@ -365,30 +451,15 @@ export const WorkoutsTab = () => {
             className="space-y-6"
           >
             {filteredWorkouts.length === 0 && searchQuery ? (
-              <Card className="bg-slate-900/80 border-slate-700/50 shadow-xl">
+              <Card className="bg-slate-950/90 border-slate-700/50 shadow-xl">
                 <CardContent className="p-12 text-center">
                   <Search className="h-16 w-16 text-slate-600 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-2">No workouts found</h3>
-                  <p className="text-slate-400 mb-6">Try adjusting your search terms</p>
+                  <p className="text-slate-400 mb-6">Try adjusting your search terms or filters</p>
                 </CardContent>
               </Card>
             ) : filteredWorkouts.length === 0 ? (
-              <Card className="bg-slate-900/80 border-slate-700/50 shadow-xl">
-                <CardContent className="p-12 text-center">
-                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary via-orange-500 to-red-500 flex items-center justify-center mx-auto mb-6 shadow-lg">
-                    <Dumbbell className="h-10 w-10 text-white" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-white mb-3">Start Your Fitness Journey</h3>
-                  <p className="text-slate-400 mb-8 max-w-md mx-auto">Create your first workout plan and begin tracking your progress towards your fitness goals.</p>
-                  <Button 
-                    onClick={() => setIsWorkoutDialogOpen(true)}
-                    className="bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-lg px-8 py-3 font-semibold"
-                  >
-                    <Plus className="h-5 w-5 mr-2" />
-                    Create Your First Workout
-                  </Button>
-                </CardContent>
-              </Card>
+              <EmptyState />
             ) : (
               filteredWorkouts.map((workout) => (
                 <WorkoutCard key={workout.id} workout={workout} />
