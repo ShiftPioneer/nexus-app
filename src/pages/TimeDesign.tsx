@@ -10,7 +10,7 @@ import TimeDesignActivities from "@/components/timedesign/TimeDesignActivities";
 import TimeDesignAnalytics from "@/components/timedesign/TimeDesignAnalytics";
 import TimeDesignSettings from "@/components/timedesign/TimeDesignSettings";
 import { WorkoutDialog } from "@/components/energy/WorkoutDialog";
-import { ActivityDialog } from "@/components/timedesign/ActivityDialog";
+import ActivityDialog from "@/components/timedesign/ActivityDialog";
 import { useToast } from "@/hooks/use-toast";
 
 const TimeDesign = () => {
@@ -18,6 +18,13 @@ const TimeDesign = () => {
   const [showWorkoutDialog, setShowWorkoutDialog] = useState(false);
   const [showActivityDialog, setShowActivityDialog] = useState(false);
   const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  
+  // Time Design state
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewType, setViewType] = useState<"day" | "week">("week");
+  const [activities, setActivities] = useState<TimeActivity[]>([]);
+  const [editingActivity, setEditingActivity] = useState<TimeActivity | null>(null);
+  
   const { toast } = useToast();
 
   const handleStartWorkout = () => {
@@ -25,10 +32,12 @@ const TimeDesign = () => {
   };
 
   const handleLogActivity = () => {
+    setEditingActivity(null);
     setShowActivityDialog(true);
   };
 
   const handleScheduleSession = () => {
+    setEditingActivity(null);
     setShowScheduleDialog(true);
   };
 
@@ -41,22 +50,59 @@ const TimeDesign = () => {
     setShowWorkoutDialog(false);
   };
 
-  const handleActivitySave = (activity: any) => {
+  const handleActivitySave = (activity: TimeActivity) => {
     console.log('Activity saved:', activity);
-    toast({
-      title: "Activity Logged",
-      description: "Your activity has been successfully logged.",
-    });
+    
+    if (editingActivity) {
+      // Update existing activity
+      setActivities(prev => prev.map(a => a.id === activity.id ? activity : a));
+      toast({
+        title: "Activity Updated",
+        description: "Your activity has been successfully updated.",
+      });
+    } else {
+      // Create new activity
+      const newActivity = {
+        ...activity,
+        id: activity.id || Date.now().toString()
+      };
+      setActivities(prev => [...prev, newActivity]);
+      toast({
+        title: "Activity Created",
+        description: "Your activity has been successfully created.",
+      });
+    }
+    
     setShowActivityDialog(false);
+    setShowScheduleDialog(false);
+    setEditingActivity(null);
   };
 
-  const handleScheduleSave = (session: any) => {
-    console.log('Session scheduled:', session);
+  const handleEditActivity = (activity: TimeActivity) => {
+    setEditingActivity(activity);
+    setShowActivityDialog(true);
+  };
+
+  const handleDeleteActivity = (id: string) => {
+    setActivities(prev => prev.filter(a => a.id !== id));
     toast({
-      title: "Session Scheduled",
-      description: "Your session has been successfully scheduled.",
+      title: "Activity Deleted",
+      description: "Your activity has been successfully deleted.",
     });
-    setShowScheduleDialog(false);
+  };
+
+  const handleCreateActivity = (data: { startDate: Date; endDate: Date; startTime: string; endTime: string; }) => {
+    const newActivity: TimeActivity = {
+      id: "",
+      title: "",
+      description: "",
+      category: "work",
+      color: "purple",
+      ...data,
+      syncWithGoogleCalendar: false
+    };
+    setEditingActivity(newActivity);
+    setShowActivityDialog(true);
   };
 
   const tabItems = [
@@ -138,15 +184,25 @@ const TimeDesign = () => {
           </ModernTabsList>
           
           <ModernTabsContent value="calendar" className="mt-8">
-            <TimeDesignCalendar />
+            <TimeDesignCalendar 
+              currentDate={currentDate}
+              viewType={viewType}
+              activities={activities}
+              onEditActivity={handleEditActivity}
+              onCreateActivity={handleCreateActivity}
+            />
           </ModernTabsContent>
           
           <ModernTabsContent value="activities" className="mt-8">
-            <TimeDesignActivities />
+            <TimeDesignActivities 
+              activities={activities}
+              onEditActivity={handleEditActivity}
+              onDeleteActivity={handleDeleteActivity}
+            />
           </ModernTabsContent>
           
           <ModernTabsContent value="analytics" className="mt-8">
-            <TimeDesignAnalytics />
+            <TimeDesignAnalytics activities={activities} />
           </ModernTabsContent>
           
           <ModernTabsContent value="settings" className="mt-8">
@@ -166,6 +222,7 @@ const TimeDesign = () => {
         <ActivityDialog
           open={showActivityDialog}
           onOpenChange={setShowActivityDialog}
+          activity={editingActivity}
           onSave={handleActivitySave}
         />
 
@@ -173,8 +230,8 @@ const TimeDesign = () => {
         <ActivityDialog
           open={showScheduleDialog}
           onOpenChange={setShowScheduleDialog}
-          onSave={handleScheduleSave}
-          schedulingMode={true}
+          activity={editingActivity}
+          onSave={handleActivitySave}
         />
       </div>
     </ModernAppLayout>

@@ -29,7 +29,7 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState<string>("career");
-  const [timeframe, setTimeframe] = useState<string>("quarter");
+  const [timeframe, setTimeframe] = useState<Goal['timeframe']>("quarter");
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [milestones, setMilestones] = useState<Milestone[]>([]);
@@ -105,7 +105,7 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
       title,
       description,
       category: category as Goal['category'],
-      timeframe: timeframe as Goal['timeframe'],
+      timeframe,
       progress: initialGoal?.progress || 0,
       startDate,
       endDate,
@@ -179,7 +179,7 @@ const EnhancedGoalForm: React.FC<EnhancedGoalFormProps> = ({
 
               <div>
                 <Label htmlFor="timeframe" className="text-white font-medium">Timeframe</Label>
-                <Select value={timeframe} onValueChange={(value) => {
+                <Select value={timeframe} onValueChange={(value: Goal['timeframe']) => {
                   setTimeframe(value);
                   setTimeframeAnswersRecord({}); // Reset answers when timeframe changes
                 }}>
