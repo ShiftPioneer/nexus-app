@@ -37,7 +37,7 @@ const Energy = () => {
       <div className="animate-fade-in space-y-8">
         <UnifiedPageHeader
           title="Energy Hub"
-          description="Track your workouts, analyze progress, and achieve your fitness goals"
+          description="Track your workouts, analyze performance, and achieve your fitness goals"
           icon={Zap}
           gradient="from-red-500 via-orange-500 to-yellow-500"
         />

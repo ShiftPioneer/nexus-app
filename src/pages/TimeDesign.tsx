@@ -2,22 +2,18 @@
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
-import { Calendar, Activity, BarChart3, Settings, Plus, Play, Clock } from "lucide-react";
+import { Calendar, Activity, BarChart3, Settings } from "lucide-react";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
-import { UnifiedActionButton } from "@/components/ui/unified-action-button";
 import TimeDesignCalendar from "@/components/timedesign/TimeDesignCalendar";
 import TimeDesignActivities from "@/components/timedesign/TimeDesignActivities";
 import TimeDesignAnalytics from "@/components/timedesign/TimeDesignAnalytics";
 import TimeDesignSettings from "@/components/timedesign/TimeDesignSettings";
-import { WorkoutDialog } from "@/components/energy/WorkoutDialog";
 import ActivityDialog from "@/components/timedesign/ActivityDialog";
 import { useToast } from "@/hooks/use-toast";
 
 const TimeDesign = () => {
   const [activeTab, setActiveTab] = useState("calendar");
-  const [showWorkoutDialog, setShowWorkoutDialog] = useState(false);
   const [showActivityDialog, setShowActivityDialog] = useState(false);
-  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
   
   // Time Design state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -26,29 +22,6 @@ const TimeDesign = () => {
   const [editingActivity, setEditingActivity] = useState<TimeActivity | null>(null);
   
   const { toast } = useToast();
-
-  const handleStartWorkout = () => {
-    setShowWorkoutDialog(true);
-  };
-
-  const handleLogActivity = () => {
-    setEditingActivity(null);
-    setShowActivityDialog(true);
-  };
-
-  const handleScheduleSession = () => {
-    setEditingActivity(null);
-    setShowScheduleDialog(true);
-  };
-
-  const handleWorkoutSave = (workout: any) => {
-    console.log('Workout saved:', workout);
-    toast({
-      title: "Workout Created",
-      description: "Your workout has been successfully created and scheduled.",
-    });
-    setShowWorkoutDialog(false);
-  };
 
   const handleActivitySave = (activity: TimeActivity) => {
     console.log('Activity saved:', activity);
@@ -74,7 +47,6 @@ const TimeDesign = () => {
     }
     
     setShowActivityDialog(false);
-    setShowScheduleDialog(false);
     setEditingActivity(null);
   };
 
@@ -135,38 +107,12 @@ const TimeDesign = () => {
   return (
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8">
-        <div className="flex items-center justify-between">
-          <UnifiedPageHeader
-            title="Time Design"
-            description="Design your perfect day and optimize your time allocation"
-            icon={Calendar}
-            gradient="from-blue-500 via-indigo-500 to-purple-500"
-          />
-          
-          <div className="flex gap-3">
-            <UnifiedActionButton
-              onClick={handleStartWorkout}
-              icon={Play}
-              variant="primary"
-            >
-              Start Workout
-            </UnifiedActionButton>
-            <UnifiedActionButton
-              onClick={handleLogActivity}
-              icon={Plus}
-              variant="secondary"
-            >
-              Log Activity
-            </UnifiedActionButton>
-            <UnifiedActionButton
-              onClick={handleScheduleSession}
-              icon={Clock}
-              variant="secondary"
-            >
-              Schedule Session
-            </UnifiedActionButton>
-          </div>
-        </div>
+        <UnifiedPageHeader
+          title="Time Design"
+          description="Design your perfect day and optimize your time allocation"
+          icon={Calendar}
+          gradient="from-blue-500 via-indigo-500 to-purple-500"
+        />
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <ModernTabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
@@ -210,26 +156,10 @@ const TimeDesign = () => {
           </ModernTabsContent>
         </ModernTabs>
 
-        {/* Workout Dialog */}
-        <WorkoutDialog
-          open={showWorkoutDialog}
-          onOpenChange={setShowWorkoutDialog}
-          onSave={handleWorkoutSave}
-          schedulingMode={true}
-        />
-
         {/* Activity Dialog */}
         <ActivityDialog
           open={showActivityDialog}
           onOpenChange={setShowActivityDialog}
-          activity={editingActivity}
-          onSave={handleActivitySave}
-        />
-
-        {/* Schedule Session Dialog */}
-        <ActivityDialog
-          open={showScheduleDialog}
-          onOpenChange={setShowScheduleDialog}
           activity={editingActivity}
           onSave={handleActivitySave}
         />
