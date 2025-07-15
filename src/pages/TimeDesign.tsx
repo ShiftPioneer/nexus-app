@@ -2,40 +2,61 @@
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
+import { Calendar, Activity, BarChart3, Settings, Plus, Play, Clock } from "lucide-react";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
-import { Calendar, Clock, BarChart3, Settings, Zap, Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { UnifiedActionButton } from "@/components/ui/unified-action-button";
 import TimeDesignCalendar from "@/components/timedesign/TimeDesignCalendar";
 import TimeDesignActivities from "@/components/timedesign/TimeDesignActivities";
 import TimeDesignAnalytics from "@/components/timedesign/TimeDesignAnalytics";
 import TimeDesignSettings from "@/components/timedesign/TimeDesignSettings";
-import ActivityDialog from "@/components/timedesign/ActivityDialog";
+import { WorkoutDialog } from "@/components/energy/WorkoutDialog";
+import { ActivityDialog } from "@/components/timedesign/ActivityDialog";
+import { useToast } from "@/hooks/use-toast";
 
 const TimeDesign = () => {
   const [activeTab, setActiveTab] = useState("calendar");
+  const [showWorkoutDialog, setShowWorkoutDialog] = useState(false);
   const [showActivityDialog, setShowActivityDialog] = useState(false);
+  const [showScheduleDialog, setShowScheduleDialog] = useState(false);
+  const { toast } = useToast();
 
-  // Placeholder data and handlers
-  const [activities] = useState([]);
-  const [currentDate] = useState(new Date());
-  const [viewType] = useState<"day" | "week">("week");
+  const handleStartWorkout = () => {
+    setShowWorkoutDialog(true);
+  };
 
-  const handleEditActivity = (activity: any) => {
-    console.log('Edit activity:', activity);
+  const handleLogActivity = () => {
     setShowActivityDialog(true);
   };
 
-  const handleCreateActivity = (data: any) => {
-    console.log('Create activity:', data);
+  const handleScheduleSession = () => {
+    setShowScheduleDialog(true);
+  };
+
+  const handleWorkoutSave = (workout: any) => {
+    console.log('Workout saved:', workout);
+    toast({
+      title: "Workout Created",
+      description: "Your workout has been successfully created and scheduled.",
+    });
+    setShowWorkoutDialog(false);
+  };
+
+  const handleActivitySave = (activity: any) => {
+    console.log('Activity saved:', activity);
+    toast({
+      title: "Activity Logged",
+      description: "Your activity has been successfully logged.",
+    });
     setShowActivityDialog(false);
   };
 
-  const handleDeleteActivity = (id: string) => {
-    console.log('Delete activity:', id);
-  };
-
-  const handleAddNewActivity = () => {
-    setShowActivityDialog(true);
+  const handleScheduleSave = (session: any) => {
+    console.log('Session scheduled:', session);
+    toast({
+      title: "Session Scheduled",
+      description: "Your session has been successfully scheduled.",
+    });
+    setShowScheduleDialog(false);
   };
 
   const tabItems = [
@@ -48,20 +69,20 @@ const TimeDesign = () => {
     { 
       value: "activities", 
       label: "Activities", 
-      icon: Zap,
+      icon: Activity,
       gradient: "from-emerald-500 via-teal-500 to-cyan-500"
     },
     { 
       value: "analytics", 
       label: "Analytics", 
       icon: BarChart3,
-      gradient: "from-purple-500 via-pink-500 to-rose-500"
+      gradient: "from-orange-500 via-red-500 to-pink-500"
     },
     { 
       value: "settings", 
       label: "Settings", 
       icon: Settings,
-      gradient: "from-orange-500 via-red-500 to-pink-500"
+      gradient: "from-purple-500 via-pink-500 to-rose-500"
     }
   ];
 
@@ -72,21 +93,37 @@ const TimeDesign = () => {
           <UnifiedPageHeader
             title="Time Design"
             description="Design your perfect day and optimize your time allocation"
-            icon={Clock}
+            icon={Calendar}
             gradient="from-blue-500 via-indigo-500 to-purple-500"
           />
           
-          <Button 
-            onClick={handleAddNewActivity}
-            className="bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-600 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add New Activity
-          </Button>
+          <div className="flex gap-3">
+            <UnifiedActionButton
+              onClick={handleStartWorkout}
+              icon={Play}
+              variant="primary"
+            >
+              Start Workout
+            </UnifiedActionButton>
+            <UnifiedActionButton
+              onClick={handleLogActivity}
+              icon={Plus}
+              variant="secondary"
+            >
+              Log Activity
+            </UnifiedActionButton>
+            <UnifiedActionButton
+              onClick={handleScheduleSession}
+              icon={Clock}
+              variant="secondary"
+            >
+              Schedule Session
+            </UnifiedActionButton>
+          </div>
         </div>
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList className="grid w-full grid-cols-4 max-w-3xl mx-auto">
+          <ModernTabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
@@ -101,45 +138,43 @@ const TimeDesign = () => {
           </ModernTabsList>
           
           <ModernTabsContent value="calendar" className="mt-8">
-            <div className="max-w-7xl mx-auto">
-              <TimeDesignCalendar 
-                currentDate={currentDate}
-                viewType={viewType}
-                activities={activities}
-                onEditActivity={handleEditActivity}
-                onCreateActivity={handleCreateActivity}
-              />
-            </div>
+            <TimeDesignCalendar />
           </ModernTabsContent>
           
           <ModernTabsContent value="activities" className="mt-8">
-            <div className="max-w-6xl mx-auto">
-              <TimeDesignActivities 
-                activities={activities}
-                onEditActivity={handleEditActivity}
-                onDeleteActivity={handleDeleteActivity}
-              />
-            </div>
+            <TimeDesignActivities />
           </ModernTabsContent>
           
           <ModernTabsContent value="analytics" className="mt-8">
-            <div className="max-w-6xl mx-auto">
-              <TimeDesignAnalytics activities={activities} />
-            </div>
+            <TimeDesignAnalytics />
           </ModernTabsContent>
           
           <ModernTabsContent value="settings" className="mt-8">
-            <div className="max-w-4xl mx-auto">
-              <TimeDesignSettings />
-            </div>
+            <TimeDesignSettings />
           </ModernTabsContent>
         </ModernTabs>
 
+        {/* Workout Dialog */}
+        <WorkoutDialog
+          open={showWorkoutDialog}
+          onOpenChange={setShowWorkoutDialog}
+          onSave={handleWorkoutSave}
+          schedulingMode={true}
+        />
+
+        {/* Activity Dialog */}
         <ActivityDialog
           open={showActivityDialog}
           onOpenChange={setShowActivityDialog}
-          activity={null}
-          onSave={handleCreateActivity}
+          onSave={handleActivitySave}
+        />
+
+        {/* Schedule Session Dialog */}
+        <ActivityDialog
+          open={showScheduleDialog}
+          onOpenChange={setShowScheduleDialog}
+          onSave={handleScheduleSave}
+          schedulingMode={true}
         />
       </div>
     </ModernAppLayout>
