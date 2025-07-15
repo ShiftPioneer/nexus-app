@@ -1,3 +1,4 @@
+
 import React from "react";
 import WeekHeader from "./WeekHeader";
 import WeekTimeColumn from "./WeekTimeColumn";
@@ -16,6 +17,9 @@ interface WeekCalendarViewProps {
   };
   onEditActivity: (activity: TimeActivity) => void;
   onCreateActivity: (data: { startDate: Date; endDate: Date; startTime: string; endTime: string; }) => void;
+  onMouseDown?: (e: React.MouseEvent, date: Date, hour: number) => void;
+  onMouseUp?: (e: React.MouseEvent, date: Date, hour: number) => void;
+  isDragging?: boolean;
 }
 
 const WeekCalendarView: React.FC<WeekCalendarViewProps> = ({
@@ -26,7 +30,10 @@ const WeekCalendarView: React.FC<WeekCalendarViewProps> = ({
   filteredActivities,
   getActivityStyle,
   onEditActivity,
-  onCreateActivity
+  onCreateActivity,
+  onMouseDown,
+  onMouseUp,
+  isDragging = false
 }) => {
   return (
     <div className="min-h-[1728px] overflow-x-auto">

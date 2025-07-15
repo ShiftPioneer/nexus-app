@@ -16,6 +16,9 @@ interface DayCalendarViewProps {
   };
   onEditActivity: (activity: TimeActivity) => void;
   onCreateActivity: (data: { startDate: Date; endDate: Date; startTime: string; endTime: string; }) => void;
+  onMouseDown?: (e: React.MouseEvent, hour: number) => void;
+  onMouseUp?: (e: React.MouseEvent, hour: number) => void;
+  isDragging?: boolean;
 }
 
 const DayCalendarView: React.FC<DayCalendarViewProps> = ({
@@ -26,6 +29,9 @@ const DayCalendarView: React.FC<DayCalendarViewProps> = ({
   getActivityStyle,
   onEditActivity,
   onCreateActivity,
+  onMouseDown,
+  onMouseUp,
+  isDragging = false
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragData, setDragData] = useState<{ startY: number; currentY: number } | null>(null);
@@ -56,15 +62,13 @@ const DayCalendarView: React.FC<DayCalendarViewProps> = ({
   };
 
   const handleMouseUp = () => {
-    if (dragData && Math.abs(dragData.startY - dragData.currentY) > 10) { // minimum drag distance
+    if (dragData && Math.abs(dragData.startY - dragData.currentY) > 10) {
       const start = Math.min(dragData.startY, dragData.currentY);
       const end = Math.max(dragData.startY, dragData.currentY);
       
       const startTime = pixelsToTime(start);
       const endTime = pixelsToTime(end);
 
-      // Assuming day view is for current date, but should be passed as prop.
-      // For now, this is a simplification. A `currentDate` prop should be passed here.
       const today = new Date();
 
       if (startTime !== endTime) {
@@ -78,7 +82,6 @@ const DayCalendarView: React.FC<DayCalendarViewProps> = ({
     }
     setDragData(null);
   };
-
 
   return (
     <div className="grid grid-cols-[3.5rem,1fr] min-h-[1728px]" onMouseUp={handleMouseUp}>
@@ -107,10 +110,8 @@ const DayCalendarView: React.FC<DayCalendarViewProps> = ({
           />
         )}
 
-        {/* Current time indicator */}
         <CurrentTimeIndicator getCurrentTimePosition={getCurrentTimePosition} />
 
-        {/* Activities for the day */}
         <div className="absolute inset-0">
           {filteredActivities.map((activity) => (
             <ActivityBlock
