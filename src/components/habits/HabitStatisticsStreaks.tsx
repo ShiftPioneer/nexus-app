@@ -64,76 +64,115 @@ const HabitStatisticsStreaks = ({ habits }: HabitStatisticsStreaksProps) => {
 
   return (
     <div className="space-y-8">
-      <div className="h-[250px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={streakDistribution}
-            margin={{
-              top: 5,
-              right: 30,
-              left: 20,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="range" />
-            <YAxis />
-            <Tooltip 
-              formatter={(value) => [`${value} habits`, 'Count']}
-              labelFormatter={(label) => `Streak: ${label} days`}
-            />
-            <Bar dataKey="count" fill="#7E69AB" name="Habits" />
-          </BarChart>
-        </ResponsiveContainer>
+      <div className="rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-sm p-6">
+        <div className="h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart
+              data={streakDistribution}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 20,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis 
+                dataKey="range" 
+                stroke="hsl(var(--muted-foreground))"
+                fontSize={12}
+              />
+              <YAxis 
+                stroke="hsl(var(--muted-foreground))"
+                fontSize={12}
+              />
+              <Tooltip 
+                formatter={(value) => [`${value} habits`, 'Count']}
+                labelFormatter={(label) => `Streak: ${label} days`}
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '12px',
+                  color: 'hsl(var(--foreground))',
+                  boxShadow: '0 10px 30px -10px hsl(var(--primary) / 0.3)'
+                }}
+              />
+              <Bar 
+                dataKey="count" 
+                fill="#FF6500" 
+                name="Habits" 
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
       
-      <div className="space-y-4">
-        <h3 className="text-lg font-medium flex items-center gap-2">
-          <Award className="h-5 w-5 text-[#FF6500]" />
-          Top Streaks
-        </h3>
+      <div className="space-y-6">
+        <div className="flex items-center gap-3">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-r from-orange-500 to-red-500 shadow-lg">
+            <Award className="h-6 w-6 text-white" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-white">Top Streaks</h3>
+            <p className="text-slate-400">Your longest habit streaks</p>
+          </div>
+        </div>
         
         {topStreaks.length > 0 ? (
-          <div className="grid gap-3">
-            {topStreaks.map((habit) => (
-              <Card key={habit.id}>
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+          <div className="grid gap-4">
+            {topStreaks.map((habit, index) => (
+              <div key={habit.id} className="group rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur-sm p-6 hover:bg-slate-800/50 transition-all duration-300">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-r from-orange-500 to-red-500 text-white font-bold text-sm">
+                      #{index + 1}
+                    </div>
                     <div>
-                      <h4 className="font-medium">{habit.title}</h4>
+                      <h4 className="font-semibold text-white">{habit.title}</h4>
                       <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="capitalize">
+                        <Badge variant="outline" className="capitalize border-white/20 text-slate-300">
                           {habit.category}
                         </Badge>
-                        <Badge variant="secondary" className="capitalize">
+                        <Badge variant="secondary" className="capitalize bg-slate-700/50 text-slate-300">
                           {habit.type}
                         </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 text-[#FF6500]">
-                      <Flame className="h-5 w-5" />
-                      <span className="font-bold text-xl">{habit.streak}</span>
-                      <span className="text-xs text-muted-foreground">days</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="flex items-center gap-2 text-orange-500">
+                        <Flame className="h-5 w-5" />
+                        <span className="font-bold text-2xl text-white">{habit.streak}</span>
+                      </div>
+                      <span className="text-xs text-slate-400">days streak</span>
                     </div>
                   </div>
-                  
-                  <div className="mt-3 w-full bg-muted h-2 rounded-full overflow-hidden">
+                </div>
+                
+                <div className="mt-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-slate-400">Progress to target</span>
+                    <span className="font-medium text-white">{habit.streak}/{habit.target} days</span>
+                  </div>
+                  <div className="w-full bg-slate-700/50 rounded-full h-3 overflow-hidden">
                     <div 
-                      className="bg-[#FF6500] h-2 rounded-full"
+                      className="h-3 rounded-full transition-all duration-500 bg-gradient-to-r from-orange-500 to-red-500"
                       style={{ width: `${Math.min(100, (habit.streak / habit.target) * 100)}%` }}
                     />
                   </div>
-                  <div className="mt-1 text-xs text-right text-muted-foreground">
-                    {habit.streak}/{habit.target} days target
-                  </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-6 text-muted-foreground">
-            <p>No habit streaks available yet</p>
-            <p className="text-sm mt-2">Start building your habit streaks to see them here</p>
+          <div className="rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur-sm p-8 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-700/50 mx-auto mb-4">
+              <Flame className="h-8 w-8 text-slate-400" />
+            </div>
+            <h4 className="font-semibold text-white mb-2">No streaks yet</h4>
+            <p className="text-slate-400 text-sm">Start building your habit streaks to see them here</p>
           </div>
         )}
       </div>

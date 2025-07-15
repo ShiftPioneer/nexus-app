@@ -53,53 +53,68 @@ const HabitStatisticsCategories = ({ habits }: HabitStatisticsCategoriesProps) =
   const categoryData = getCategoryData();
 
   return (
-    <div className="space-y-6">
-      <div className="h-[300px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={categoryData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              outerRadius={100}
-              fill="#8884d8"
-              dataKey="value"
-              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-            >
-              {categoryData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip
-              formatter={(value, name) => [`${value}`, `${name} habits`]}
-              contentStyle={{
-                backgroundColor: 'rgba(15, 23, 42, 0.9)',
-                border: '1px solid rgba(71, 85, 105, 0.3)',
-                borderRadius: '12px',
-                color: '#ffffff'
-              }}
-            />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
+    <div className="space-y-8">
+      <div className="rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-sm p-6">
+        <div className="h-[350px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={categoryData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                outerRadius={120}
+                fill="#8884d8"
+                dataKey="value"
+                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+              >
+                {categoryData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip
+                formatter={(value, name) => [`${value}`, `${name} habits`]}
+                contentStyle={{
+                  backgroundColor: 'hsl(var(--background))',
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '12px',
+                  color: 'hsl(var(--foreground))',
+                  boxShadow: '0 10px 30px -10px hsl(var(--primary) / 0.3)'
+                }}
+              />
+              <Legend />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
       </div>
       
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {categoryData.map((category, index) => (
-          <div key={index} className="rounded-xl border border-slate-700/30 p-4 bg-slate-800/20 backdrop-blur-sm">
-            <div className="flex items-center gap-2">
-              <div 
-                className="h-3 w-3 rounded-full" 
-                style={{ backgroundColor: category.color }} 
-              />
-              <p className="font-medium capitalize text-white">{category.name}</p>
+          <div key={index} className="group rounded-xl border border-white/10 bg-slate-900/50 backdrop-blur-sm p-6 hover:bg-slate-800/50 transition-all duration-300">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div 
+                  className="h-4 w-4 rounded-full ring-2 ring-white/20" 
+                  style={{ backgroundColor: category.color }} 
+                />
+                <p className="font-semibold capitalize text-white">{category.name}</p>
+              </div>
+              <div className="text-right">
+                <p className="text-2xl font-bold text-white">{category.value}</p>
+                <p className="text-xs text-slate-400">habits</p>
+              </div>
             </div>
-            <div className="mt-2 flex justify-between text-sm">
-              <p className="text-slate-400">Count: {category.value}</p>
-              <p className="text-slate-400">
-                Completion: {category.completionRate}%
-              </p>
+            <div className="mt-4 space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-slate-400">Completion Rate</span>
+                <span className="font-medium text-white">{category.completionRate}%</span>
+              </div>
+              <div className="w-full bg-slate-700/50 rounded-full h-2 overflow-hidden">
+                <div 
+                  className="h-2 rounded-full transition-all duration-500 bg-gradient-to-r from-orange-500 to-red-500"
+                  style={{ width: `${category.completionRate}%` }}
+                />
+              </div>
             </div>
           </div>
         ))}
