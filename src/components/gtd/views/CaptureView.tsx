@@ -19,7 +19,7 @@ const CaptureView = () => {
           <div className="w-16 h-16 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-700 flex items-center justify-center shadow-2xl">
             <Inbox className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          <h1 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent py-[10px]">
             Capture Everything
           </h1>
         </div>
