@@ -11,6 +11,7 @@ import PlanningStatsDialog from "@/components/planning/PlanningStatsDialog";
 import GoalCreationDialog from "@/components/planning/GoalCreationDialog";
 import ProjectCreationDialog from "@/components/planning/ProjectCreationDialog";
 import { useGTDProjectsSync } from "@/hooks/use-gtd-projects-sync";
+import { navigationIcons } from "@/lib/navigation-icons";
 
 const Planning = () => {
   const [activeTab, setActiveTab] = useState("goals");
@@ -123,30 +124,27 @@ const Planning = () => {
   return (
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8">
-        <div className="flex items-center justify-between">
-          <UnifiedPageHeader
-            title="Planning System"
-            description="Set goals, manage projects, and track your progress toward success"
-            icon={Target}
-            gradient="from-emerald-500 via-teal-500 to-cyan-500"
-          />
-          
-          <div className="flex gap-3">
-            <UnifiedActionButton
-              onClick={handleCreateGoal}
-              icon={Plus}
-              variant="primary"
-            >
-              New Goal
-            </UnifiedActionButton>
-            <UnifiedActionButton
-              onClick={handleCreateProject}
-              icon={Plus}
-              variant="secondary"
-            >
-              New Project
-            </UnifiedActionButton>
-          </div>
+        <UnifiedPageHeader
+          title="Planning System"
+          description="Set goals, manage projects, and track your progress toward success"
+          icon={navigationIcons.planning}
+          gradient="from-emerald-500 via-teal-500 to-cyan-500"
+        />
+        <div className="flex justify-end gap-3">
+          <UnifiedActionButton
+            onClick={handleCreateGoal}
+            icon={Plus}
+            variant="primary"
+          >
+            New Goal
+          </UnifiedActionButton>
+          <UnifiedActionButton
+            onClick={handleCreateProject}
+            icon={Plus}
+            variant="secondary"
+          >
+            New Project
+          </UnifiedActionButton>
         </div>
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">

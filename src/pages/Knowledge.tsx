@@ -7,6 +7,7 @@ import { SkillsetTab } from "@/components/knowledge/SkillsetTab";
 import { ResourcesTab } from "@/components/knowledge/ResourcesTab";
 import BookshelfTab from "@/components/knowledge/BookshelfTab";
 import { BookOpen, LayoutGrid, Brain, Lightbulb } from "lucide-react";
+import { navigationIcons } from "@/lib/navigation-icons";
 
 const Knowledge = () => {
   const [activeTab, setActiveTab] = useState("skillsets");
@@ -38,7 +39,7 @@ const Knowledge = () => {
         <UnifiedPageHeader
           title="Knowledge Hub"
           description="Track your learning progress and manage your educational resources"
-          icon={Lightbulb}
+          icon={navigationIcons.knowledge}
           gradient="from-teal-500 via-cyan-500 to-blue-500"
         />
         

@@ -20,12 +20,7 @@ const Dashboard = () => {
     <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
         <div className="animate-fade-in space-y-6 bg-slate-900 min-h-full">
-          <UnifiedPageHeader
-            title="Dashboard"
-            description="Your life operating system command center"
-            icon={navigationIcons.dashboard}
-            gradient="from-blue-500 via-indigo-500 to-purple-500"
-          />
+          
           
           <WelcomeSection />
           <StatsSection />

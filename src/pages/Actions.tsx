@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger } from "@/components/ui/modern-tabs";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
+import { navigationIcons } from "@/lib/navigation-icons";
 import { CheckSquare, X, Kanban, Grid3x3, Trash2 } from "lucide-react";
 import TaskCreationDialog from "@/components/actions/TaskCreationDialog";
 import ActionsTabContent from "@/components/actions/ActionsTabContent";
@@ -136,7 +137,7 @@ const ActionsContent = () => {
       <UnifiedPageHeader
         title="Actions"
         description="Manage your tasks and focus on what matters most"
-        icon={CheckSquare}
+        icon={navigationIcons.actions}
         gradient="from-green-500 via-emerald-500 to-teal-500"
       />
 

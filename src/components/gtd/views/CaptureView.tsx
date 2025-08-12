@@ -77,9 +77,15 @@ const CaptureView = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
-        className="mb-12"
       >
-        <QuickCaptureForm />
+        <Card className="bg-slate-950/70 backdrop-blur-sm border-slate-700/50">
+          <CardHeader>
+            <CardTitle className="text-white">Quick Capture</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <QuickCaptureForm />
+          </CardContent>
+        </Card>
       </motion.div>
 
       {/* Tips Section */}

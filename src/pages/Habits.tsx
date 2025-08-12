@@ -14,6 +14,7 @@ import ModernHabitCard from "@/components/habits/ModernHabitCard";
 import HabitStreakCard from "@/components/habits/HabitStreakCard";
 import WeeklyActivityCard from "@/components/habits/WeeklyActivityCard";
 import ModernAnalyticsCard from "@/components/habits/ModernAnalyticsCard";
+import { navigationIcons } from "@/lib/navigation-icons";
 
 const Habits = () => {
   const { toast } = useToast();
@@ -201,13 +202,13 @@ const Habits = () => {
   return (
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8 h-full">
-        <div className="flex justify-between items-center">
-          <UnifiedPageHeader
-            title="Habits"
-            description="Track your consistency and build unstoppable momentum"
-            icon={Trophy}
-            gradient="from-purple-500 via-pink-500 to-rose-500"
-          />
+        <UnifiedPageHeader
+          title="Habits"
+          description="Track your consistency and build unstoppable momentum"
+          icon={navigationIcons.habits}
+          gradient="from-purple-500 via-pink-500 to-rose-500"
+        />
+        <div className="flex justify-end">
           <UnifiedActionButton
             onClick={() => {
               setSelectedHabit(null);
