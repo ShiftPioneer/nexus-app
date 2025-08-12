@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useHabitsStorage } from "@/hooks/use-habits-storage";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,45 +25,15 @@ const Habits = () => {
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Use localStorage for data persistence with sample data
-  const [habits, setHabits] = useLocalStorage<Habit[]>("userHabits", [
-    {
-      id: "habit-1",
-      title: "Morning Meditation",
-      category: "mindfulness",
-      streak: 12,
-      target: 21,
-      status: "pending",
-      completionDates: [
-        new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-      ],
-      type: "daily",
-      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
-      duration: "10 minutes",
-      scoreValue: 10,
-      penaltyValue: 15
-    },
-    {
-      id: "habit-2", 
-      title: "Read 30 Pages",
-      category: "learning",
-      streak: 7,
-      target: 30,
-      status: "completed",
-      completionDates: [
-        new Date(),
-        new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-      ],
-      type: "daily",
-      createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000),
-      duration: "45 minutes",
-      scoreValue: 8,
-      penaltyValue: 12
-    }
-  ]);
+  // Use improved habits storage
+  const { 
+    habits, 
+    addHabit, 
+    updateHabit, 
+    deleteHabit, 
+    markHabitComplete, 
+    markHabitMissed 
+  } = useHabitsStorage();
   
   const [accountabilityScore, setAccountabilityScore] = useLocalStorage("accountabilityScore", 0);
 
@@ -82,26 +53,22 @@ const Habits = () => {
     const today = new Date().toDateString();
     const lastCheck = localStorage.getItem('lastHabitCheck');
     if (lastCheck !== today) {
-      setHabits(prevHabits => prevHabits.map(habit => {
+      habits.forEach(habit => {
         if (habit.type === "daily" && habit.status === "completed") {
           const lastCompletion = habit.completionDates[0];
           const lastCompletionDate = lastCompletion ? new Date(lastCompletion).toDateString() : '';
           if (lastCompletionDate !== today) {
-            return {
-              ...habit,
-              status: "pending" as const
-            };
+            updateHabit(habit.id, { status: "pending" });
           }
         }
-        return habit;
-      }));
+      });
       localStorage.setItem('lastHabitCheck', today);
     }
-  }, [setHabits]);
+  }, [habits, updateHabit]);
 
   const handleCreateHabit = (habit: Habit) => {
     if (selectedHabit) {
-      setHabits(habits.map(h => h.id === habit.id ? habit : h));
+      updateHabit(habit.id, habit);
       toast({
         title: "Habit Updated",
         description: "Your habit has been updated successfully!"
@@ -116,7 +83,7 @@ const Habits = () => {
         completionDates: [],
         status: "pending"
       };
-      setHabits([...habits, newHabit]);
+      addHabit(newHabit);
       toast({
         title: "Habit Created",
         description: "Your new habit has been created successfully!"
@@ -131,40 +98,23 @@ const Habits = () => {
   };
 
   const completeHabit = (id: string) => {
-    const today = new Date();
-    setHabits(habits.map(habit => {
-      if (habit.id === id) {
-        const completedToday = habit.completionDates.some(date => 
-          new Date(date).toDateString() === today.toDateString()
-        );
-        if (completedToday) {
-          toast({
-            title: "Already Completed",
-            description: `${habit.title} has already been completed today.`,
-            variant: "default"
-          });
-          return habit;
-        }
-
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const completedYesterday = habit.completionDates.some(date => 
-          new Date(date).toDateString() === yesterday.toDateString()
-        );
-        const newStreak = completedYesterday || habit.completionDates.length === 0 ? habit.streak + 1 : 1;
-        
-        return {
-          ...habit,
-          status: "completed" as const,
-          streak: newStreak,
-          completionDates: [today, ...habit.completionDates]
-        };
-      }
-      return habit;
-    }));
-    
     const habit = habits.find(h => h.id === id);
     if (habit) {
+      const today = new Date();
+      const completedToday = habit.completionDates.some(date => 
+        new Date(date).toDateString() === today.toDateString()
+      );
+      
+      if (completedToday) {
+        toast({
+          title: "Already Completed",
+          description: `${habit.title} has already been completed today.`,
+          variant: "default"
+        });
+        return;
+      }
+
+      markHabitComplete(id);
       toast({
         title: "Habit Completed! 🎉",
         description: `${habit.title} completed for today. +${habit.scoreValue || 5} points!`
@@ -173,15 +123,9 @@ const Habits = () => {
   };
 
   const missHabit = (id: string) => {
-    setHabits(habits.map(habit => {
-      if (habit.id === id) {
-        return { ...habit, status: "missed" as const, streak: 0 };
-      }
-      return habit;
-    }));
-    
     const habit = habits.find(h => h.id === id);
     if (habit) {
+      markHabitMissed(id);
       toast({
         title: "Habit Missed",
         description: `${habit.title} marked as missed. -${habit.penaltyValue || 10} points.`,
@@ -312,11 +256,11 @@ const Habits = () => {
                   onChange={(e) => setFilterCategory(e.target.value)}
                   className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-slate-700 text-white"
                 >
-                  {categories.map(cat => (
-                    <option key={cat} value={cat}>
-                      {cat === "all" ? "All Categories" : cat.charAt(0).toUpperCase() + cat.slice(1)}
-                    </option>
-                  ))}
+                   {categories.map(cat => (
+                     <option key={cat} value={cat}>
+                       {cat === "all" ? "All Categories" : String(cat).charAt(0).toUpperCase() + String(cat).slice(1)}
+                     </option>
+                   ))}
                 </select>
               </div>
             </div>

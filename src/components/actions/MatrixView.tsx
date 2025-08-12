@@ -174,7 +174,7 @@ const MatrixView: React.FC<MatrixViewProps> = ({
                     quadrantTasks.map((task) => (
                       <motion.div
                         key={task.id}
-                        className="group p-4 rounded-lg bg-slate-900/50 border border-slate-700/50 hover:border-slate-600 transition-all duration-200"
+                        className="group p-4 rounded-lg bg-slate-950/90 border border-slate-700/50 hover:border-slate-600 transition-all duration-200"
                         whileHover={{ scale: 1.02 }}
                         transition={{ duration: 0.2 }}
                       >

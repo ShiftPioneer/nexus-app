@@ -17,6 +17,7 @@ export type TaskStatus =
   | "do-it" 
   | "delegate-it" 
   | "defer-it"
+  | "delete-it"
   | "clarified";
 
 export type TaskCategory = 

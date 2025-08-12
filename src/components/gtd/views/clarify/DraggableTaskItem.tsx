@@ -22,13 +22,13 @@ const DraggableTaskItem: React.FC<DraggableTaskItemProps> = ({ task, index }) =>
             snapshot.isDragging ? "shadow-lg scale-[1.02]" : ""
           )}
         >
-          <div className="flex items-center gap-4 p-4 bg-slate-800 border border-slate-700 rounded-md">
-            <div className="flex-1 min-w-0">
-              <h4 className="font-medium text-slate-200">
+          <div className="inline-flex items-center gap-3 p-3 bg-slate-800 border border-slate-700 rounded-md max-w-fit">
+            <div className="min-w-0">
+              <h4 className="font-medium text-slate-200 whitespace-nowrap">
                 {task.title}
               </h4>
               {task.description && (
-                <p className="text-sm text-slate-400 line-clamp-2">
+                <p className="text-sm text-slate-400 truncate max-w-[200px]">
                   {task.description}
                 </p>
               )}

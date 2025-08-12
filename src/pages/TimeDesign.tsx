@@ -11,6 +11,7 @@ import TimeDesignAnalytics from "@/components/timedesign/TimeDesignAnalytics";
 import TimeDesignSettings from "@/components/timedesign/TimeDesignSettings";
 import ActivityDialog from "@/components/timedesign/ActivityDialog";
 import { useToast } from "@/hooks/use-toast";
+import { useActivitiesStorage } from "@/hooks/use-timedesign-storage";
 
 const TimeDesign = () => {
   const [activeTab, setActiveTab] = useState("calendar");
@@ -19,7 +20,7 @@ const TimeDesign = () => {
   // Time Design state
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<"day" | "week">("week");
-  const [activities, setActivities] = useState<TimeActivity[]>([]);
+  const [activities, setActivities] = useActivitiesStorage();
   const [editingActivity, setEditingActivity] = useState<TimeActivity | null>(null);
   
   const { toast } = useToast();

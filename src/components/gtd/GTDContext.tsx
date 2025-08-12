@@ -6,6 +6,7 @@ import { useGTDView } from "@/hooks/use-gtd-view";
 import { useGTDDragDrop } from "@/hooks/use-gtd-drag-drop";
 import { DropResult } from "react-beautiful-dnd";
 import { useToast } from "@/hooks/use-toast";
+import { useGTDActionsSync } from "@/hooks/use-gtd-actions-sync";
 
 // Re-export types from the types file for backward compatibility
 export type { GTDTask, TaskPriority, TaskStatus } from "@/types/gtd";
@@ -24,6 +25,7 @@ export const useGTD = () => {
 export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { syncTaskToActions } = useGTDActionsSync();
   
   const { 
     tasks, 
@@ -61,16 +63,23 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     // Handle synchronization based on task status changes
     const syncTasksWithActions = () => {
-      // If a task is marked as "do-it", move it to "next-action"
+      // If a task is marked as "do-it", move it to "next-action" and sync to Actions
       // If a task is marked as "delegate-it", move it to "waiting-for"
       // If a task is marked as "defer-it", move it to "someday"
+      // If a task is marked as "delete-it", move it to "deleted" and sync to Actions
       const updatedTasks = tasks.map(task => {
         if (task.status === "do-it") {
+          // Sync to Actions page as todo task
+          syncTaskToActions(task, 'todo');
           return { ...task, status: "next-action" as TaskStatus };
         } else if (task.status === "delegate-it") {
           return { ...task, status: "waiting-for" as TaskStatus };
         } else if (task.status === "defer-it") {
           return { ...task, status: "someday" as TaskStatus };
+        } else if (task.status === "delete-it") {
+          // Sync to Actions page as deleted task
+          syncTaskToActions(task, 'deleted');
+          return { ...task, status: "deleted" as TaskStatus };
         }
         return task;
       });
@@ -88,7 +97,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     syncTasksWithActions();
-  }, [tasks, updateTask]);
+  }, [tasks, updateTask, syncTaskToActions]);
 
   // Save all data before unloading page
   useEffect(() => {

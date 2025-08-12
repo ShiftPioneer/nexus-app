@@ -95,7 +95,7 @@ const KanbanView: React.FC<KanbanViewProps> = ({
                   transition={{ duration: 0.2, delay: index * 0.05 }}
                   className="group"
                 >
-                  <Card className="bg-slate-900/80 border-slate-700/50 hover:border-slate-600 transition-all duration-200 cursor-pointer hover:shadow-xl">
+                  <Card className="bg-slate-950/90 border-slate-700/50 hover:border-slate-600 transition-all duration-200 cursor-pointer hover:shadow-xl">
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
                         <h4 className="font-medium text-white line-clamp-2">{task.title}</h4>
