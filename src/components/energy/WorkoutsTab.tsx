@@ -316,13 +316,13 @@ export const WorkoutsTab = () => {
 
       {/* Tab Navigation */}
       <Tabs value={activeView} onValueChange={setActiveView}>
-        <TabsList className="bg-slate-950/80 border border-slate-700/50 p-1 rounded-xl w-fit">
-          <TabsTrigger value="myWorkouts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-orange-500 data-[state=active]:text-white px-8 py-3 rounded-lg font-semibold transition-all mx-[10px]">
+        <TabsList className="border-none bg-slate-900">
+          <TabsTrigger value="myWorkouts" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-orange-500 data-[state=active]:text-white px-8 py-3 rounded-lg font-semibold transition-all mx-0">
             <Dumbbell className="h-5 w-5 mr-2" />
             My Workouts
           </TabsTrigger>
-          <TabsTrigger value="library" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-orange-500 data-[state=active]:text-white px-8 py-3 rounded-lg font-semibold transition-all">
-            <Activity className="h-5 w-5 mr-2" />
+          <TabsTrigger value="library" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-orange-500 data-[state=active]:text-white px-8 py-3 rounded-lg font-semibold transition-all mx-5">
+            <Activity className="h-5 w-5 mr-2 " />
             Exercise Library
           </TabsTrigger>
         </TabsList>
