@@ -117,7 +117,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
     const activityToSave: TimeActivity = {
       id: activity?.id || "",
       title: values.title,
-      description: values.description,
+      description: values.description || "",
       category: values.category,
       color: values.color,
       startDate: values.startDate,

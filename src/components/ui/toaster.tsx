@@ -12,10 +12,10 @@ export function Toaster() {
       action,
       ...props
     }) {
-      return <Toast key={id} className="bg-slate-950">
+        return <Toast key={id} className="bg-slate-950/95 backdrop-blur-md border-slate-700/50 shadow-2xl">
             <div className="grid gap-1">
-              {title && <ToastTitle className="text-cyan-600bg-gradient-to-r from-primary via-orange-500 to-red-500 bg-clip-text text-transparent">{title}</ToastTitle>}
-              {description && <ToastDescription className="bg-slate-950 text-cyan-600">{description}</ToastDescription>}
+              {title && <ToastTitle className="text-white font-semibold bg-gradient-to-r from-primary via-orange-500 to-red-500 bg-clip-text text-transparent">{title}</ToastTitle>}
+              {description && <ToastDescription className="text-slate-300">{description}</ToastDescription>}
             </div>
             {action}
             <ToastClose />

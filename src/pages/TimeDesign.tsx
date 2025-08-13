@@ -28,9 +28,10 @@ const TimeDesign = () => {
   const handleActivitySave = (activity: TimeActivity) => {
     console.log('Activity saved:', activity);
     
-    if (editingActivity) {
+    if (editingActivity && editingActivity.id) {
       // Update existing activity
-      setActivities(prev => prev.map(a => a.id === activity.id ? activity : a));
+      const updatedActivity = { ...activity, id: editingActivity.id };
+      setActivities(prev => prev.map(a => a.id === editingActivity.id ? updatedActivity : a));
       toast({
         title: "Activity Updated",
         description: "Your activity has been successfully updated.",
@@ -39,7 +40,7 @@ const TimeDesign = () => {
       // Create new activity
       const newActivity = {
         ...activity,
-        id: activity.id || Date.now().toString()
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
       };
       setActivities(prev => [...prev, newActivity]);
       toast({

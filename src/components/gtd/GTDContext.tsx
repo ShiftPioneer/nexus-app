@@ -7,6 +7,7 @@ import { useGTDDragDrop } from "@/hooks/use-gtd-drag-drop";
 import { DropResult } from "react-beautiful-dnd";
 import { useToast } from "@/hooks/use-toast";
 import { useGTDActionsSync } from "@/hooks/use-gtd-actions-sync";
+import { useGTDProjectsSync } from "@/hooks/use-gtd-projects-sync";
 
 // Re-export types from the types file for backward compatibility
 export type { GTDTask, TaskPriority, TaskStatus } from "@/types/gtd";
@@ -26,6 +27,7 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const navigate = useNavigate();
   const { toast } = useToast();
   const { syncTaskToActions } = useGTDActionsSync();
+  const { syncGTDProjects } = useGTDProjectsSync();
   
   const { 
     tasks, 
@@ -97,7 +99,10 @@ export const GTDProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
 
     syncTasksWithActions();
-  }, [tasks, updateTask, syncTaskToActions]);
+    
+    // Sync projects whenever tasks change
+    syncGTDProjects();
+  }, [tasks, updateTask, syncTaskToActions, syncGTDProjects]);
 
   // Save all data before unloading page
   useEffect(() => {
