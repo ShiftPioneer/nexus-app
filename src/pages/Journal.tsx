@@ -10,10 +10,10 @@ import JournalStats from "@/components/journal/JournalStats";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useJournalStorage } from "@/hooks/use-journal-storage";
+import { useSecureJournalStorage } from "@/hooks/use-secure-journal-storage";
 const Journal = () => {
   const [activeTab, setActiveTab] = useState("write");
-  const { entries, addEntry, updateEntry, deleteEntry, getStats } = useJournalStorage();
+  const { entries, addEntry, updateEntry, deleteEntry, getStats } = useSecureJournalStorage();
   const stats = getStats();
 
   // Create a default initial entry for the editor

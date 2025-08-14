@@ -10,10 +10,10 @@ import KeyBeliefsSection from "@/components/mindset/KeyBeliefsSection";
 import AffirmationsSection from "@/components/mindset/AffirmationsSection";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { useMindsetStorage } from "@/hooks/use-mindset-storage";
+import { useSecureMindsetStorage } from "@/hooks/use-secure-mindset-storage";
 const Mindset = () => {
   const [activeTab, setActiveTab] = useState("vision");
-  const { getStats } = useMindsetStorage();
+  const { getStats } = useSecureMindsetStorage();
   const stats = getStats();
   const tabItems = [{
     value: "vision",

@@ -8,6 +8,7 @@ import { ThemeProvider } from "next-themes";
 import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
+import Auth from "./pages/Auth";
 import Actions from "./pages/Actions";
 import Habits from "./pages/Habits";
 import Journal from "./pages/Journal";
@@ -33,6 +34,7 @@ const App = () => (
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
                 <Route path="/actions" element={<Actions />} />
                 <Route path="/habits" element={<Habits />} />
                 <Route path="/journal" element={<Journal />} />
