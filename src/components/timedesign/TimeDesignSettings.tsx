@@ -13,36 +13,41 @@ import { useToast } from "@/hooks/use-toast";
 
 const TimeDesignSettings = () => {
   const { toast } = useToast();
-  const [settings, setSettings] = useState({
-    workingHours: {
-      enabled: true,
-      start: "09:00",
-      end: "17:00"
-    },
-    notifications: {
-      enabled: true,
-      beforeActivity: 15,
-      dailyPlanning: true,
-      weeklyReview: true
-    },
-    calendar: {
-      defaultView: "week",
-      weekStartsOn: "monday",
-      showWeekends: true,
-      timeSlotDuration: 30
-    },
-    appearance: {
-      theme: "system",
-      colorScheme: "default",
-      showActivityColors: true,
-      compactMode: false
-    },
-    automation: {
-      autoSchedule: false,
-      smartSuggestions: true,
-      breakReminders: true,
-      focusMode: false
-    }
+  
+  // Load settings from localStorage on component mount
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem('timeDesignSettings');
+    return saved ? JSON.parse(saved) : {
+      workingHours: {
+        enabled: true,
+        start: "09:00",
+        end: "17:00"
+      },
+      notifications: {
+        enabled: true,
+        beforeActivity: 15,
+        dailyPlanning: true,
+        weeklyReview: true
+      },
+      calendar: {
+        defaultView: "week",
+        weekStartsOn: "monday",
+        showWeekends: true,
+        timeSlotDuration: 30
+      },
+      appearance: {
+        theme: "system",
+        colorScheme: "default",
+        showActivityColors: true,
+        compactMode: false
+      },
+      automation: {
+        autoSchedule: false,
+        smartSuggestions: true,
+        breakReminders: true,
+        focusMode: false
+      }
+    };
   });
 
   const handleSettingChange = (category: string, key: string, value: any) => {

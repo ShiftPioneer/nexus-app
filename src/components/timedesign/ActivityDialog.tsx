@@ -91,10 +91,21 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
   useEffect(() => {
     if (open) {
         if (activity) {
+          // Auto-adjust end time when start time changes for new activities
+          const defaultEndTime = (() => {
+            if (!activity.id && activity.startTime) {
+              const [hours, minutes] = activity.startTime.split(':').map(Number);
+              const endHour = hours + 1;
+              return `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+            }
+            return activity.endTime || "10:00";
+          })();
+
           form.reset({
             ...activity,
             title: activity.id ? activity.title : '', // Empty title for new drag-created activities
             description: activity.description || "",
+            endTime: defaultEndTime,
           });
         } else {
           form.reset({
@@ -111,6 +122,32 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
         }
     }
   }, [activity, open, form]);
+
+  // Smart time adjustment
+  const watchStartTime = form.watch('startTime');
+  const watchCategory = form.watch('category');
+  
+  useEffect(() => {
+    if (watchStartTime && (!activity?.id)) {
+      const [hours, minutes] = watchStartTime.split(':').map(Number);
+      const endHour = hours + 1;
+      const newEndTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      form.setValue('endTime', newEndTime);
+    }
+  }, [watchStartTime, form, activity?.id]);
+
+  // Smart color adjustment based on category
+  useEffect(() => {
+    if (watchCategory && (!activity?.id)) {
+      const categoryColors: Record<string, TimeActivity['color']> = {
+        work: 'purple',
+        social: 'orange', 
+        health: 'green',
+        learning: 'blue'
+      };
+      form.setValue('color', categoryColors[watchCategory] || 'purple');
+    }
+  }, [watchCategory, form, activity?.id]);
 
 
   const handleSave = (values: ActivityFormValues) => {

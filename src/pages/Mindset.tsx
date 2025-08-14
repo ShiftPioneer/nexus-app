@@ -10,8 +10,11 @@ import KeyBeliefsSection from "@/components/mindset/KeyBeliefsSection";
 import AffirmationsSection from "@/components/mindset/AffirmationsSection";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { useMindsetStorage } from "@/hooks/use-mindset-storage";
 const Mindset = () => {
   const [activeTab, setActiveTab] = useState("vision");
+  const { getStats } = useMindsetStorage();
+  const stats = getStats();
   const tabItems = [{
     value: "vision",
     label: "Vision Board",
@@ -45,22 +48,22 @@ const Mindset = () => {
   }];
   const mindsetStats = [{
     label: "Days Active",
-    value: "127",
+    value: stats.daysActive.toString(),
     icon: Star,
     color: "text-yellow-400"
   }, {
     label: "Affirmations",
-    value: "45",
+    value: stats.affirmations.toString(),
     icon: Sparkles,
     color: "text-blue-400"
   }, {
     label: "Goals Set",
-    value: "12",
+    value: stats.goalsSet.toString(),
     icon: Target,
     color: "text-green-400"
   }, {
     label: "Values Defined",
-    value: "8",
+    value: stats.valuesDefined.toString(),
     icon: Heart,
     color: "text-red-400"
   }];

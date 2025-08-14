@@ -10,11 +10,11 @@ import JournalStats from "@/components/journal/JournalStats";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useJournalStorage } from "@/hooks/use-journal-storage";
 const Journal = () => {
   const [activeTab, setActiveTab] = useState("write");
-
-  // Placeholder data and handlers
-  const [entries] = useState<JournalEntry[]>([]);
+  const { entries, addEntry, updateEntry, deleteEntry, getStats } = useJournalStorage();
+  const stats = getStats();
 
   // Create a default initial entry for the editor
   const initialEntry: JournalEntry = {
@@ -25,24 +25,34 @@ const Journal = () => {
     tags: [],
     mood: 'neutral'
   };
+  
   const handleSave = (entry: JournalEntry) => {
-    console.log('Save entry:', entry);
+    if (entry.id) {
+      updateEntry(entry.id, entry);
+    } else {
+      addEntry(entry);
+    }
+    setActiveTab("entries");
   };
+  
   const handleCancel = () => {
-    console.log('Cancel editing');
+    setActiveTab("entries");
   };
+  
   const handleEditEntry = (entry: JournalEntry) => {
-    console.log('Edit entry:', entry);
-  };
-  const handleDeleteEntry = (id: string) => {
-    console.log('Delete entry:', id);
-  };
-  const handleNewEntry = () => {
-    console.log('New entry');
     setActiveTab("write");
   };
+  
+  const handleDeleteEntry = (id: string) => {
+    deleteEntry(id);
+  };
+  
+  const handleNewEntry = () => {
+    setActiveTab("write");
+  };
+  
   const handleTabChange = (tab: string) => {
-    console.log('Tab change:', tab);
+    setActiveTab(tab);
   };
   const tabItems = [{
     value: "write",
@@ -65,28 +75,30 @@ const Journal = () => {
   }];
   const journalStats = [{
     label: "Total Entries",
-    value: "47",
+    value: stats.totalEntries.toString(),
     icon: BookOpen,
     color: "text-blue-400",
-    trend: "+12%"
+    trend: stats.totalEntries > 0 ? "+12%" : "0%"
   }, {
     label: "Current Streak",
-    value: "14 days",
+    value: `${stats.currentStreak} day${stats.currentStreak !== 1 ? 's' : ''}`,
     icon: Calendar,
     color: "text-green-400",
-    trend: "+3 days"
+    trend: stats.currentStreak > 0 ? `+${stats.currentStreak}` : "0"
   }, {
     label: "Words Written",
-    value: "12.5k",
+    value: stats.wordsWritten > 1000 ? 
+      `${(stats.wordsWritten / 1000).toFixed(1)}k` : 
+      stats.wordsWritten.toString(),
     icon: PenTool,
     color: "text-purple-400",
-    trend: "+2.1k"
+    trend: stats.wordsWritten > 0 ? "+2.1k" : "0"
   }, {
     label: "Avg. Mood",
-    value: "7.8/10",
+    value: `${stats.avgMood}/10`,
     icon: Heart,
     color: "text-red-400",
-    trend: "+0.5"
+    trend: stats.avgMood > 5 ? "+0.5" : "0"
   }];
   return <ModernAppLayout>
       <motion.div initial={{

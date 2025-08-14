@@ -28,30 +28,86 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
 }) => {
   const [selectedPeriod, setSelectedPeriod] = useState("week");
 
-  // Calculate analytics data
-  const timeDistribution = {
-    work: 45,
-    social: 20,
-    health: 20,
-    learning: 15
+  // Calculate real analytics data from activities
+  const calculateMetrics = () => {
+    const now = new Date();
+    const periodStart = selectedPeriod === "day" ? 
+      new Date(now.getFullYear(), now.getMonth(), now.getDate()) :
+      selectedPeriod === "week" ?
+      new Date(now.setDate(now.getDate() - now.getDay())) :
+      new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const filteredActivities = activities.filter(activity => {
+      const activityDate = new Date(activity.startDate);
+      return activityDate >= periodStart;
+    });
+
+    // Calculate time distribution by category
+    const categoryTotals = filteredActivities.reduce((acc, activity) => {
+      const start = new Date(`${activity.startDate.toDateString()} ${activity.startTime}`);
+      const end = new Date(`${activity.endDate.toDateString()} ${activity.endTime}`);
+      const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60); // hours
+      
+      acc[activity.category] = (acc[activity.category] || 0) + duration;
+      return acc;
+    }, {} as Record<string, number>);
+
+    const totalHours = Object.values(categoryTotals).reduce((sum, hours) => sum + hours, 0);
+    
+    const timeDistribution = {
+      work: totalHours > 0 ? Math.round((categoryTotals.work || 0) / totalHours * 100) : 0,
+      social: totalHours > 0 ? Math.round((categoryTotals.social || 0) / totalHours * 100) : 0,
+      health: totalHours > 0 ? Math.round((categoryTotals.health || 0) / totalHours * 100) : 0,
+      learning: totalHours > 0 ? Math.round((categoryTotals.learning || 0) / totalHours * 100) : 0
+    };
+
+    const productiveHours = (categoryTotals.work || 0) + (categoryTotals.learning || 0);
+    const personalHours = (categoryTotals.social || 0) + (categoryTotals.health || 0);
+    const restHours = selectedPeriod === "week" ? 168 - totalHours : 24 - totalHours;
+
+    return {
+      timeDistribution,
+      productivityMetrics: {
+        totalHours: Math.round(totalHours),
+        productiveHours: Math.round(productiveHours),
+        personalHours: Math.round(personalHours),
+        restHours: Math.round(Math.max(0, restHours))
+      },
+      filteredActivities
+    };
   };
 
-  const productivityMetrics = {
-    totalHours: 168,
-    productiveHours: 52,
-    personalHours: 48,
-    restHours: 68
-  };
+  const { timeDistribution, productivityMetrics, filteredActivities } = calculateMetrics();
 
-  const weeklyTrends = [
-    { day: "Mon", productive: 8, personal: 4, rest: 12 },
-    { day: "Tue", productive: 7, personal: 5, rest: 12 },
-    { day: "Wed", productive: 8, personal: 3, rest: 13 },
-    { day: "Thu", productive: 9, personal: 4, rest: 11 },
-    { day: "Fri", productive: 7, personal: 6, rest: 11 },
-    { day: "Sat", productive: 6, personal: 8, rest: 10 },
-    { day: "Sun", productive: 4, personal: 10, rest: 10 }
-  ];
+  const weeklyTrends = (() => {
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    return dayNames.map(day => {
+      const dayActivities = activities.filter(activity => {
+        const activityDay = dayNames[new Date(activity.startDate).getDay()];
+        return activityDay === day;
+      });
+
+      let productive = 0, personal = 0;
+      dayActivities.forEach(activity => {
+        const start = new Date(`${activity.startDate.toDateString()} ${activity.startTime}`);
+        const end = new Date(`${activity.endDate.toDateString()} ${activity.endTime}`);
+        const duration = (end.getTime() - start.getTime()) / (1000 * 60 * 60);
+        
+        if (activity.category === 'work' || activity.category === 'learning') {
+          productive += duration;
+        } else {
+          personal += duration;
+        }
+      });
+
+      return {
+        day,
+        productive: Math.round(productive),
+        personal: Math.round(personal),
+        rest: Math.round(24 - productive - personal)
+      };
+    });
+  })();
 
   const categoryIcons = {
     work: { icon: Zap, color: "purple" },
@@ -174,14 +230,14 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
           trend={3}
           color="blue"
         />
-        <StatCard
-          title="Efficiency Score"
-          value="87%"
-          subtitle="Above average"
-          icon={TrendingUp}
-          trend={8}
-          color="orange"
-        />
+          <StatCard
+            title="Activities Completed"
+            value={filteredActivities.length.toString()}
+            subtitle={`This ${selectedPeriod}`}
+            icon={TrendingUp}
+            trend={filteredActivities.length > 0 ? 8 : 0}
+            color="orange"
+          />
       </div>
 
       {/* Main Analytics */}
@@ -252,8 +308,8 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-white">52h</div>
-                      <div className="text-sm text-slate-400">This week</div>
+                      <div className="text-2xl font-bold text-white">{productivityMetrics.totalHours}h</div>
+                      <div className="text-sm text-slate-400">This {selectedPeriod}</div>
                     </div>
                   </div>
                 </div>
