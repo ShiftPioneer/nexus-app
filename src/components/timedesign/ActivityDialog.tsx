@@ -163,21 +163,21 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
     }
   }, [watchStartTime, form, activity?.id]);
 
-  // Smart color adjustment based on category
+  // Smart color adjustment based on category - only for new activities without existing color preference
   useEffect(() => {
-    if (watchCategory && (!activity?.id)) {
+    if (watchCategory && (!activity?.id || !activity?.color)) {
       const categoryColors: Record<string, TimeActivity['color']> = {
         work: 'purple',
+        studies: 'indigo',
+        sport: 'yellow',
+        leisure: 'cyan',
         social: 'orange', 
         health: 'green',
-        learning: 'blue',
-        studies: 'indigo',
-        sport: 'red',
-        leisure: 'cyan'
+        learning: 'blue'
       };
       form.setValue('color', categoryColors[watchCategory] || 'purple');
     }
-  }, [watchCategory, form, activity?.id]);
+  }, [watchCategory, form, activity?.id, activity?.color]);
 
   const handleSave = (values: ActivityFormValues) => {
     const activityToSave: TimeActivity = {
@@ -221,7 +221,8 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
     form.setValue('links', currentLinks.filter((_, i) => i !== index));
   };
 
-  const colors: TimeActivity['color'][] = ["purple", "blue", "green", "orange", "red", "indigo", "cyan", "yellow"];
+  // Order colors to match category order: work, studies, sport, leisure, social, health, learning
+  const colors: TimeActivity['color'][] = ["purple", "indigo", "yellow", "cyan", "orange", "green", "blue", "red"];
   const colorMap: Record<TimeActivity['color'], string> = {
     purple: "bg-purple-400",
     blue: "bg-blue-400",
