@@ -37,7 +37,7 @@ const Knowledge = () => {
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8 max-w-full overflow-hidden">
         <UnifiedPageHeader
-          title="Knowledge Hub"
+          title="Knowledge"
           description="Track your learning progress and manage your educational resources"
           icon={navigationIcons.knowledge}
           gradient="from-teal-500 via-cyan-500 to-blue-500"

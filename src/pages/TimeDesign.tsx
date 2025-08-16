@@ -165,6 +165,7 @@ const TimeDesign = () => {
           onOpenChange={setShowActivityDialog}
           activity={editingActivity}
           onSave={handleActivitySave}
+          onDelete={handleDeleteActivity}
         />
       </div>
     </ModernAppLayout>

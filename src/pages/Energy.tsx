@@ -37,7 +37,7 @@ const Energy = () => {
     <ModernAppLayout>
       <div className="animate-fade-in space-y-8 bg-slate-900 min-h-full">
         <UnifiedPageHeader
-          title="Energy Hub"
+          title="Wellness"
           description="Track your workouts, analyze performance, and achieve your fitness goals"
           icon={navigationIcons.energy}
           gradient="from-red-500 via-orange-500 to-yellow-500"

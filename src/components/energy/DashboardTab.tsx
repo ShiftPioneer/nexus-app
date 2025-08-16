@@ -88,15 +88,15 @@ export const DashboardTab = () => {
   const stats = [
     {
       title: "Weekly Goal",
-      value: "4/5",
+      value: "0/5",
       subtitle: "Workouts completed",
-      progress: 80,
+      progress: 0,
       icon: Target,
       gradient: "from-primary to-orange-500"
     },
     {
       title: "Total Workouts",
-      value: "23",
+      value: "0",
       subtitle: "This month",
       icon: Dumbbell,
       gradient: "from-blue-500 to-cyan-500"

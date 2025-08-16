@@ -108,7 +108,7 @@ const Journal = () => {
     }} transition={{
       duration: 0.5
     }} className="animate-fade-in space-y-8 min-h-screen bg-slate-900 rounded-md">
-        <UnifiedPageHeader title="Productivity Journal" description="Reflect, track progress, and gain insights through journaling" icon={navigationIcons.journal} gradient="from-purple-500 via-pink-500 to-rose-500" />
+        <UnifiedPageHeader title="Journal" description="Reflect, track progress, and gain insights through journaling" icon={navigationIcons.journal} gradient="from-purple-500 via-pink-500 to-rose-500" />
 
         {/* Enhanced Journal Overview */}
         <motion.div initial={{

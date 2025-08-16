@@ -76,7 +76,7 @@ const Mindset = () => {
       }} transition={{
         duration: 0.5
       }} className="animate-fade-in space-y-8 p-6 bg-slate-900">
-          <UnifiedPageHeader title="Mindset OS" description="Shape your mindset, clarify your vision, and align with your values" icon={Brain} gradient="from-purple-500 via-pink-500 to-rose-500" />
+          <UnifiedPageHeader title="Mindset" description="Shape your mindset, clarify your vision, and align with your values" icon={Brain} gradient="from-purple-500 via-pink-500 to-rose-500" />
 
           {/* Enhanced Progress Overview */}
           <motion.div className="max-w-7xl mx-auto" initial={{

@@ -6,208 +6,342 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Target, Clock, Trophy, Minus } from "lucide-react";
+
+const habitSchema = z.object({
+  title: z.string().min(1, "Habit name is required"),
+  category: z.string(),
+  target: z.number().min(1),
+  type: z.enum(["daily", "weekly", "monthly"]),
+  duration: z.string().optional(),
+  scoreValue: z.number().min(1),
+  penaltyValue: z.number().min(0),
+});
+
+type HabitFormValues = z.infer<typeof habitSchema>;
+
 interface HabitCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onHabitCreate: (habit: Habit) => void;
   initialHabit?: Habit | null;
 }
+
 const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
   open,
   onOpenChange,
   onHabitCreate,
   initialHabit = null
 }) => {
-  const [title, setTitle] = useState(initialHabit?.title || "");
-  const [category, setCategory] = useState<HabitCategory>(initialHabit?.category || "health");
-  const [target, setTarget] = useState<number>(initialHabit?.target || 21);
-  const [type, setType] = useState<"daily" | "weekly" | "monthly">(initialHabit?.type || "daily");
-  const [duration, setDuration] = useState(initialHabit?.duration || "10 minutes");
-  const [scoreValue, setScoreValue] = useState(initialHabit?.scoreValue || 5);
-  const [penaltyValue, setPenaltyValue] = useState(initialHabit?.penaltyValue || 10);
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!title.trim()) {
-      return;
-    }
+  const form = useForm<HabitFormValues>({
+    resolver: zodResolver(habitSchema),
+    defaultValues: {
+      title: initialHabit?.title || "",
+      category: initialHabit?.category || "health",
+      target: initialHabit?.target || 21,
+      type: initialHabit?.type || "daily",
+      duration: initialHabit?.duration || "10 minutes",
+      scoreValue: initialHabit?.scoreValue || 5,
+      penaltyValue: initialHabit?.penaltyValue || 10,
+    },
+  });
+
+  const handleSubmit = (values: HabitFormValues) => {
     const habit: Habit = {
       id: initialHabit?.id || `habit-${Date.now()}`,
-      title,
-      category,
+      title: values.title,
+      category: values.category as HabitCategory,
       streak: initialHabit?.streak || 0,
-      target,
+      target: values.target,
       status: initialHabit?.status || "pending",
       completionDates: initialHabit?.completionDates || [],
-      type,
+      type: values.type,
       createdAt: initialHabit?.createdAt || new Date(),
-      duration,
-      scoreValue,
-      penaltyValue
+      duration: values.duration,
+      scoreValue: values.scoreValue,
+      penaltyValue: values.penaltyValue
     };
     onHabitCreate(habit);
-    resetForm();
-  };
-  const resetForm = () => {
     if (!initialHabit) {
-      setTitle("");
-      setCategory("health");
-      setTarget(21);
-      setType("daily");
-      setDuration("10 minutes");
-      setScoreValue(5);
-      setPenaltyValue(10);
+      form.reset();
     }
+    onOpenChange(false);
   };
-  const categoryOptions = [{
-    value: "health",
-    label: "Health"
-  }, {
-    value: "mindfulness",
-    label: "Mindfulness"
-  }, {
-    value: "learning",
-    label: "Learning"
-  }, {
-    value: "productivity",
-    label: "Productivity"
-  }, {
-    value: "relationships",
-    label: "Relationships"
-  }, {
-    value: "finance",
-    label: "Finance"
-  }, {
-    value: "religion",
-    label: "Religion"
-  }, {
-    value: "other",
-    label: "Other"
-  }];
-  const commitmentOptions = [{
-    value: "3",
-    label: "3 Days"
-  }, {
-    value: "7",
-    label: "7 Days"
-  }, {
-    value: "21",
-    label: "21 Days"
-  }, {
-    value: "30",
-    label: "30 Days"
-  }, {
-    value: "90",
-    label: "90 Days"
-  }, {
-    value: "365",
-    label: "365 Days"
-  }, {
-    value: "9999",
-    label: "Forever"
-  }];
-  return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[550px] rounded-lg bg-slate-950">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>{initialHabit ? "Edit Habit" : "Create New Habit"}</DialogTitle>
-            <DialogDescription>
-              {initialHabit ? "Update your habit details below." : "Define your new habit to start building consistency"}
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="title" className="text-orange-600">Habit Name</Label>
-              <Input id="title" value={title} onChange={e => setTitle(e.target.value)} placeholder="What habit would you like to build?" required />
-              <p className="text-xs text-muted-foreground">
-                Be specific (e.g., "Meditate for 10 minutes" instead of just "Meditate")
-              </p>
-            </div>
+
+  const categoryOptions = [
+    { value: "health", label: "Health", color: "from-green-500 to-emerald-500", icon: "💪" },
+    { value: "mindfulness", label: "Mindfulness", color: "from-purple-500 to-indigo-500", icon: "🧘" },
+    { value: "learning", label: "Learning", color: "from-blue-500 to-cyan-500", icon: "📚" },
+    { value: "productivity", label: "Productivity", color: "from-orange-500 to-red-500", icon: "⚡" },
+    { value: "relationships", label: "Relationships", color: "from-pink-500 to-rose-500", icon: "❤️" },
+    { value: "finance", label: "Finance", color: "from-yellow-500 to-amber-500", icon: "💰" },
+    { value: "religion", label: "Religion", color: "from-violet-500 to-purple-500", icon: "🙏" },
+    { value: "other", label: "Other", color: "from-slate-500 to-gray-500", icon: "📌" }
+  ];
+
+  const commitmentOptions = [
+    { value: 3, label: "3 Days", description: "Quick start" },
+    { value: 7, label: "7 Days", description: "One week" },
+    { value: 21, label: "21 Days", description: "Build foundation" },
+    { value: 30, label: "30 Days", description: "Monthly challenge" },
+    { value: 90, label: "90 Days", description: "Serious commitment" },
+    { value: 365, label: "365 Days", description: "Full year" },
+    { value: 9999, label: "Forever", description: "Lifetime habit" }
+  ];
+
+  const watchedCategory = form.watch("category");
+  const selectedCategoryData = categoryOptions.find(cat => cat.value === watchedCategory);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[600px] bg-slate-950 border-slate-800 text-slate-50 max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-orange-500 bg-clip-text text-transparent">
+            {initialHabit ? "Edit Habit" : "Create New Habit"}
+          </DialogTitle>
+          <DialogDescription className="text-slate-400">
+            {initialHabit ? "Update your habit details below." : "Define your new habit to start building consistency and unlock your potential"}
+          </DialogDescription>
+        </DialogHeader>
+        
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6 py-4">
+            {/* Habit Name */}
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-primary font-semibold flex items-center gap-2">
+                    <Target className="h-4 w-4" />
+                    Habit Name
+                  </FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="What habit would you like to build?" 
+                      {...field} 
+                      className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary text-white placeholder-slate-400"
+                    />
+                  </FormControl>
+                  <FormDescription className="text-slate-500 text-sm">
+                    Be specific (e.g., "Meditate for 10 minutes" instead of just "Meditate")
+                  </FormDescription>
+                  <FormLabel />
+                </FormItem>
+              )}
+            />
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="type" className="text-orange-600">Type</Label>
-                <Select value={type} onValueChange={(val: "daily" | "weekly" | "monthly") => setType(val)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="daily">Daily</SelectItem>
-                    <SelectItem value="weekly">Weekly</SelectItem>
-                    <SelectItem value="monthly">Monthly</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Type and Category */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-primary font-semibold">Frequency</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-slate-900 border-slate-700 focus:ring-primary">
+                          <SelectValue placeholder="Select frequency" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-slate-900 border-slate-700">
+                        <SelectItem value="daily" className="text-white hover:bg-slate-800">Daily</SelectItem>
+                        <SelectItem value="weekly" className="text-white hover:bg-slate-800">Weekly</SelectItem>
+                        <SelectItem value="monthly" className="text-white hover:bg-slate-800">Monthly</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormLabel />
+                  </FormItem>
+                )}
+              />
               
-              <div className="grid gap-2">
-                <Label htmlFor="category" className="text-orange-600">Category</Label>
-                <Select value={category} onValueChange={(val: HabitCategory) => setCategory(val)}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categoryOptions.map(option => <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-primary font-semibold">Category</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-slate-900 border-slate-700 focus:ring-primary">
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-slate-900 border-slate-700">
+                        {categoryOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value} className="text-white hover:bg-slate-800">
+                            <div className="flex items-center gap-2">
+                              <span>{option.icon}</span>
+                              {option.label}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormLabel />
+                  </FormItem>
+                )}
+              />
             </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="duration" className="text-orange-600">Duration</Label>
-                <Input id="duration" value={duration} onChange={e => setDuration(e.target.value)} placeholder="e.g., 10 minutes" />
-              </div>
-              
-              <div className="grid gap-2">
-                <Label htmlFor="target" className="text-orange-600">Initial Commitment</Label>
-                <Select value={target.toString()} onValueChange={val => setTarget(parseInt(val))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select commitment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {commitmentOptions.map(option => <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="mt-4">
-              <h3 className="text-md font-medium mb-2">Gamification Settings</h3>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="scoreValue" className="bg-background-DEFAULT text-orange-600">Score Value (when completed)</Label>
-                  <div className="flex items-center">
-                    <Input id="scoreValue" type="number" min={1} value={scoreValue} onChange={e => setScoreValue(parseInt(e.target.value))} className="rounded-r-none" />
-                    <span className="bg-muted px-3 py-2 border border-l-0 rounded-r-md text-muted-foreground text-orange-600 bg-gray-900 ">points</span>
+
+            {/* Selected Category Preview */}
+            {selectedCategoryData && (
+              <Card className="bg-slate-900/50 border-slate-700">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2 rounded-lg bg-gradient-to-r ${selectedCategoryData.color} bg-opacity-20`}>
+                      <span className="text-xl">{selectedCategoryData.icon}</span>
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-white">{selectedCategoryData.label}</h4>
+                      <p className="text-sm text-slate-400">Building habits in this category</p>
+                    </div>
                   </div>
-                </div>
+                </CardContent>
+              </Card>
+            )}
+            
+            {/* Duration and Commitment */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="duration"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-primary font-semibold flex items-center gap-2">
+                      <Clock className="h-4 w-4" />
+                      Duration
+                    </FormLabel>
+                    <FormControl>
+                      <Input 
+                        placeholder="e.g., 10 minutes" 
+                        {...field} 
+                        className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary text-white placeholder-slate-400"
+                      />
+                    </FormControl>
+                    <FormLabel />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="target"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-primary font-semibold">Initial Commitment</FormLabel>
+                    <Select value={field.value.toString()} onValueChange={(val) => field.onChange(parseInt(val))}>
+                      <FormControl>
+                        <SelectTrigger className="bg-slate-900 border-slate-700 focus:ring-primary">
+                          <SelectValue placeholder="Select commitment" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent className="bg-slate-900 border-slate-700">
+                        {commitmentOptions.map(option => (
+                          <SelectItem key={option.value} value={option.value.toString()} className="text-white hover:bg-slate-800">
+                            <div className="flex flex-col">
+                              <span className="font-medium">{option.label}</span>
+                              <span className="text-xs text-slate-400">{option.description}</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormLabel />
+                  </FormItem>
+                )}
+              />
+            </div>
+            
+            <Separator className="bg-slate-700" />
+            
+            {/* Gamification Settings */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5 text-primary" />
+                <h3 className="text-lg font-semibold text-white">Gamification Settings</h3>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <FormField
+                  control={form.control}
+                  name="scoreValue"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary font-semibold">Reward Points</FormLabel>
+                      <FormDescription className="text-slate-500 text-sm">Points earned when completed</FormDescription>
+                      <div className="flex items-center">
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min={1} 
+                            {...field} 
+                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary text-white rounded-r-none" 
+                          />
+                        </FormControl>
+                        <div className="bg-slate-800 px-3 py-2 border border-l-0 border-slate-700 rounded-r-md">
+                          <span className="text-primary font-medium">points</span>
+                        </div>
+                      </div>
+                      <FormLabel />
+                    </FormItem>
+                  )}
+                />
                 
-                <div className="grid gap-2">
-                  <Label htmlFor="penaltyValue" className="text-orange-600">Penalty Value (when missed)</Label>
-                  <div className="flex items-center">
-                    <Input id="penaltyValue" type="number" min={0} value={penaltyValue} onChange={e => setPenaltyValue(parseInt(e.target.value))} className="rounded-r-none" />
-                    <span className="bg-muted px-3 py-2 border border-l-0 rounded-r-md text-muted-foreground text-orange-600 bg-gray-900 ">points</span>
-                  </div>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="penaltyValue"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-primary font-semibold">Penalty Points</FormLabel>
+                      <FormDescription className="text-slate-500 text-sm">Points lost when missed</FormDescription>
+                      <div className="flex items-center">
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            min={0} 
+                            {...field} 
+                            onChange={(e) => field.onChange(parseInt(e.target.value))}
+                            className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary text-white rounded-r-none" 
+                          />
+                        </FormControl>
+                        <div className="bg-slate-800 px-3 py-2 border border-l-0 border-slate-700 rounded-r-md">
+                          <span className="text-red-400 font-medium flex items-center gap-1">
+                            <Minus className="h-3 w-3" />
+                            points
+                          </span>
+                        </div>
+                      </div>
+                      <FormLabel />
+                    </FormItem>
+                  )}
+                />
               </div>
             </div>
-          </div>
-          
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
-            </Button>
-            <Button type="submit">
-              {initialHabit ? "Save Changes" : "Create Habit"}
-            </Button>
-          </DialogFooter>
-        </form>
+          </form>
+        </Form>
+        
+        <DialogFooter className="pt-6">
+          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-slate-600 text-slate-300 hover:bg-slate-800">
+            Cancel
+          </Button>
+          <Button 
+            onClick={form.handleSubmit(handleSubmit)}
+            className="bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90 text-white font-semibold"
+          >
+            {initialHabit ? "Save Changes" : "Create Habit"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
-    </Dialog>;
+    </Dialog>
+  );
 };
+
 export default HabitCreationDialog;

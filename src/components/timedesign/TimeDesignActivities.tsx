@@ -46,6 +46,9 @@ const TimeDesignActivities: React.FC<TimeDesignActivitiesProps> = ({
   const getCategoryBadge = (category: string) => {
     const styles = {
       work: "bg-gradient-to-r from-purple-500/20 to-indigo-500/20 text-purple-200 border-purple-500/30",
+      studies: "bg-gradient-to-r from-indigo-500/20 to-violet-500/20 text-indigo-200 border-indigo-500/30",
+      sport: "bg-gradient-to-r from-red-500/20 to-pink-500/20 text-red-200 border-red-500/30",
+      leisure: "bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-200 border-cyan-500/30",
       social: "bg-gradient-to-r from-orange-500/20 to-red-500/20 text-orange-200 border-orange-500/30",
       health: "bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-200 border-green-500/30",
       learning: "bg-gradient-to-r from-blue-500/20 to-cyan-500/20 text-blue-200 border-blue-500/30"
@@ -57,7 +60,7 @@ const TimeDesignActivities: React.FC<TimeDesignActivitiesProps> = ({
     );
   };
 
-  const categories = ["all", "work", "social", "health", "learning"];
+  const categories = ["all", "work", "studies", "sport", "leisure", "social", "health", "learning"];
 
   return (
     <div className="space-y-6">
