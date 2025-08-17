@@ -29,7 +29,7 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
         {/* Logo and Brand - Responsive */}
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shadow-lg bg-primary/10 backdrop-blur-sm border border-slate-300 flex-shrink-0">
-            <img src={LOGO_URL} alt="NEXUS" className="w-8 h-8 sm:w-6 sm:h-6 object-fill" />
+            <img src={LOGO_URL} alt="NEXUS" className="w-10 h-12 sm:w-10 sm:h-15 object-fill" />
           </div>
           <span className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent truncate">
             NEXUS
