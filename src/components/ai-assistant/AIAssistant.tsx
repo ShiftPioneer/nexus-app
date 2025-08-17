@@ -8,6 +8,7 @@ import { Bot, Send, Mic, MicOff, Loader2, MessageCircle, X, Sparkles } from "luc
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 
 interface Message {
   id: string;
@@ -33,11 +34,17 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const audioChunksRef = useRef<Blob[]>([]);
   const { toast } = useToast();
+  const { 
+    isListening, 
+    transcript, 
+    error: speechError, 
+    isSupported, 
+    startListening, 
+    stopListening, 
+    resetTranscript 
+  } = useSpeechRecognition();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -46,6 +53,23 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (transcript && !isListening) {
+      setInputValue(transcript);
+      resetTranscript();
+    }
+  }, [transcript, isListening, resetTranscript]);
+
+  useEffect(() => {
+    if (speechError) {
+      toast({
+        title: "Speech Recognition Error",
+        description: speechError,
+        variant: "destructive"
+      });
+    }
+  }, [speechError, toast]);
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim() || isLoading) return;
@@ -99,88 +123,21 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
     }
   };
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        audio: {
-          sampleRate: 16000,
-          channelCount: 1,
-          echoCancellation: true,
-          noiseSuppression: true
-        }
-      });
-      
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus'
-      });
-      
-      audioChunksRef.current = [];
-      
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          audioChunksRef.current.push(event.data);
-        }
-      };
-      
-      mediaRecorderRef.current.onstop = async () => {
-        const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
-        await processAudio(audioBlob);
-        stream.getTracks().forEach(track => track.stop());
-      };
-      
-      mediaRecorderRef.current.start(1000);
-      setIsRecording(true);
-      
+  const handleVoiceInput = () => {
+    if (!isSupported) {
       toast({
-        title: "Recording started",
-        description: "Speak your message clearly",
+        title: "Voice Input Not Supported",
+        description: "Your browser doesn't support speech recognition",
+        variant: "destructive"
       });
-    } catch (error) {
-      console.error('Error starting recording:', error);
-      toast({
-        title: "Recording failed",
-        description: "Could not access microphone",
-        variant: "destructive",
-      });
+      return;
     }
-  };
 
-  const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-    }
-  };
-
-  const processAudio = async (audioBlob: Blob) => {
-    try {
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const base64Audio = (reader.result as string).split(',')[1];
-        
-        try {
-          const { data, error } = await supabase.functions.invoke('voice-to-text', {
-            body: { audio: base64Audio }
-          });
-
-          if (error) throw error;
-
-          if (data?.text) {
-            await handleSendMessage(data.text);
-          }
-        } catch (error) {
-          console.error('Transcription error:', error);
-          toast({
-            title: "Transcription failed",
-            description: "Could not convert speech to text",
-            variant: "destructive",
-          });
-        }
-      };
-      
-      reader.readAsDataURL(audioBlob);
-    } catch (error) {
-      console.error('Error processing audio:', error);
+    if (isListening) {
+      stopListening();
+    } else {
+      resetTranscript();
+      startListening();
     }
   };
 
@@ -302,15 +259,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={isRecording ? stopRecording : startRecording}
-                    disabled={isLoading}
+                    onClick={handleVoiceInput}
+                    disabled={isLoading || !isSupported}
                     className={`h-8 w-8 ${
-                      isRecording 
+                      isListening 
                         ? "text-red-400 hover:text-red-300 animate-pulse" 
                         : "text-slate-400 hover:text-white"
                     }`}
                   >
-                    {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                   </Button>
                 </div>
               </div>
