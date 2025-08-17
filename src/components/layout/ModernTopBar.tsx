@@ -10,7 +10,7 @@ interface ModernTopBarProps {
   isCollapsed: boolean;
   isMobile: boolean;
 }
-const LOGO_URL = "https://nexus-plaform.lovable.app/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png";
+const LOGO_URL = "/lovable-uploads/f5eb31b0-f901-43a4-a3e6-245104d376fe.png";
 const ModernTopBar: React.FC<ModernTopBarProps> = ({
   onToggleSidebar,
   isCollapsed,

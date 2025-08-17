@@ -62,46 +62,114 @@ const TimeDesignActivities: React.FC<TimeDesignActivitiesProps> = ({
 
   const categories = ["all", "work", "studies", "sport", "leisure", "social", "health", "learning"];
 
+  const [sortBy, setSortBy] = useState("date");
+  const [viewMode, setViewMode] = useState("grid");
+
   return (
     <div className="space-y-6">
-      {/* Header with Search and Filters */}
+      {/* Enhanced Header with Search and Advanced Filters */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between"
+        className="bg-slate-900/30 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6"
       >
-        <div className="flex items-center gap-2">
-          <Activity className="h-6 w-6 text-primary" />
-          <h2 className="text-2xl font-bold text-white">Activities Overview</h2>
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/20 to-orange-500/20 flex items-center justify-center">
+            <Activity className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-white">Activities Overview</h2>
+            <p className="text-slate-400 text-sm">Manage and track your time design activities</p>
+          </div>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input
-              placeholder="Search activities..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-800/50 border-slate-700 text-white placeholder-slate-400 min-w-[200px]"
-            />
-          </div>
-          
-          <div className="flex gap-2">
+        {/* Advanced Search Bar */}
+        <div className="relative mb-4">
+          <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-400" />
+          <Input
+            placeholder="Search by title, description, or category..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-12 pr-4 py-3 bg-slate-800/50 border-slate-600 text-white placeholder-slate-400 rounded-xl text-lg focus:ring-2 focus:ring-primary/20 focus:border-primary/50 transition-all duration-200"
+          />
+          {searchTerm && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSearchTerm("")}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
+            >
+              ✕
+            </Button>
+          )}
+        </div>
+
+        {/* Filter Controls */}
+        <div className="flex flex-wrap gap-3 items-center justify-between">
+          <div className="flex flex-wrap gap-2">
+            <span className="text-sm text-slate-400 font-medium mr-2">Filter by category:</span>
             {categories.map((category) => (
               <Button
                 key={category}
                 variant={filterCategory === category ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilterCategory(category)}
-                className={`${
+                className={`rounded-full transition-all duration-200 ${
                   filterCategory === category
-                    ? "bg-primary text-white"
-                    : "bg-slate-800/50 text-slate-300 border-slate-700 hover:bg-slate-700"
+                    ? "bg-gradient-to-r from-primary to-orange-500 text-white shadow-lg scale-105"
+                    : "bg-slate-800/50 text-slate-300 border-slate-600 hover:bg-slate-700 hover:border-slate-500 hover:text-white"
                 }`}
               >
                 {category.charAt(0).toUpperCase() + category.slice(1)}
+                {filterCategory === category && (
+                  <span className="ml-2 bg-white/20 rounded-full px-2 py-0.5 text-xs">
+                    {activities.filter(a => category === "all" || a.category === category).length}
+                  </span>
+                )}
               </Button>
             ))}
+          </div>
+
+          {/* Sort and View Controls */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-slate-400 font-medium">Sort by:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="bg-slate-800/50 border border-slate-600 rounded-lg px-3 py-1 text-white text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary/50"
+              >
+                <option value="date">Date</option>
+                <option value="title">Title</option>
+                <option value="category">Category</option>
+                <option value="duration">Duration</option>
+              </select>
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+              className="bg-slate-800/50 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white rounded-lg"
+            >
+              {viewMode === "grid" ? "List View" : "Grid View"}
+            </Button>
+          </div>
+        </div>
+
+        {/* Quick Stats */}
+        <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-slate-700/50">
+          <div className="text-center">
+            <div className="text-lg font-bold text-primary">{activities.length}</div>
+            <div className="text-xs text-slate-400">Total Activities</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-green-400">{activities.filter(a => new Date(a.startDate) >= new Date()).length}</div>
+            <div className="text-xs text-slate-400">Upcoming</div>
+          </div>
+          <div className="text-center">
+            <div className="text-lg font-bold text-orange-400">{filteredActivities.length}</div>
+            <div className="text-xs text-slate-400">Filtered Results</div>
           </div>
         </div>
       </motion.div>

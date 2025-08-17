@@ -4,6 +4,8 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import ModernTopBar from "./ModernTopBar";
 import ModernSidebar from "./ModernSidebar";
 import { GTDProvider } from "@/components/gtd/GTDContext";
+import AIAssistant from "@/components/ai-assistant/AIAssistant";
+import { useAIAssistant } from "@/hooks/use-ai-assistant";
 interface ModernAppLayoutProps {
   children: React.ReactNode;
 }
@@ -15,6 +17,7 @@ const ModernAppLayout = ({
     isMobile,
     toggleSidebar
   } = useSidebar();
+  const aiAssistant = useAIAssistant();
   return <div className="flex h-screen w-full overflow-hidden bg-slate-950">
       <SidebarProvider>
         <GTDProvider>
@@ -34,6 +37,9 @@ const ModernAppLayout = ({
               </div>
             </main>
           </div>
+          
+          {/* AI Assistant */}
+          <AIAssistant isOpen={aiAssistant.isOpen} onToggle={aiAssistant.toggle} />
         </GTDProvider>
       </SidebarProvider>
     </div>;
