@@ -1,10 +1,11 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Bell, Search, Menu, X } from "lucide-react";
+import { Bell, Search, Menu, X, Bot, Sparkles } from "lucide-react";
 import { useUser } from "@/contexts/UserContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import { cn } from "@/lib/utils";
+import { useAIAssistant } from "@/hooks/use-ai-assistant";
 interface ModernTopBarProps {
   onToggleSidebar: () => void;
   isCollapsed: boolean;
@@ -16,9 +17,8 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
   isCollapsed,
   isMobile
 }) => {
-  const {
-    user
-  } = useUser();
+  const { user } = useUser();
+  const aiAssistant = useAIAssistant();
   return <header className="h-14 sm:h-16 border-b border-slate-300 backdrop-blur-xl flex items-center justify-between px-3 sm:px-4 md:px-6 z-30 flex-shrink-0 shadow-sm bg-slate-950/95">
       <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
         {/* Mobile Menu Button */}
@@ -48,6 +48,23 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
           <ThemeToggle />
         </div>
         
+        {/* AI Assistant */}
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          onClick={aiAssistant.toggle}
+          className={cn(
+            "h-9 w-9 sm:h-10 sm:w-10 rounded-xl transition-all duration-200 border border-slate-300 relative group",
+            aiAssistant.isOpen 
+              ? "bg-gradient-to-r from-primary/20 to-orange-500/20 text-primary border-primary/40" 
+              : "hover:bg-slate-800 text-slate-400 hover:text-slate-200"
+          )} 
+          aria-label="AI Assistant"
+        >
+          <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
+          <Sparkles className="h-2 w-2 absolute -top-0.5 -right-0.5 text-primary animate-pulse" />
+        </Button>
+
         {/* Notifications */}
         <Button variant="ghost" size="icon" className={cn("h-9 w-9 sm:h-10 sm:w-10 rounded-xl hover:bg-slate-800 transition-all duration-200 relative border border-slate-300", "text-slate-400 hover:text-slate-200")} aria-label="Notifications">
           <Bell className="h-4 w-4 sm:h-5 sm:w-5" />

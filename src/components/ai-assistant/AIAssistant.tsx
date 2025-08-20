@@ -149,28 +149,15 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
   };
 
   if (!isOpen) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="fixed bottom-6 right-6 z-50"
-      >
-        <Button
-          onClick={onToggle}
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90 shadow-lg hover:shadow-xl transition-all duration-200 border border-white/20"
-        >
-          <Bot className="h-6 w-6 text-white" />
-        </Button>
-      </motion.div>
-    );
+    return null;
   }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 100 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 100 }}
-      className="fixed bottom-6 right-6 w-96 h-[600px] z-50"
+      initial={{ opacity: 0, y: -20, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -20, scale: 0.95 }}
+      className="fixed top-16 right-6 w-96 h-[600px] z-50"
     >
       <Card className="h-full bg-slate-900/95 backdrop-blur-xl border-slate-700/50 shadow-2xl">
         <CardHeader className="pb-4 border-b border-slate-700/50">

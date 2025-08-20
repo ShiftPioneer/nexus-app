@@ -38,7 +38,7 @@ const ModernAppLayout = ({
             </main>
           </div>
           
-          {/* AI Assistant */}
+          {/* AI Assistant - Now positioned from header */}
           <AIAssistant isOpen={aiAssistant.isOpen} onToggle={aiAssistant.toggle} />
         </GTDProvider>
       </SidebarProvider>
