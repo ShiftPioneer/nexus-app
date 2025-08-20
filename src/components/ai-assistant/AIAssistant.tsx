@@ -27,7 +27,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
-      type: "assistant",
+      type: "assistant", 
       content: "Hi! I'm your Nexus AI Assistant. I can help you manage tasks, habits, journal entries, time design activities, and more. What would you like to do today?",
       timestamp: new Date()
     }
@@ -86,23 +86,22 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('ai-assistant', {
-        body: { 
-          message: content.trim(),
-          conversationHistory: messages.slice(-5) // Send last 5 messages for context
-        }
-      });
-
-      if (error) throw error;
-
+      // Simulate AI response for now since we don't have OpenAI API key
+      const simulatedResponse = getSimulatedResponse(content.trim());
+      
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: "assistant",
-        content: data.response || "I'm sorry, I couldn't process your request right now.",
+        content: simulatedResponse,
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      // Add a small delay for more realistic feel
+      setTimeout(() => {
+        setMessages(prev => [...prev, assistantMessage]);
+        setIsLoading(false);
+      }, 1000 + Math.random() * 2000);
+
     } catch (error) {
       console.error('AI Assistant error:', error);
       toast({
@@ -113,14 +112,61 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        type: "assistant",
+        type: "assistant", 
         content: "I'm sorry, I'm experiencing some technical difficulties. Please try again in a moment.",
         timestamp: new Date()
       };
       setMessages(prev => [...prev, errorMessage]);
-    } finally {
       setIsLoading(false);
     }
+  };
+
+  // Simulate AI responses based on user input
+  const getSimulatedResponse = (input: string): string => {
+    const lowerInput = input.toLowerCase();
+    
+    if (lowerInput.includes('task') || lowerInput.includes('todo')) {
+      return "I can help you with task management! You can create new tasks, organize them using the Eisenhower Matrix, or view them in Kanban boards. Would you like me to guide you to the Tasks section?";
+    }
+    
+    if (lowerInput.includes('habit')) {
+      return "Great! Habits are key to personal growth. I can help you track daily habits, view analytics, and maintain streaks. The Habits section has powerful tracking and insights features.";
+    }
+    
+    if (lowerInput.includes('journal')) {
+      return "Journaling is an excellent way to reflect and grow! You can write entries, track your mood, create rich notes, and gain insights from your journaling patterns. The Journal section has everything you need.";
+    }
+    
+    if (lowerInput.includes('time') || lowerInput.includes('schedule') || lowerInput.includes('calendar')) {
+      return "Time management is crucial for productivity! I can help you design your perfect day, schedule activities, and analyze how you spend your time. Check out the Time Design section for powerful planning tools.";
+    }
+    
+    if (lowerInput.includes('goal') || lowerInput.includes('plan')) {
+      return "Setting and achieving goals is what Nexus is all about! You can create SMART goals, track progress, and manage projects in the Planning section. I can guide you through the goal-setting process.";
+    }
+    
+    if (lowerInput.includes('energy') || lowerInput.includes('workout') || lowerInput.includes('exercise')) {
+      return "Physical energy is the foundation of productivity! The Energy Hub helps you track workouts, plan meals, and monitor your fitness progress. I can help you create a sustainable fitness routine.";
+    }
+    
+    if (lowerInput.includes('focus') || lowerInput.includes('concentration') || lowerInput.includes('pomodoro')) {
+      return "Focus is essential for deep work! I can help you use focus techniques like Pomodoro, track your focus sessions, and analyze your concentration patterns. The Focus section has everything you need.";
+    }
+    
+    if (lowerInput.includes('mindset') || lowerInput.includes('vision') || lowerInput.includes('belief')) {
+      return "Mindset shapes everything! I can help you clarify your vision, define core values, and develop empowering beliefs. The Mindset section is perfect for personal development work.";
+    }
+    
+    if (lowerInput.includes('hello') || lowerInput.includes('hi') || lowerInput.includes('hey')) {
+      return "Hello! I'm here to help you maximize your productivity and achieve your goals. What area of your life would you like to improve today?";
+    }
+    
+    if (lowerInput.includes('help') || lowerInput.includes('what can you do')) {
+      return "I'm your comprehensive productivity assistant! I can help you with:\n\n📋 Task & Project Management\n🎯 Habit Tracking\n📝 Journaling & Notes\n⏰ Time Design & Scheduling\n🏆 Goal Setting & Planning\n💪 Energy & Fitness\n🧘 Focus & Concentration\n🧠 Mindset & Vision\n\nWhat would you like to work on?";
+    }
+    
+    // Default response
+    return "That's an interesting question! I'm here to help you with productivity, goal achievement, and personal growth. Could you be more specific about what you'd like assistance with? I can help with tasks, habits, journaling, time management, goals, fitness, focus, or mindset development.";
   };
 
   const handleVoiceInput = () => {
@@ -159,18 +205,19 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
       className="fixed top-16 right-6 w-96 h-[600px] z-50"
     >
-      <Card className="h-full bg-slate-900/95 backdrop-blur-xl border-slate-700/50 shadow-2xl">
-        <CardHeader className="pb-4 border-b border-slate-700/50">
+      <Card className="h-full bg-gradient-to-br from-slate-900/98 via-slate-800/95 to-slate-900/98 backdrop-blur-xl border-primary/20 shadow-2xl shadow-primary/10">
+        <CardHeader className="pb-4 border-b border-primary/20">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/20 to-orange-500/20 flex items-center justify-center">
-                <Bot className="h-5 w-5 text-primary" />
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/30 to-orange-500/30 flex items-center justify-center shadow-lg shadow-primary/25 relative overflow-hidden">
+                <Bot className="h-5 w-5 text-white relative z-10" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent animate-pulse"></div>
               </div>
               <div>
-                <CardTitle className="text-white text-lg">Nexus AI Assistant</CardTitle>
+                <CardTitle className="text-white text-lg font-bold">Nexus AI Assistant</CardTitle>
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></div>
-                  <span className="text-xs text-slate-400">Online</span>
+                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-glow"></div>
+                  <span className="text-xs text-slate-300 font-medium">Online & Ready</span>
                 </div>
               </div>
             </div>
@@ -178,7 +225,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
               variant="ghost"
               size="icon"
               onClick={onToggle}
-              className="text-slate-400 hover:text-white hover:bg-slate-800"
+              className="text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all duration-200 rounded-lg"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -268,13 +315,13 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
             </div>
             
             <div className="flex flex-wrap gap-1 mt-2">
-              {["Show my tasks", "Add new habit", "Journal entry", "Time design help"].map((suggestion) => (
+              {["Help me with tasks", "Track habits", "Start journaling", "Focus session", "Set goals"].map((suggestion) => (
                 <Button
                   key={suggestion}
                   variant="outline"
                   size="sm"
                   onClick={() => handleSendMessage(suggestion)}
-                  className="text-xs bg-slate-800/30 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white"
+                  className="text-xs bg-slate-800/30 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-200"
                   disabled={isLoading}
                 >
                   {suggestion}

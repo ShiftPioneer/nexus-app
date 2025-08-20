@@ -3,10 +3,11 @@ import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import { navigationIcons } from "@/lib/navigation-icons";
-import { PenTool, BookOpen, BarChart3, Calendar, TrendingUp, Star, Heart } from "lucide-react";
+import { PenTool, BookOpen, BarChart3, Calendar, TrendingUp, Star, Heart, FileText } from "lucide-react";
 import JournalEditor from "@/components/journal/JournalEditor";
 import JournalEntriesList from "@/components/journal/JournalEntriesList";
 import JournalStats from "@/components/journal/JournalStats";
+import NotesEditor from "@/components/journal/NotesEditor";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -66,6 +67,12 @@ const Journal = () => {
     icon: BookOpen,
     gradient: "from-blue-500 via-indigo-500 to-purple-500",
     description: "Browse your journal history"
+  }, {
+    value: "notes",
+    label: "Notes",
+    icon: FileText,
+    gradient: "from-orange-500 via-red-500 to-pink-500",
+    description: "Create and organize rich text notes"
   }, {
     value: "insights",
     label: "Insights",
@@ -186,7 +193,7 @@ const Journal = () => {
         </motion.div>
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-7xl mx-auto px-6 bg-slate-900">
-          <ModernTabsList className="grid w-full grid-cols-3 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50">
+          <ModernTabsList className="grid w-full grid-cols-4 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50">
             {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} className="flex-1 data-[state=active]:bg-slate-800/50">
                 {tab.label}
               </ModernTabsTrigger>)}
@@ -217,6 +224,20 @@ const Journal = () => {
             duration: 0.3
           }}>
               <JournalEntriesList entries={entries} activeTab={activeTab} onTabChange={handleTabChange} onEditEntry={handleEditEntry} onDeleteEntry={handleDeleteEntry} onNewEntry={handleNewEntry} />
+            </motion.div>
+          </ModernTabsContent>
+          
+          <ModernTabsContent value="notes" className="mt-8">
+            <motion.div initial={{
+            opacity: 0,
+            y: 20
+          }} animate={{
+            opacity: 1,
+            y: 0
+          }} transition={{
+            duration: 0.3
+          }}>
+              <NotesEditor />
             </motion.div>
           </ModernTabsContent>
           

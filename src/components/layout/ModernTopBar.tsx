@@ -11,7 +11,7 @@ interface ModernTopBarProps {
   isCollapsed: boolean;
   isMobile: boolean;
 }
-const LOGO_URL = "/lovable-uploads/f5eb31b0-f901-43a4-a3e6-245104d376fe.png";
+const LOGO_URL = "https://nexus-plaform.lovable.app/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png";
 const ModernTopBar: React.FC<ModernTopBarProps> = ({
   onToggleSidebar,
   isCollapsed,
@@ -54,15 +54,23 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
           size="icon" 
           onClick={aiAssistant.toggle}
           className={cn(
-            "h-9 w-9 sm:h-10 sm:w-10 rounded-xl transition-all duration-200 border border-slate-300 relative group",
+            "h-9 w-9 sm:h-10 sm:w-10 rounded-xl transition-all duration-200 border border-slate-300 relative group overflow-hidden",
             aiAssistant.isOpen 
-              ? "bg-gradient-to-r from-primary/20 to-orange-500/20 text-primary border-primary/40" 
-              : "hover:bg-slate-800 text-slate-400 hover:text-slate-200"
+              ? "bg-gradient-to-br from-primary/30 to-orange-500/30 text-white border-primary/50 shadow-lg shadow-primary/25" 
+              : "hover:bg-gradient-to-br hover:from-primary/10 hover:to-orange-500/10 text-slate-400 hover:text-white hover:border-primary/30"
           )} 
           aria-label="AI Assistant"
         >
-          <Bot className="h-4 w-4 sm:h-5 sm:w-5" />
-          <Sparkles className="h-2 w-2 absolute -top-0.5 -right-0.5 text-primary animate-pulse" />
+          <div className="relative">
+            <Bot className="h-4 w-4 sm:h-5 sm:w-5 transition-transform group-hover:scale-110" />
+            <div className={cn(
+              "absolute -top-1 -right-1 w-2 h-2 rounded-full transition-all duration-300",
+              aiAssistant.isOpen 
+                ? "bg-green-400 animate-pulse shadow-glow" 
+                : "bg-primary/60 animate-pulse"
+            )} />
+          </div>
+          <Sparkles className="h-2 w-2 absolute -top-0.5 -right-0.5 text-primary animate-pulse opacity-75" />
         </Button>
 
         {/* Notifications */}
