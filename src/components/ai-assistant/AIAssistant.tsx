@@ -203,7 +203,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
       initial={{ opacity: 0, y: -20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -20, scale: 0.95 }}
-      className="fixed top-16 right-6 w-96 h-[600px] z-50"
+      className="fixed top-20 right-6 w-96 h-[600px] z-[60] max-h-[calc(100vh-6rem)]"
     >
       <Card className="h-full bg-gradient-to-br from-slate-900/98 via-slate-800/95 to-slate-900/98 backdrop-blur-xl border-primary/20 shadow-2xl shadow-primary/10">
         <CardHeader className="pb-4 border-b border-primary/20">

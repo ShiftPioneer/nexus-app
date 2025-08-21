@@ -11,7 +11,7 @@ interface ModernTopBarProps {
   isCollapsed: boolean;
   isMobile: boolean;
 }
-const LOGO_URL = "https://nexus-plaform.lovable.app/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png";
+const LOGO_URL = "/lovable-uploads/043f318a-1590-46c2-b541-352ebd7422fb.png";
 const ModernTopBar: React.FC<ModernTopBarProps> = ({
   onToggleSidebar,
   isCollapsed,
@@ -29,7 +29,7 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
         {/* Logo and Brand - Responsive */}
         <div className="flex items-center gap-2 min-w-0">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center shadow-lg bg-primary/10 backdrop-blur-sm border border-slate-300 flex-shrink-0">
-            <img src={LOGO_URL} alt="NEXUS" className="w-10 h-12 sm:w-10 sm:h-15 object-fill" />
+            <img src={LOGO_URL} alt="NEXUS" className="w-6 h-6 sm:w-8 sm:h-8 object-contain" />
           </div>
           <span className="text-lg sm:text-xl md:text-2xl font-bold bg-gradient-to-r from-primary to-primary-600 bg-clip-text text-transparent truncate">
             NEXUS
