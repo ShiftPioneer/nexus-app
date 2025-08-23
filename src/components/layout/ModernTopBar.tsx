@@ -5,20 +5,23 @@ import { useUser } from "@/contexts/UserContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ThemeToggle from "@/components/theme/ThemeToggle";
 import { cn } from "@/lib/utils";
-import { useAIAssistant } from "@/hooks/use-ai-assistant";
 interface ModernTopBarProps {
   onToggleSidebar: () => void;
   isCollapsed: boolean;
   isMobile: boolean;
+  aiAssistant: {
+    isOpen: boolean;
+    toggle: () => void;
+  };
 }
 const LOGO_URL = "/lovable-uploads/043f318a-1590-46c2-b541-352ebd7422fb.png";
 const ModernTopBar: React.FC<ModernTopBarProps> = ({
   onToggleSidebar,
   isCollapsed,
-  isMobile
+  isMobile,
+  aiAssistant
 }) => {
   const { user } = useUser();
-  const aiAssistant = useAIAssistant();
   return <header className="h-14 sm:h-16 border-b border-slate-300 backdrop-blur-xl flex items-center justify-between px-3 sm:px-4 md:px-6 z-30 flex-shrink-0 shadow-sm bg-slate-950/95">
       <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
         {/* Mobile Menu Button */}
