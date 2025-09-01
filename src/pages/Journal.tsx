@@ -7,7 +7,7 @@ import { PenTool, BookOpen, BarChart3, Calendar, TrendingUp, Star, Heart, FileTe
 import JournalEditor from "@/components/journal/JournalEditor";
 import JournalEntriesList from "@/components/journal/JournalEntriesList";
 import JournalStats from "@/components/journal/JournalStats";
-import NotesEditor from "@/components/journal/NotesEditor";
+import AppleNotesEditor from "@/components/journal/AppleNotesEditor";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -237,7 +237,7 @@ const Journal = () => {
           }} transition={{
             duration: 0.3
           }}>
-              <NotesEditor />
+              <AppleNotesEditor />
             </motion.div>
           </ModernTabsContent>
           
