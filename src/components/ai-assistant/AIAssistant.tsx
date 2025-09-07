@@ -234,9 +234,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
         </CardHeader>
 
         {/* Messages Area */}
-        <CardContent className="p-0 flex flex-col h-full">
-          <ScrollArea className="flex-1 px-4 py-2">
-            <div className="space-y-3">
+        <CardContent className="p-0 flex flex-col h-full max-h-full">
+          <ScrollArea className="flex-1 min-h-0">
+            <div className="px-4 py-3 space-y-4 min-h-full">
               <AnimatePresence mode="popLayout">
                 {messages.map((message) => (
                   <motion.div
@@ -247,20 +247,20 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
                     transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className="flex gap-2 max-w-[85%]">
+                    <div className="flex gap-3 max-w-[85%]">
                       {message.type === 'assistant' && (
-                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center flex-shrink-0 mt-1 border border-primary/20">
-                          <Bot className="h-3 w-3 text-white" />
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/40 to-secondary/40 flex items-center justify-center flex-shrink-0 mt-0.5 border border-primary/30 shadow-md">
+                          <Bot className="h-4 w-4 text-white" />
                         </div>
                       )}
-                      <div className={`rounded-2xl px-3 py-2 ${
+                      <div className={`rounded-2xl px-4 py-3 max-w-full ${
                         message.type === 'user'
-                          ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg'
-                          : 'bg-slate-800/60 text-slate-100 border border-slate-700/40 shadow-md'
+                          ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg border border-primary/20'
+                          : 'bg-slate-800/80 text-slate-100 border border-slate-700/50 shadow-lg backdrop-blur-sm'
                       }`}>
-                        <div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
-                        <div className={`text-xs mt-1 ${
-                          message.type === 'user' ? 'text-white/60' : 'text-muted'
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">{message.content}</div>
+                        <div className={`text-xs mt-2 ${
+                          message.type === 'user' ? 'text-white/70' : 'text-slate-400'
                         }`}>
                           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
@@ -276,18 +276,18 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex justify-start"
                 >
-                  <div className="flex gap-2">
-                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center flex-shrink-0 mt-1 border border-primary/20">
-                      <Bot className="h-3 w-3 text-white" />
+                  <div className="flex gap-3">
+                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/40 to-secondary/40 flex items-center justify-center flex-shrink-0 mt-0.5 border border-primary/30 shadow-md">
+                      <Bot className="h-4 w-4 text-white" />
                     </div>
-                    <div className="bg-slate-800/60 border border-slate-700/40 rounded-2xl px-3 py-2">
-                      <div className="flex items-center gap-2">
+                    <div className="bg-slate-800/80 border border-slate-700/50 rounded-2xl px-4 py-3 shadow-lg backdrop-blur-sm">
+                      <div className="flex items-center gap-3">
                         <div className="flex gap-1">
-                          <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></div>
-                          <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                          <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                         </div>
-                        <span className="text-xs text-muted">Thinking...</span>
+                        <span className="text-sm text-slate-300 font-medium">Thinking...</span>
                       </div>
                     </div>
                   </div>
@@ -298,56 +298,89 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
           </ScrollArea>
 
           {/* Input Area */}
-          <div className="p-4 border-t border-slate-700/40 bg-slate-900/50">
-            {/* Quick Suggestions */}
-            <div className="flex flex-wrap gap-1.5 mb-3">
-              {["Help with tasks", "Track habits", "Focus session", "Set goals"].map((suggestion) => (
-                <Button
-                  key={suggestion}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSendMessage(suggestion)}
-                  className="text-xs h-7 px-2 bg-slate-800/40 border-slate-600/60 text-muted hover:bg-slate-700/60 hover:text-white hover:border-primary/40 transition-all duration-200"
-                  disabled={isLoading}
+          <div className="border-t border-slate-700/50 bg-gradient-to-r from-slate-900/80 to-slate-800/80 backdrop-blur-sm">
+            {/* Input Mode Selector */}
+            <div className="px-4 pt-3 pb-2">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-medium text-slate-300">Input Mode</span>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant={isListening ? "default" : "outline"}
+                    size="sm"
+                    onClick={handleVoiceInput}
+                    disabled={isLoading || !isSupported}
+                    className="h-7 px-3 text-xs bg-slate-800/60 border-slate-600/60 hover:bg-slate-700/80 transition-all duration-200"
+                  >
+                    {isListening ? <MicOff className="h-3 w-3 mr-1" /> : <Mic className="h-3 w-3 mr-1" />}
+                    {isListening ? "Stop" : "Voice"}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-3 text-xs bg-slate-800/60 border-slate-600/60 hover:bg-slate-700/80 transition-all duration-200"
+                  >
+                    <MessageCircle className="h-3 w-3 mr-1" />
+                    Text
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Voice Status Indicator */}
+              {isListening && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 p-2 rounded-lg bg-error/10 border border-error/30 mb-3"
                 >
-                  {suggestion}
-                </Button>
-              ))}
+                  <div className="w-2 h-2 bg-error rounded-full animate-pulse"></div>
+                  <span className="text-xs text-error font-medium">Listening... Speak now</span>
+                </motion.div>
+              )}
             </div>
 
-            {/* Input Field */}
-            <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <Input
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="Type your message..."
-                  className="bg-slate-800/50 border-slate-600/60 text-white placeholder-muted focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all duration-200 pr-12 rounded-xl"
-                  disabled={isLoading}
-                />
+            {/* Quick Suggestions */}
+            <div className="px-4 pb-3">
+              <div className="flex flex-wrap gap-1.5">
+                {["Help with tasks", "Track habits", "Focus session", "Set goals"].map((suggestion) => (
+                  <Button
+                    key={suggestion}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSendMessage(suggestion)}
+                    className="text-xs h-6 px-2 bg-slate-800/40 border-slate-600/60 text-slate-300 hover:bg-slate-700/60 hover:text-white hover:border-primary/40 transition-all duration-200 rounded-md"
+                    disabled={isLoading}
+                  >
+                    {suggestion}
+                  </Button>
+                ))}
+              </div>
+            </div>
+
+            {/* Main Input Field */}
+            <div className="px-4 pb-4">
+              <div className="flex gap-3 items-end">
+                <div className="flex-1">
+                  <Input
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder={isListening ? "Voice input active..." : "Type your message..."}
+                    className="bg-slate-800/60 border-slate-600/60 text-white placeholder-slate-400 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all duration-200 rounded-xl min-h-[44px] resize-none"
+                    disabled={isLoading || isListening}
+                  />
+                </div>
                 <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleVoiceInput}
-                  disabled={isLoading || !isSupported}
-                  className={`absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-lg transition-all duration-200 ${
-                    isListening 
-                      ? "text-error hover:text-error/80 bg-error/10 border border-error/30" 
-                      : "text-muted hover:text-white hover:bg-slate-700/60"
-                  }`}
+                  onClick={() => handleSendMessage(inputValue)}
+                  disabled={!inputValue.trim() || isLoading}
+                  className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white rounded-xl px-4 h-11 shadow-lg transition-all duration-200 disabled:opacity-50 flex-shrink-0"
                 >
-                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
-              <Button
-                onClick={() => handleSendMessage(inputValue)}
-                disabled={!inputValue.trim() || isLoading}
-                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white rounded-xl px-4 shadow-lg transition-all duration-200 disabled:opacity-50"
-              >
-                <Send className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </CardContent>

@@ -7,7 +7,7 @@ interface SidebarHeaderProps {
   isCollapsed: boolean;
   onToggle: () => void;
 }
-const LOGO_URL = "https://nexus-plaform.lovable.app/lovable-uploads/e401f047-a5a0-455c-8e42-9a9d9249d4fb.png";
+const LOGO_URL = "/lovable-uploads/nexus-logo-orange.png";
 const SidebarHeader: React.FC<SidebarHeaderProps> = ({
   isCollapsed,
   onToggle
