@@ -200,59 +200,70 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: -20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -20, scale: 0.95 }}
-      className="fixed top-20 right-6 w-96 h-[600px] z-[60] max-h-[calc(100vh-6rem)]"
+      initial={{ opacity: 0, x: 20, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 20, scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="fixed top-16 right-4 w-80 sm:w-96 h-[32rem] sm:h-[36rem] z-[60] max-h-[calc(100vh-5rem)]"
     >
-      <Card className="h-full bg-gradient-to-br from-slate-900/98 via-slate-800/95 to-slate-900/98 backdrop-blur-xl border-primary/20 shadow-2xl shadow-primary/10">
-        <CardHeader className="pb-4 border-b border-primary/20">
+      <Card className="h-full bg-slate-950/95 backdrop-blur-xl border border-primary/30 shadow-2xl shadow-primary/20 overflow-hidden">
+        {/* Header */}
+        <CardHeader className="pb-3 pt-4 px-4 border-b border-primary/20 bg-gradient-to-r from-slate-900/50 to-slate-800/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary/30 to-orange-500/30 flex items-center justify-center shadow-lg shadow-primary/25 relative overflow-hidden">
-                <Bot className="h-5 w-5 text-white relative z-10" />
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent animate-pulse"></div>
+              <div className="relative">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary/40 to-secondary/40 flex items-center justify-center shadow-lg border border-primary/30">
+                  <Bot className="h-5 w-5 text-white" />
+                </div>
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-success rounded-full border-2 border-slate-900 animate-pulse shadow-glow"></div>
               </div>
               <div>
-                <CardTitle className="text-white text-lg font-bold">Nexus AI Assistant</CardTitle>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse shadow-glow"></div>
-                  <span className="text-xs text-slate-300 font-medium">Online & Ready</span>
-                </div>
+                <CardTitle className="text-white text-base font-bold">Nexus AI</CardTitle>
+                <p className="text-xs text-muted font-medium">Your Smart Assistant</p>
               </div>
             </div>
             <Button
               variant="ghost"
-              size="icon"
+              size="sm"
               onClick={onToggle}
-              className="text-slate-400 hover:text-white hover:bg-slate-800/50 transition-all duration-200 rounded-lg"
+              className="h-8 w-8 text-muted hover:text-white hover:bg-slate-800/60 transition-all duration-200 rounded-lg border border-transparent hover:border-primary/30"
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
         </CardHeader>
 
-        <CardContent className="p-0 h-full flex flex-col">
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-4">
-              <AnimatePresence>
+        {/* Messages Area */}
+        <CardContent className="p-0 flex flex-col h-full">
+          <ScrollArea className="flex-1 px-4 py-2">
+            <div className="space-y-3">
+              <AnimatePresence mode="popLayout">
                 {messages.map((message) => (
                   <motion.div
                     key={message.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    <div className={`max-w-[80%] rounded-lg p-3 ${
-                      message.type === 'user'
-                        ? 'bg-gradient-to-r from-primary to-orange-500 text-white'
-                        : 'bg-slate-800/50 text-slate-200 border border-slate-700/50'
-                    }`}>
-                      <div className="text-sm leading-relaxed">{message.content}</div>
-                      <div className={`text-xs mt-1 ${
-                        message.type === 'user' ? 'text-white/70' : 'text-slate-400'
+                    <div className="flex gap-2 max-w-[85%]">
+                      {message.type === 'assistant' && (
+                        <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center flex-shrink-0 mt-1 border border-primary/20">
+                          <Bot className="h-3 w-3 text-white" />
+                        </div>
+                      )}
+                      <div className={`rounded-2xl px-3 py-2 ${
+                        message.type === 'user'
+                          ? 'bg-gradient-to-r from-primary to-secondary text-white shadow-lg'
+                          : 'bg-slate-800/60 text-slate-100 border border-slate-700/40 shadow-md'
                       }`}>
-                        {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</div>
+                        <div className={`text-xs mt-1 ${
+                          message.type === 'user' ? 'text-white/60' : 'text-muted'
+                        }`}>
+                          {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -261,14 +272,23 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
               
               {isLoading && (
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
+                  initial={{ opacity: 0, y: 15 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="flex justify-start"
                 >
-                  <div className="bg-slate-800/50 border border-slate-700/50 rounded-lg p-3">
-                    <div className="flex items-center gap-2">
-                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                      <span className="text-sm text-slate-400">AI is thinking...</span>
+                  <div className="flex gap-2">
+                    <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary/30 to-secondary/30 flex items-center justify-center flex-shrink-0 mt-1 border border-primary/20">
+                      <Bot className="h-3 w-3 text-white" />
+                    </div>
+                    <div className="bg-slate-800/60 border border-slate-700/40 rounded-2xl px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1">
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></div>
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                          <div className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                        </div>
+                        <span className="text-xs text-muted">Thinking...</span>
+                      </div>
                     </div>
                   </div>
                 </motion.div>
@@ -277,56 +297,57 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
             <div ref={messagesEndRef} />
           </ScrollArea>
 
-          <div className="p-4 border-t border-slate-700/50">
+          {/* Input Area */}
+          <div className="p-4 border-t border-slate-700/40 bg-slate-900/50">
+            {/* Quick Suggestions */}
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {["Help with tasks", "Track habits", "Focus session", "Set goals"].map((suggestion) => (
+                <Button
+                  key={suggestion}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleSendMessage(suggestion)}
+                  className="text-xs h-7 px-2 bg-slate-800/40 border-slate-600/60 text-muted hover:bg-slate-700/60 hover:text-white hover:border-primary/40 transition-all duration-200"
+                  disabled={isLoading}
+                >
+                  {suggestion}
+                </Button>
+              ))}
+            </div>
+
+            {/* Input Field */}
             <div className="flex gap-2">
               <div className="flex-1 relative">
                 <Input
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Ask me anything about your productivity..."
-                  className="bg-slate-800/50 border-slate-600 text-white placeholder-slate-400 pr-20"
+                  placeholder="Type your message..."
+                  className="bg-slate-800/50 border-slate-600/60 text-white placeholder-muted focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all duration-200 pr-12 rounded-xl"
                   disabled={isLoading}
                 />
-                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={handleVoiceInput}
-                    disabled={isLoading || !isSupported}
-                    className={`h-8 w-8 ${
-                      isListening 
-                        ? "text-red-400 hover:text-red-300 animate-pulse" 
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
-                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleVoiceInput}
+                  disabled={isLoading || !isSupported}
+                  className={`absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 rounded-lg transition-all duration-200 ${
+                    isListening 
+                      ? "text-error hover:text-error/80 bg-error/10 border border-error/30" 
+                      : "text-muted hover:text-white hover:bg-slate-700/60"
+                  }`}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                </Button>
               </div>
               <Button
                 onClick={() => handleSendMessage(inputValue)}
                 disabled={!inputValue.trim() || isLoading}
-                className="bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90 text-white"
+                className="bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 text-white rounded-xl px-4 shadow-lg transition-all duration-200 disabled:opacity-50"
               >
                 <Send className="h-4 w-4" />
               </Button>
-            </div>
-            
-            <div className="flex flex-wrap gap-1 mt-2">
-              {["Help me with tasks", "Track habits", "Start journaling", "Focus session", "Set goals"].map((suggestion) => (
-                <Button
-                  key={suggestion}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleSendMessage(suggestion)}
-                  className="text-xs bg-slate-800/30 border-slate-600 text-slate-300 hover:bg-slate-700 hover:text-white transition-all duration-200"
-                  disabled={isLoading}
-                >
-                  {suggestion}
-                </Button>
-              ))}
             </div>
           </div>
         </CardContent>
