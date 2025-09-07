@@ -66,12 +66,12 @@ const SmartFolders = ({
   const [newFolderColor, setNewFolderColor] = useState("blue");
 
   const colors = [
-    { name: 'blue', class: 'bg-blue-500', light: 'bg-blue-100 text-blue-700' },
-    { name: 'green', class: 'bg-green-500', light: 'bg-green-100 text-green-700' },
-    { name: 'purple', class: 'bg-purple-500', light: 'bg-purple-100 text-purple-700' },
-    { name: 'orange', class: 'bg-orange-500', light: 'bg-orange-100 text-orange-700' },
-    { name: 'pink', class: 'bg-pink-500', light: 'bg-pink-100 text-pink-700' },
-    { name: 'indigo', class: 'bg-indigo-500', light: 'bg-indigo-100 text-indigo-700' },
+    { name: 'blue', class: 'bg-primary/80', light: 'bg-primary/10 text-primary' },
+    { name: 'green', class: 'bg-success/80', light: 'bg-success/10 text-success' },
+    { name: 'purple', class: 'bg-purple-500/80', light: 'bg-purple-500/10 text-purple-400' },
+    { name: 'orange', class: 'bg-primary', light: 'bg-primary/10 text-primary' },
+    { name: 'pink', class: 'bg-pink-500/80', light: 'bg-pink-500/10 text-pink-400' },
+    { name: 'indigo', class: 'bg-indigo-500/80', light: 'bg-indigo-500/10 text-indigo-400' },
   ];
 
   const getColorClass = (color: string, type: 'dot' | 'badge' = 'dot') => {

@@ -4,74 +4,74 @@
  
 @layer base {
   :root {
-    /* Light theme variables */
-    --background: 255 255 255;
-    --foreground: 15 23 42;
-    --card: 248 250 252;
-    --card-foreground: 15 23 42;
-    --popover: 255 255 255;
-    --popover-foreground: 15 23 42;
-    --primary: 255 101 0; /* Brand orange */
-    --primary-foreground: 255 255 255;
-    --secondary: 241 245 249;
-    --secondary-foreground: 71 85 105;
-    --muted: 241 245 249;
-    --muted-foreground: 100 116 139;
-    --accent: 241 245 249;
-    --accent-foreground: 15 23 42;
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
-    --success: 16 185 129; /* emerald-500 */
-    --success-foreground: 255 255 255;
-    --border: 203 213 225; /* slate-300 */
-    --input: 203 213 225; /* slate-300 */
-    --ring: 255 101 0; /* Brand orange */
+    /* Light theme variables - HSL format */
+    --background: 0 0% 100%;
+    --foreground: 222 84% 5%;
+    --card: 210 40% 98%;
+    --card-foreground: 222 84% 5%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 84% 5%;
+    --primary: 24 100% 50%; /* Brand orange */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 215 25% 27%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 84% 5%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 84% 39%; /* emerald-500 */
+    --success-foreground: 0 0% 100%;
+    --border: 214 32% 91%; /* slate-300 */
+    --input: 214 32% 91%; /* slate-300 */
+    --ring: 24 100% 50%; /* Brand orange */
     --radius: 0.75rem;
     
-    /* Sidebar variables */
-    --sidebar-background: 2 6 23;
-    --sidebar-foreground: 248 250 252;
-    --sidebar-primary: 255 101 0;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 51 65 85;
-    --sidebar-accent-foreground: 248 250 252;
-    --sidebar-border: 203 213 225; /* slate-300 */
-    --sidebar-ring: 255 101 0;
+    /* Sidebar variables - HSL format */
+    --sidebar-background: 222 84% 5%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 24 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 24 100% 50%;
   }
  
   .dark {
-    /* Dark theme variables */
-    --background: 2 6 23;
-    --foreground: 248 250 252;
-    --card: 2 6 23;
-    --card-foreground: 248 250 252;
-    --popover: 2 6 23;
-    --popover-foreground: 248 250 252;
-    --primary: 255 101 0; /* Brand orange */
-    --primary-foreground: 255 255 255;
-    --secondary: 51 65 85;
-    --secondary-foreground: 203 213 225;
-    --muted: 51 65 85;
-    --muted-foreground: 148 163 184;
-    --accent: 51 65 85;
-    --accent-foreground: 248 250 252;
-    --destructive: 239 68 68;
-    --destructive-foreground: 255 255 255;
-    --success: 16 185 129; /* emerald-500 */
-    --success-foreground: 255 255 255;
-    --border: 203 213 225; /* slate-300 */
-    --input: 203 213 225; /* slate-300 */
-    --ring: 255 101 0; /* Brand orange */
+    /* Dark theme variables - HSL format */
+    --background: 222 84% 5%;
+    --foreground: 210 40% 98%;
+    --card: 222 84% 5%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 84% 5%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 24 100% 50%; /* Brand orange */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 215 28% 17%;
+    --secondary-foreground: 214 32% 91%;
+    --muted: 215 28% 17%;
+    --muted-foreground: 220 9% 46%;
+    --accent: 215 28% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 160 84% 39%; /* emerald-500 */
+    --success-foreground: 0 0% 100%;
+    --border: 215 28% 17%; /* darker border for dark mode */
+    --input: 215 28% 17%;
+    --ring: 24 100% 50%; /* Brand orange */
     
-    /* Dark sidebar variables */
-    --sidebar-background: 2 6 23;
-    --sidebar-foreground: 248 250 252;
-    --sidebar-primary: 255 101 0;
-    --sidebar-primary-foreground: 255 255 255;
-    --sidebar-accent: 51 65 85;
-    --sidebar-accent-foreground: 248 250 252;
-    --sidebar-border: 203 213 225; /* slate-300 */
-    --sidebar-ring: 255 101 0;
+    /* Dark sidebar variables - HSL format */
+    --sidebar-background: 222 84% 5%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 24 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 28% 17%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 215 28% 17%;
+    --sidebar-ring: 24 100% 50%;
   }
 }
  

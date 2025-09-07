@@ -198,37 +198,96 @@ const RichTextEditor = ({
       )}
       
       <style>{`
-        .prose h1 { font-size: 2rem; font-weight: 700; margin: 1rem 0; color: hsl(var(--foreground)); }
-        .prose h2 { font-size: 1.5rem; font-weight: 600; margin: 0.8rem 0; color: hsl(var(--foreground)); }
-        .prose h3 { font-size: 1.25rem; font-weight: 600; margin: 0.6rem 0; color: hsl(var(--foreground)); }
-        .prose p { margin: 0.5rem 0; color: hsl(var(--foreground)); }
-        .prose ul, .prose ol { margin: 0.5rem 0; padding-left: 1.5rem; }
-        .prose li { margin: 0.25rem 0; color: hsl(var(--foreground)); }
+        .prose h1 { 
+          font-size: 2rem; 
+          font-weight: 700; 
+          margin: 1rem 0; 
+          color: hsl(var(--foreground)); 
+          line-height: 1.2;
+        }
+        .prose h2 { 
+          font-size: 1.5rem; 
+          font-weight: 600; 
+          margin: 0.8rem 0; 
+          color: hsl(var(--foreground)); 
+          line-height: 1.3;
+        }
+        .prose h3 { 
+          font-size: 1.25rem; 
+          font-weight: 600; 
+          margin: 0.6rem 0; 
+          color: hsl(var(--foreground)); 
+          line-height: 1.4;
+        }
+        .prose p { 
+          margin: 0.5rem 0; 
+          color: hsl(var(--foreground)); 
+          line-height: 1.6;
+        }
+        .prose ul, .prose ol { 
+          margin: 0.5rem 0; 
+          padding-left: 1.5rem; 
+          color: hsl(var(--foreground));
+        }
+        .prose li { 
+          margin: 0.25rem 0; 
+          color: hsl(var(--foreground)); 
+        }
         .prose blockquote { 
           border-left: 4px solid hsl(var(--primary)); 
           padding-left: 1rem; 
           margin: 1rem 0; 
           font-style: italic; 
           color: hsl(var(--muted-foreground));
+          background: hsl(var(--muted) / 0.3);
+          border-radius: 0.5rem;
+          padding: 1rem;
         }
-        .prose a { color: hsl(var(--primary)); text-decoration: underline; }
-        .prose strong, .prose b { font-weight: 700; color: hsl(var(--foreground)); }
-        .prose em, .prose i { font-style: italic; }
-        .prose u { text-decoration: underline; }
+        .prose a { 
+          color: hsl(var(--primary)); 
+          text-decoration: underline; 
+          transition: color 0.2s ease;
+        }
+        .prose a:hover { 
+          color: hsl(var(--primary) / 0.8); 
+        }
+        .prose strong, .prose b { 
+          font-weight: 700; 
+          color: hsl(var(--foreground)); 
+        }
+        .prose em, .prose i { 
+          font-style: italic; 
+          color: hsl(var(--foreground));
+        }
+        .prose u { 
+          text-decoration: underline; 
+          color: hsl(var(--foreground));
+        }
         .prose table { 
           width: 100%; 
           border-collapse: collapse; 
           margin: 1rem 0; 
           border: 1px solid hsl(var(--border));
+          border-radius: 0.5rem;
+          overflow: hidden;
         }
         .prose th, .prose td { 
-          padding: 0.5rem; 
+          padding: 0.75rem; 
           border: 1px solid hsl(var(--border)); 
           text-align: left; 
+          color: hsl(var(--foreground));
         }
         .prose th { 
           background-color: hsl(var(--muted)); 
           font-weight: 600; 
+          color: hsl(var(--foreground));
+        }
+        .prose code {
+          background: hsl(var(--muted));
+          padding: 0.25rem 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.875rem;
+          color: hsl(var(--foreground));
         }
       `}</style>
     </div>
