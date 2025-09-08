@@ -166,15 +166,17 @@ const AppleNotesEditor = () => {
   }, []);
 
   // Rich text editor functions
+  const [editorExecuteCommand, setEditorExecuteCommand] = useState<((command: string, value?: string) => void) | null>(null);
+  
   const handleFormat = useCallback((command: string, value?: string) => {
-    if (!currentNote) return;
+    if (!currentNote || !editorExecuteCommand) return;
     
     try {
-      document.execCommand(command, false, value);
+      editorExecuteCommand(command, value);
     } catch (error) {
       console.warn('Format command failed:', command, error);
     }
-  }, [currentNote]);
+  }, [currentNote, editorExecuteCommand]);
 
   const handleMediaUpload = useCallback((files: MediaFile[]) => {
     if (!currentNote) return;
@@ -534,6 +536,7 @@ const AppleNotesEditor = () => {
                           content={currentNote.content}
                           onChange={(content) => updateNote({ content })}
                           onFormatChange={setActiveFormats}
+                          onCommandReady={setEditorExecuteCommand}
                           placeholder="Start writing your note..."
                         />
                       ) : (

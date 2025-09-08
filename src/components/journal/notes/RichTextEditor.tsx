@@ -7,6 +7,7 @@ interface RichTextEditorProps {
   placeholder?: string;
   className?: string;
   onFormatChange?: (formats: Set<string>) => void;
+  onCommandReady?: (executeCommand: (command: string, value?: string) => void) => void;
 }
 
 const RichTextEditor = ({
@@ -14,7 +15,8 @@ const RichTextEditor = ({
   onChange,
   placeholder = "Start writing...",
   className,
-  onFormatChange
+  onFormatChange,
+  onCommandReady
 }: RichTextEditorProps) => {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -163,6 +165,13 @@ const RichTextEditor = ({
       }
     }
   }, [executeCommand]);
+
+  // Expose executeCommand to parent component
+  useEffect(() => {
+    if (onCommandReady) {
+      onCommandReady(executeCommand);
+    }
+  }, [executeCommand, onCommandReady]);
 
   return (
     <div className={cn("relative", className)}>
