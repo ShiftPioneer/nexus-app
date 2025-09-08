@@ -14,7 +14,7 @@ interface ModernTopBarProps {
     toggle: () => void;
   };
 }
-const LOGO_URL = "/lovable-uploads/nexus-logo-orange.png";
+const LOGO_URL = "/lovable-uploads/nexus-app-logo.png";
 const ModernTopBar: React.FC<ModernTopBarProps> = ({
   onToggleSidebar,
   isCollapsed,

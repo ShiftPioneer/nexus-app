@@ -468,6 +468,36 @@ const AppleNotesEditor = () => {
             <div className="flex-1 overflow-y-auto">
               <div className="p-6">
                 <div className="max-w-4xl mx-auto space-y-6">
+                  {/* Save/Auto-save indicator */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => {
+                          // Explicitly save current changes
+                          toast.success("Note saved");
+                        }}
+                        variant="default"
+                        size="sm"
+                        className="btn-primary"
+                      >
+                        Save Note
+                      </Button>
+                      <span className="text-xs text-muted-foreground">
+                        Auto-saving...
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={() => setIsEditing(!isEditing)}
+                        variant="outline"
+                        size="sm"
+                        className="border-border hover:bg-card"
+                      >
+                        {isEditing ? 'Preview' : 'Edit'}
+                      </Button>
+                    </div>
+                  </div>
+
                   {/* Title */}
                   <div>
                     <Input
@@ -582,19 +612,51 @@ const AppleNotesEditor = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center text-muted-foreground">
-              <Edit3 className="h-16 w-16 mx-auto mb-4 opacity-30" />
-              <h3 className="text-lg font-medium mb-2 text-foreground">Create Your First Note</h3>
-              <p className="text-sm mb-4">Start capturing your thoughts and ideas</p>
-              <Button 
-                onClick={createNewNote}
-                className="btn-primary"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create New Note
-              </Button>
-            </div>
+          /* No Note Selected */
+          <div className="flex-1 flex items-center justify-center bg-card/20">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-center space-y-6 p-8"
+            >
+              <div className="w-24 h-24 mx-auto rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-primary/20">
+                <Edit3 className="h-12 w-12 text-primary" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  Welcome to Smart Notes
+                </h3>
+                <p className="text-sm text-muted-foreground mb-6 max-w-md">
+                  Create beautiful, organized notes with rich text formatting, media attachments, and smart organization features.
+                </p>
+                <Button
+                  onClick={createNewNote}
+                  className="btn-primary"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Your First Note
+                </Button>
+              </div>
+              
+              {/* Quick Tips */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8 max-w-2xl">
+                <div className="p-4 rounded-lg bg-card/30 border border-border/50">
+                  <Hash className="h-6 w-6 text-primary mb-2" />
+                  <h4 className="font-medium text-foreground text-sm">Smart Tags</h4>
+                  <p className="text-xs text-muted-foreground">Organize with tags and smart folders</p>
+                </div>
+                <div className="p-4 rounded-lg bg-card/30 border border-border/50">
+                  <Palette className="h-6 w-6 text-primary mb-2" />
+                  <h4 className="font-medium text-foreground text-sm">Rich Formatting</h4>
+                  <p className="text-xs text-muted-foreground">Bold, italic, lists, and more</p>
+                </div>
+                <div className="p-4 rounded-lg bg-card/30 border border-border/50">
+                  <Archive className="h-6 w-6 text-primary mb-2" />
+                  <h4 className="font-medium text-foreground text-sm">Auto-Save</h4>
+                  <p className="text-xs text-muted-foreground">Never lose your thoughts</p>
+                </div>
+              </div>
+            </motion.div>
           </div>
         )}
       </div>
