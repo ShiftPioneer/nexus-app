@@ -137,35 +137,35 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
       whileHover={{ scale: 1.02 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 hover:border-slate-600/50 transition-all duration-200">
+      <Card className="bg-card hover:border-primary/30 transition-all duration-200">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
-            <div className={`p-3 rounded-xl bg-gradient-to-r ${
-              color === "purple" ? "from-purple-500/20 to-indigo-500/20" :
-              color === "orange" ? "from-orange-500/20 to-red-500/20" :
-              color === "green" ? "from-green-500/20 to-emerald-500/20" :
-              color === "blue" ? "from-blue-500/20 to-cyan-500/20" :
-              "from-primary/20 to-orange-500/20"
+            <div className={`p-3 rounded-xl ${
+              color === "purple" ? "bg-gradient-to-r from-purple-500/20 to-indigo-500/20" :
+              color === "orange" ? "bg-gradient-to-r from-primary/20 to-primary/30" :
+              color === "green" ? "bg-gradient-to-r from-success/20 to-success/30" :
+              color === "blue" ? "bg-gradient-to-r from-blue-500/20 to-cyan-500/20" :
+              "bg-gradient-to-r from-primary/20 to-primary/30"
             }`}>
               <Icon className={`h-6 w-6 ${
                 color === "purple" ? "text-purple-400" :
-                color === "orange" ? "text-orange-400" :
-                color === "green" ? "text-green-400" :
+                color === "orange" ? "text-primary" :
+                color === "green" ? "text-success" :
                 color === "blue" ? "text-blue-400" :
                 "text-primary"
               }`} />
             </div>
             {trend && (
-              <Badge className={`${trend > 0 ? "bg-green-500/20 text-green-300" : "bg-red-500/20 text-red-300"}`}>
+              <Badge className={`${trend > 0 ? "bg-success/20 text-success" : "bg-error/20 text-error"}`}>
                 <TrendingUp className="h-3 w-3 mr-1" />
                 {trend > 0 ? "+" : ""}{trend}%
               </Badge>
             )}
           </div>
           <div className="space-y-1">
-            <h3 className="font-semibold text-white text-2xl">{value}</h3>
-            <p className="text-slate-400 text-sm">{title}</p>
-            <p className="text-slate-500 text-xs">{subtitle}</p>
+            <h3 className="font-semibold text-foreground text-2xl">{value}</h3>
+            <p className="text-muted-foreground text-sm">{title}</p>
+            <p className="text-muted-foreground/70 text-xs">{subtitle}</p>
           </div>
         </CardContent>
       </Card>
@@ -182,7 +182,7 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
       >
         <div className="flex items-center gap-2">
           <BarChart3 className="h-6 w-6 text-primary" />
-          <h2 className="text-2xl font-bold text-white">Time Analytics</h2>
+          <h2 className="text-2xl font-bold text-foreground">Time Analytics</h2>
         </div>
         
         <div className="flex gap-2">
@@ -192,11 +192,6 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
               variant={selectedPeriod === period ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedPeriod(period)}
-              className={`${
-                selectedPeriod === period
-                  ? "bg-primary text-white"
-                  : "bg-slate-800/50 text-slate-300 border-slate-700 hover:bg-slate-700"
-              }`}
             >
               {period.charAt(0).toUpperCase() + period.slice(1)}
             </Button>
@@ -249,9 +244,9 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
           transition={{ delay: 0.2 }}
           className="lg:col-span-2"
         >
-          <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 h-full">
+          <Card className="bg-card h-full">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Activity className="h-5 w-5 text-primary" />
                 Time Distribution
               </CardTitle>
@@ -308,8 +303,8 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
                   </svg>
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="text-center">
-                      <div className="text-2xl font-bold text-white">{productivityMetrics.totalHours}h</div>
-                      <div className="text-sm text-slate-400">This {selectedPeriod}</div>
+                      <div className="text-2xl font-bold text-foreground">{productivityMetrics.totalHours}h</div>
+                      <div className="text-sm text-muted-foreground">This {selectedPeriod}</div>
                     </div>
                   </div>
                 </div>
@@ -329,8 +324,8 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
                       }`} />
                       <div className="flex-1">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-white font-medium capitalize">{category}</span>
-                          <span className="text-slate-400">{percentage}%</span>
+                          <span className="text-foreground font-medium capitalize">{category}</span>
+                          <span className="text-muted-foreground">{percentage}%</span>
                         </div>
                         <Progress 
                           value={percentage} 
@@ -351,9 +346,9 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
         >
-          <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50 h-full">
+          <Card className="bg-card h-full">
             <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
+              <CardTitle className="text-foreground flex items-center gap-2">
                 <Calendar className="h-5 w-5 text-primary" />
                 Weekly Trends
               </CardTitle>
@@ -368,8 +363,8 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
                   className="space-y-2"
                 >
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-white font-medium">{day.day}</span>
-                    <span className="text-slate-400">{day.productive + day.personal}h</span>
+                    <span className="text-foreground font-medium">{day.day}</span>
+                    <span className="text-muted-foreground">{day.productive + day.personal}h</span>
                   </div>
                   <div className="flex gap-1 h-2">
                     <div 
@@ -398,18 +393,18 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
       >
-        <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-700/50">
+        <Card className="bg-card">
           <CardHeader>
-            <CardTitle className="text-white">Insights & Recommendations</CardTitle>
+            <CardTitle className="text-foreground">Insights & Recommendations</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg">
+              <div className="p-4 bg-gradient-to-r from-success/10 to-success/20 border border-success/20 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
-                  <TrendingUp className="h-4 w-4 text-green-400" />
-                  <span className="text-green-400 font-medium">Productivity Peak</span>
+                  <TrendingUp className="h-4 w-4 text-success" />
+                  <span className="text-success font-medium">Productivity Peak</span>
                 </div>
-                <p className="text-sm text-slate-300">
+                <p className="text-sm text-foreground/80">
                   Your most productive hours are between 9-11 AM. Schedule important tasks during this window.
                 </p>
               </div>
@@ -418,7 +413,7 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
                   <Clock className="h-4 w-4 text-blue-400" />
                   <span className="text-blue-400 font-medium">Time Balance</span>
                 </div>
-                <p className="text-sm text-slate-300">
+                <p className="text-sm text-foreground/80">
                   Consider increasing personal time by 15% for better work-life balance.
                 </p>
               </div>
