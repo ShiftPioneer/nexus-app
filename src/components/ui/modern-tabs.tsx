@@ -12,7 +12,7 @@ const ModernTabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex items-center justify-center rounded-2xl bg-slate-900/50 backdrop-blur-sm border border-slate-700/30 p-2 shadow-xl",
+      "inline-flex items-center justify-center rounded-2xl bg-card/50 backdrop-blur-sm border border-border p-2 shadow-xl",
       "w-full overflow-x-auto scrollbar-none",
       className
     )}
@@ -34,8 +34,8 @@ const ModernTabsTrigger = React.forwardRef<
       "group relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 overflow-hidden min-w-0 flex-1",
       "ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
       "disabled:pointer-events-none disabled:opacity-50",
-      "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50",
-      "data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-black/25",
+      "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+      "data-[state=active]:text-primary-foreground data-[state=active]:shadow-xl data-[state=active]:shadow-black/25",
       gradient && `data-[state=active]:bg-gradient-to-r ${gradient}`,
       !gradient && "data-[state=active]:bg-gradient-to-r data-[state=active]:from-primary data-[state=active]:to-orange-500",
       className
@@ -53,7 +53,7 @@ const ModernTabsTrigger = React.forwardRef<
       <div className={cn(
         "relative flex items-center justify-center w-5 h-5 rounded-lg transition-all duration-300 flex-shrink-0",
         "group-data-[state=active]:bg-white/20 group-data-[state=active]:shadow-lg",
-        "bg-slate-700/50 group-hover:bg-slate-600/50"
+        "bg-muted/50 group-hover:bg-muted/70"
       )}>
         <Icon className="h-4 w-4" />
       </div>

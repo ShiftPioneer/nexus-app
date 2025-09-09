@@ -109,7 +109,7 @@ const TimeDesign = () => {
 
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-8 bg-slate-900 min-h-full">
+      <div className="animate-fade-in space-y-8 bg-background min-h-full">
         <UnifiedPageHeader
           title="Time Design"
           description="Design your perfect day and optimize your time allocation"

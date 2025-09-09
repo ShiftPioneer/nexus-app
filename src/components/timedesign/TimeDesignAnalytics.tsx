@@ -26,6 +26,7 @@ interface TimeDesignAnalyticsProps {
 const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
   activities
 }) => {
+  console.log("TimeDesignAnalytics: Component mounted with", activities.length, "activities");
   const [selectedPeriod, setSelectedPeriod] = useState("week");
 
   // Calculate real analytics data from activities
@@ -78,6 +79,7 @@ const TimeDesignAnalytics: React.FC<TimeDesignAnalyticsProps> = ({
   };
 
   const { timeDistribution, productivityMetrics, filteredActivities } = calculateMetrics();
+  console.log("TimeDesignAnalytics: Calculated metrics", { timeDistribution, productivityMetrics, filteredActivitiesCount: filteredActivities.length });
 
   const weeklyTrends = (() => {
     const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

@@ -18,7 +18,7 @@ const ModernAppLayout = ({
     toggleSidebar
   } = useSidebar();
   const aiAssistant = useAIAssistant();
-  return <div className="flex h-screen w-full overflow-hidden bg-slate-950">
+  return <div className="flex h-screen w-full overflow-hidden bg-background">
       <SidebarProvider>
         <GTDProvider>
           {/* Mobile Overlay */}
@@ -31,8 +31,8 @@ const ModernAppLayout = ({
           <div className="flex flex-col flex-1 overflow-hidden transition-all duration-300 ease-in-out min-w-0 h-full">
             <ModernTopBar onToggleSidebar={toggleSidebar} isCollapsed={isCollapsed} isMobile={isMobile} aiAssistant={aiAssistant} />
             
-            <main className="flex-1 overflow-y-auto scrollbar-none bg-slate-900 h-full">
-              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-white min-h-full bg-slate-900">
+            <main className="flex-1 overflow-y-auto scrollbar-none bg-background h-full">
+              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-foreground min-h-full bg-background">
                 {children}
               </div>
             </main>
