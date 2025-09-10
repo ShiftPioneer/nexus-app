@@ -11,7 +11,7 @@ import TimeDesignAnalytics from "@/components/timedesign/TimeDesignAnalytics";
 import TimeDesignSettings from "@/components/timedesign/TimeDesignSettings";
 import ActivityDialog from "@/components/timedesign/ActivityDialog";
 import { useToast } from "@/hooks/use-toast";
-import { useActivitiesStorage } from "@/hooks/use-timedesign-storage";
+import { useSupabaseTimeDesignStorage } from "@/hooks/use-supabase-timedesign-storage";
 
 const TimeDesign = () => {
   const [activeTab, setActiveTab] = useState("calendar");
@@ -20,37 +20,27 @@ const TimeDesign = () => {
   // Time Design state
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<"day" | "week">("week");
-  const [activities, setActivities] = useActivitiesStorage();
+  const { activities, loading, saveActivity, deleteActivity } = useSupabaseTimeDesignStorage();
   const [editingActivity, setEditingActivity] = useState<TimeActivity | null>(null);
   
   const { toast } = useToast();
 
-  const handleActivitySave = (activity: TimeActivity) => {
+  const handleActivitySave = async (activity: TimeActivity) => {
     console.log('Activity saved:', activity);
     
-    if (editingActivity && editingActivity.id) {
-      // Update existing activity
-      const updatedActivity = { ...activity, id: editingActivity.id };
-      setActivities(prev => prev.map(a => a.id === editingActivity.id ? updatedActivity : a));
-      toast({
-        title: "Activity Updated",
-        description: "Your activity has been successfully updated.",
-      });
-    } else {
-      // Create new activity
-      const newActivity = {
-        ...activity,
-        id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
-      };
-      setActivities(prev => [...prev, newActivity]);
-      toast({
-        title: "Activity Created",
-        description: "Your activity has been successfully created.",
-      });
+    try {
+      const savedActivity = await saveActivity(activity);
+      if (savedActivity) {
+        toast({
+          title: editingActivity?.id ? "Activity Updated" : "Activity Created",
+          description: `Your activity has been successfully ${editingActivity?.id ? 'updated' : 'created'}.`,
+        });
+        setShowActivityDialog(false);
+        setEditingActivity(null);
+      }
+    } catch (error) {
+      console.error('Error saving activity:', error);
     }
-    
-    setShowActivityDialog(false);
-    setEditingActivity(null);
   };
 
   const handleEditActivity = (activity: TimeActivity) => {
@@ -58,12 +48,18 @@ const TimeDesign = () => {
     setShowActivityDialog(true);
   };
 
-  const handleDeleteActivity = (id: string) => {
-    setActivities(prev => prev.filter(a => a.id !== id));
-    toast({
-      title: "Activity Deleted",
-      description: "Your activity has been successfully deleted.",
-    });
+  const handleDeleteActivity = async (id: string) => {
+    try {
+      const success = await deleteActivity(id);
+      if (success) {
+        toast({
+          title: "Activity Deleted",
+          description: "Your activity has been successfully deleted.",
+        });
+      }
+    } catch (error) {
+      console.error('Error deleting activity:', error);
+    }
   };
 
   const handleCreateActivity = (data: { startDate: Date; endDate: Date; startTime: string; endTime: string; }) => {
