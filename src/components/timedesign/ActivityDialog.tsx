@@ -149,19 +149,41 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
     }
   }, [activity, open, form]);
 
-  // Smart time adjustment
+  // Smart date/time adjustment
   const watchStartTime = form.watch('startTime');
+  const watchStartDate = form.watch('startDate');
+  const watchEndTime = form.watch('endTime');
+  const watchEndDate = form.watch('endDate');
   const watchCategory = form.watch('category');
   const watchIsRecurring = form.watch('isRecurring');
   
+  // Auto-adjust end time when start time changes (for new activities or when end time becomes invalid)
   useEffect(() => {
-    if (watchStartTime && (!activity?.id)) {
-      const [hours, minutes] = watchStartTime.split(':').map(Number);
-      const endHour = hours + 1;
-      const newEndTime = `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      form.setValue('endTime', newEndTime);
+    if (watchStartTime) {
+      const [startHours, startMinutes] = watchStartTime.split(':').map(Number);
+      const [endHours, endMinutes] = watchEndTime.split(':').map(Number);
+      
+      // Check if we need to adjust end time
+      const needsAdjustment = (!activity?.id) || // New activity
+        (startHours * 60 + startMinutes >= endHours * 60 + endMinutes); // End time is not after start time
+      
+      if (needsAdjustment) {
+        const endHour = startHours + 1;
+        const newEndTime = `${endHour.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')}`;
+        form.setValue('endTime', newEndTime);
+      }
     }
-  }, [watchStartTime, form, activity?.id]);
+  }, [watchStartTime, watchEndTime, form, activity?.id]);
+
+  // Auto-adjust end date when start date changes
+  useEffect(() => {
+    if (watchStartDate && watchEndDate) {
+      // If end date is before start date, set end date to start date
+      if (watchEndDate < watchStartDate) {
+        form.setValue('endDate', watchStartDate);
+      }
+    }
+  }, [watchStartDate, watchEndDate, form]);
 
   // Smart color adjustment based on category - only for new activities without existing color preference
   useEffect(() => {

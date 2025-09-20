@@ -42,19 +42,24 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
     const endPosition = (endHour * 60 + endMinute) * 1.2;
     const height = endPosition - startPosition;
 
-    const styleMap: Record<string, string> = {
-      work: "bg-gradient-to-br from-purple-600 to-indigo-700 text-white",
-      social: "bg-gradient-to-br from-orange-500 to-red-600 text-white",
-      health: "bg-gradient-to-br from-green-500 to-teal-600 text-white",
-      learning: "bg-gradient-to-br from-blue-500 to-cyan-600 text-white",
-      default: "bg-gradient-to-br from-slate-600 to-slate-700 text-white",
+    // Use the activity's selected color instead of category-based colors
+    const colorMap: Record<string, string> = {
+      purple: "bg-gradient-to-br from-purple-500 to-purple-700 text-white",
+      blue: "bg-gradient-to-br from-blue-500 to-blue-700 text-white",
+      green: "bg-gradient-to-br from-green-500 to-green-700 text-white",
+      orange: "bg-gradient-to-br from-orange-500 to-orange-700 text-white",
+      red: "bg-gradient-to-br from-red-500 to-red-700 text-white",
+      indigo: "bg-gradient-to-br from-indigo-500 to-indigo-700 text-white",
+      cyan: "bg-gradient-to-br from-cyan-500 to-cyan-700 text-white",
+      yellow: "bg-gradient-to-br from-yellow-500 to-yellow-700 text-white",
     };
-    const categoryStyle = styleMap[activity.category] || styleMap.default;
+    
+    const activityStyle = colorMap[activity.color] || colorMap.purple;
 
     return {
       top: `${startPosition}px`,
       height: `${height}px`,
-      className: `absolute w-full ${categoryStyle} p-2 rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-primary/20 transition-all duration-200 ring-1 ring-inset ring-white/10 hover:ring-white/20`
+      className: `absolute w-full ${activityStyle} p-2 rounded-xl shadow-lg overflow-hidden cursor-pointer hover:shadow-xl hover:shadow-primary/20 transition-all duration-200 ring-1 ring-inset ring-white/10 hover:ring-white/20`
     };
   };
 
