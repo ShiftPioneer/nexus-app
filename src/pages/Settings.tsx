@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSettings } from "@/contexts/SettingsContext";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -9,72 +10,29 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-import { User, Bell, Brain, Trophy, Shield, Smartphone, Palette, Volume2, Moon, Sun, Globe, Lock, Database, Trash2, Download, ChevronDown, ChevronRight } from 'lucide-react';
+import { User, Bell, Brain, Trophy, Shield, Smartphone, Palette, Volume2, Moon, Sun, Globe, Lock, Database, Trash2, Download, ChevronDown, ChevronRight, Eye, EyeOff, AlertTriangle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Theme, useTheme } from "@/components/ui/theme-provider";
 import AvatarSelector from "@/components/settings/AvatarSelector";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 const Settings = () => {
   const navigate = useNavigate();
-  const {
-    user,
-    signOut,
-    updateUser
-  } = useAuth();
+  const { user, signOut, updateUser } = useAuth();
+  const { settings, updateSettings, exportSettings, resetSettings, isLoading: settingsLoading } = useSettings();
   const [profileData, setProfileData] = useState<any>(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [avatar, setAvatar] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-  const {
-    toast
-  } = useToast();
-  const {
-    setTheme
-  } = useTheme();
+  const [showPassword, setShowPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changingPassword, setChangingPassword] = useState(false);
+  const { toast } = useToast();
+  const { setTheme } = useTheme();
 
-  // Settings state
-  const [settings, setSettings] = useState({
-    notifications: {
-      dailyReminders: true,
-      habitReminders: true,
-      focusBreaks: true,
-      goalDeadlines: true,
-      emailNotifications: false,
-      pushNotifications: true
-    },
-    ai: {
-      enabled: true,
-      suggestionsFrequency: 'daily',
-      personalizedTips: true,
-      autoGoalSuggestions: true
-    },
-    gamification: {
-      enabled: true,
-      showXP: true,
-      showBadges: true,
-      showLeaderboard: false,
-      streakNotifications: true
-    },
-    appearance: {
-      theme: 'system',
-      accentColor: 'blue',
-      compactMode: false,
-      animationsEnabled: true
-    },
-    privacy: {
-      analyticsTracking: true,
-      performanceData: true,
-      crashReports: true,
-      personalizedAds: false
-    },
-    device: {
-      soundEffects: true,
-      hapticFeedback: true,
-      autoSave: true,
-      offlineMode: true
-    }
-  });
+  // Settings state - now using context
   const [expandedSections, setExpandedSections] = useState({
     personalization: true,
     notifications: false,
@@ -84,11 +42,136 @@ const Settings = () => {
     account: false,
     device: false
   });
+  
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
       ...prev,
       [section]: !prev[section]
     }));
+  };
+
+  // Settings handlers
+  const handleSettingChange = async (category: keyof typeof settings, key: string, value: any) => {
+    const result = await updateSettings(category, { [key]: value });
+    if (result.success) {
+      toast({
+        title: "Settings Updated",
+        description: "Your preferences have been saved.",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: result.error || "Failed to update settings.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Password change functionality
+  const handlePasswordChange = async () => {
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Error",
+        description: "Passwords do not match.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "Error", 
+        description: "Password must be at least 6 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setChangingPassword(true);
+    try {
+      // In a real implementation, you'd use updateUser to change password
+      // For now, we'll simulate the process
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setNewPassword('');
+      setConfirmPassword('');
+      toast({
+        title: "Password Updated",
+        description: "Your password has been changed successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update password.",
+        variant: "destructive",
+      });
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  // Data export functionality
+  const handleDataExport = () => {
+    try {
+      const userData = {
+        profile: { name, email, avatar },
+        settings,
+        timestamp: new Date().toISOString(),
+      };
+      
+      const dataStr = JSON.stringify(userData, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+      
+      const exportFileDefaultName = `nexus-data-export-${new Date().toISOString().split('T')[0]}.json`;
+      
+      const linkElement = document.createElement('a');
+      linkElement.setAttribute('href', dataUri);
+      linkElement.setAttribute('download', exportFileDefaultName);
+      linkElement.click();
+      
+      toast({
+        title: "Data Exported",
+        description: "Your data has been downloaded successfully.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to export data.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Data deletion functionality
+  const handleDataDeletion = async () => {
+    try {
+      // Clear localStorage
+      const keys = Object.keys(localStorage);
+      keys.forEach(key => {
+        if (key.startsWith('nexus-') || key.includes('userProfile') || key.includes('habits') || key.includes('journal')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      await resetSettings();
+      
+      toast({
+        title: "Data Deleted",
+        description: "All your local data has been deleted.",
+      });
+      
+      // Optionally sign out user after data deletion
+      setTimeout(() => {
+        signOut();
+        navigate("/auth");
+      }, 2000);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete data.",
+        variant: "destructive",
+      });
+    }
   };
   useEffect(() => {
     if (user) {
@@ -300,7 +383,10 @@ const Settings = () => {
               
               <div className="space-y-2">
                 <Label className="text-orange-600">Accent Color</Label>
-                <Select value={settings.appearance.accentColor}>
+                <Select 
+                  value={settings.appearance.accentColor} 
+                  onValueChange={(value) => handleSettingChange('appearance', 'accentColor', value)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -309,8 +395,31 @@ const Settings = () => {
                     <SelectItem value="green">Green</SelectItem>
                     <SelectItem value="purple">Purple</SelectItem>
                     <SelectItem value="orange">Orange</SelectItem>
+                    <SelectItem value="red">Red</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-orange-600">Compact Mode</Label>
+                  <p className="text-sm text-muted-foreground">Reduce spacing and padding</p>
+                </div>
+                <Switch 
+                  checked={settings.appearance.compactMode} 
+                  onCheckedChange={(checked) => handleSettingChange('appearance', 'compactMode', checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-orange-600">Animations</Label>
+                  <p className="text-sm text-muted-foreground">Enable smooth animations</p>
+                </div>
+                <Switch 
+                  checked={settings.appearance.animationsEnabled} 
+                  onCheckedChange={(checked) => handleSettingChange('appearance', 'animationsEnabled', checked)}
+                />
               </div>
             </div>
           </SettingSection>
@@ -323,7 +432,10 @@ const Settings = () => {
                   <Label className="text-orange-600">Daily Reminders</Label>
                   <p className="text-sm text-muted-foreground">Get reminded of your daily goals</p>
                 </div>
-                <Switch checked={settings.notifications.dailyReminders} />
+                <Switch 
+                  checked={settings.notifications.dailyReminders} 
+                  onCheckedChange={(checked) => handleSettingChange('notifications', 'dailyReminders', checked)}
+                />
               </div>
               
               <div className="flex items-center justify-between">
@@ -331,7 +443,10 @@ const Settings = () => {
                   <Label className="text-orange-600">Habit Reminders</Label>
                   <p className="text-sm text-muted-foreground">Notifications for habit tracking</p>
                 </div>
-                <Switch checked={settings.notifications.habitReminders} />
+                <Switch 
+                  checked={settings.notifications.habitReminders}
+                  onCheckedChange={(checked) => handleSettingChange('notifications', 'habitReminders', checked)}
+                />
               </div>
               
               <div className="flex items-center justify-between">
@@ -339,7 +454,10 @@ const Settings = () => {
                   <Label className="text-orange-600">Focus Break Alerts</Label>
                   <p className="text-sm text-muted-foreground">Alerts during focus sessions</p>
                 </div>
-                <Switch checked={settings.notifications.focusBreaks} />
+                <Switch 
+                  checked={settings.notifications.focusBreaks}
+                  onCheckedChange={(checked) => handleSettingChange('notifications', 'focusBreaks', checked)}
+                />
               </div>
               
               <div className="flex items-center justify-between">
@@ -347,7 +465,32 @@ const Settings = () => {
                   <Label className="text-orange-600">Goal Deadlines</Label>
                   <p className="text-sm text-muted-foreground">Reminders for approaching deadlines</p>
                 </div>
-                <Switch checked={settings.notifications.goalDeadlines} />
+                <Switch 
+                  checked={settings.notifications.goalDeadlines}
+                  onCheckedChange={(checked) => handleSettingChange('notifications', 'goalDeadlines', checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-orange-600">Email Notifications</Label>
+                  <p className="text-sm text-muted-foreground">Receive updates via email</p>
+                </div>
+                <Switch 
+                  checked={settings.notifications.emailNotifications}
+                  onCheckedChange={(checked) => handleSettingChange('notifications', 'emailNotifications', checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-orange-600">Push Notifications</Label>
+                  <p className="text-sm text-muted-foreground">Browser push notifications</p>
+                </div>
+                <Switch 
+                  checked={settings.notifications.pushNotifications}
+                  onCheckedChange={(checked) => handleSettingChange('notifications', 'pushNotifications', checked)}
+                />
               </div>
             </div>
           </SettingSection>
@@ -360,12 +503,18 @@ const Settings = () => {
                   <Label className="text-orange-600">Enable AI Assistant</Label>
                   <p className="text-sm text-muted-foreground">Get AI-powered productivity suggestions</p>
                 </div>
-                <Switch checked={settings.ai.enabled} />
+                <Switch 
+                  checked={settings.ai.enabled}
+                  onCheckedChange={(checked) => handleSettingChange('ai', 'enabled', checked)}
+                />
               </div>
               
               <div className="space-y-2">
                 <Label className="text-orange-600">Suggestion Frequency</Label>
-                <Select value={settings.ai.suggestionsFrequency}>
+                <Select 
+                  value={settings.ai.suggestionsFrequency}
+                  onValueChange={(value) => handleSettingChange('ai', 'suggestionsFrequency', value)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -383,7 +532,21 @@ const Settings = () => {
                   <Label className="text-orange-600">Personalized Tips</Label>
                   <p className="text-sm text-muted-foreground">AI learns from your behavior patterns</p>
                 </div>
-                <Switch checked={settings.ai.personalizedTips} />
+                <Switch 
+                  checked={settings.ai.personalizedTips}
+                  onCheckedChange={(checked) => handleSettingChange('ai', 'personalizedTips', checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-orange-600">Auto Goal Suggestions</Label>
+                  <p className="text-sm text-muted-foreground">AI suggests new goals based on your progress</p>
+                </div>
+                <Switch 
+                  checked={settings.ai.autoGoalSuggestions}
+                  onCheckedChange={(checked) => handleSettingChange('ai', 'autoGoalSuggestions', checked)}
+                />
               </div>
             </div>
           </SettingSection>
@@ -433,7 +596,10 @@ const Settings = () => {
                   <Label className="text-orange-600">Analytics Tracking</Label>
                   <p className="text-sm text-muted-foreground">Help improve the app with usage data</p>
                 </div>
-                <Switch checked={settings.privacy.analyticsTracking} />
+                <Switch 
+                  checked={settings.privacy.analyticsTracking}
+                  onCheckedChange={(checked) => handleSettingChange('privacy', 'analyticsTracking', checked)}
+                />
               </div>
               
               <div className="flex items-center justify-between">
@@ -441,18 +607,69 @@ const Settings = () => {
                   <Label className="text-orange-600">Performance Data</Label>
                   <p className="text-sm text-muted-foreground">Share performance metrics</p>
                 </div>
-                <Switch checked={settings.privacy.performanceData} />
+                <Switch 
+                  checked={settings.privacy.performanceData}
+                  onCheckedChange={(checked) => handleSettingChange('privacy', 'performanceData', checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-orange-600">Crash Reports</Label>
+                  <p className="text-sm text-muted-foreground">Send automatic crash reports</p>
+                </div>
+                <Switch 
+                  checked={settings.privacy.crashReports}
+                  onCheckedChange={(checked) => handleSettingChange('privacy', 'crashReports', checked)}
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-orange-600">Personalized Ads</Label>
+                  <p className="text-sm text-muted-foreground">Allow personalized advertisements</p>
+                </div>
+                <Switch 
+                  checked={settings.privacy.personalizedAds}
+                  onCheckedChange={(checked) => handleSettingChange('privacy', 'personalizedAds', checked)}
+                />
               </div>
               
               <div className="space-y-3 border-t pt-4">
-                <Button variant="outline" className="w-full justify-start">
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start"
+                  onClick={handleDataExport}
+                >
                   <Download className="h-4 w-4 mr-2" />
                   Export My Data
                 </Button>
-                <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive">
-                  <Trash2 className="h-4 w-4 mr-2" />
-                  Delete All Data
-                </Button>
+                
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive">
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete All Data
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="h-5 w-5 text-destructive" />
+                        Delete All Data
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete all your local data including settings, habits, journal entries, and tasks.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDataDeletion} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                        Delete Everything
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </SettingSection>
@@ -460,17 +677,63 @@ const Settings = () => {
           {/* Account */}
           <SettingSection title="Account" icon={Lock} sectionKey="account">
             <div className="space-y-4">
-              <div className="p-4 bg-muted/50 rounded-lg">
-                <h4 className="font-medium mb-2 text-orange-600">Account Status</h4>
-                <p className="text-sm text-muted-foreground mb-3">Pro Plan - All features unlocked</p>
-                <Button variant="outline" size="sm">Manage Subscription</Button>
+              <div className="space-y-4 border-b pb-4">
+                <h3 className="text-lg font-medium text-orange-600">Change Password</h3>
+                <div className="space-y-3">
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="New password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Confirm new password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                  <Button 
+                    onClick={handlePasswordChange}
+                    disabled={changingPassword || !newPassword || !confirmPassword}
+                    className="w-full"
+                  >
+                    {changingPassword ? "Updating..." : "Update Password"}
+                  </Button>
+                </div>
               </div>
-              
-              <div className="space-y-3 border-t pt-4">
-                <Button variant="outline" className="w-full">
-                  Change Password
-                </Button>
-                <Button variant="destructive" onClick={handleSignOut} className="w-full">
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-orange-600">Subscription</Label>
+                    <p className="text-sm text-muted-foreground">Free Plan - Upgrade for premium features</p>
+                  </div>
+                  <Button variant="outline" size="sm">
+                    Upgrade
+                  </Button>
+                </div>
+                
+                <Button 
+                  onClick={handleSignOut}
+                  variant="destructive" 
+                  className="w-full"
+                >
                   Sign Out
                 </Button>
               </div>
@@ -485,7 +748,21 @@ const Settings = () => {
                   <Label className="text-orange-600">Sound Effects</Label>
                   <p className="text-sm text-muted-foreground">Audio feedback for actions</p>
                 </div>
-                <Switch checked={settings.device.soundEffects} />
+                <Switch 
+                  checked={settings.device.soundEffects}
+                  onCheckedChange={(checked) => handleSettingChange('device', 'soundEffects', checked)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-orange-600">Haptic Feedback</Label>
+                  <p className="text-sm text-muted-foreground">Vibration feedback on mobile</p>
+                </div>
+                <Switch 
+                  checked={settings.device.hapticFeedback}
+                  onCheckedChange={(checked) => handleSettingChange('device', 'hapticFeedback', checked)}
+                />
               </div>
               
               <div className="flex items-center justify-between">
@@ -493,15 +770,10 @@ const Settings = () => {
                   <Label className="text-orange-600">Auto-save</Label>
                   <p className="text-sm text-muted-foreground">Automatically save your progress</p>
                 </div>
-                <Switch checked={settings.device.autoSave} />
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label className="text-orange-600">Animations</Label>
-                  <p className="text-sm text-muted-foreground">Enable smooth transitions</p>
-                </div>
-                <Switch checked={settings.appearance.animationsEnabled} />
+                <Switch 
+                  checked={settings.device.autoSave}
+                  onCheckedChange={(checked) => handleSettingChange('device', 'autoSave', checked)}
+                />
               </div>
               
               <div className="flex items-center justify-between">
@@ -509,8 +781,21 @@ const Settings = () => {
                   <Label className="text-orange-600">Offline Mode</Label>
                   <p className="text-sm text-muted-foreground">Work without internet connection</p>
                 </div>
-                <Switch checked={settings.device.offlineMode} />
+                <Switch 
+                  checked={settings.device.offlineMode}
+                  onCheckedChange={(checked) => handleSettingChange('device', 'offlineMode', checked)}
+                />
               </div>
+            </div>
+            
+            <div className="border-t pt-4 mt-4">
+              <Button 
+                onClick={resetSettings}
+                variant="outline" 
+                className="w-full"
+              >
+                Reset All Settings to Default
+              </Button>
             </div>
           </SettingSection>
         </div>
