@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
-import { Target, Calendar, TrendingUp, Edit, Trophy, Star, Briefcase, Plus } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Clock, Calendar, Target, Play, CheckCircle, FolderKanban, Edit, ClipboardList } from "lucide-react";
+import { format } from "date-fns";
+import PlanningFilters from "./PlanningFilters";
 
 interface PlanningBoardViewProps {
   goals: Goal[];
@@ -13,73 +14,132 @@ interface PlanningBoardViewProps {
   onEditItem: (item: Goal | Project) => void;
 }
 
-const PlanningBoardView = ({ contentType, onEditItem }: PlanningBoardViewProps) => {
-  const [items, setItems] = useState<(Goal | Project)[]>([]);
+interface GoalFilters {
+  category: string;
+  timeframe: string;
+  priority: string;
+  status: string;
+}
 
+interface ProjectFilters {
+  category: string;
+  status: string;
+}
+
+const PlanningBoardView: React.FC<PlanningBoardViewProps> = ({ 
+  contentType, 
+  onEditItem 
+}) => {
+  const [items, setItems] = useState<(Goal | Project)[]>([]);
+  const [filters, setFilters] = useState<GoalFilters | ProjectFilters>(
+    contentType === 'goals' 
+      ? { category: 'all', timeframe: 'all', priority: 'all', status: 'all' }
+      : { category: 'all', status: 'all' }
+  );
+
+  // Load data from localStorage based on contentType
   useEffect(() => {
-    if (contentType === 'goals') {
-      const savedGoals = localStorage.getItem('planningGoals');
-      if (savedGoals) {
-        setItems(JSON.parse(savedGoals));
-      }
-    } else {
-      const savedProjects = localStorage.getItem('planningProjects');
-      if (savedProjects) {
-        setItems(JSON.parse(savedProjects));
-      }
+    const storageKey = contentType === 'goals' ? 'planningGoals' : 'planningProjects';
+    const savedItems = localStorage.getItem(storageKey);
+    if (savedItems) {
+      setItems(JSON.parse(savedItems));
     }
   }, [contentType]);
 
+  // Reset filters when content type changes
+  useEffect(() => {
+    setFilters(
+      contentType === 'goals' 
+        ? { category: 'all', timeframe: 'all', priority: 'all', status: 'all' }
+        : { category: 'all', status: 'all' }
+    );
+  }, [contentType]);
+
+  const filteredItems = items.filter(item => {
+    if (filters.category !== 'all' && item.category !== filters.category) return false;
+    if (filters.status !== 'all' && item.status !== filters.status) return false;
+    
+    if (contentType === 'goals' && 'timeframe' in filters && 'priority' in filters) {
+      const goalFilters = filters as GoalFilters;
+      const goal = item as Goal;
+      if (goalFilters.timeframe !== 'all' && goal.timeframe !== goalFilters.timeframe) return false;
+      if (goalFilters.priority !== 'all' && goal.priority !== goalFilters.priority) return false;
+    }
+    
+    return true;
+  });
+
   const getStatusItems = (status: string) => {
-    return items.filter(item => item.status === status);
+    return filteredItems.filter(item => item.status === status);
+  };
+
+  const clearFilters = () => {
+    setFilters(
+      contentType === 'goals' 
+        ? { category: 'all', timeframe: 'all', priority: 'all', status: 'all' }
+        : { category: 'all', status: 'all' }
+    );
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'completed':
-        return 'from-emerald-500 to-teal-600';
+        return 'text-emerald-500';
       case 'in-progress':
-        return 'from-primary to-orange-600';
+        return 'text-primary';
       case 'not-started':
-        return 'from-slate-600 to-slate-700';
+        return 'text-slate-500';
       default:
-        return 'from-slate-600 to-slate-700';
+        return 'text-slate-500';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'completed':
-        return Trophy;
+        return CheckCircle;
       case 'in-progress':
-        return TrendingUp;
+        return Play;
       case 'not-started':
-        return contentType === 'goals' ? Target : Briefcase;
+        return contentType === 'goals' ? Target : FolderKanban;
       default:
-        return contentType === 'goals' ? Target : Briefcase;
+        return contentType === 'goals' ? Target : FolderKanban;
     }
   };
 
   const columns = [
-    { id: 'not-started', title: 'Not Started', status: 'not-started' },
-    { id: 'in-progress', title: 'In Progress', status: 'in-progress' },
-    { id: 'completed', title: 'Completed', status: 'completed' }
+    { 
+      status: 'not-started', 
+      title: 'Not Started', 
+      icon: contentType === 'goals' ? Target : FolderKanban,
+      color: 'text-slate-500'
+    },
+    { 
+      status: 'in-progress', 
+      title: 'In Progress', 
+      icon: Play,
+      color: 'text-primary'
+    },
+    { 
+      status: 'completed', 
+      title: 'Completed', 
+      icon: CheckCircle,
+      color: 'text-emerald-500'
+    }
   ];
 
   const renderCard = (item: Goal | Project) => {
     const StatusIcon = getStatusIcon(item.status);
     
     return (
-      <Card key={item.id} className="bg-slate-900/50 border-slate-700/30 backdrop-blur-sm hover:bg-slate-800/50 transition-all duration-300 group cursor-pointer">
+      <Card key={item.id} className="bg-slate-900/50 border-slate-700 hover:bg-slate-800/50 transition-colors group">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-r ${getStatusColor(item.status)} shadow-lg`}>
-                <StatusIcon className="h-5 w-5 text-white" />
-              </div>
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <StatusIcon className={`h-4 w-4 ${getStatusColor(item.status)} flex-shrink-0`} />
               <div className="flex-1 min-w-0">
-                <CardTitle className="text-sm font-semibold text-white leading-tight truncate">{item.title}</CardTitle>
-                <p className="text-xs text-slate-400 mt-1">{item.category}</p>
+                <CardTitle className="text-sm font-semibold text-white truncate">{item.title}</CardTitle>
+                <p className="text-xs text-slate-400 capitalize">{item.category}</p>
               </div>
             </div>
             
@@ -87,7 +147,7 @@ const PlanningBoardView = ({ contentType, onEditItem }: PlanningBoardViewProps) 
               variant="ghost"
               size="sm"
               onClick={() => onEditItem(item)}
-              className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-slate-700/50 text-slate-400 hover:text-white"
+              className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
             >
               <Edit className="h-3 w-3" />
             </Button>
@@ -96,10 +156,9 @@ const PlanningBoardView = ({ contentType, onEditItem }: PlanningBoardViewProps) 
         
         <CardContent className="space-y-3">
           {item.description && (
-            <p className="text-xs text-slate-300 leading-relaxed line-clamp-2">{item.description}</p>
+            <p className="text-xs text-slate-300 line-clamp-2">{item.description}</p>
           )}
           
-          {/* Progress */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-slate-400">Progress</span>
@@ -108,18 +167,17 @@ const PlanningBoardView = ({ contentType, onEditItem }: PlanningBoardViewProps) 
             <Progress value={item.progress} className="h-1.5" />
           </div>
           
-          {/* Footer */}
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center justify-between pt-2 text-xs text-slate-400">
             {item.endDate && (
-              <div className="flex items-center gap-1 text-slate-400 text-xs">
+              <div className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                <span>{new Date(item.endDate).toLocaleDateString()}</span>
+                <span>{format(new Date(item.endDate), "MMM dd")}</span>
               </div>
             )}
             
             {'milestones' in item && item.milestones && item.milestones.length > 0 && (
-              <div className="flex items-center gap-1 text-slate-400 text-xs">
-                <Star className="h-3 w-3 text-primary" />
+              <div className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
                 <span>{item.milestones.filter(m => m.completed).length}/{item.milestones.length}</span>
               </div>
             )}
@@ -131,61 +189,87 @@ const PlanningBoardView = ({ contentType, onEditItem }: PlanningBoardViewProps) 
 
   if (items.length === 0) {
     return (
-      <Card className="relative overflow-hidden bg-slate-900/50 border-slate-700/30 backdrop-blur-sm">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-primary/30 via-emerald-500/20 to-transparent rounded-full blur-3xl" />
-        </div>
-        
-        <CardContent className="relative z-10 pt-16 pb-16 flex flex-col items-center justify-center text-center">
-          <div className="flex items-center justify-center w-20 h-20 rounded-3xl bg-gradient-to-r from-primary to-orange-600 shadow-2xl mb-6">
-            {contentType === 'goals' ? <Target className="h-10 w-10 text-white" /> : <Briefcase className="h-10 w-10 text-white" />}
+      <Card className="bg-slate-900/50 border-slate-700">
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <div className="text-center space-y-4">
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-800 mb-4">
+              {contentType === 'goals' ? (
+                <Target className="h-8 w-8 text-primary" />
+              ) : (
+                <ClipboardList className="h-8 w-8 text-secondary" />
+              )}
+            </div>
+            <h3 className="text-xl font-semibold text-white">
+              No {contentType} yet
+            </h3>
+            <p className="text-slate-400 max-w-md">
+              Create your first {contentType === 'goals' ? 'goal' : 'project'} to get started on your planning journey.
+            </p>
           </div>
-          <h3 className="text-2xl font-bold text-white mb-3">No {contentType === 'goals' ? 'Goals' : 'Projects'} Yet</h3>
-          <p className="text-slate-400 text-lg max-w-md">
-            Start organizing your {contentType === 'goals' ? 'goals' : 'projects'} using this board view to track progress efficiently.
-          </p>
         </CardContent>
       </Card>
     );
   }
 
+  if (filteredItems.length === 0) {
+    return (
+      <div className="space-y-6">
+        <PlanningFilters
+          filterType={contentType}
+          filters={filters}
+          onFiltersChange={setFilters}
+          onClearFilters={clearFilters}
+        />
+        <Card className="bg-slate-900/50 border-slate-700">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <div className="text-center space-y-4">
+              <h3 className="text-xl font-semibold text-white">
+                No {contentType} match your filters
+              </h3>
+              <p className="text-slate-400 max-w-md">
+                Try adjusting your filters or create a new {contentType === 'goals' ? 'goal' : 'project'}.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      {/* Board View */}
+      <PlanningFilters
+        filterType={contentType}
+        filters={filters}
+        onFiltersChange={setFilters}
+        onClearFilters={clearFilters}
+      />
+      
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {columns.map((column) => {
-          const columnItems = getStatusItems(column.status);
+          const statusItems = getStatusItems(column.status);
+          const StatusIcon = column.icon;
           
           return (
-            <div key={column.id} className="space-y-4">
-              {/* Column Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-xl bg-gradient-to-r ${getStatusColor(column.status)} shadow-lg`}>
-                    <span className="text-white text-sm font-bold">{columnItems.length}</span>
-                  </div>
-                  <h3 className="text-lg font-semibold text-white">{column.title}</h3>
-                </div>
-                <Badge variant="secondary" className="bg-slate-800/50 text-slate-300 border-slate-700/50">
-                  {columnItems.length}
-                </Badge>
-              </div>
-              
-              {/* Column Content */}
-              <div className="space-y-3 min-h-[400px]">
-                {columnItems.length > 0 ? (
-                  columnItems.map(renderCard)
-                ) : (
-                  <Card className="bg-slate-900/30 border-slate-700/20 border-dashed">
-                    <CardContent className="pt-8 pb-8 flex flex-col items-center justify-center text-center">
-                      <div className="text-slate-500 text-sm">
-                        No {contentType === 'goals' ? 'goals' : 'projects'} {column.title.toLowerCase()}
-                      </div>
-                    </CardContent>
-                  </Card>
+            <Card key={column.status} className="bg-slate-900/50 border-slate-700">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-white">
+                  <StatusIcon className={`h-5 w-5 ${column.color}`} />
+                  {column.title}
+                  <Badge variant="secondary" className="ml-auto bg-slate-700 text-slate-300">
+                    {statusItems.length}
+                  </Badge>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {statusItems.map((item) => renderCard(item))}
+                {statusItems.length === 0 && (
+                  <p className="text-slate-400 text-center py-8 text-sm">
+                    No {column.title.toLowerCase()} {contentType}
+                  </p>
                 )}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           );
         })}
       </div>

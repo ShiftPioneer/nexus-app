@@ -47,11 +47,11 @@ const ProjectCreationDialog: React.FC<ProjectCreationDialogProps> = ({
 
   useEffect(() => {
     if (initialProject) {
-      setTitle(initialProject.title);
-      setDescription(initialProject.description);
+      setTitle(initialProject.title || "");
+      setDescription(initialProject.description || "");
       setCategory(initialProject.category);
-      setStartDate(initialProject.startDate);
-      setEndDate(initialProject.endDate);
+      setStartDate(new Date(initialProject.startDate));
+      setEndDate(new Date(initialProject.endDate));
       setBlockingProjects(initialProject.blockingProjects || []);
       setBlockedByProjects(initialProject.blockedByProjects || []);
     } else {

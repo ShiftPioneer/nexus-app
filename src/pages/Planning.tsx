@@ -177,7 +177,7 @@ const Planning = () => {
               <PlanningBoardView 
                 goals={goals}
                 projects={projects}
-                contentType={activeTab === 'goals' ? 'goals' : 'projects'}
+                contentType="projects"
                 onEditItem={handleEditItem}
               />
             </div>
@@ -188,7 +188,7 @@ const Planning = () => {
               <PlanningListView 
                 goals={goals}
                 projects={projects}
-                contentType={activeTab === 'goals' ? 'goals' : 'projects'}
+                contentType="projects"
                 onEditItem={handleEditItem}
                 onUpdateProgress={handleUpdateProgress}
               />
