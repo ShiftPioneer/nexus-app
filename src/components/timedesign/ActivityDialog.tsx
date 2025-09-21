@@ -177,13 +177,16 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
 
   // Auto-adjust end date when start date changes
   useEffect(() => {
-    if (watchStartDate && watchEndDate) {
-      // If end date is before start date, set end date to start date
-      if (watchEndDate < watchStartDate) {
+    if (watchStartDate) {
+      // For new activities, always set end date to match start date
+      // For existing activities, only adjust if end date is before start date
+      const shouldAutoAdjust = !activity?.id || (watchEndDate && watchEndDate < watchStartDate);
+      
+      if (shouldAutoAdjust) {
         form.setValue('endDate', watchStartDate);
       }
     }
-  }, [watchStartDate, watchEndDate, form]);
+  }, [watchStartDate, watchEndDate, form, activity?.id]);
 
   // Smart color adjustment based on category - only for new activities without existing color preference
   useEffect(() => {
@@ -391,7 +394,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
-                            className="text-white"
+                            className={cn("text-white pointer-events-auto")}
                             classNames={{
                               day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary",
                               day_today: "bg-primary/20 text-primary-foreground",
@@ -450,7 +453,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
-                            className="text-white"
+                            className={cn("text-white pointer-events-auto")}
                              classNames={{
                               day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary",
                               day_today: "bg-primary/20 text-primary-foreground",
@@ -557,7 +560,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                               selected={field.value}
                               onSelect={field.onChange}
                               initialFocus
-                              className="text-white"
+                              className={cn("text-white pointer-events-auto")}
                             />
                           </PopoverContent>
                         </Popover>
