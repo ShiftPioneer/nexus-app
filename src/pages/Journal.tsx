@@ -114,7 +114,8 @@ const Journal = () => {
       opacity: 1
     }} transition={{
       duration: 0.5
-    }} className="animate-fade-in space-y-8 min-h-screen bg-slate-900 rounded-md">
+    }} className="page-container">
+        <div className="page-content">
         <UnifiedPageHeader title="Journal" description="Reflect, track progress, and gain insights through journaling" icon={navigationIcons.journal} gradient="from-purple-500 via-pink-500 to-rose-500" />
 
         {/* Enhanced Journal Overview */}
@@ -255,6 +256,7 @@ const Journal = () => {
             </motion.div>
           </ModernTabsContent>
         </ModernTabs>
+        </div>
       </motion.div>
     </ModernAppLayout>;
 };

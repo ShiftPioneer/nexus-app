@@ -35,7 +35,8 @@ const Energy = () => {
 
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-8 bg-slate-900 min-h-full">
+      <div className="page-container">
+        <div className="page-content">
         <UnifiedPageHeader
           title="Wellness"
           description="Track your workouts, analyze performance, and achieve your fitness goals"
@@ -69,6 +70,7 @@ const Energy = () => {
             <AnalyticsTab />
           </ModernTabsContent>
         </ModernTabs>
+        </div>
       </div>
     </ModernAppLayout>
   );

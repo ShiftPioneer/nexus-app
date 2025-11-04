@@ -43,24 +43,24 @@ const Dashboard = () => {
   return (
     <ModernAppLayout>
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="animate-fade-in space-y-6 bg-slate-900 min-h-full">
-          
-          
-          <WelcomeSection />
-          <StatsSection />
-          
-          {/* Responsive Grid Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            {/* Main Content Area - Responsive columns */}
-            <div className="lg:col-span-3 space-y-6">
-              <TasksSection />
-              <GoalSection />
-            </div>
+        <div className="page-container">
+          <div className="page-content">
+            <WelcomeSection />
+            <StatsSection />
             
-            {/* Sidebar Content - Full width on mobile, 2 columns on desktop */}
-            <div className="lg:col-span-2 space-y-6">
-              <HabitsSection />
-              <JournalSection />
+            {/* Responsive Grid Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              {/* Main Content Area - Responsive columns */}
+              <div className="lg:col-span-3 section-spacing">
+                <TasksSection />
+                <GoalSection />
+              </div>
+              
+              {/* Sidebar Content - Full width on mobile, 2 columns on desktop */}
+              <div className="lg:col-span-2 section-spacing">
+                <HabitsSection />
+                <JournalSection />
+              </div>
             </div>
           </div>
         </div>

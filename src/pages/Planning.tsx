@@ -123,13 +123,14 @@ const Planning = () => {
 
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-8">
-        <UnifiedPageHeader
-          title="Planning System"
-          description="Set goals, manage projects, and track your progress toward success"
-          icon={navigationIcons.planning}
-          gradient="from-emerald-500 via-teal-500 to-cyan-500"
-        />
+      <div className="page-container">
+        <div className="page-content">
+          <UnifiedPageHeader
+            title="Planning System"
+            description="Set goals, manage projects, and track your progress toward success"
+            icon={navigationIcons.planning}
+            gradient="from-emerald-500 via-teal-500 to-cyan-500"
+          />
         <div className="flex justify-end gap-3">
           <UnifiedActionButton
             onClick={handleCreateGoal}
@@ -242,6 +243,7 @@ const Planning = () => {
             setEditingItem(null);
           }}
         />
+        </div>
       </div>
     </ModernAppLayout>
   );

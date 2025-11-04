@@ -145,7 +145,8 @@ const Habits = () => {
 
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-8 h-full">
+      <div className="page-container">
+        <div className="page-content">
         <UnifiedPageHeader
           title="Habits"
           description="Track your consistency and build unstoppable momentum"
@@ -322,9 +323,10 @@ const Habits = () => {
             />
           </ModernTabsContent>
         </ModernTabs>
+        </div>
       </div>
       
-      <HabitCreationDialog 
+      <HabitCreationDialog
         open={showHabitDialog} 
         onOpenChange={setShowHabitDialog} 
         onHabitCreate={handleCreateHabit} 

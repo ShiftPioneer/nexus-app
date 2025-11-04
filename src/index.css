@@ -161,6 +161,8 @@
   }
 }
 
+/* ==================== PHASE 1: STANDARDIZED UTILITIES ==================== */
+
 /* Enhanced scrollbar styling */
 .scrollbar-none {
   -ms-overflow-style: none;
@@ -187,6 +189,81 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background: #64748b;
+}
+
+/* Standardized Card Styles - Phase 1 */
+.card-primary {
+  @apply bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl shadow-xl;
+}
+
+.card-secondary {
+  @apply bg-slate-800/40 backdrop-blur-sm border border-slate-600/30 rounded-xl shadow-lg;
+}
+
+.card-interactive {
+  @apply bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl shadow-xl;
+  @apply hover:bg-slate-800/60 hover:border-slate-600/70 hover:scale-[1.02] hover:-translate-y-1;
+  @apply transition-all duration-300 ease-out cursor-pointer;
+}
+
+.card-glass {
+  @apply bg-slate-900/30 backdrop-blur-md border border-slate-700/30 rounded-2xl shadow-lg;
+}
+
+.card-elevated {
+  @apply bg-slate-800/70 backdrop-blur-lg border border-slate-600/50 rounded-2xl shadow-2xl;
+}
+
+/* Standardized Page Layout */
+.page-container {
+  @apply bg-slate-900 min-h-full animate-fade-in;
+}
+
+.page-content {
+  @apply space-y-8;
+}
+
+/* Standardized Section Spacing */
+.section-spacing {
+  @apply space-y-6;
+}
+
+.section-spacing-compact {
+  @apply space-y-4;
+}
+
+/* Standardized Typography Classes */
+.page-title-dashboard {
+  @apply text-4xl font-bold tracking-tight text-white;
+}
+
+.page-title-primary {
+  @apply text-3xl font-bold tracking-tight text-white;
+}
+
+.page-title-secondary {
+  @apply text-2xl font-bold tracking-tight text-white;
+}
+
+.section-title {
+  @apply text-xl font-semibold text-white;
+}
+
+.text-description {
+  @apply text-sm text-slate-300;
+}
+
+.text-muted-subtle {
+  @apply text-sm text-slate-400;
+}
+
+/* Standardized Stat Display */
+.stat-value {
+  @apply text-2xl font-bold text-white;
+}
+
+.stat-label {
+  @apply text-sm text-slate-400;
 }
 
 /* Focus management */
