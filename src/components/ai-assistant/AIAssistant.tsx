@@ -103,7 +103,9 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
       }, 1000 + Math.random() * 2000);
 
     } catch (error) {
-      console.error('AI Assistant error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.error('AI Assistant error:', error);
+      }
       toast({
         title: "Error",
         description: "Failed to get response from AI assistant",

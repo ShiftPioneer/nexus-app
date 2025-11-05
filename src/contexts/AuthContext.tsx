@@ -23,13 +23,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const getSession = async () => {
       try {
         const { data, error } = await supabase.auth.getSession();
-        if (error) {
+        if (error && process.env.NODE_ENV === 'development') {
           console.error('Error getting session:', error);
         }
         setSession(data?.session || null);
         setUser(data?.session?.user || null);
       } catch (err) {
-        console.error('Unexpected error getting session:', err);
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Unexpected error getting session:', err);
+        }
       } finally {
         setLoading(false);
       }
@@ -61,38 +63,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const signOut = () => {
-    // Before signing out, save all user data to localStorage
-    const saveUserData = () => {
+    // Clear all sensitive user data from localStorage on logout
+    const clearUserData = () => {
       try {
-        // Save tasks
-        const tasks = localStorage.getItem('gtdTasks');
+        // Clear all app-specific data
+        localStorage.removeItem('gtdTasks');
+        localStorage.removeItem('planningGoals');
+        localStorage.removeItem('planningProjects');
+        localStorage.removeItem('userHabits');
+        localStorage.removeItem('focusSessions');
+        localStorage.removeItem('userProfile');
+        localStorage.removeItem('mindset-core-values');
+        localStorage.removeItem('mindset-missions');
+        localStorage.removeItem('mindset-key-beliefs');
+        localStorage.removeItem('mindset-affirmations');
+        localStorage.removeItem('mindset-vision-items');
+        localStorage.removeItem('timedesign-activities');
+        localStorage.removeItem('tasks');
         
-        // Save goals
-        const goals = localStorage.getItem('planningGoals');
-        
-        // Save projects
-        const projects = localStorage.getItem('planningProjects');
-        
-        // Save other important data as needed
-        
-        // Save all to a user-specific key if needed
-        if (user?.id) {
-          localStorage.setItem(`userData-${user.id}`, JSON.stringify({
-            tasks,
-            goals,
-            projects,
-            // Add other data as needed
-          }));
+        if (process.env.NODE_ENV === 'development') {
+          console.log("User data cleared from localStorage");
         }
-        
-        console.log("All user data saved before signing out");
       } catch (error) {
-        console.error("Failed to save user data before signing out:", error);
+        if (process.env.NODE_ENV === 'development') {
+          console.error("Failed to clear user data:", error);
+        }
       }
     };
 
-    // Call saveUserData before actually signing out
-    saveUserData();
+    // Clear user data before signing out
+    clearUserData();
 
     return supabase.auth.signOut();
   };
