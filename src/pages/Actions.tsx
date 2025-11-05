@@ -133,8 +133,9 @@ const ActionsContent = () => {
   ];
 
   return (
-    <div className="animate-fade-in space-y-8">
-      <UnifiedPageHeader
+    <div className="page-container">
+      <div className="page-content">
+        <UnifiedPageHeader
         title="Actions"
         description="Manage your tasks and focus on what matters most"
         icon={navigationIcons.actions}
@@ -163,13 +164,14 @@ const ActionsContent = () => {
         />
       </ModernTabs>
 
-      <TaskCreationDialog
-        open={isCreatingTask}
-        onOpenChange={setIsCreatingTask}
-        onCreateTask={handleCreateTaskWrapper}
-        taskType={taskType}
-        editingTask={editingTask}
-      />
+        <TaskCreationDialog
+          open={isCreatingTask}
+          onOpenChange={setIsCreatingTask}
+          onCreateTask={handleCreateTaskWrapper}
+          taskType={taskType}
+          editingTask={editingTask}
+        />
+      </div>
     </div>
   );
 };

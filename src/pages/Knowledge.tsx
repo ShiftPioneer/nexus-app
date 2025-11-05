@@ -35,8 +35,9 @@ const Knowledge = () => {
   
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-8 max-w-full overflow-hidden">
-        <UnifiedPageHeader
+      <div className="page-container">
+        <div className="page-content">
+          <UnifiedPageHeader
           title="Knowledge"
           description="Track your learning progress and manage your educational resources"
           icon={navigationIcons.knowledge}
@@ -74,8 +75,9 @@ const Knowledge = () => {
             <div className="max-w-6xl mx-auto">
               <BookshelfTab />
             </div>
-          </ModernTabsContent>
-        </ModernTabs>
+            </ModernTabsContent>
+          </ModernTabs>
+        </div>
       </div>
     </ModernAppLayout>
   );

@@ -51,13 +51,14 @@ const GTD = () => {
   return (
     <ModernAppLayout>
       <GTDProvider>
-        <motion.div 
-          className="animate-fade-in space-y-8 min-h-screen bg-slate-900" 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          transition={{ duration: 0.5 }}
-        >
-          <UnifiedPageHeader
+        <div className="page-container">
+          <motion.div 
+            className="page-content" 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ duration: 0.5 }}
+          >
+            <UnifiedPageHeader
             title="Getting Things Done"
             description="Master your workflow with the proven GTD methodology"
             icon={navigationIcons.gtd}
@@ -129,7 +130,8 @@ const GTD = () => {
               </motion.div>
             </ModernTabsContent>
           </ModernTabs>
-        </motion.div>
+          </motion.div>
+        </div>
       </GTDProvider>
     </ModernAppLayout>
   );

@@ -68,14 +68,14 @@ const Mindset = () => {
     color: "text-red-400"
   }];
   return <ModernAppLayout>
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+      <div className="page-container">
         <motion.div initial={{
         opacity: 0
       }} animate={{
         opacity: 1
       }} transition={{
         duration: 0.5
-      }} className="animate-fade-in space-y-8 p-6 bg-slate-900">
+      }} className="page-content">
           <UnifiedPageHeader title="Mindset" description="Shape your mindset, clarify your vision, and align with your values" icon={Brain} gradient="from-purple-500 via-pink-500 to-rose-500" />
 
           {/* Enhanced Progress Overview */}

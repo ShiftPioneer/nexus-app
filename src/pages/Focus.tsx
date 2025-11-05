@@ -82,8 +82,9 @@ const FocusContent = () => {
   ];
 
   return (
-    <div className="space-y-8 max-w-full animate-fade-in">
-      <UnifiedPageHeader
+    <div className="page-container">
+      <div className="page-content">
+        <UnifiedPageHeader
         title="Focus"
         description="Enhance your productivity with focused work sessions and proven techniques"
         icon={Brain}
@@ -149,8 +150,9 @@ const FocusContent = () => {
           <div className="max-w-4xl mx-auto">
             <FocusTechniques onStartTechnique={startTechnique} />
           </div>
-        </ModernTabsContent>
-      </ModernTabs>
+          </ModernTabsContent>
+        </ModernTabs>
+      </div>
     </div>
   );
 };
