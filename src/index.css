@@ -520,6 +520,15 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 /* Modern Button Enhancements */
 .btn-primary {
   background: linear-gradient(135deg, #ff6500 0%, #ff8500 100%);
