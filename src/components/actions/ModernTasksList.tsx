@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { EmptyState } from "@/components/ui/empty-state";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Plus, MoreHorizontal, Calendar, Clock, Tag, Edit, Trash2, Archive } from "lucide-react";
 import { motion } from "framer-motion";
@@ -95,28 +96,20 @@ const ModernTasksList: React.FC<ModernTasksListProps> = ({
 
   if (filteredTasks.length === 0) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center py-12"
-      >
-        <Card className="bg-slate-950/80 backdrop-blur-sm border-slate-700/50">
-          <CardContent className="p-8">
-            <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">
-              <Plus className="h-8 w-8 text-slate-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">No Tasks Yet</h3>
-            <p className="text-slate-400 mb-6">{emptyMessage}</p>
-            <Button 
-              onClick={onAddTask}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add Your First Task
-            </Button>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <EmptyState
+        icon={Plus}
+        title="No Tasks Yet"
+        description={emptyMessage}
+        action={
+          <Button 
+            onClick={onAddTask}
+            className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white hover:from-blue-600 hover:to-indigo-700"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Your First Task
+          </Button>
+        }
+      />
     );
   }
 

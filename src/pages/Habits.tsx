@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import { UnifiedActionButton } from "@/components/ui/unified-action-button";
+import { EmptyState } from "@/components/ui/empty-state";
 import HabitCreationDialog from "@/components/habits/HabitCreationDialog";
 import ModernHabitCard from "@/components/habits/ModernHabitCard";
 import HabitStreakCard from "@/components/habits/HabitStreakCard";
@@ -268,31 +269,29 @@ const Habits = () => {
 
             {/* Habits Grid */}
             {filteredHabits.length === 0 ? (
-              <Card className="border-slate-700 bg-slate-900/40">
-                <CardContent className="pt-6 flex flex-col items-center justify-center min-h-[300px]">
-                  <Award className="h-16 w-16 text-slate-600 mb-4" />
-                  <h3 className="text-xl font-semibold text-white mb-2">
-                    {searchTerm || filterCategory !== "all" ? "No matching habits" : "No habits yet"}
-                  </h3>
-                  <p className="text-slate-400 text-center max-w-md mb-4">
-                    {searchTerm || filterCategory !== "all" 
-                      ? "Try adjusting your search or filter criteria."
-                      : "Start by creating your first habit to track your consistency."
-                    }
-                  </p>
-                  {!searchTerm && filterCategory === "all" && (
-                    <Button 
+              <EmptyState
+                icon={Award}
+                title={searchTerm || filterCategory !== "all" ? "No matching habits" : "No habits yet"}
+                description={
+                  searchTerm || filterCategory !== "all" 
+                    ? "Try adjusting your search or filter criteria."
+                    : "Start by creating your first habit to track your consistency."
+                }
+                action={
+                  !searchTerm && filterCategory === "all" ? (
+                    <UnifiedActionButton
                       onClick={() => {
                         setSelectedHabit(null);
                         setShowHabitDialog(true);
                       }}
-                      className="bg-primary hover:bg-primary/90 text-white border-slate-700"
+                      icon={Plus}
+                      variant="primary"
                     >
                       Create First Habit
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+                    </UnifiedActionButton>
+                  ) : undefined
+                }
+              />
             ) : (
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredHabits.map(habit => (

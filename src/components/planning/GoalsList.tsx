@@ -1,8 +1,10 @@
 
 import React, { useState, useEffect } from "react";
+import { Target } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import GoalCard from "./goals/GoalCard";
 import EmptyGoalsView from "./goals/EmptyGoalsView";
+import { EmptyState } from "@/components/ui/empty-state";
 import PlanningFilters from "./PlanningFilters";
 
 interface GoalsListProps {
@@ -87,10 +89,11 @@ const GoalsList: React.FC<GoalsListProps> = ({ onCreateGoal, onEditGoal, onDelet
       />
       
       {filteredGoals.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-slate-400 text-lg">No goals match the selected filters</p>
-          <p className="text-slate-500 text-sm mt-2">Try adjusting your filters or create a new goal</p>
-        </div>
+        <EmptyState
+          icon={Target}
+          title="No goals match the selected filters"
+          description="Try adjusting your filters or create a new goal"
+        />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredGoals.map((goal) => (

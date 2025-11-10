@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, Plus, Flame, Target } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -136,23 +137,21 @@ const HabitsSection = () => {
             ))}
           </div>
         ) : (
-          <div className="text-center py-6 flex flex-col items-center justify-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-success/10 flex items-center justify-center border border-success/20">
-              <Target className="h-8 w-8 text-success" />
-            </div>
-            <h3 className="text-base font-semibold text-white mb-1">Forge New Habits</h3>
-            <p className="text-sm text-slate-400 mb-4 max-w-xs mx-auto">
-              Small, consistent actions lead to remarkable results. Start today.
-            </p>
-            <Link to="/habits">
-              <Button 
-                className="bg-success hover:bg-success/90 text-success-foreground px-4 py-2 h-auto font-medium shadow-lg shadow-success/20 hover:shadow-success/30 transition-all duration-200"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Create First Habit
-              </Button>
-            </Link>
-          </div>
+          <EmptyState
+            icon={Target}
+            title="Forge New Habits"
+            description="Small, consistent actions lead to remarkable results. Start today."
+            action={
+              <Link to="/habits">
+                <Button 
+                  className="bg-success hover:bg-success/90 text-success-foreground px-4 py-2 h-auto font-medium shadow-lg shadow-success/20 hover:shadow-success/30 transition-all duration-200"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Habit
+                </Button>
+              </Link>
+            }
+          />
         )}
       </CardContent>
     </Card>
