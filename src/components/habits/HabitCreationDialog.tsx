@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormDescription } from "@/components/ui/form";
+import { EnhancedButton } from "@/components/ui/enhanced-button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -38,6 +39,8 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
   onHabitCreate,
   initialHabit = null
 }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const form = useForm<HabitFormValues>({
     resolver: zodResolver(habitSchema),
     defaultValues: {
@@ -51,26 +54,31 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
     },
   });
 
-  const handleSubmit = (values: HabitFormValues) => {
-    const habit: Habit = {
-      id: initialHabit?.id || `habit-${Date.now()}`,
-      title: values.title,
-      category: values.category as HabitCategory,
-      streak: initialHabit?.streak || 0,
-      target: values.target,
-      status: initialHabit?.status || "pending",
-      completionDates: initialHabit?.completionDates || [],
-      type: values.type,
-      createdAt: initialHabit?.createdAt || new Date(),
-      duration: values.duration,
-      scoreValue: values.scoreValue,
-      penaltyValue: values.penaltyValue
-    };
-    onHabitCreate(habit);
-    if (!initialHabit) {
-      form.reset();
+  const handleSubmit = async (values: HabitFormValues) => {
+    setIsSubmitting(true);
+    try {
+      const habit: Habit = {
+        id: initialHabit?.id || `habit-${Date.now()}`,
+        title: values.title,
+        category: values.category as HabitCategory,
+        streak: initialHabit?.streak || 0,
+        target: values.target,
+        status: initialHabit?.status || "pending",
+        completionDates: initialHabit?.completionDates || [],
+        type: values.type,
+        createdAt: initialHabit?.createdAt || new Date(),
+        duration: values.duration,
+        scoreValue: values.scoreValue,
+        penaltyValue: values.penaltyValue
+      };
+      await onHabitCreate(habit);
+      if (!initialHabit) {
+        form.reset();
+      }
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
     }
-    onOpenChange(false);
   };
 
   const categoryOptions = [
@@ -329,15 +337,23 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
         </Form>
         
         <DialogFooter className="pt-6">
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-slate-600 text-slate-300 hover:bg-slate-800">
+          <Button 
+            type="button" 
+            variant="outline" 
+            onClick={() => onOpenChange(false)} 
+            disabled={isSubmitting}
+            className="border-slate-600 text-slate-300 hover:bg-slate-800"
+          >
             Cancel
           </Button>
-          <Button 
+          <EnhancedButton 
             onClick={form.handleSubmit(handleSubmit)}
-            className="bg-gradient-to-r from-primary to-orange-500 hover:from-primary/90 hover:to-orange-500/90 text-white font-semibold"
+            isLoading={isSubmitting}
+            icon={Target}
+            variant="primary"
           >
             {initialHabit ? "Save Changes" : "Create Habit"}
-          </Button>
+          </EnhancedButton>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Plus, BookText, Search, Filter, Calendar, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import JournalEntryCard from "./JournalEntryCard";
@@ -124,25 +125,24 @@ const JournalEntriesList: React.FC<JournalEntriesListProps> = ({
                   </motion.div>
                 ))
               ) : (
-                <div className="text-center py-12 flex flex-col items-center justify-center">
-                  <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-slate-800/50 flex items-center justify-center border border-slate-700">
-                    <BookText className="h-10 w-10 text-slate-400" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">No entries found</h3>
-                  <p className="text-slate-400 mb-6 max-w-md mx-auto">
-                    {activeTab === "all" 
+                <EmptyState
+                  icon={BookText}
+                  title="No entries found"
+                  description={
+                    activeTab === "all" 
                       ? "Start your journaling journey by creating your first entry." 
                       : "No entries match your current filter. Try adjusting your search or create a new entry."
-                    }
-                  </p>
-                  <Button
-                    onClick={onNewEntry}
-                    className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Your First Entry
-                  </Button>
-                </div>
+                  }
+                  action={
+                    <Button
+                      onClick={onNewEntry}
+                      className="bg-primary hover:bg-primary/90 text-white shadow-lg shadow-primary/20"
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Create Your First Entry
+                    </Button>
+                  }
+                />
               )}
             </div>
           </CardContent>

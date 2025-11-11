@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { EnhancedButton } from "@/components/ui/enhanced-button";
 import { CalendarIcon, Plus, X, Target } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -66,6 +67,7 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
   const [newMilestone, setNewMilestone] = useState('');
   const [newTag, setNewTag] = useState('');
   const [showTimeframeQuestions, setShowTimeframeQuestions] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialGoal) {
@@ -152,36 +154,42 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
     }));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!formData.title || !formData.category || !formData.timeframe) return;
 
-    // Convert reflection answers to the correct array format for timeframeAnswers
-    const timeframeAnswers = Object.entries(formData.reflectionAnswers || {}).map(([_, answer], index) => ({
-      questionIndex: index,
-      answer: answer || ''
-    }));
+    setIsSubmitting(true);
+    try {
+      // Convert reflection answers to the correct array format for timeframeAnswers
+      const timeframeAnswers = Object.entries(formData.reflectionAnswers || {}).map(([_, answer], index) => ({
+        questionIndex: index,
+        answer: answer || ''
+      }));
 
-    const goal: Goal = {
-      id: initialGoal?.id || `goal-${Date.now()}`,
-      title: formData.title,
-      description: formData.description,
-      category: formData.category as Goal['category'],
-      timeframe: formData.timeframe as Goal['timeframe'],
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-      priority: formData.priority,
-      status: formData.status,
-      progress: formData.progress,
-      milestones: formData.milestones,
-      tags: formData.tags,
-      motivationalQuotes: formData.motivationalQuotes,
-      reflectionAnswers: formData.reflectionAnswers,
-      timeframeAnswers: timeframeAnswers,
-      createdAt: initialGoal?.createdAt || new Date(),
-      updatedAt: new Date()
-    };
+      const goal: Goal = {
+        id: initialGoal?.id || `goal-${Date.now()}`,
+        title: formData.title,
+        description: formData.description,
+        category: formData.category as Goal['category'],
+        timeframe: formData.timeframe as Goal['timeframe'],
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        priority: formData.priority,
+        status: formData.status,
+        progress: formData.progress,
+        milestones: formData.milestones,
+        tags: formData.tags,
+        motivationalQuotes: formData.motivationalQuotes,
+        reflectionAnswers: formData.reflectionAnswers,
+        timeframeAnswers: timeframeAnswers,
+        createdAt: initialGoal?.createdAt || new Date(),
+        updatedAt: new Date()
+      };
 
-    onGoalCreate(goal);
+      await onGoalCreate(goal);
+      onOpenChange(false);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -425,17 +433,20 @@ const GoalCreationDialog: React.FC<GoalCreationDialogProps> = ({
             <Button
               onClick={() => onOpenChange(false)}
               variant="outline"
+              disabled={isSubmitting}
               className="border-slate-600 text-slate-300 hover:bg-slate-700"
             >
               Cancel
             </Button>
-            <Button
+            <EnhancedButton
               onClick={handleSubmit}
               disabled={!formData.title || !formData.category || !formData.timeframe}
-              className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-600 hover:via-teal-600 hover:to-cyan-600 text-white shadow-lg"
+              isLoading={isSubmitting}
+              icon={Target}
+              variant="primary"
             >
               {initialGoal ? 'Update Goal' : 'Create Goal'}
-            </Button>
+            </EnhancedButton>
           </div>
         </div>
       </DialogContent>

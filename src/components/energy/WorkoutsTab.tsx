@@ -6,6 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { UnifiedActionButton } from "@/components/ui/unified-action-button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Plus, Dumbbell, Clock, Flame, Target, Calendar, TrendingUp, Award, Activity, Play, CheckCircle, Edit, Trash2, Star, Search, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 import { WorkoutDialog } from './WorkoutDialog';
@@ -258,28 +259,6 @@ export const WorkoutsTab = () => {
     const matchesFilter = filterStatus === "all" || workout.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
-  const EmptyState = () => <motion.div initial={{
-    opacity: 0,
-    y: 20
-  }} animate={{
-    opacity: 1,
-    y: 0
-  }} className="text-center py-16">
-      <Card className="bg-slate-950/90 border-slate-700/50 shadow-xl max-w-lg mx-auto">
-        <CardContent className="p-12">
-          <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary via-orange-500 to-red-500 flex items-center justify-center mx-auto mb-8 shadow-lg">
-            <Dumbbell className="h-12 w-12 text-white" />
-          </div>
-          <h3 className="text-2xl font-bold text-white mb-4">Start Your Fitness Journey</h3>
-          <p className="text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
-            Create your first workout plan and begin tracking your progress towards your fitness goals.
-          </p>
-          <UnifiedActionButton onClick={handleCreateWorkout} icon={Plus} variant="primary">
-            Create Your First Workout
-          </UnifiedActionButton>
-        </CardContent>
-      </Card>
-    </motion.div>;
   return <div className="space-y-8">
       {/* Header */}
       <motion.div initial={{
@@ -400,13 +379,24 @@ export const WorkoutsTab = () => {
         }} transition={{
           delay: 0.2
         }} className="space-y-6">
-            {filteredWorkouts.length === 0 && searchQuery ? <Card className="bg-slate-950/90 border-slate-700/50 shadow-xl">
-                <CardContent className="p-12 text-center">
-                  <Search className="h-16 w-16 text-slate-600 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">No workouts found</h3>
-                  <p className="text-slate-400 mb-6">Try adjusting your search terms or filters</p>
-                </CardContent>
-              </Card> : filteredWorkouts.length === 0 ? <EmptyState /> : filteredWorkouts.map(workout => <WorkoutCard key={workout.id} workout={workout} />)}
+            {filteredWorkouts.length === 0 && searchQuery ? (
+              <EmptyState
+                icon={Search}
+                title="No workouts found"
+                description="Try adjusting your search terms or filters"
+              />
+            ) : filteredWorkouts.length === 0 ? (
+              <EmptyState
+                icon={Dumbbell}
+                title="Start Your Fitness Journey"
+                description="Create your first workout plan and begin tracking your progress towards your fitness goals."
+                action={
+                  <UnifiedActionButton onClick={handleCreateWorkout} icon={Plus} variant="primary">
+                    Create Your First Workout
+                  </UnifiedActionButton>
+                }
+              />
+            ) : filteredWorkouts.map(workout => <WorkoutCard key={workout.id} workout={workout} />)}
           </motion.div>
         </TabsContent>
 

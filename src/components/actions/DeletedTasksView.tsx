@@ -1,6 +1,7 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EmptyState } from "@/components/ui/empty-state";
 import { AlertTriangle, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 import DeletedTaskCard from "./deleted/DeletedTaskCard";
@@ -33,23 +34,11 @@ const DeletedTasksView: React.FC<DeletedTasksViewProps> = ({
 }) => {
   if (tasks.length === 0) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="text-center py-12"
-      >
-        <Card className="bg-slate-950/80 backdrop-blur-sm border-slate-700/50">
-          <CardContent className="p-8">
-            <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">
-              <Trash2 className="h-8 w-8 text-slate-400" />
-            </div>
-            <h3 className="text-xl font-semibold text-white mb-2">No Deleted Tasks</h3>
-            <p className="text-slate-400">
-              Deleted tasks will appear here. You can restore them or permanently delete them.
-            </p>
-          </CardContent>
-        </Card>
-      </motion.div>
+      <EmptyState
+        icon={Trash2}
+        title="No Deleted Tasks"
+        description="Deleted tasks will appear here. You can restore them or permanently delete them."
+      />
     );
   }
 

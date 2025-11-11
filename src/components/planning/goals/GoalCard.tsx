@@ -1,6 +1,7 @@
 
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { InteractiveCard } from "@/components/ui/interactive-card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Edit, Trash2, Star } from "lucide-react";
@@ -61,7 +62,7 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal, onEdit, onDelete, onUpdatePro
   };
 
   return (
-    <Card className="group relative overflow-hidden bg-slate-900/80 border-slate-700/50 backdrop-blur-sm hover:bg-slate-900/90 transition-all duration-300 hover:shadow-2xl hover:shadow-primary/10 hover:-translate-y-1">
+    <InteractiveCard variant="primary" className="group relative overflow-hidden">
       <div className={`absolute inset-0 bg-gradient-to-br ${getCategoryColor(goal.category)} opacity-5 group-hover:opacity-10 transition-opacity duration-300`} />
       
       <CardHeader className="relative">
@@ -133,7 +134,7 @@ const GoalCard: React.FC<GoalCardProps> = ({ goal, onEdit, onDelete, onUpdatePro
           )}
         </div>
       </CardContent>
-    </Card>
+    </InteractiveCard>
   );
 };
 

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
+import { EmptyState } from "@/components/ui/empty-state";
 import { Plus, Search, BookOpen, Grid, List, Star } from "lucide-react";
 import BookDialog from "./BookDialog";
 import { Book } from "@/types/knowledge";
@@ -136,22 +137,26 @@ const BookshelfTab = () => {
         </ModernTabsList>
         
         <ModernTabsContent value={activeFilter} className="mt-6">
-          {filteredBooks.length === 0 ? <Card className="bg-slate-900/50 border-slate-700/50">
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <BookOpen className="h-12 w-12 text-slate-500 mb-4" />
-                <h3 className="text-lg font-medium mb-2 text-white">No books found</h3>
-                <p className="text-slate-400 text-center max-w-md">
-                  {searchTerm ? "Try adjusting your search terms or add a new book to your library." : "Start building your digital library by adding your first book."}
-                </p>
+          {filteredBooks.length === 0 ? (
+            <EmptyState
+              icon={BookOpen}
+              title="No books found"
+              description={
+                searchTerm 
+                  ? "Try adjusting your search terms or add a new book to your library." 
+                  : "Start building your digital library by adding your first book."
+              }
+              action={
                 <Button className="mt-4 bg-primary hover:bg-primary/90" onClick={() => {
-              setSelectedBook(null);
-              setShowBookDialog(true);
-            }}>
+                  setSelectedBook(null);
+                  setShowBookDialog(true);
+                }}>
                   <Plus className="h-4 w-4 mr-2" />
                   Add Book
                 </Button>
-              </CardContent>
-            </Card> : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              }
+            />
+          ) : <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filteredBooks.map(book => <Card key={book.id} className="cursor-pointer hover:shadow-xl transition-all duration-200 group h-fit bg-slate-900/50 border-slate-700/50 hover:border-slate-600/50 backdrop-blur-sm" onClick={() => {
             setSelectedBook(book);
             setShowBookDialog(true);
