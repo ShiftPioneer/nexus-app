@@ -139,7 +139,7 @@ const Mindset = () => {
             </motion.div>
           </motion.div>
 
-          <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-7xl mx-auto">
+          <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <ModernTabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto bg-slate-900/50 backdrop-blur-sm border border-slate-700/50">
               {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} className="flex-1 data-[state=active]:bg-slate-800/50">
                   {tab.label}

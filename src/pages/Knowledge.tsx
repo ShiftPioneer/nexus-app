@@ -45,7 +45,7 @@ const Knowledge = () => {
         />
         
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
+          <ModernTabsList className="grid w-full grid-cols-3 max-w-3xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
@@ -59,22 +59,16 @@ const Knowledge = () => {
             ))}
           </ModernTabsList>
           
-          <ModernTabsContent value="skillsets" className="mt-8">
-            <div className="max-w-6xl mx-auto">
+          <ModernTabsContent value="skillsets" className="mt-8 max-w-6xl mx-auto">
               <SkillsetTab />
-            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="resources" className="mt-8">
-            <div className="max-w-6xl mx-auto">
+          <ModernTabsContent value="resources" className="mt-8 max-w-6xl mx-auto">
               <ResourcesTab />
-            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="bookshelf" className="mt-8">
-            <div className="max-w-6xl mx-auto">
+          <ModernTabsContent value="bookshelf" className="mt-8 max-w-6xl mx-auto">
               <BookshelfTab />
-            </div>
             </ModernTabsContent>
           </ModernTabs>
         </div>

@@ -149,7 +149,7 @@ const Planning = () => {
         </div>
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList className="grid w-full grid-cols-3 max-w-2xl mx-auto">
+          <ModernTabsList className="grid w-full grid-cols-3 max-w-3xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
@@ -163,37 +163,31 @@ const Planning = () => {
             ))}
           </ModernTabsList>
           
-          <ModernTabsContent value="goals" className="mt-8">
-            <div className="max-w-6xl mx-auto">
-              <GoalsList 
+          <ModernTabsContent value="goals" className="mt-8 max-w-6xl mx-auto">
+              <GoalsList
                 onCreateGoal={handleCreateGoal}
                 onEditGoal={handleEditGoal}
                 onDeleteGoal={handleDeleteGoal}
               />
-            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="board" className="mt-8">
-            <div className="max-w-7xl mx-auto">
-              <PlanningBoardView 
+          <ModernTabsContent value="board" className="mt-8 max-w-7xl mx-auto">
+              <PlanningBoardView
                 goals={goals}
                 projects={projects}
                 contentType="projects"
                 onEditItem={handleEditItem}
               />
-            </div>
           </ModernTabsContent>
           
-          <ModernTabsContent value="list" className="mt-8">
-            <div className="max-w-6xl mx-auto">
-              <PlanningListView 
+          <ModernTabsContent value="list" className="mt-8 max-w-6xl mx-auto">
+              <PlanningListView
                 goals={goals}
                 projects={projects}
                 contentType="projects"
                 onEditItem={handleEditItem}
                 onUpdateProgress={handleUpdateProgress}
               />
-            </div>
           </ModernTabsContent>
         </ModernTabs>
 

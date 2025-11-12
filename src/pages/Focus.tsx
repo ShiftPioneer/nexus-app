@@ -131,25 +131,19 @@ const FocusContent = () => {
           </div>
         </ModernTabsContent>
         
-        <ModernTabsContent value="history" className="mt-8">
-          <div className="max-w-6xl mx-auto">
-            <FocusSessionHistory 
+          <ModernTabsContent value="history" className="mt-8 max-w-6xl mx-auto">
+            <FocusSessionHistory
               sessions={prepareSessionsForHistory(focusSessions)} 
               onDeleteSession={deleteSession} 
             />
-          </div>
-        </ModernTabsContent>
+          </ModernTabsContent>
         
-        <ModernTabsContent value="insights" className="mt-8">
-          <div className="max-w-6xl mx-auto">
+        <ModernTabsContent value="insights" className="mt-8 max-w-6xl mx-auto">
             <FocusStats sessions={prepareSessionsForStats(focusSessions)} />
-          </div>
         </ModernTabsContent>
         
-        <ModernTabsContent value="techniques" className="mt-8">
-          <div className="max-w-4xl mx-auto">
+        <ModernTabsContent value="techniques" className="mt-8 max-w-4xl mx-auto">
             <FocusTechniques onStartTechnique={startTechnique} />
-          </div>
           </ModernTabsContent>
         </ModernTabs>
       </div>

@@ -105,8 +105,9 @@ const TimeDesign = () => {
 
   return (
     <ModernAppLayout>
-      <div className="animate-fade-in space-y-8 bg-background min-h-full">
-        <UnifiedPageHeader
+      <div className="page-container">
+        <div className="page-content">
+          <UnifiedPageHeader
           title="Time Design"
           description="Design your perfect day and optimize your time allocation"
           icon={navigationIcons.timeDesign}
@@ -163,6 +164,7 @@ const TimeDesign = () => {
           onSave={handleActivitySave}
           onDelete={handleDeleteActivity}
         />
+        </div>
       </div>
     </ModernAppLayout>
   );

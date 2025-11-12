@@ -139,11 +139,16 @@ export const grids = {
 } as const;
 
 // ==================== CONTAINER WIDTHS ====================
+// Standardized container widths for consistent layouts across all pages
 export const containers = {
-  full: "w-full",
-  content: "max-w-7xl mx-auto",
-  narrow: "max-w-4xl mx-auto",
-  form: "max-w-2xl mx-auto",
+  full: "w-full",                          // Full width, no constraints
+  ultraWide: "max-w-[1920px] mx-auto",     // Extra wide for dashboards
+  wide: "max-w-7xl mx-auto",               // Wide layouts (1280px) - boards, timers
+  content: "max-w-6xl mx-auto",            // Standard content (1152px) - default
+  medium: "max-w-4xl mx-auto",             // Medium content (896px) - tabs
+  narrow: "max-w-3xl mx-auto",             // Narrow content (768px)
+  form: "max-w-2xl mx-auto",               // Forms & dialogs (672px) - simple tabs
+  compact: "max-w-xl mx-auto"              // Very focused content (576px)
 } as const;
 
 // ==================== COMPONENT VARIANTS ====================
