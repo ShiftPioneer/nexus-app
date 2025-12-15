@@ -152,7 +152,10 @@ const TimeDesign = () => {
           </ModernTabsContent>
           
           <ModernTabsContent value="settings" className="mt-8">
-            <TimeDesignSettings />
+            <TimeDesignSettings onImportEvents={() => {
+              // Refetch activities after importing from Google Calendar
+              // The activities will be automatically refetched by the storage hook
+            }} />
           </ModernTabsContent>
         </ModernTabs>
 

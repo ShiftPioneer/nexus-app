@@ -1,6 +1,5 @@
-
 import React, { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,11 +7,31 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Clock, Calendar, Bell, Palette, Save } from "lucide-react";
+import { Settings, Clock, Calendar, Bell, Palette, Save, Check, X, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useGoogleCalendar } from "@/hooks/use-google-calendar";
+import { useSupabaseTimeDesignStorage } from "@/hooks/use-supabase-timedesign-storage";
 
-const TimeDesignSettings = () => {
+interface TimeDesignSettingsProps {
+  onImportEvents?: (events: any[]) => void;
+}
+
+const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents }) => {
   const { toast } = useToast();
+  const { 
+    isConnected, 
+    isSyncing, 
+    lastSyncTime,
+    syncSettings, 
+    linkGoogleCalendar, 
+    disconnectGoogleCalendar, 
+    updateSyncSetting,
+    fetchGoogleEvents,
+    pushEventsToGoogle
+  } = useGoogleCalendar();
+  
+  const { activities, saveActivity } = useSupabaseTimeDesignStorage();
+  const [isConnecting, setIsConnecting] = useState(false);
   
   // Load settings from localStorage on component mount
   const [settings, setSettings] = useState(() => {
@@ -68,8 +87,246 @@ const TimeDesignSettings = () => {
     });
   };
 
+  const handleConnectGoogle = async () => {
+    setIsConnecting(true);
+    try {
+      await linkGoogleCalendar();
+    } catch (error) {
+      // Error handled in hook
+    } finally {
+      setIsConnecting(false);
+    }
+  };
+
+  const handleDisconnectGoogle = async () => {
+    try {
+      await disconnectGoogleCalendar();
+    } catch (error) {
+      // Error handled in hook
+    }
+  };
+
+  const handleSyncNow = async () => {
+    try {
+      const events = await fetchGoogleEvents();
+      
+      // Convert Google Calendar events to TimeActivity format and save
+      let importedCount = 0;
+      for (const event of events) {
+        if (!event.isAllDay && event.startDateTime && event.endDateTime) {
+          const startDate = new Date(event.startDateTime);
+          const endDate = new Date(event.endDateTime);
+          
+          const activity: TimeActivity = {
+            id: '', // Will be generated
+            title: event.title,
+            description: event.description || '',
+            category: 'work', // Default category
+            color: 'purple', // Default color
+            startDate: startDate,
+            endDate: endDate,
+            startTime: startDate.toTimeString().slice(0, 5),
+            endTime: endDate.toTimeString().slice(0, 5),
+            syncWithGoogleCalendar: true,
+          };
+          
+          await saveActivity(activity);
+          importedCount++;
+        }
+      }
+      
+      toast({
+        title: "Sync Complete",
+        description: `Imported ${importedCount} events from Google Calendar.`,
+      });
+      
+      if (onImportEvents) {
+        onImportEvents(events);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Sync Failed",
+        description: error.message || "Failed to sync with Google Calendar.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleExportToGoogle = async () => {
+    try {
+      const eventsToExport = activities
+        .filter(a => !a.syncWithGoogleCalendar)
+        .map(activity => {
+          const startDate = new Date(activity.startDate);
+          const endDate = new Date(activity.endDate);
+          const [startHour, startMin] = activity.startTime.split(':').map(Number);
+          const [endHour, endMin] = activity.endTime.split(':').map(Number);
+          
+          startDate.setHours(startHour, startMin, 0, 0);
+          endDate.setHours(endHour, endMin, 0, 0);
+          
+          return {
+            title: activity.title,
+            description: activity.description || '',
+            startDateTime: startDate.toISOString(),
+            endDateTime: endDate.toISOString(),
+          };
+        });
+
+      if (eventsToExport.length === 0) {
+        toast({
+          title: "Nothing to Export",
+          description: "No new activities to export to Google Calendar.",
+        });
+        return;
+      }
+
+      const results = await pushEventsToGoogle(eventsToExport);
+      const successCount = results.filter((r: any) => r.success).length;
+      
+      toast({
+        title: "Export Complete",
+        description: `Exported ${successCount} of ${eventsToExport.length} activities to Google Calendar.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Export Failed",
+        description: error.message || "Failed to export to Google Calendar.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
+      {/* Google Calendar Integration */}
+      <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-white">
+            <Calendar className="h-5 w-5 text-primary" />
+            Google Calendar Integration
+          </CardTitle>
+          <CardDescription className="text-slate-400">
+            Connect your Google Calendar to sync events with the app
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-medium text-slate-200">Connection Status</p>
+              <p className="text-sm text-slate-400">
+                {isConnected ? "Connected to Google Calendar" : "Not connected"}
+              </p>
+              {lastSyncTime && (
+                <p className="text-xs text-slate-500">
+                  Last synced: {lastSyncTime.toLocaleString()}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {isConnected ? (
+                <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/50">
+                  <Check className="h-3 w-3 mr-1" /> Connected
+                </Badge>
+              ) : (
+                <Badge variant="outline" className="bg-slate-500/20 text-slate-400 border-slate-500/50">
+                  <X className="h-3 w-3 mr-1" /> Not Connected
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          {isConnected && (
+            <>
+              <Separator className="bg-slate-700" />
+              
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-slate-200">Sync Settings</h4>
+                
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <label className="text-sm text-slate-200">Import events from Google</label>
+                    <p className="text-xs text-slate-400">Pull events from Google Calendar into this app</p>
+                  </div>
+                  <Switch 
+                    checked={syncSettings.importEvents}
+                    onCheckedChange={(value) => updateSyncSetting("importEvents", value)}
+                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <label className="text-sm text-slate-200">Export events to Google</label>
+                    <p className="text-xs text-slate-400">Push activities from this app to Google Calendar</p>
+                  </div>
+                  <Switch 
+                    checked={syncSettings.exportEvents}
+                    onCheckedChange={(value) => updateSyncSetting("exportEvents", value)}
+                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+        <CardFooter className="flex justify-between gap-2">
+          {isConnected ? (
+            <>
+              <Button 
+                variant="outline" 
+                onClick={handleDisconnectGoogle}
+                className="border-slate-600 text-slate-200 hover:bg-slate-800"
+              >
+                Disconnect
+              </Button>
+              <div className="flex gap-2">
+                {syncSettings.exportEvents && (
+                  <Button
+                    variant="outline"
+                    onClick={handleExportToGoogle}
+                    disabled={isSyncing}
+                    className="border-slate-600 text-slate-200 hover:bg-slate-800"
+                  >
+                    {isSyncing ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <ExternalLink className="h-4 w-4 mr-2" />
+                    )}
+                    Export to Google
+                  </Button>
+                )}
+                <Button
+                  onClick={handleSyncNow}
+                  disabled={isSyncing}
+                  className="bg-gradient-to-r from-primary via-orange-500 to-red-500"
+                >
+                  {isSyncing ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                  )}
+                  {isSyncing ? "Syncing..." : "Sync Now"}
+                </Button>
+              </div>
+            </>
+          ) : (
+            <Button 
+              className="w-full bg-gradient-to-r from-primary via-orange-500 to-red-500"
+              onClick={handleConnectGoogle}
+              disabled={isConnecting}
+            >
+              {isConnecting ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
+                <Calendar className="h-4 w-4 mr-2" />
+              )}
+              {isConnecting ? "Connecting..." : "Connect Google Calendar"}
+            </Button>
+          )}
+        </CardFooter>
+      </Card>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Working Hours */}
         <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
