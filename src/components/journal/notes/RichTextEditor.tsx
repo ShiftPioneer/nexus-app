@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
+import DOMPurify from "dompurify";
 import { cn } from "@/lib/utils";
 
 interface RichTextEditorProps {
@@ -24,7 +25,7 @@ const RichTextEditor = ({
   // Initialize editor content
   useEffect(() => {
     if (editorRef.current && editorRef.current.innerHTML !== content) {
-      editorRef.current.innerHTML = content;
+      editorRef.current.innerHTML = DOMPurify.sanitize(content);
     }
   }, []);
 

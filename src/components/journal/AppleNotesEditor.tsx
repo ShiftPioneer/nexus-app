@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
+import DOMPurify from "dompurify";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -542,7 +543,7 @@ const AppleNotesEditor = () => {
                       ) : (
                         <div 
                           className="min-h-[400px] p-4 rounded-lg border border-border/50 bg-card/50 text-foreground prose prose-slate dark:prose-invert max-w-none"
-                          dangerouslySetInnerHTML={{ __html: currentNote.content || '<p class="text-muted-foreground italic">No content yet...</p>' }}
+                          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(currentNote.content || '<p class="text-muted-foreground italic">No content yet...</p>') }}
                         />
                       )}
                     </TabsContent>
