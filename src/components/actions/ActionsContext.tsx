@@ -1,6 +1,10 @@
-
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import { useLocalStorage } from "@/hooks/use-local-storage";
+import { toastHelpers } from "@/utils/toast-helpers";
+import { useGamification } from "@/hooks/use-gamification";
+import { ConfettiEffect } from "@/components/ui/confetti-effect";
+import { MilestoneBanner } from "@/components/ui/milestone-banner";
+import { LevelUpBadge } from "@/components/ui/level-up-badge";
 
 interface Task {
   id: string;
@@ -44,17 +48,45 @@ export const useActions = () => {
 
 export const ActionsProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [tasks, setTasks] = useLocalStorage<Task[]>("tasks", []);
+  const { rewardTaskComplete, levelUp, clearLevelUp, XP_REWARDS } = useGamification();
+  
+  // Celebration state
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [milestone, setMilestone] = useState<{ title: string; description: string } | null>(null);
 
   const activeTasks = tasks.filter(task => !task.deleted);
   const deletedTasks = tasks.filter(task => task.deleted);
   const todoTasks = activeTasks.filter(task => task.type === 'todo');
   const notTodoTasks = activeTasks.filter(task => task.type === 'not-todo');
 
-  const handleTaskComplete = (taskId: string) => {
+  const handleTaskComplete = useCallback((taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    const wasCompleted = task?.completed;
+    
     setTasks(tasks.map(task => 
       task.id === taskId ? { ...task, completed: !task.completed } : task
     ));
-  };
+
+    // If completing (not uncompleting), trigger celebrations
+    if (!wasCompleted && task) {
+      // Show confetti for completion
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 3000);
+      
+      // Award XP
+      rewardTaskComplete();
+      toastHelpers.xpGained(XP_REWARDS.taskComplete, `"${task.title}" completed!`);
+      
+      // Check for milestone (every 5 tasks)
+      const completedCount = todoTasks.filter(t => t.completed).length + 1;
+      if (completedCount % 5 === 0) {
+        setMilestone({
+          title: `${completedCount} Tasks Completed!`,
+          description: "You're on fire! Keep up the amazing momentum."
+        });
+      }
+    }
+  }, [tasks, setTasks, rewardTaskComplete, XP_REWARDS, todoTasks]);
 
   const handleTaskEdit = (task: Task) => {
     // This will be handled by the parent component
@@ -109,6 +141,25 @@ export const ActionsProvider: React.FC<{ children: ReactNode }> = ({ children })
       handleCreateTask
     }}>
       {children}
+      
+      {/* Celebration Effects */}
+      <ConfettiEffect active={showConfetti} />
+      
+      <MilestoneBanner
+        title={milestone?.title || ""}
+        description={milestone?.description}
+        visible={!!milestone}
+        onClose={() => setMilestone(null)}
+        variant="gold"
+      />
+      
+      {levelUp && (
+        <LevelUpBadge
+          level={levelUp}
+          visible={!!levelUp}
+          onClose={clearLevelUp}
+        />
+      )}
     </ActionsContext.Provider>
   );
 };

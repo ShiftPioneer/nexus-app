@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { useGTD } from "../GTDContext";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Calendar, Clock, TrendingUp, Target, CheckCircle2, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import { toastHelpers } from "@/utils/toast-helpers";
 import TasksSection from "./engage/TasksSection";
 import StatsCard from "./engage/StatsCard";
 
@@ -14,7 +13,6 @@ const EngageView = () => {
   const [nextActions, setNextActions] = useState<any[]>([]);
   const [todayTasks, setTodayTasks] = useState<any[]>([]);
   const navigate = useNavigate();
-  const { toast } = useToast();
 
   useEffect(() => {
     // Get actions scheduled for today
@@ -55,16 +53,12 @@ const EngageView = () => {
 
   const handleCompleteTask = (taskId: string) => {
     moveTask(taskId, "completed");
-    toast({
-      title: "Task Completed",
-      description: "Nice work! Task marked as complete"
-    });
+    toastHelpers.xpGained(10, "Task Completed!");
   };
 
   const handleMoveToToday = (taskId: string) => {
     moveTask(taskId, "today");
-    toast({
-      title: "Action Scheduled",
+    toastHelpers.success("Action Scheduled", {
       description: "Action moved to Today's list"
     });
   };

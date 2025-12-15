@@ -1,10 +1,11 @@
-
 import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Flame, Clock, Calendar, Target, TrendingUp } from "lucide-react";
+import { CheckCircle, Circle, Clock, Calendar, Target, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CircularProgress } from "@/components/ui/circular-progress";
+import { StreakFire } from "@/components/ui/streak-fire";
 
 interface ModernHabitCardProps {
   habit: Habit;
@@ -87,33 +88,32 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
         <div className="space-y-4">
           {/* Streak and Progress */}
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Flame className={cn("h-5 w-5", getStreakColor(habit.streak))} />
+            <div className="flex items-center gap-3">
+              <StreakFire 
+                count={habit.streak} 
+                size="sm" 
+                animated={habit.status === "completed"}
+                showCount={false}
+              />
               <span className={cn("font-bold text-lg", getStreakColor(habit.streak))}>
                 {habit.streak} day streak
               </span>
             </div>
-            <div className="flex items-center gap-2 text-slate-400">
-              <Target className="h-4 w-4" />
-              <span className="text-sm">Goal: {habit.target} days</span>
-            </div>
+            <CircularProgress
+              value={progressPercentage}
+              size="sm"
+              variant={habit.status === "completed" ? "success" : "primary"}
+              showLabel
+            />
           </div>
 
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-400">Progress</span>
-              <span className="text-white font-medium">{progressPercentage}%</span>
+          {/* Progress Info */}
+          <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center gap-2 text-slate-400">
+              <Target className="h-4 w-4" />
+              <span>Goal: {habit.target} days</span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-2 border border-slate-300">
-              <div 
-                className={cn(
-                  "h-2 rounded-full transition-all duration-500",
-                  habit.status === "completed" ? "bg-emerald-400" : "bg-primary"
-                )}
-                style={{ width: `${Math.min(100, progressPercentage)}%` }}
-              />
-            </div>
+            <span className="text-slate-400">{progressPercentage}% complete</span>
           </div>
 
           {/* Score Display */}
