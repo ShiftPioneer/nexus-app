@@ -9,13 +9,14 @@ import { cn } from "@/lib/utils";
 
 interface StreakFireProps {
   count: number;
-  size?: "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl";
   animated?: boolean;
   showCount?: boolean;
   className?: string;
 }
 
 const sizeMap = {
+  sm: { container: "w-8 h-8", icon: "h-5 w-5", text: "text-xs" },
   md: { container: "w-24 h-24", icon: "h-12 w-12", text: "text-2xl" },
   lg: { container: "w-32 h-32", icon: "h-16 w-16", text: "text-3xl" },
   xl: { container: "w-40 h-40", icon: "h-20 w-20", text: "text-4xl" },

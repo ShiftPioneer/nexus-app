@@ -1,11 +1,12 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
 import { UnifiedActionButton } from "@/components/ui/unified-action-button";
 import { Clock, Calendar, Sparkles, RotateCcw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { XPIndicator } from "@/components/ui/xp-indicator";
+import { useGamification } from "@/hooks/use-gamification";
+import { toastHelpers } from "@/utils/toast-helpers";
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -34,10 +35,10 @@ const quotes = [{
 const WelcomeSection = () => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [quote, setQuote] = useState(quotes[Math.floor(Math.random() * quotes.length)]);
-  const { toast } = useToast();
   const { user } = useAuth();
   const [profileData, setProfileData] = useState<any>(null);
   const navigate = useNavigate();
+  const { currentXP, level, levelXP, nextLevelXP, streakDays } = useGamification();
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -101,23 +102,17 @@ const WelcomeSection = () => {
       newQuote = quotes[Math.floor(Math.random() * quotes.length)];
     } while (newQuote.text === quote.text);
     setQuote(newQuote);
-    toast({
-      description: "New quote generated!"
-    });
+    toastHelpers.info("New quote generated!");
   };
 
   const handleStartDay = () => {
     navigate('/journal');
-    toast({
-      description: "Starting your day with journal entry"
-    });
+    toastHelpers.success("Starting your day with journal entry");
   };
 
   const handleViewPlan = () => {
     navigate('/time-design');
-    toast({
-      description: "Viewing today's plan in time design"
-    });
+    toastHelpers.info("Viewing today's plan");
   };
 
   return (
@@ -156,12 +151,24 @@ const WelcomeSection = () => {
               </div>
             </div>
             
-            <div className="flex flex-col items-center gap-4 p-6 bg-slate-900/50 border border-slate-700/50 rounded-2xl backdrop-blur-sm">
-              <div className="flex items-center gap-3">
-                <Clock className="h-6 w-6 text-primary" />
-                <span className="text-3xl font-bold text-white">{formattedTime}</span>
+            <div className="flex flex-col gap-4">
+              {/* XP Progress */}
+              <XPIndicator
+                currentXP={currentXP}
+                levelXP={levelXP}
+                nextLevelXP={nextLevelXP}
+                level={level}
+                variant="compact"
+              />
+              
+              {/* Time Display */}
+              <div className="flex flex-col items-center gap-2 p-4 bg-slate-900/50 border border-slate-700/50 rounded-xl backdrop-blur-sm">
+                <div className="flex items-center gap-3">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <span className="text-2xl font-bold text-white">{formattedTime}</span>
+                </div>
+                <span className="text-slate-400 text-sm">{formattedDate}</span>
               </div>
-              <span className="text-slate-400 font-medium">{formattedDate}</span>
             </div>
           </div>
           

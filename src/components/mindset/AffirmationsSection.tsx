@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Plus, X, Play, Pause, RotateCcw, Heart, Star } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
+import { toastHelpers } from "@/utils/toast-helpers";
 
 const AffirmationsSection = () => {
   const [affirmations, setAffirmations] = useState([
@@ -21,7 +20,6 @@ const AffirmationsSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [dailyAffirmations, setDailyAffirmations] = useState<string[]>([]);
-  const { toast } = useToast();
 
   // Auto-cycle through affirmations
   useEffect(() => {
@@ -47,8 +45,7 @@ const AffirmationsSection = () => {
     if (newAffirmation.trim() && !affirmations.includes(newAffirmation.trim())) {
       setAffirmations([...affirmations, newAffirmation.trim()]);
       setNewAffirmation("");
-      toast({
-        title: "Affirmation Added",
+      toastHelpers.success("Affirmation Added", {
         description: "New affirmation has been added to your collection!"
       });
     }
@@ -60,16 +57,12 @@ const AffirmationsSection = () => {
     if (currentIndex >= newAffirmations.length) {
       setCurrentIndex(0);
     }
-    toast({
-      title: "Affirmation Removed",
-      description: "Affirmation has been removed from your collection."
-    });
+    toastHelpers.info("Affirmation Removed");
   };
 
   const togglePlayback = () => {
     setIsPlaying(!isPlaying);
-    toast({
-      title: isPlaying ? "Paused" : "Playing",
+    toastHelpers.info(isPlaying ? "Paused" : "Playing", {
       description: isPlaying ? "Affirmation cycle paused" : "Affirmation cycle started"
     });
   };
