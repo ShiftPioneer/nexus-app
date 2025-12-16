@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Clock, Calendar, Bell, Palette, Save, Check, X, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
+import { Settings, Clock, Calendar, Bell, Palette, Save, Check, X, RefreshCw, ExternalLink, Loader2, History } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useGoogleCalendar } from "@/hooks/use-google-calendar";
 import { useSupabaseTimeDesignStorage } from "@/hooks/use-supabase-timedesign-storage";
@@ -217,11 +218,6 @@ const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents 
               <p className="text-sm text-slate-400">
                 {isConnected ? "Connected to Google Calendar" : "Not connected"}
               </p>
-              {lastSyncTime && (
-                <p className="text-xs text-slate-500">
-                  Last synced: {lastSyncTime.toLocaleString()}
-                </p>
-              )}
             </div>
             <div className="flex items-center gap-2">
               {isConnected ? (
@@ -235,6 +231,21 @@ const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents 
               )}
             </div>
           </div>
+
+          {isConnected && lastSyncTime && (
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-slate-800/50 border border-slate-700/50">
+              <History className="h-4 w-4 text-primary" />
+              <div className="flex-1">
+                <p className="text-sm text-slate-200">Last synced</p>
+                <p className="text-xs text-slate-400">
+                  {formatDistanceToNow(lastSyncTime, { addSuffix: true })}
+                </p>
+              </div>
+              <p className="text-xs text-slate-500">
+                {lastSyncTime.toLocaleString()}
+              </p>
+            </div>
+          )}
 
           {isConnected && (
             <>
