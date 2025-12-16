@@ -20,7 +20,7 @@ const TimeDesign = () => {
   // Time Design state
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<"day" | "week">("week");
-  const { activities, loading, saveActivity, deleteActivity } = useSupabaseTimeDesignStorage();
+  const { activities, loading, saveActivity, deleteActivity, refetch } = useSupabaseTimeDesignStorage();
   const [editingActivity, setEditingActivity] = useState<TimeActivity | null>(null);
   
   const { toast } = useToast();
@@ -154,7 +154,7 @@ const TimeDesign = () => {
           <ModernTabsContent value="settings" className="mt-8">
             <TimeDesignSettings onImportEvents={() => {
               // Refetch activities after importing from Google Calendar
-              // The activities will be automatically refetched by the storage hook
+              refetch();
             }} />
           </ModernTabsContent>
         </ModernTabs>
