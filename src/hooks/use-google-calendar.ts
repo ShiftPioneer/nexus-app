@@ -34,38 +34,74 @@ export const useGoogleCalendar = () => {
     autoSync: false,
   });
 
-  // Check if user is connected via Google OAuth
+  // Determine connection state.
+  // IMPORTANT: When users sign in with email/password and *link* Google, the session's
+  // `provider_token` and `app_metadata.provider` usually remain "email".
+  // The reliable indicator is whether the current user has a Google identity linked.
   useEffect(() => {
-    if (session?.provider_token && session?.user?.app_metadata?.provider === 'google') {
-      setIsConnected(true);
-    } else {
-      // Check localStorage for connection state (for users who linked Google)
+    let cancelled = false;
+
+    const load = async () => {
+      if (!user) {
+        setIsConnected(false);
+        return;
+      }
+
+      // Load persisted UI settings (doesn't decide connection state)
       const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (savedData) {
         try {
           const parsedData = JSON.parse(savedData);
-          setIsConnected(parsedData.isConnected || false);
-          setLastSyncTime(parsedData.lastSyncTime ? new Date(parsedData.lastSyncTime) : null);
-          setSyncSettings({
-            importEvents: parsedData.syncSettings?.importEvents ?? true,
-            exportEvents: parsedData.syncSettings?.exportEvents ?? false,
-            autoSync: parsedData.syncSettings?.autoSync ?? false,
-          });
+          if (!cancelled) {
+            setLastSyncTime(parsedData.lastSyncTime ? new Date(parsedData.lastSyncTime) : null);
+            setSyncSettings({
+              importEvents: parsedData.syncSettings?.importEvents ?? true,
+              exportEvents: parsedData.syncSettings?.exportEvents ?? false,
+              autoSync: parsedData.syncSettings?.autoSync ?? false,
+            });
+          }
         } catch (error) {
           console.error("Failed to load calendar integration settings:", error);
         }
       }
-    }
-  }, [session]);
+
+      // If the session includes provider_token from a Google OAuth sign-in, we can consider connected.
+      const oauthConnected = Boolean(session?.provider_token);
+
+      // Otherwise, check linked identities.
+      let identityConnected = false;
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (error) throw error;
+        const identities = data.user?.identities ?? [];
+        identityConnected = identities.some((i) => i.provider === 'google');
+      } catch (e) {
+        // If this fails, fall back to oauthConnected (best effort).
+        identityConnected = false;
+      }
+
+      if (!cancelled) {
+        setIsConnected(oauthConnected || identityConnected);
+      }
+    };
+
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user, session?.provider_token]);
 
   // Save settings to localStorage when they change
   useEffect(() => {
-    localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
-      isConnected,
-      syncSettings,
-      lastSyncTime: lastSyncTime?.toISOString(),
-    }));
-  }, [isConnected, syncSettings, lastSyncTime]);
+    localStorage.setItem(
+      LOCAL_STORAGE_KEY,
+      JSON.stringify({
+        syncSettings,
+        lastSyncTime: lastSyncTime?.toISOString(),
+      })
+    );
+  }, [syncSettings, lastSyncTime]);
 
   // Connect to Google Calendar via OAuth
   const connectGoogleCalendar = async () => {
