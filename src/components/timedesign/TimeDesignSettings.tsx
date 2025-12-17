@@ -19,16 +19,19 @@ interface TimeDesignSettingsProps {
 
 const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents }) => {
   const { toast } = useToast();
-  const { 
-    isConnected, 
-    isSyncing, 
+  const {
+    isConnected,
+    isLinked,
+    connectionStatus,
+    isSyncing,
     lastSyncTime,
-    syncSettings, 
-    linkGoogleCalendar, 
-    disconnectGoogleCalendar, 
+    syncSettings,
+    connectGoogleCalendar,
+    linkGoogleCalendar,
+    disconnectGoogleCalendar,
     updateSyncSetting,
     fetchGoogleEvents,
-    pushEventsToGoogle
+    pushEventsToGoogle,
   } = useGoogleCalendar();
   
   const { activities, saveActivity } = useSupabaseTimeDesignStorage();
@@ -91,8 +94,13 @@ const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents 
   const handleConnectGoogle = async () => {
     setIsConnecting(true);
     try {
-      await linkGoogleCalendar();
-    } catch (error) {
+      // If already linked but not sync-ready, force an OAuth connect to obtain provider tokens.
+      if (connectionStatus === "linked") {
+        await connectGoogleCalendar();
+      } else {
+        await linkGoogleCalendar();
+      }
+    } catch {
       // Error handled in hook
     } finally {
       setIsConnecting(false);
@@ -216,13 +224,21 @@ const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents 
             <div>
               <p className="font-medium text-slate-200">Connection Status</p>
               <p className="text-sm text-slate-400">
-                {isConnected ? "Connected to Google Calendar" : "Not connected"}
+                {connectionStatus === "connected"
+                  ? "Connected to Google Calendar"
+                  : connectionStatus === "linked"
+                    ? "Linked (reconnect to enable sync)"
+                    : "Not connected"}
               </p>
             </div>
             <div className="flex items-center gap-2">
-              {isConnected ? (
+              {connectionStatus === "connected" ? (
                 <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/50">
                   <Check className="h-3 w-3 mr-1" /> Connected
+                </Badge>
+              ) : connectionStatus === "linked" ? (
+                <Badge variant="outline" className="bg-amber-500/20 text-amber-300 border-amber-500/50">
+                  <Check className="h-3 w-3 mr-1" /> Linked
                 </Badge>
               ) : (
                 <Badge variant="outline" className="bg-slate-500/20 text-slate-400 border-slate-500/50">
@@ -322,7 +338,7 @@ const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents 
               </div>
             </>
           ) : (
-            <Button 
+            <Button
               className="w-full bg-gradient-to-r from-primary via-orange-500 to-red-500"
               onClick={handleConnectGoogle}
               disabled={isConnecting}
@@ -332,7 +348,11 @@ const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents 
               ) : (
                 <Calendar className="h-4 w-4 mr-2" />
               )}
-              {isConnecting ? "Connecting..." : "Connect Google Calendar"}
+              {isConnecting
+                ? "Connecting..."
+                : connectionStatus === "linked"
+                  ? "Reconnect Google (Enable Sync)"
+                  : "Connect Google Calendar"}
             </Button>
           )}
         </CardFooter>
