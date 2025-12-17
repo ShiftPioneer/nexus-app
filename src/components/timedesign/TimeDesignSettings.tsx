@@ -12,6 +12,7 @@ import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useGoogleCalendar } from "@/hooks/use-google-calendar";
 import { useSupabaseTimeDesignStorage } from "@/hooks/use-supabase-timedesign-storage";
+import { useActivityNotifications } from "@/hooks/use-activity-notifications";
 
 interface TimeDesignSettingsProps {
   onImportEvents?: (events: any[]) => void;
@@ -36,6 +37,15 @@ const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents 
   
   const { activities, saveActivity } = useSupabaseTimeDesignStorage();
   const [isConnecting, setIsConnecting] = useState(false);
+  
+  // Activity notifications
+  const {
+    settings: notificationSettings,
+    browserPermission,
+    updateSettings: updateNotificationSettings,
+    toggleReminderTime,
+    requestBrowserPermission,
+  } = useActivityNotifications(activities);
   
   // Load settings from localStorage on component mount
   const [settings, setSettings] = useState(() => {
@@ -403,63 +413,136 @@ const TimeDesignSettings: React.FC<TimeDesignSettingsProps> = ({ onImportEvents 
           </CardContent>
         </Card>
 
-        {/* Notifications */}
+        {/* Activity Notifications */}
         <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-white">
               <Bell className="h-5 w-5 text-primary" />
-              Notifications
+              Activity Notifications
             </CardTitle>
+            <CardDescription className="text-slate-400">
+              Get reminded before your activities start
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <Label className="text-slate-200">Enable notifications</Label>
               <Switch
-                checked={settings.notifications.enabled}
-                onCheckedChange={(checked) => handleSettingChange('notifications', 'enabled', checked)}
+                checked={notificationSettings.enabled}
+                onCheckedChange={(checked) => updateNotificationSettings({ enabled: checked })}
                 className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
               />
             </div>
             
-            {settings.notifications.enabled && (
+            {notificationSettings.enabled && (
               <>
-                <div className="space-y-2">
-                  <Label className="text-slate-200">Remind before activity (minutes)</Label>
-                  <Select
-                    value={settings.notifications.beforeActivity.toString()}
-                    onValueChange={(value) => handleSettingChange('notifications', 'beforeActivity', parseInt(value))}
-                  >
-                    <SelectTrigger className="bg-slate-800 border-slate-600 text-white">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-slate-800 border-slate-600">
-                      <SelectItem value="5" className="text-white">5 minutes</SelectItem>
-                      <SelectItem value="10" className="text-white">10 minutes</SelectItem>
-                      <SelectItem value="15" className="text-white">15 minutes</SelectItem>
-                      <SelectItem value="30" className="text-white">30 minutes</SelectItem>
-                    </SelectContent>
-                  </Select>
+                <Separator className="bg-slate-700" />
+                
+                <div className="space-y-3">
+                  <Label className="text-slate-200">Reminder times (before activity)</Label>
+                  <div className="flex flex-wrap gap-2">
+                    {[5, 10, 15, 30, 60].map((mins) => (
+                      <Button
+                        key={mins}
+                        variant={notificationSettings.reminderTimes.includes(mins) ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => toggleReminderTime(mins)}
+                        className={
+                          notificationSettings.reminderTimes.includes(mins)
+                            ? "bg-primary text-white"
+                            : "border-slate-600 text-slate-300 hover:bg-slate-800"
+                        }
+                      >
+                        {mins < 60 ? `${mins} min` : `${mins / 60} hr`}
+                      </Button>
+                    ))}
+                  </div>
                 </div>
                 
-                <div className="flex items-center justify-between">
-                  <Label className="text-slate-200">Daily planning reminder</Label>
-                  <Switch
-                    checked={settings.notifications.dailyPlanning}
-                    onCheckedChange={(checked) => handleSettingChange('notifications', 'dailyPlanning', checked)}
-                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
-                  />
-                </div>
+                <Separator className="bg-slate-700" />
                 
-                <div className="flex items-center justify-between">
-                  <Label className="text-slate-200">Weekly review reminder</Label>
-                  <Switch
-                    checked={settings.notifications.weeklyReview}
-                    onCheckedChange={(checked) => handleSettingChange('notifications', 'weeklyReview', checked)}
-                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
-                  />
+                <div className="space-y-3">
+                  <Label className="text-slate-200">Notification channels</Label>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <label className="text-sm text-slate-200">In-app toasts</label>
+                      <p className="text-xs text-slate-400">Show notifications inside the app</p>
+                    </div>
+                    <Switch
+                      checked={notificationSettings.inAppToasts}
+                      onCheckedChange={(checked) => updateNotificationSettings({ inAppToasts: checked })}
+                      className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-0.5">
+                      <label className="text-sm text-slate-200">Browser notifications</label>
+                      <p className="text-xs text-slate-400">
+                        {browserPermission === "granted"
+                          ? "Desktop notifications enabled"
+                          : browserPermission === "denied"
+                            ? "Notifications blocked in browser settings"
+                            : "Click to enable desktop notifications"}
+                      </p>
+                    </div>
+                    {browserPermission === "granted" ? (
+                      <Switch
+                        checked={notificationSettings.browserNotifications}
+                        onCheckedChange={(checked) => updateNotificationSettings({ browserNotifications: checked })}
+                        className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+                      />
+                    ) : (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={requestBrowserPermission}
+                        disabled={browserPermission === "denied"}
+                        className="border-slate-600 text-slate-200 hover:bg-slate-800"
+                      >
+                        {browserPermission === "denied" ? "Blocked" : "Enable"}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </>
             )}
+          </CardContent>
+        </Card>
+        
+        {/* General Notifications Settings */}
+        <Card className="bg-slate-900/50 border-slate-700/50 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-white">
+              <Bell className="h-5 w-5 text-primary" />
+              Planning Reminders
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-slate-200">Daily planning reminder</Label>
+                <p className="text-xs text-slate-400">Get a reminder to plan your day</p>
+              </div>
+              <Switch
+                checked={settings.notifications.dailyPlanning}
+                onCheckedChange={(checked) => handleSettingChange('notifications', 'dailyPlanning', checked)}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+              />
+            </div>
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-slate-200">Weekly review reminder</Label>
+                <p className="text-xs text-slate-400">Get reminded to review your week</p>
+              </div>
+              <Switch
+                checked={settings.notifications.weeklyReview}
+                onCheckedChange={(checked) => handleSettingChange('notifications', 'weeklyReview', checked)}
+                className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-slate-600"
+              />
+            </div>
           </CardContent>
         </Card>
       </div>
