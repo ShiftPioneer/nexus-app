@@ -25,7 +25,15 @@ const LOCAL_STORAGE_KEY = 'calendarIntegration';
 export const useGoogleCalendar = () => {
   const { toast } = useToast();
   const { user, session } = useAuth();
-  const [isConnected, setIsConnected] = useState(false);
+
+  // "Connected" means we currently have a Google OAuth token available in the session
+  // (required for calling Google Calendar API from the edge function).
+  // "Linked" means the user has a Google identity linked, but may need to re-authenticate
+  // to obtain fresh provider tokens.
+  const [connectionStatus, setConnectionStatus] = useState<
+    "disconnected" | "linked" | "connected"
+  >("disconnected");
+
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
   const [syncSettings, setSyncSettings] = useState<CalendarSyncSettings>({
@@ -34,16 +42,19 @@ export const useGoogleCalendar = () => {
     autoSync: false,
   });
 
+  const isConnected = connectionStatus === "connected";
+  const isLinked = connectionStatus !== "disconnected";
+
   // Determine connection state.
-  // IMPORTANT: When users sign in with email/password and *link* Google, the session's
-  // `provider_token` and `app_metadata.provider` usually remain "email".
-  // The reliable indicator is whether the current user has a Google identity linked.
+  // NOTE: For Supabase, provider_token is only present when the current session was created
+  // via OAuth (or refreshed with provider tokens). A linked identity alone is not enough
+  // to call Google APIs.
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
       if (!user) {
-        setIsConnected(false);
+        if (!cancelled) setConnectionStatus("disconnected");
         return;
       }
 
@@ -65,23 +76,27 @@ export const useGoogleCalendar = () => {
         }
       }
 
-      // If the session includes provider_token from a Google OAuth sign-in, we can consider connected.
-      const oauthConnected = Boolean(session?.provider_token);
+      const hasProviderToken = Boolean(session?.provider_token);
 
-      // Otherwise, check linked identities.
-      let identityConnected = false;
+      // Check linked identities.
+      let hasGoogleIdentity = false;
       try {
         const { data, error } = await supabase.auth.getUser();
         if (error) throw error;
         const identities = data.user?.identities ?? [];
-        identityConnected = identities.some((i) => i.provider === 'google');
-      } catch (e) {
-        // If this fails, fall back to oauthConnected (best effort).
-        identityConnected = false;
+        hasGoogleIdentity = identities.some((i) => i.provider === "google");
+      } catch {
+        hasGoogleIdentity = false;
       }
 
-      if (!cancelled) {
-        setIsConnected(oauthConnected || identityConnected);
+      if (cancelled) return;
+
+      if (hasProviderToken) {
+        setConnectionStatus("connected");
+      } else if (hasGoogleIdentity) {
+        setConnectionStatus("linked");
+      } else {
+        setConnectionStatus("disconnected");
       }
     };
 
@@ -90,7 +105,7 @@ export const useGoogleCalendar = () => {
     return () => {
       cancelled = true;
     };
-  }, [user, session?.provider_token]);
+  }, [user?.id, session?.access_token, session?.provider_token]);
 
   // Save settings to localStorage when they change
   useEffect(() => {
@@ -106,24 +121,20 @@ export const useGoogleCalendar = () => {
   // Connect to Google Calendar via OAuth
   const connectGoogleCalendar = async () => {
     try {
-      console.log("Connecting to Google Calendar...");
-      
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
         options: {
-          scopes: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events',
+          scopes:
+            "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events",
           redirectTo: `${window.location.origin}/time-design`,
           queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+            access_type: "offline",
+            prompt: "consent",
           },
         },
       });
 
-      if (error) {
-        throw error;
-      }
-
+      if (error) throw error;
       return true;
     } catch (error) {
       console.error("Error connecting to Google Calendar:", error);
@@ -139,38 +150,35 @@ export const useGoogleCalendar = () => {
   // Link Google Calendar to existing account
   const linkGoogleCalendar = async () => {
     try {
-      console.log("Linking Google Calendar...");
-      
-      const { data, error } = await supabase.auth.linkIdentity({
-        provider: 'google',
+      const { error } = await supabase.auth.linkIdentity({
+        provider: "google",
         options: {
-          scopes: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events',
+          scopes:
+            "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events",
           redirectTo: `${window.location.origin}/time-design`,
           queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+            access_type: "offline",
+            prompt: "consent",
           },
         },
       });
 
-      if (error) {
-        throw error;
-      }
-
+      if (error) throw error;
       return true;
     } catch (error: any) {
       console.error("Error linking Google Calendar:", error);
-      
-      // If identity is already linked, treat as success
-      if (error.message?.includes('already linked')) {
-        setIsConnected(true);
+
+      // If identity is already linked, treat as linked (but not necessarily sync-ready)
+      if (error.message?.includes("already linked")) {
+        setConnectionStatus("linked");
         toast({
-          title: "Already Connected",
-          description: "Your Google account is already linked.",
+          title: "Already Linked",
+          description:
+            "Your Google account is already linked. If sync doesn't work, click Connect to re-authenticate.",
         });
         return true;
       }
-      
+
       toast({
         title: "Link Failed",
         description: error.message || "Failed to link Google Calendar. Please try again.",
@@ -180,21 +188,18 @@ export const useGoogleCalendar = () => {
     }
   };
 
-  // Disconnect from Google Calendar
+  // Disconnect from Google Calendar (local UI state only)
   const disconnectGoogleCalendar = async () => {
     try {
-      console.log("Disconnecting from Google Calendar...");
-      
-      // Clear local state
-      setIsConnected(false);
+      setConnectionStatus("disconnected");
       setLastSyncTime(null);
       localStorage.removeItem(LOCAL_STORAGE_KEY);
-      
+
       toast({
         title: "Disconnected",
-        description: "Google Calendar has been disconnected.",
+        description: "Google Calendar has been disconnected in this app.",
       });
-      
+
       return true;
     } catch (error) {
       console.error("Error disconnecting from Google Calendar:", error);
@@ -209,118 +214,111 @@ export const useGoogleCalendar = () => {
 
   // Update sync settings
   const updateSyncSetting = (key: string, value: boolean) => {
-    setSyncSettings(prev => ({
+    setSyncSettings((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }));
   };
 
   // Fetch events from Google Calendar
-  const fetchGoogleEvents = useCallback(async (timeMin?: string, timeMax?: string): Promise<GoogleCalendarEvent[]> => {
-    if (!session?.access_token) {
-      throw new Error("Not authenticated");
-    }
+  const fetchGoogleEvents = useCallback(
+    async (timeMin?: string, timeMax?: string): Promise<GoogleCalendarEvent[]> => {
+      if (!session?.access_token) throw new Error("Not authenticated");
 
-    setIsSyncing(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('google-calendar-sync', {
-        body: {
-          action: 'fetch',
-          timeMin,
-          timeMax,
-        },
-      });
+      setIsSyncing(true);
 
-      if (error) {
-        throw error;
+      try {
+        const { data, error } = await supabase.functions.invoke("google-calendar-sync", {
+          body: {
+            action: "fetch",
+            timeMin,
+            timeMax,
+          },
+        });
+
+        if (error) throw error;
+
+        if (data?.needsReconnect) {
+          setConnectionStatus(isLinked ? "linked" : "disconnected");
+          throw new Error(data.error || "Please reconnect your Google account");
+        }
+
+        if (data?.error) throw new Error(data.error);
+
+        setLastSyncTime(new Date());
+        return data?.events || [];
+      } finally {
+        setIsSyncing(false);
       }
-
-      if (data?.needsReconnect) {
-        setIsConnected(false);
-        throw new Error(data.error || 'Please reconnect your Google account');
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-
-      setLastSyncTime(new Date());
-      return data?.events || [];
-    } catch (error: any) {
-      console.error("Error fetching Google Calendar events:", error);
-      throw error;
-    } finally {
-      setIsSyncing(false);
-    }
-  }, [session]);
+    },
+    [session?.access_token, isLinked]
+  );
 
   // Push events to Google Calendar
-  const pushEventsToGoogle = useCallback(async (events: Array<{
-    title: string;
-    description?: string;
-    startDateTime: string;
-    endDateTime: string;
-  }>) => {
-    if (!session?.access_token) {
-      throw new Error("Not authenticated");
-    }
+  const pushEventsToGoogle = useCallback(
+    async (
+      events: Array<{
+        title: string;
+        description?: string;
+        startDateTime: string;
+        endDateTime: string;
+      }>
+    ) => {
+      if (!session?.access_token) throw new Error("Not authenticated");
 
-    setIsSyncing(true);
-    
-    try {
-      const { data, error } = await supabase.functions.invoke('google-calendar-sync', {
-        body: {
-          action: 'push',
-          events,
-        },
-      });
+      setIsSyncing(true);
 
-      if (error) {
-        throw error;
+      try {
+        const { data, error } = await supabase.functions.invoke("google-calendar-sync", {
+          body: {
+            action: "push",
+            events,
+          },
+        });
+
+        if (error) throw error;
+
+        if (data?.needsReconnect) {
+          setConnectionStatus(isLinked ? "linked" : "disconnected");
+          throw new Error(data.error || "Please reconnect your Google account");
+        }
+
+        return data?.results || [];
+      } finally {
+        setIsSyncing(false);
       }
-
-      if (data?.needsReconnect) {
-        setIsConnected(false);
-        throw new Error(data.error || 'Please reconnect your Google account');
-      }
-
-      return data?.results || [];
-    } catch (error: any) {
-      console.error("Error pushing events to Google Calendar:", error);
-      throw error;
-    } finally {
-      setIsSyncing(false);
-    }
-  }, [session]);
+    },
+    [session?.access_token, isLinked]
+  );
 
   // Sync calendars (import and/or export)
   const syncCalendars = useCallback(async () => {
     try {
       if (!isConnected) {
-        throw new Error("Not connected to Google Calendar");
+        throw new Error(
+          connectionStatus === "linked"
+            ? "Google is linked, but Nexus needs you to reconnect to enable sync. Click Connect."
+            : "Not connected to Google Calendar"
+        );
       }
-      
+
       setIsSyncing(true);
-      console.log("Syncing calendars with settings:", syncSettings);
-      
+
       let importedEvents: GoogleCalendarEvent[] = [];
-      
+
       if (syncSettings.importEvents) {
         importedEvents = await fetchGoogleEvents();
-        console.log(`Imported ${importedEvents.length} events from Google Calendar`);
       }
-      
+
       setLastSyncTime(new Date());
-      
+
       toast({
         title: "Sync Complete",
         description: `${importedEvents.length} events imported from Google Calendar.`,
       });
-      
+
       return { importedEvents };
     } catch (error: any) {
-      console.error("Error syncing calendars:", error);
       toast({
         title: "Sync Failed",
         description: error.message || "Failed to synchronize calendars. Please try again.",
@@ -330,13 +328,20 @@ export const useGoogleCalendar = () => {
     } finally {
       setIsSyncing(false);
     }
-  }, [isConnected, syncSettings, fetchGoogleEvents, toast]);
+  }, [isConnected, connectionStatus, syncSettings.importEvents, fetchGoogleEvents, toast]);
 
   return {
+    // legacy
     isConnected,
+
+    // richer state (use this in UI)
+    connectionStatus,
+    isLinked,
+
     isSyncing,
     lastSyncTime,
     syncSettings,
+
     connectGoogleCalendar,
     linkGoogleCalendar,
     disconnectGoogleCalendar,
