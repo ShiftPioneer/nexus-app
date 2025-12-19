@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Calendar as CalendarIcon, Trash2, Plus, Link, Upload, Repeat } from "lucide-react";
 import {
@@ -83,7 +83,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
   onDelete,
 }) => {
   const [newLink, setNewLink] = useState("");
-  
+  const [isEndTimeManuallySet, setIsEndTimeManuallySet] = useState(false);
   const form = useForm<ActivityFormValues>({
     resolver: zodResolver(activitySchema),
     defaultValues: {
@@ -104,48 +104,62 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
     },
   });
 
+  const addMinutesToTime = (time: string, minutesToAdd: number) => {
+    const [h, m] = time.split(":").map(Number);
+    const total = h * 60 + m + minutesToAdd;
+    const dayDelta = total >= 24 * 60 ? Math.floor(total / (24 * 60)) : total < 0 ? -1 : 0;
+    const normalized = ((total % (24 * 60)) + 24 * 60) % (24 * 60);
+    const nh = Math.floor(normalized / 60);
+    const nm = normalized % 60;
+    return {
+      time: `${nh.toString().padStart(2, "0")}:${nm.toString().padStart(2, "0")}`,
+      dayDelta,
+    };
+  };
+
   useEffect(() => {
     if (open) {
-        if (activity) {
-          // Auto-adjust end time when start time changes for new activities
-          const defaultEndTime = (() => {
-            if (!activity.id && activity.startTime) {
-              const [hours, minutes] = activity.startTime.split(':').map(Number);
-              const endHour = hours + 1;
-              return `${endHour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-            }
-            return activity.endTime || "10:00";
-          })();
+      setIsEndTimeManuallySet(false);
 
-          form.reset({
-            ...activity,
-            title: activity.id ? activity.title : '', // Empty title for new drag-created activities
-            description: activity.description || "",
-            endTime: defaultEndTime,
-            notes: activity.notes || "",
-            links: activity.links || [],
-            isRecurring: activity.isRecurring || false,
-            recurrencePattern: activity.recurrencePattern || "daily",
-            recurrenceDays: activity.recurrenceDays || [],
-          });
-        } else {
-          form.reset({
-            title: "",
-            description: "",
-            category: "work",
-            color: "purple",
-            startDate: new Date(),
-            endDate: new Date(),
-            startTime: "09:00",
-            endTime: "10:00",
-            syncWithGoogleCalendar: false,
-            notes: "",
-            links: [],
-            isRecurring: false,
-            recurrencePattern: "daily",
-            recurrenceDays: [],
-          });
-        }
+      if (activity) {
+        // For drag-created activities (no id yet), pick a smart default end time,
+        // but do NOT keep forcing it while the user edits.
+        const startTime = activity.startTime || "09:00";
+        const defaultEnd = !activity.id ? addMinutesToTime(startTime, 60) : { time: activity.endTime || "10:00", dayDelta: 0 };
+
+        form.reset({
+          ...activity,
+          title: activity.id ? activity.title : "", // Empty title for new drag-created activities
+          description: activity.description || "",
+          endTime: defaultEnd.time,
+          endDate:
+            !activity.id && defaultEnd.dayDelta > 0
+              ? addDays(activity.startDate ?? new Date(), defaultEnd.dayDelta)
+              : (activity.endDate ?? activity.startDate ?? new Date()),
+          notes: activity.notes || "",
+          links: activity.links || [],
+          isRecurring: activity.isRecurring || false,
+          recurrencePattern: activity.recurrencePattern || "daily",
+          recurrenceDays: activity.recurrenceDays || [],
+        });
+      } else {
+        form.reset({
+          title: "",
+          description: "",
+          category: "work",
+          color: "purple",
+          startDate: new Date(),
+          endDate: new Date(),
+          startTime: "09:00",
+          endTime: "10:00",
+          syncWithGoogleCalendar: false,
+          notes: "",
+          links: [],
+          isRecurring: false,
+          recurrencePattern: "daily",
+          recurrenceDays: [],
+        });
+      }
     }
   }, [activity, open, form]);
 
@@ -157,23 +171,27 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
   const watchCategory = form.watch('category');
   const watchIsRecurring = form.watch('isRecurring');
   
-  // Auto-adjust end time when start time changes (for new activities or when end time becomes invalid)
+  // Auto-adjust end time only when it becomes invalid (and only until the user sets it manually)
   useEffect(() => {
-    if (watchStartTime) {
-      const [startHours, startMinutes] = watchStartTime.split(':').map(Number);
-      const [endHours, endMinutes] = watchEndTime.split(':').map(Number);
-      
-      // Check if we need to adjust end time
-      const needsAdjustment = (!activity?.id) || // New activity
-        (startHours * 60 + startMinutes >= endHours * 60 + endMinutes); // End time is not after start time
-      
-      if (needsAdjustment) {
-        const endHour = startHours + 1;
-        const newEndTime = `${endHour.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')}`;
-        form.setValue('endTime', newEndTime);
+    if (!watchStartTime || !watchEndTime) return;
+    if (isEndTimeManuallySet) return;
+
+    const [startHours, startMinutes] = watchStartTime.split(":").map(Number);
+    const [endHours, endMinutes] = watchEndTime.split(":").map(Number);
+
+    const startTotal = startHours * 60 + startMinutes;
+    const endTotal = endHours * 60 + endMinutes;
+
+    if (endTotal <= startTotal) {
+      const next = addMinutesToTime(watchStartTime, 60);
+      form.setValue("endTime", next.time);
+
+      // If end wraps past midnight, move end date to next day.
+      if (next.dayDelta > 0 && watchStartDate) {
+        form.setValue("endDate", addDays(watchStartDate, next.dayDelta));
       }
     }
-  }, [watchStartTime, watchEndTime, form, activity?.id]);
+  }, [watchStartTime, watchEndTime, watchStartDate, isEndTimeManuallySet, form]);
 
   // Auto-adjust end date when start date changes
   useEffect(() => {
@@ -394,9 +412,10 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
-                            className={cn("text-white pointer-events-auto")}
+                            className={cn("p-3 pointer-events-auto text-white")}
                             classNames={{
-                              day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary",
+                              day_selected:
+                                "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary",
                               day_today: "bg-primary/20 text-primary-foreground",
                             }}
                           />
@@ -453,9 +472,10 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                             selected={field.value}
                             onSelect={field.onChange}
                             initialFocus
-                            className={cn("text-white pointer-events-auto")}
-                             classNames={{
-                              day_selected: "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary",
+                            className={cn("p-3 pointer-events-auto text-white")}
+                            classNames={{
+                              day_selected:
+                                "bg-primary text-primary-foreground hover:bg-primary/90 focus:bg-primary",
                               day_today: "bg-primary/20 text-primary-foreground",
                             }}
                           />
@@ -472,7 +492,15 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                     <FormItem>
                       <FormLabel className="text-primary font-semibold">End Time</FormLabel>
                       <FormControl>
-                        <Input type="time" {...field} className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary" />
+                        <Input
+                          type="time"
+                          {...field}
+                          onChange={(e) => {
+                            setIsEndTimeManuallySet(true);
+                            field.onChange(e);
+                          }}
+                          className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -560,7 +588,7 @@ const ActivityDialog: React.FC<ActivityDialogProps> = ({
                               selected={field.value}
                               onSelect={field.onChange}
                               initialFocus
-                              className={cn("text-white pointer-events-auto")}
+                              className={cn("p-3 pointer-events-auto text-white")}
                             />
                           </PopoverContent>
                         </Popover>
