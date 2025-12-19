@@ -13,6 +13,8 @@ interface Task {
   title: string;
   description?: string;
   completed: boolean;
+  urgent?: boolean;
+  important?: boolean;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   category: string;
   dueDate?: Date;
@@ -38,7 +40,8 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
 }) => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [priority, setPriority] = useState<'low' | 'medium' | 'high' | 'urgent'>('medium');
+  const [urgent, setUrgent] = useState(false);
+  const [important, setImportant] = useState(true);
   const [category, setCategory] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
   const [tags, setTags] = useState<string[]>([]);
@@ -47,18 +50,30 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
   // Reset form when dialog opens/closes or editingTask changes
   useEffect(() => {
     if (open && editingTask) {
-      // Populate form with existing task data
       setTitle(editingTask.title || "");
       setDescription(editingTask.description || "");
-      setPriority(editingTask.priority || 'medium');
+
+      // Prefer Eisenhower fields; fall back to legacy priority mapping.
+      const derivedUrgent =
+        typeof editingTask.urgent === "boolean"
+          ? editingTask.urgent
+          : editingTask.priority === "urgent" || editingTask.priority === "medium";
+      const derivedImportant =
+        typeof editingTask.important === "boolean"
+          ? editingTask.important
+          : editingTask.priority === "urgent" || editingTask.priority === "high";
+
+      setUrgent(derivedUrgent);
+      setImportant(derivedImportant);
+
       setCategory(editingTask.category || "");
       setDueDate(editingTask.dueDate ? new Date(editingTask.dueDate) : undefined);
       setTags(editingTask.tags || []);
     } else if (open && !editingTask) {
-      // Reset form for new task
       setTitle("");
       setDescription("");
-      setPriority('medium');
+      setUrgent(false);
+      setImportant(true);
       setCategory("");
       setDueDate(undefined);
       setTags([]);
@@ -73,7 +88,8 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
     onCreateTask({
       title,
       description,
-      priority,
+      urgent,
+      important,
       category: category || 'General',
       dueDate,
       tags
@@ -82,7 +98,8 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
     // Reset form
     setTitle("");
     setDescription("");
-    setPriority('medium');
+    setUrgent(false);
+    setImportant(true);
     setCategory("");
     setDueDate(undefined);
     setTags([]);
@@ -118,7 +135,8 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
           <TaskFormFields
             title={title}
             description={description}
-            priority={priority}
+            urgent={urgent}
+            important={important}
             category={category}
             dueDate={dueDate}
             tags={tags}
@@ -126,7 +144,8 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
             taskType={taskType}
             onTitleChange={setTitle}
             onDescriptionChange={setDescription}
-            onPriorityChange={setPriority}
+            onUrgentChange={setUrgent}
+            onImportantChange={setImportant}
             onCategoryChange={setCategory}
             onDueDateChange={(value) => setDueDate(value ? new Date(value) : undefined)}
             onTagInputChange={setTagInput}

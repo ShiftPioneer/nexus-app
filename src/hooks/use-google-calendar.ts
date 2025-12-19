@@ -223,7 +223,9 @@ export const useGoogleCalendar = () => {
   // Fetch events from Google Calendar
   const fetchGoogleEvents = useCallback(
     async (timeMin?: string, timeMax?: string): Promise<GoogleCalendarEvent[]> => {
-      if (!session?.access_token) throw new Error("Not authenticated");
+      // IMPORTANT: don't manually override invoke headers; supabase-js will attach the current user JWT.
+      // Overriding headers can drop required defaults in some environments.
+      if (!user) throw new Error("Not authenticated");
 
       setIsSyncing(true);
 
@@ -234,14 +236,17 @@ export const useGoogleCalendar = () => {
             timeMin,
             timeMax,
           },
-          // Ensure the edge function always receives a valid Authorization header
-          // (some browsers/flows can result in missing auth headers otherwise).
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
         });
 
-        if (error) throw error;
+        if (error) {
+          // Normalize common auth failure into a reconnect prompt.
+          const msg = error.message || "Edge Function returned a non-2xx status code";
+          if (/no session|jwt|unauthorized|401/i.test(msg)) {
+            setConnectionStatus(isLinked ? "linked" : "disconnected");
+            throw new Error("Google sync needs re-authentication. Click Connect/Reconnect Google.");
+          }
+          throw error;
+        }
 
         if (data?.needsReconnect) {
           setConnectionStatus(isLinked ? "linked" : "disconnected");
@@ -256,7 +261,7 @@ export const useGoogleCalendar = () => {
         setIsSyncing(false);
       }
     },
-    [session?.access_token, isLinked]
+    [user?.id, isLinked]
   );
 
   // Push events to Google Calendar
@@ -269,7 +274,7 @@ export const useGoogleCalendar = () => {
         endDateTime: string;
       }>
     ) => {
-      if (!session?.access_token) throw new Error("Not authenticated");
+      if (!user) throw new Error("Not authenticated");
 
       setIsSyncing(true);
 
@@ -279,12 +284,16 @@ export const useGoogleCalendar = () => {
             action: "push",
             events,
           },
-          headers: {
-            Authorization: `Bearer ${session.access_token}`,
-          },
         });
 
-        if (error) throw error;
+        if (error) {
+          const msg = error.message || "Edge Function returned a non-2xx status code";
+          if (/no session|jwt|unauthorized|401/i.test(msg)) {
+            setConnectionStatus(isLinked ? "linked" : "disconnected");
+            throw new Error("Google sync needs re-authentication. Click Connect/Reconnect Google.");
+          }
+          throw error;
+        }
 
         if (data?.needsReconnect) {
           setConnectionStatus(isLinked ? "linked" : "disconnected");
@@ -296,7 +305,7 @@ export const useGoogleCalendar = () => {
         setIsSyncing(false);
       }
     },
-    [session?.access_token, isLinked]
+    [user?.id, isLinked]
   );
 
   // Sync calendars (import and/or export)
