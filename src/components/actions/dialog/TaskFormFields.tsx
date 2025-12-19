@@ -1,25 +1,30 @@
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { X, Calendar, Tag } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { X, Calendar, Tag, Zap, Target } from "lucide-react";
 import { format } from "date-fns";
 
 interface TaskFormFieldsProps {
   title: string;
   description: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+
+  urgent: boolean;
+  important: boolean;
+
   category: string;
   dueDate?: Date;
   tags: string[];
   tagInput: string;
   taskType: 'todo' | 'not-todo';
+
   onTitleChange: (value: string) => void;
   onDescriptionChange: (value: string) => void;
-  onPriorityChange: (value: 'low' | 'medium' | 'high' | 'urgent') => void;
+  onUrgentChange: (value: boolean) => void;
+  onImportantChange: (value: boolean) => void;
   onCategoryChange: (value: string) => void;
   onDueDateChange: (value: string) => void;
   onTagInputChange: (value: string) => void;
@@ -30,7 +35,8 @@ interface TaskFormFieldsProps {
 const TaskFormFields: React.FC<TaskFormFieldsProps> = ({
   title,
   description,
-  priority,
+  urgent,
+  important,
   category,
   dueDate,
   tags,
@@ -38,13 +44,21 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({
   taskType,
   onTitleChange,
   onDescriptionChange,
-  onPriorityChange,
+  onUrgentChange,
+  onImportantChange,
   onCategoryChange,
   onDueDateChange,
   onTagInputChange,
   onAddTag,
-  onRemoveTag
+  onRemoveTag,
 }) => {
+  const derivedPriority = useMemo(() => {
+    if (urgent && important) return 'urgent';
+    if (!urgent && important) return 'high';
+    if (urgent && !important) return 'medium';
+    return 'low';
+  }, [urgent, important]);
+
   return (
     <>
       <div>
@@ -73,22 +87,44 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label className="text-slate-300">Priority</Label>
-          <Select value={priority} onValueChange={onPriorityChange}>
-            <SelectTrigger className="bg-slate-900 border-slate-700 text-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-slate-900 border-slate-700">
-              <SelectItem value="low">Low</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="urgent">Urgent</SelectItem>
-            </SelectContent>
-          </Select>
+      {/* Eisenhower priority */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <Label className="text-slate-300">Eisenhower Priority</Label>
+          <Badge
+            variant="outline"
+            className="border-slate-600 text-slate-200 capitalize"
+          >
+            {derivedPriority}
+          </Badge>
         </div>
 
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <Zap className="h-4 w-4 text-slate-300" />
+              <div>
+                <div className="text-sm font-medium text-white">Urgent</div>
+                <div className="text-xs text-slate-400">Time-sensitive</div>
+              </div>
+            </div>
+            <Switch checked={urgent} onCheckedChange={onUrgentChange} />
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-900/60 px-3 py-2">
+            <div className="flex items-center gap-2">
+              <Target className="h-4 w-4 text-slate-300" />
+              <div>
+                <div className="text-sm font-medium text-white">Important</div>
+                <div className="text-xs text-slate-400">Moves goals forward</div>
+              </div>
+            </div>
+            <Switch checked={important} onCheckedChange={onImportantChange} />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <Label className="text-slate-300">Category</Label>
           <Input
@@ -98,18 +134,18 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({
             className="bg-slate-900 border-slate-700 text-white"
           />
         </div>
-      </div>
 
-      <div>
-        <Label className="text-slate-300">Due Date (Optional)</Label>
-        <div className="relative">
-          <Input
-            type="date"
-            value={dueDate ? format(dueDate, 'yyyy-MM-dd') : ''}
-            onChange={(e) => onDueDateChange(e.target.value)}
-            className="bg-slate-900 border-slate-700 text-white"
-          />
-          <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+        <div>
+          <Label className="text-slate-300">Due Date (Optional)</Label>
+          <div className="relative">
+            <Input
+              type="date"
+              value={dueDate ? format(dueDate, 'yyyy-MM-dd') : ''}
+              onChange={(e) => onDueDateChange(e.target.value)}
+              className="bg-slate-900 border-slate-700 text-white"
+            />
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          </div>
         </div>
       </div>
 
@@ -137,6 +173,7 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({
                     type="button"
                     onClick={() => onRemoveTag(tag)}
                     className="ml-1 hover:text-slate-100"
+                    aria-label={`Remove tag ${tag}`}
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -151,3 +188,4 @@ const TaskFormFields: React.FC<TaskFormFieldsProps> = ({
 };
 
 export default TaskFormFields;
+

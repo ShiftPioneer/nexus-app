@@ -26,7 +26,8 @@ const ActionsTabContent: React.FC<ActionsTabContentProps> = ({
     handleTaskComplete,
     handleTaskDelete,
     handleTaskRestore,
-    handleTaskPermanentDelete
+    handleTaskPermanentDelete,
+    updateTask,
   } = useActions();
 
   return (
@@ -79,6 +80,7 @@ const ActionsTabContent: React.FC<ActionsTabContentProps> = ({
             onTaskComplete={handleTaskComplete}
             onTaskEdit={onTaskEdit}
             onTaskDelete={handleTaskDelete}
+            onTaskUpdate={updateTask}
             onAddTask={() => onAddTask('todo')}
             title="To-Do Matrix"
             type="todo"
@@ -88,6 +90,7 @@ const ActionsTabContent: React.FC<ActionsTabContentProps> = ({
             onTaskComplete={handleTaskComplete}
             onTaskEdit={onTaskEdit}
             onTaskDelete={handleTaskDelete}
+            onTaskUpdate={updateTask}
             onAddTask={() => onAddTask('not-todo')}
             title="Not-To-Do Matrix"
             type="not-todo"
