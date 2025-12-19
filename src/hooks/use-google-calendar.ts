@@ -234,6 +234,11 @@ export const useGoogleCalendar = () => {
             timeMin,
             timeMax,
           },
+          // Ensure the edge function always receives a valid Authorization header
+          // (some browsers/flows can result in missing auth headers otherwise).
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
         });
 
         if (error) throw error;
@@ -273,6 +278,9 @@ export const useGoogleCalendar = () => {
           body: {
             action: "push",
             events,
+          },
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
           },
         });
 
