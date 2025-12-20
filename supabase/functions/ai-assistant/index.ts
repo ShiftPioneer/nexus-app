@@ -7,7 +7,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const googleAIApiKey = Deno.env.get('GOOGLE_AI_API_KEY');
+const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -52,8 +52,8 @@ serve(async (req) => {
       throw new Error('Message is required');
     }
 
-    // Build conversation context
-    let conversationText = `You are the Nexus AI Assistant, an intelligent productivity companion integrated into the Nexus productivity platform. 
+    // Build messages array for OpenAI-compatible API
+    const systemPrompt = `You are the Nexus AI Assistant, an intelligent productivity companion integrated into the Nexus productivity platform. 
 
 PLATFORM OVERVIEW:
 Nexus is a comprehensive productivity and life management platform with these modules:
@@ -85,69 +85,68 @@ PERSONALITY:
 - Ask clarifying questions when needed
 - Be concise but helpful
 - Use a friendly, professional tone
-- Focus on productivity and personal growth
+- Focus on productivity and personal growth`;
 
-CONVERSATION HISTORY:
-`;
+    const messages = [
+      { role: 'system', content: systemPrompt }
+    ];
 
     if (conversationHistory && conversationHistory.length > 0) {
       conversationHistory.forEach((msg: any) => {
-        conversationText += `${msg.type === 'user' ? 'User' : 'Assistant'}: ${msg.content}\n`;
+        messages.push({
+          role: msg.type === 'user' ? 'user' : 'assistant',
+          content: msg.content
+        });
       });
     }
 
-    conversationText += `\nUser: ${message}\nAssistant:`;
+    messages.push({ role: 'user', content: message });
 
-    console.log('Sending request to Google AI for user:', user.id);
+    console.log('Sending request to Lovable AI Gateway for user:', user.id);
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleAIApiKey}`, {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: conversationText
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 1024,
-        },
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
+        model: 'google/gemini-2.5-flash',
+        messages: messages,
       }),
     });
 
     if (!response.ok) {
       const error = await response.text();
-      console.error('Google AI API error:', error);
-      throw new Error(`Google AI API error: ${response.status} - ${error}`);
+      console.error('Lovable AI Gateway error:', response.status, error);
+      
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ 
+          error: 'Rate limit exceeded',
+          response: "I'm receiving too many requests right now. Please try again in a moment."
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ 
+          error: 'Payment required',
+          response: "AI credits have been exhausted. Please add more credits to continue."
+        }), {
+          status: 402,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
+      throw new Error(`AI Gateway error: ${response.status} - ${error}`);
     }
 
     const data = await response.json();
-    console.log('Received response from Google AI for user:', user.id);
+    console.log('Received response from Lovable AI Gateway for user:', user.id);
 
-    const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text || 
+    const generatedText = data.choices?.[0]?.message?.content || 
                          "I'm sorry, I couldn't generate a response right now. Please try again.";
 
     return new Response(JSON.stringify({ response: generatedText }), {
