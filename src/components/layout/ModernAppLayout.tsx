@@ -32,7 +32,7 @@ const ModernAppLayout = ({
             <ModernTopBar onToggleSidebar={toggleSidebar} isCollapsed={isCollapsed} isMobile={isMobile} aiAssistant={aiAssistant} />
             
             <main className="flex-1 overflow-y-auto scrollbar-none bg-background h-full">
-              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-foreground min-h-full bg-background">
+              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-foreground min-h-full bg-background px-0 py-0">
                 {children}
               </div>
             </main>
