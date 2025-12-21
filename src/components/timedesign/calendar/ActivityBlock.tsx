@@ -41,21 +41,23 @@ const ActivityBlock: React.FC<ActivityBlockProps> = ({
       className={className} 
       onClick={() => onEditActivity(activity)}
     >
-      <div className="flex items-start gap-2 h-full">
-        <Icon className="h-4 w-4 mt-1 flex-shrink-0 opacity-80" />
-        <div className="flex-grow flex flex-col h-full overflow-hidden">
-          <div className={`font-bold text-sm ${isWeekView ? 'truncate' : 'line-clamp-1'}`}>
-            {activity.title}
-          </div>
-          <div className={`text-xs opacity-90 ${isWeekView ? 'truncate' : ''}`}>
-            <span>{activity.startTime} - {activity.endTime}</span>
-          </div>
-          {parseInt(height, 10) > 40 && activity.description && (
-            <div className={`text-xs mt-1 opacity-80 flex-grow ${isWeekView ? 'truncate' : 'line-clamp-2'}`}>
-              {activity.description}
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex items-start gap-1.5">
+          <Icon className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 opacity-80" />
+          <div className="flex-1 min-w-0">
+            <div className={`font-semibold text-sm leading-tight ${isWeekView ? 'truncate' : 'line-clamp-2'}`}>
+              {activity.title}
             </div>
-          )}
+          </div>
         </div>
+        <div className="text-xs opacity-90 mt-0.5 flex-shrink-0">
+          {activity.startTime} - {activity.endTime}
+        </div>
+        {parseInt(height, 10) > 60 && activity.description && (
+          <div className={`text-xs mt-1 opacity-75 flex-grow ${isWeekView ? 'line-clamp-2' : 'line-clamp-3'}`}>
+            {activity.description}
+          </div>
+        )}
       </div>
     </div>
   );

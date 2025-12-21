@@ -38,29 +38,44 @@ const Habits = () => {
   
   const [accountabilityScore, setAccountabilityScore] = useLocalStorage("accountabilityScore", 0);
 
-  // Calculate real accountability score based on streaks and completions
+  // Calculate real accountability score based on streaks, completions, and multi-daily progress
   useEffect(() => {
     const score = habits.reduce((total, habit) => {
+      const dailyTarget = habit.dailyTarget || 1;
+      const todayCompletions = habit.todayCompletions || 0;
+      
+      // Streak bonus (weighted by score value)
       const streakBonus = habit.streak * (habit.scoreValue || 5);
-      const completionBonus = habit.completionDates.length * 2;
+      
+      // Completion history bonus
+      const historyBonus = (habit.completionHistory || []).reduce((sum, h) => {
+        // Bonus for each full completion day
+        return sum + (h.count >= dailyTarget ? 5 : h.count);
+      }, 0);
+      
+      // Today's partial progress bonus
+      const todayBonus = Math.floor((todayCompletions / dailyTarget) * (habit.scoreValue || 5));
+      
+      // Penalty for missed habits
       const penaltyDeduction = habit.status === "missed" ? habit.penaltyValue || 10 : 0;
-      return total + streakBonus + completionBonus - penaltyDeduction;
+      
+      return total + streakBonus + historyBonus + todayBonus - penaltyDeduction;
     }, 0);
     setAccountabilityScore(Math.max(0, score));
   }, [habits, setAccountabilityScore]);
 
-  // Check and update habit statuses daily
+  // Check and reset habit statuses daily
   useEffect(() => {
     const today = new Date().toDateString();
     const lastCheck = localStorage.getItem('lastHabitCheck');
     if (lastCheck !== today) {
       habits.forEach(habit => {
-        if (habit.type === "daily" && habit.status === "completed") {
-          const lastCompletion = habit.completionDates[0];
-          const lastCompletionDate = lastCompletion ? new Date(lastCompletion).toDateString() : '';
-          if (lastCompletionDate !== today) {
-            updateHabit(habit.id, { status: "pending" });
-          }
+        if (habit.type === "daily") {
+          // Reset todayCompletions and status for a new day
+          updateHabit(habit.id, { 
+            todayCompletions: 0, 
+            status: "pending" 
+          });
         }
       });
       localStorage.setItem('lastHabitCheck', today);
@@ -101,24 +116,28 @@ const Habits = () => {
   const completeHabit = (id: string) => {
     const habit = habits.find(h => h.id === id);
     if (habit) {
-      const today = new Date();
-      const completedToday = habit.completionDates.some(date => 
-        new Date(date).toDateString() === today.toDateString()
-      );
+      const dailyTarget = habit.dailyTarget || 1;
+      const todayCompletions = habit.todayCompletions || 0;
       
-      if (completedToday) {
+      if (todayCompletions >= dailyTarget) {
         toast({
           title: "Already Completed",
-          description: `${habit.title} has already been completed today.`,
+          description: `${habit.title} has already been fully completed today (${dailyTarget}/${dailyTarget}).`,
           variant: "default"
         });
         return;
       }
 
       markHabitComplete(id);
+      
+      const newCompletions = todayCompletions + 1;
+      const isFullyComplete = newCompletions >= dailyTarget;
+      
       toast({
-        title: "Habit Completed! 🎉",
-        description: `${habit.title} completed for today. +${habit.scoreValue || 5} points!`
+        title: isFullyComplete ? "Habit Fully Completed! 🎉" : `Progress: ${newCompletions}/${dailyTarget}`,
+        description: isFullyComplete 
+          ? `${habit.title} completed for today. +${habit.scoreValue || 5} points!`
+          : `${habit.title}: ${dailyTarget - newCompletions} more to go today.`
       });
     }
   };

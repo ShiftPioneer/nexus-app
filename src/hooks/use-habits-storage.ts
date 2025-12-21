@@ -54,20 +54,44 @@ export const useHabitsStorage = () => {
     setHabits(prev => 
       prev.map(habit => {
         if (habit.id === id) {
-          const alreadyCompletedToday = habit.completionDates.some(date => {
+          const dailyTarget = habit.dailyTarget || 1;
+          const todayCompletions = (habit.todayCompletions || 0) + 1;
+          
+          // Check if we've reached the daily target
+          const isFullyCompleted = todayCompletions >= dailyTarget;
+          
+          // Only add to completionDates if this is the first completion today
+          const alreadyHasEntryToday = habit.completionDates.some(date => {
             const completionDate = new Date(date);
             completionDate.setHours(0, 0, 0, 0);
             return completionDate.getTime() === today.getTime();
           });
 
-          if (!alreadyCompletedToday) {
-            return {
-              ...habit,
-              completionDates: [...habit.completionDates, today],
-              streak: habit.streak + 1,
-              status: "completed" as const
-            };
+          // Update completion history
+          const completionHistory = habit.completionHistory || [];
+          const todayHistoryIndex = completionHistory.findIndex(h => {
+            const historyDate = new Date(h.date);
+            historyDate.setHours(0, 0, 0, 0);
+            return historyDate.getTime() === today.getTime();
+          });
+          
+          let updatedHistory: HabitCompletion[];
+          if (todayHistoryIndex >= 0) {
+            updatedHistory = completionHistory.map((h, i) => 
+              i === todayHistoryIndex ? { ...h, count: h.count + 1 } : h
+            );
+          } else {
+            updatedHistory = [...completionHistory, { date: today, count: 1 }];
           }
+
+          return {
+            ...habit,
+            completionDates: alreadyHasEntryToday ? habit.completionDates : [...habit.completionDates, today],
+            todayCompletions,
+            completionHistory: updatedHistory,
+            streak: isFullyCompleted && !alreadyHasEntryToday ? habit.streak + 1 : habit.streak,
+            status: isFullyCompleted ? "completed" as const : "partial" as const
+          };
         }
         return habit;
       })
