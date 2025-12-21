@@ -19,7 +19,7 @@ const TimeDesign = () => {
   
   // Time Design state
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewType, setViewType] = useState<"day" | "week">("week");
+  const [viewType, setViewType] = useState<"day" | "two-day" | "week" | "month">("week");
   const { activities, loading, saveActivity, deleteActivity, refetch } = useSupabaseTimeDesignStorage();
   const [editingActivity, setEditingActivity] = useState<TimeActivity | null>(null);
   
@@ -133,6 +133,7 @@ const TimeDesign = () => {
             <TimeDesignCalendar 
               currentDate={currentDate}
               viewType={viewType}
+              onViewTypeChange={setViewType}
               activities={activities}
               onEditActivity={handleEditActivity}
               onCreateActivity={handleCreateActivity}

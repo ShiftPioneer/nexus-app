@@ -12,7 +12,7 @@ import * as z from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Target, Clock, Trophy, Minus } from "lucide-react";
+import { Target, Clock, Trophy, Minus, Repeat } from "lucide-react";
 
 const habitSchema = z.object({
   title: z.string().min(1, "Habit name is required"),
@@ -22,6 +22,7 @@ const habitSchema = z.object({
   duration: z.string().optional(),
   scoreValue: z.number().min(1),
   penaltyValue: z.number().min(0),
+  dailyTarget: z.number().min(1).optional(),
 });
 
 type HabitFormValues = z.infer<typeof habitSchema>;
@@ -51,6 +52,7 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
       duration: initialHabit?.duration || "10 minutes",
       scoreValue: initialHabit?.scoreValue || 5,
       penaltyValue: initialHabit?.penaltyValue || 10,
+      dailyTarget: initialHabit?.dailyTarget || 1,
     },
   });
 
@@ -69,7 +71,10 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
         createdAt: initialHabit?.createdAt || new Date(),
         duration: values.duration,
         scoreValue: values.scoreValue,
-        penaltyValue: values.penaltyValue
+        penaltyValue: values.penaltyValue,
+        dailyTarget: values.dailyTarget || 1,
+        todayCompletions: initialHabit?.todayCompletions || 0,
+        completionHistory: initialHabit?.completionHistory || []
       };
       await onHabitCreate(habit);
       if (!initialHabit) {
@@ -215,6 +220,40 @@ const HabitCreationDialog: React.FC<HabitCreationDialogProps> = ({
               </Card>
             )}
             
+            {/* Daily Target for Multi-Daily Habits */}
+            {form.watch("type") === "daily" && (
+              <FormField
+                control={form.control}
+                name="dailyTarget"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-primary font-semibold flex items-center gap-2">
+                      <Repeat className="h-4 w-4" />
+                      Times Per Day
+                    </FormLabel>
+                    <FormDescription className="text-slate-500 text-sm">
+                      How many times should this habit be completed each day? (e.g., 5 for daily prayers)
+                    </FormDescription>
+                    <div className="flex items-center gap-3">
+                      <FormControl>
+                        <Input 
+                          type="number" 
+                          min={1}
+                          max={20}
+                          {...field}
+                          value={field.value || 1}
+                          onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
+                          className="bg-slate-900 border-slate-700 focus:ring-primary focus:border-primary text-white w-24"
+                        />
+                      </FormControl>
+                      <span className="text-slate-400 text-sm">times per day</span>
+                    </div>
+                    <FormLabel />
+                  </FormItem>
+                )}
+              />
+            )}
+
             {/* Duration and Commitment */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField

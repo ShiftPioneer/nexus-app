@@ -1,17 +1,26 @@
 
+interface HabitCompletion {
+  date: Date;
+  count: number; // How many times completed on this date
+}
+
 interface Habit {
   id: string;
   title: string;
   category: HabitCategory;
   streak: number;
   target: number;
-  status: "completed" | "pending" | "missed";
+  status: "completed" | "pending" | "missed" | "partial";
   completionDates: Date[];
   type: "daily" | "weekly" | "monthly";
   createdAt: Date;
   duration?: string;
   scoreValue?: number;
   penaltyValue?: number;
+  // Multi-daily tracking
+  dailyTarget?: number; // How many times per day (e.g., 5 for prayers)
+  todayCompletions?: number; // How many times completed today
+  completionHistory?: HabitCompletion[]; // Detailed completion history
 }
 
 interface HabitStatistics {

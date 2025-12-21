@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Clock, Calendar, Target, TrendingUp } from "lucide-react";
+import { CheckCircle, Circle, Clock, Calendar, Target, TrendingUp, Repeat } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CircularProgress } from "@/components/ui/circular-progress";
 import { StreakFire } from "@/components/ui/streak-fire";
@@ -28,9 +28,24 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
     }
   };
 
+  const dailyTarget = habit.dailyTarget || 1;
+  const todayCompletions = habit.todayCompletions || 0;
+  const isMultiDaily = dailyTarget > 1;
+  const dailyProgress = Math.min(100, Math.round((todayCompletions / dailyTarget) * 100));
+
   const getStatusIcon = () => {
     if (habit.status === "completed") {
       return <CheckCircle className="h-8 w-8 text-emerald-400" />;
+    }
+    if (habit.status === "partial") {
+      return (
+        <div className="relative">
+          <Circle className="h-8 w-8 text-amber-400" />
+          <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-amber-400">
+            {todayCompletions}
+          </span>
+        </div>
+      );
     }
     return <Circle className="h-8 w-8 text-slate-600" />;
   };
@@ -50,6 +65,8 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
         "group relative overflow-hidden border transition-all duration-300 cursor-pointer hover:shadow-lg hover:shadow-slate-900/50 card-enhanced",
         habit.status === "completed" 
           ? "border-emerald-500/50 bg-emerald-950/20" 
+          : habit.status === "partial"
+          ? "border-amber-500/50 bg-amber-950/20"
           : habit.status === "missed" 
           ? "border-red-500/50 bg-red-950/20"
           : "border-slate-300 bg-slate-950/40 hover:border-slate-200"
@@ -76,6 +93,12 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
                   <Calendar className="h-4 w-4" />
                   <span>{habit.type}</span>
                 </div>
+                {isMultiDaily && (
+                  <div className="flex items-center gap-1 text-amber-400">
+                    <Repeat className="h-4 w-4" />
+                    <span>{dailyTarget}x/day</span>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -86,6 +109,32 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
         </div>
 
         <div className="space-y-4">
+          {/* Multi-daily Progress (if applicable) */}
+          {isMultiDaily && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-slate-400">Today's Progress</span>
+                <span className={cn(
+                  "font-medium",
+                  habit.status === "completed" ? "text-emerald-400" : "text-amber-400"
+                )}>
+                  {todayCompletions} / {dailyTarget}
+                </span>
+              </div>
+              <div className="relative w-full bg-slate-800/50 h-2 rounded-full overflow-hidden">
+                <div 
+                  className={cn(
+                    "h-full rounded-full transition-all duration-500",
+                    habit.status === "completed" 
+                      ? "bg-gradient-to-r from-emerald-500 to-emerald-400" 
+                      : "bg-gradient-to-r from-amber-500 to-amber-400"
+                  )}
+                  style={{ width: `${dailyProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Streak and Progress */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -129,7 +178,7 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
           </div>
 
           {/* Action Buttons */}
-          {habit.status === "pending" && (
+          {(habit.status === "pending" || habit.status === "partial") && (
             <div className="flex gap-2 pt-2 opacity-0 group-hover:opacity-100 transition-opacity">
               <Button 
                 size="sm" 
@@ -139,7 +188,7 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
                   onComplete(habit.id);
                 }}
               >
-                Complete
+                {isMultiDaily ? `Complete (${todayCompletions + 1}/${dailyTarget})` : "Complete"}
               </Button>
               <Button 
                 size="sm" 
