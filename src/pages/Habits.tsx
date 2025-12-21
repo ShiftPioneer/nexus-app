@@ -17,9 +17,10 @@ import HabitStreakCard from "@/components/habits/HabitStreakCard";
 import WeeklyActivityCard from "@/components/habits/WeeklyActivityCard";
 import ModernAnalyticsCard from "@/components/habits/ModernAnalyticsCard";
 import { navigationIcons } from "@/lib/navigation-icons";
-
 const Habits = () => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [statisticsTab, setStatisticsTab] = useState("overview");
   const [showHabitDialog, setShowHabitDialog] = useState(false);
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
@@ -27,15 +28,14 @@ const Habits = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   // Use improved habits storage
-  const { 
-    habits, 
-    addHabit, 
-    updateHabit, 
-    deleteHabit, 
-    markHabitComplete, 
-    markHabitMissed 
+  const {
+    habits,
+    addHabit,
+    updateHabit,
+    deleteHabit,
+    markHabitComplete,
+    markHabitMissed
   } = useHabitsStorage();
-  
   const [accountabilityScore, setAccountabilityScore] = useLocalStorage("accountabilityScore", 0);
 
   // Calculate real accountability score based on streaks, completions, and multi-daily progress
@@ -43,22 +43,21 @@ const Habits = () => {
     const score = habits.reduce((total, habit) => {
       const dailyTarget = habit.dailyTarget || 1;
       const todayCompletions = habit.todayCompletions || 0;
-      
+
       // Streak bonus (weighted by score value)
       const streakBonus = habit.streak * (habit.scoreValue || 5);
-      
+
       // Completion history bonus
       const historyBonus = (habit.completionHistory || []).reduce((sum, h) => {
         // Bonus for each full completion day
         return sum + (h.count >= dailyTarget ? 5 : h.count);
       }, 0);
-      
+
       // Today's partial progress bonus
-      const todayBonus = Math.floor((todayCompletions / dailyTarget) * (habit.scoreValue || 5));
-      
+      const todayBonus = Math.floor(todayCompletions / dailyTarget * (habit.scoreValue || 5));
+
       // Penalty for missed habits
       const penaltyDeduction = habit.status === "missed" ? habit.penaltyValue || 10 : 0;
-      
       return total + streakBonus + historyBonus + todayBonus - penaltyDeduction;
     }, 0);
     setAccountabilityScore(Math.max(0, score));
@@ -72,16 +71,15 @@ const Habits = () => {
       habits.forEach(habit => {
         if (habit.type === "daily") {
           // Reset todayCompletions and status for a new day
-          updateHabit(habit.id, { 
-            todayCompletions: 0, 
-            status: "pending" 
+          updateHabit(habit.id, {
+            todayCompletions: 0,
+            status: "pending"
           });
         }
       });
       localStorage.setItem('lastHabitCheck', today);
     }
   }, [habits, updateHabit]);
-
   const handleCreateHabit = (habit: Habit) => {
     if (selectedHabit) {
       updateHabit(habit.id, habit);
@@ -107,18 +105,15 @@ const Habits = () => {
     }
     setShowHabitDialog(false);
   };
-
   const handleEditHabit = (habit: Habit) => {
     setSelectedHabit(habit);
     setShowHabitDialog(true);
   };
-
   const completeHabit = (id: string) => {
     const habit = habits.find(h => h.id === id);
     if (habit) {
       const dailyTarget = habit.dailyTarget || 1;
       const todayCompletions = habit.todayCompletions || 0;
-      
       if (todayCompletions >= dailyTarget) {
         toast({
           title: "Already Completed",
@@ -127,21 +122,15 @@ const Habits = () => {
         });
         return;
       }
-
       markHabitComplete(id);
-      
       const newCompletions = todayCompletions + 1;
       const isFullyComplete = newCompletions >= dailyTarget;
-      
       toast({
         title: isFullyComplete ? "Habit Fully Completed! 🎉" : `Progress: ${newCompletions}/${dailyTarget}`,
-        description: isFullyComplete 
-          ? `${habit.title} completed for today. +${habit.scoreValue || 5} points!`
-          : `${habit.title}: ${dailyTarget - newCompletions} more to go today.`
+        description: isFullyComplete ? `${habit.title} completed for today. +${habit.scoreValue || 5} points!` : `${habit.title}: ${dailyTarget - newCompletions} more to go today.`
       });
     }
   };
-
   const missHabit = (id: string) => {
     const habit = habits.find(h => h.id === id);
     if (habit) {
@@ -160,28 +149,16 @@ const Habits = () => {
     const matchesSearch = habit.title.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
-
   const categories = ["all", ...Array.from(new Set(habits.map(h => h.category)))];
-
-  return (
-    <ModernAppLayout>
+  return <ModernAppLayout>
       <div className="page-container">
         <div className="page-content">
-        <UnifiedPageHeader
-          title="Habits"
-          description="Track your consistency and build unstoppable momentum"
-          icon={navigationIcons.habits}
-          gradient="from-purple-500 via-pink-500 to-rose-500"
-        />
+        <UnifiedPageHeader title="Habits" description="Track your consistency and build unstoppable momentum" icon={navigationIcons.habits} gradient="from-purple-500 via-pink-500 to-rose-500" />
         <div className="flex justify-end">
-          <UnifiedActionButton
-            onClick={() => {
-              setSelectedHabit(null);
-              setShowHabitDialog(true);
-            }}
-            icon={Plus}
-            variant="primary"
-          >
+          <UnifiedActionButton onClick={() => {
+            setSelectedHabit(null);
+            setShowHabitDialog(true);
+          }} icon={Plus} variant="primary">
             New Habit
           </UnifiedActionButton>
         </div>
@@ -223,10 +200,9 @@ const Habits = () => {
                   </span>
                 </div>
                 <div className="relative w-full bg-slate-800/50 h-4 rounded-full border border-slate-700/30 overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-primary via-orange-500 to-red-500 rounded-full transition-all duration-1000 ease-out relative" 
-                    style={{ width: `${Math.min(100, accountabilityScore / 500 * 100)}%` }}
-                  >
+                  <div className="h-full bg-gradient-to-r from-primary via-orange-500 to-red-500 rounded-full transition-all duration-1000 ease-out relative" style={{
+                    width: `${Math.min(100, accountabilityScore / 500 * 100)}%`
+                  }}>
                     <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent animate-pulse" />
                   </div>
                 </div>
@@ -242,18 +218,10 @@ const Habits = () => {
         {/* Main Content Tabs */}
         <ModernTabs defaultValue="habits" className="space-y-8 h-full">
           <ModernTabsList>
-            <ModernTabsTrigger 
-              value="habits"
-              icon={CheckCircle}
-              gradient="from-emerald-500 via-teal-500 to-cyan-500"
-            >
+            <ModernTabsTrigger value="habits" icon={CheckCircle} gradient="from-emerald-500 via-teal-500 to-cyan-500">
               Track Habits
             </ModernTabsTrigger>
-            <ModernTabsTrigger 
-              value="statistics"
-              icon={BarChart2}
-              gradient="from-purple-500 via-pink-500 to-rose-500"
-            >
+            <ModernTabsTrigger value="statistics" icon={BarChart2} gradient="from-purple-500 via-pink-500 to-rose-500">
               Statistics
             </ModernTabsTrigger>
           </ModernTabsList>
@@ -263,67 +231,27 @@ const Habits = () => {
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                  placeholder="Search habits..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 bg-slate-900 border-slate-700 text-white"
-                />
+                <Input placeholder="Search habits..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="pl-10 bg-slate-900 border-slate-700 text-white mx-[10px]" />
               </div>
               <div className="flex items-center gap-2">
                 <Filter className="h-4 w-4 text-slate-400" />
-                <select 
-                  value={filterCategory} 
-                  onChange={(e) => setFilterCategory(e.target.value)}
-                  className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-slate-700 text-white"
-                >
-                   {categories.map(cat => (
-                     <option key={cat} value={cat}>
+                <select value={filterCategory} onChange={e => setFilterCategory(e.target.value)} className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-slate-700 text-white">
+                   {categories.map(cat => <option key={cat} value={cat}>
                        {cat === "all" ? "All Categories" : String(cat).charAt(0).toUpperCase() + String(cat).slice(1)}
-                     </option>
-                   ))}
+                     </option>)}
                 </select>
               </div>
             </div>
 
             {/* Habits Grid */}
-            {filteredHabits.length === 0 ? (
-              <EmptyState
-                icon={Award}
-                title={searchTerm || filterCategory !== "all" ? "No matching habits" : "No habits yet"}
-                description={
-                  searchTerm || filterCategory !== "all" 
-                    ? "Try adjusting your search or filter criteria."
-                    : "Start by creating your first habit to track your consistency."
-                }
-                action={
-                  !searchTerm && filterCategory === "all" ? (
-                    <UnifiedActionButton
-                      onClick={() => {
-                        setSelectedHabit(null);
-                        setShowHabitDialog(true);
-                      }}
-                      icon={Plus}
-                      variant="primary"
-                    >
+            {filteredHabits.length === 0 ? <EmptyState icon={Award} title={searchTerm || filterCategory !== "all" ? "No matching habits" : "No habits yet"} description={searchTerm || filterCategory !== "all" ? "Try adjusting your search or filter criteria." : "Start by creating your first habit to track your consistency."} action={!searchTerm && filterCategory === "all" ? <UnifiedActionButton onClick={() => {
+              setSelectedHabit(null);
+              setShowHabitDialog(true);
+            }} icon={Plus} variant="primary">
                       Create First Habit
-                    </UnifiedActionButton>
-                  ) : undefined
-                }
-              />
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredHabits.map(habit => (
-                  <ModernHabitCard
-                    key={habit.id}
-                    habit={habit}
-                    onComplete={completeHabit}
-                    onSkip={missHabit}
-                    onEdit={handleEditHabit}
-                  />
-                ))}
-              </div>
-            )}
+                    </UnifiedActionButton> : undefined} /> : <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredHabits.map(habit => <ModernHabitCard key={habit.id} habit={habit} onComplete={completeHabit} onSkip={missHabit} onEdit={handleEditHabit} />)}
+              </div>}
           </ModernTabsContent>
           
           <ModernTabsContent value="statistics" className="space-y-8">
@@ -334,24 +262,13 @@ const Habits = () => {
             </div>
 
             {/* Modern Analytics Card */}
-            <ModernAnalyticsCard 
-              habits={habits}
-              statisticsTab={statisticsTab}
-              onStatisticsTabChange={setStatisticsTab}
-            />
+            <ModernAnalyticsCard habits={habits} statisticsTab={statisticsTab} onStatisticsTabChange={setStatisticsTab} />
           </ModernTabsContent>
         </ModernTabs>
         </div>
       </div>
       
-      <HabitCreationDialog
-        open={showHabitDialog} 
-        onOpenChange={setShowHabitDialog} 
-        onHabitCreate={handleCreateHabit} 
-        initialHabit={selectedHabit} 
-      />
-    </ModernAppLayout>
-  );
+      <HabitCreationDialog open={showHabitDialog} onOpenChange={setShowHabitDialog} onHabitCreate={handleCreateHabit} initialHabit={selectedHabit} />
+    </ModernAppLayout>;
 };
-
 export default Habits;
