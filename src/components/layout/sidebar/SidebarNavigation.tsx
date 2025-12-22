@@ -29,12 +29,6 @@ const navigationItems = [
     description: "Overview & insights"
   },
   {
-    name: "GTD",
-    path: "/gtd",
-    icon: CheckSquare,
-    description: "Getting Things Done"
-  },
-  {
     name: "Actions",
     path: "/actions",
     icon: CheckCircle2,
