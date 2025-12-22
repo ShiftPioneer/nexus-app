@@ -19,7 +19,6 @@ import Energy from "./pages/Energy";
 import Mindset from "./pages/Mindset";
 import Settings from "./pages/Settings";
 import Focus from "./pages/Focus";
-import GTD from "./pages/GTD";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
@@ -47,7 +46,6 @@ const App = () => (
                 <Route path="/mindset" element={<Mindset />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/focus" element={<Focus />} />
-                <Route path="/gtd" element={<GTD />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
               </Routes>
