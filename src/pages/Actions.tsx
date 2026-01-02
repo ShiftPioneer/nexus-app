@@ -1,12 +1,15 @@
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
-import { ModernTabs, ModernTabsList, ModernTabsTrigger } from "@/components/ui/modern-tabs";
+import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import { navigationIcons } from "@/lib/navigation-icons";
-import { CheckSquare, X, Kanban, Grid3x3, Trash2 } from "lucide-react";
+import { CheckSquare, X, Kanban, Grid3x3, Trash2, Inbox } from "lucide-react";
 import TaskCreationDialog from "@/components/actions/TaskCreationDialog";
 import ActionsTabContent from "@/components/actions/ActionsTabContent";
 import { ActionsProvider, useActions } from "@/components/actions/ActionsContext";
+import QuickCaptureBar from "@/components/actions/QuickCaptureBar";
+import InboxView from "@/components/actions/InboxView";
+import { UnifiedTasksProvider, useUnifiedTasks } from "@/contexts/UnifiedTasksContext";
 interface Task {
   id: string;
   title: string;
@@ -22,7 +25,7 @@ interface Task {
   deletedAt?: Date;
 }
 const ActionsContent = () => {
-  const [activeTab, setActiveTab] = useState("todo");
+  const [activeTab, setActiveTab] = useState("inbox");
   const [isCreatingTask, setIsCreatingTask] = useState(false);
   const [taskType, setTaskType] = useState<'todo' | 'not-todo'>('todo');
   const [editingTask, setEditingTask] = useState<Task | null>(null);
@@ -31,6 +34,8 @@ const ActionsContent = () => {
     setTasks,
     handleCreateTask
   } = useActions();
+  
+  const { inboxTasks } = useUnifiedTasks();
 
   // Sample data initialization
   React.useEffect(() => {
@@ -94,6 +99,11 @@ const ActionsContent = () => {
     setEditingTask(null);
   };
   const tabItems = [{
+    value: "inbox",
+    label: `Inbox${inboxTasks.length > 0 ? ` (${inboxTasks.length})` : ''}`,
+    icon: Inbox,
+    gradient: "from-amber-500 via-orange-500 to-red-500"
+  }, {
     value: "todo",
     label: "To Do",
     icon: CheckSquare,
@@ -123,12 +133,22 @@ const ActionsContent = () => {
       <div className="page-content px-[20px]">
         <UnifiedPageHeader title="Actions" description="Manage your tasks and focus on what matters most" icon={navigationIcons.actions} gradient="from-green-500 via-emerald-500 to-teal-500" />
 
+        {/* Quick Capture Bar */}
+        <QuickCaptureBar />
+
       <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full px-[20px]">
-        <ModernTabsList className="grid w-full grid-cols-5 max-w-5xl mx-auto">
+        <ModernTabsList className="grid w-full grid-cols-6 max-w-6xl mx-auto">
           {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} className="flex-1">
               {tab.label}
             </ModernTabsTrigger>)}
         </ModernTabsList>
+        
+        {/* Inbox Tab */}
+        <ModernTabsContent value="inbox" className="mt-8">
+          <div className="max-w-6xl mx-auto">
+            <InboxView />
+          </div>
+        </ModernTabsContent>
         
         <ActionsTabContent activeTab={activeTab} onTaskEdit={handleTaskEdit} onAddTask={handleAddTask} />
       </ModernTabs>
@@ -139,9 +159,11 @@ const ActionsContent = () => {
 };
 const Actions = () => {
   return <ModernAppLayout>
-      <ActionsProvider>
-        <ActionsContent />
-      </ActionsProvider>
+      <UnifiedTasksProvider>
+        <ActionsProvider>
+          <ActionsContent />
+        </ActionsProvider>
+      </UnifiedTasksProvider>
     </ModernAppLayout>;
 };
 export default Actions;
