@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
-import { useActions } from "@/components/actions/ActionsContext";
+import { useUnifiedTasks } from "@/contexts/UnifiedTasksContext";
 
 interface Message {
   id: string;
@@ -47,8 +47,8 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  // Get actions context for task management
-  const actionsContext = useActionsContext();
+  // Get unified tasks context for task management
+  const tasksContext = useTasksContext();
 
   const {
     isListening,
@@ -89,23 +89,27 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
   }, [speechError, toast]);
 
   const executeToolCall = useCallback((toolCall: ToolCall): string => {
-    if (!actionsContext) {
+    if (!tasksContext) {
       return "Unable to access task management. Please navigate to the Actions page first.";
     }
 
-    const { tasks, handleCreateTask, handleTaskComplete, handleTaskDelete, updateTask } = actionsContext;
+    const { tasks, addTask, completeTask, deleteTask, updateTask } = tasksContext;
 
     switch (toolCall.name) {
       case "create_task": {
-        const { title, description, urgent, important, category, type, dueDate } = toolCall.arguments;
-        handleCreateTask({
+        const { title, description, urgent, important, category, type } = toolCall.arguments;
+        addTask({
           title,
           description: description || "",
+          type: type || "todo",
+          status: "active",
+          priority: urgent && important ? "urgent" : important ? "high" : urgent ? "medium" : "low",
+          category: category || "general",
           urgent: urgent || false,
           important: important || false,
-          category: category || "General",
-          dueDate: dueDate ? new Date(dueDate) : undefined,
-        }, type || "todo");
+          clarified: true,
+          completed: false,
+        });
         return `Created ${type === 'not-todo' ? 'avoidance item' : 'task'}: "${title}"`;
       }
 
@@ -113,7 +117,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
         const { taskTitle } = toolCall.arguments;
         const task = findTaskByTitle(tasks, taskTitle);
         if (task) {
-          handleTaskComplete(task.id);
+          completeTask(task.id);
           return `Marked "${task.title}" as completed!`;
         }
         return `Couldn't find a task matching "${taskTitle}".`;
@@ -123,7 +127,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
         const { taskTitle } = toolCall.arguments;
         const task = findTaskByTitle(tasks, taskTitle);
         if (task) {
-          handleTaskDelete(task.id);
+          deleteTask(task.id);
           return `Deleted task: "${task.title}"`;
         }
         return `Couldn't find a task matching "${taskTitle}".`;
@@ -145,7 +149,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
 
       case "list_tasks": {
         const { filter, type } = toolCall.arguments;
-        let filteredTasks = tasks.filter(t => !t.deleted);
+        let filteredTasks = tasks.filter(t => t.status !== 'deleted');
         
         if (type && type !== 'all') {
           filteredTasks = filteredTasks.filter(t => t.type === type);
@@ -175,7 +179,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
       default:
         return "Unknown action requested.";
     }
-  }, [actionsContext]);
+  }, [tasksContext]);
 
   const handleConfirmToolCall = useCallback((messageId: string, toolCall: ToolCall) => {
     const result = executeToolCall(toolCall);
@@ -219,7 +223,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
       .map((m) => ({ type: m.type, content: m.content }));
 
     // Include current tasks for context
-    const currentTasks = actionsContext?.tasks || [];
+    const currentTasks = tasksContext?.tasks || [];
 
     const { data, error } = await supabase.functions.invoke("ai-assistant", {
       body: {
@@ -233,7 +237,7 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
           important: t.important,
           category: t.category,
           type: t.type,
-          deleted: t.deleted,
+          status: t.status,
         })),
       },
     });
@@ -595,10 +599,10 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
   );
 };
 
-// Safe wrapper to use ActionsContext (may not be available on all pages)
-function useActionsContext() {
+// Safe wrapper to use UnifiedTasksContext (may not be available on all pages)
+function useTasksContext() {
   try {
-    return useActions();
+    return useUnifiedTasks();
   } catch {
     return null;
   }
