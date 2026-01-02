@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
-import { Target, Layout, BarChart3, Plus } from "lucide-react";
+import { Target, Layout, BarChart3, Plus, Brain } from "lucide-react";
 import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import { UnifiedActionButton } from "@/components/ui/unified-action-button";
 import GoalsList from "@/components/planning/GoalsList";
@@ -10,6 +10,7 @@ import PlanningListView from "@/components/planning/PlanningListView";
 import PlanningStatsDialog from "@/components/planning/PlanningStatsDialog";
 import GoalCreationDialog from "@/components/planning/GoalCreationDialog";
 import ProjectCreationDialog from "@/components/planning/ProjectCreationDialog";
+import ReviewTab from "@/components/planning/ReviewTab";
 import { useGTDProjectsSync } from "@/hooks/use-gtd-projects-sync";
 import { navigationIcons } from "@/lib/navigation-icons";
 
@@ -118,6 +119,12 @@ const Planning = () => {
       label: "Task List", 
       icon: BarChart3,
       gradient: "from-purple-500 via-pink-500 to-rose-500"
+    },
+    { 
+      value: "review", 
+      label: "Weekly Review", 
+      icon: Brain,
+      gradient: "from-cyan-500 via-blue-500 to-indigo-500"
     }
   ];
 
@@ -149,7 +156,7 @@ const Planning = () => {
         </div>
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList className="grid w-full grid-cols-3 max-w-3xl mx-auto">
+          <ModernTabsList className="grid w-full grid-cols-4 max-w-4xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
@@ -188,6 +195,10 @@ const Planning = () => {
                 onEditItem={handleEditItem}
                 onUpdateProgress={handleUpdateProgress}
               />
+          </ModernTabsContent>
+          
+          <ModernTabsContent value="review" className="mt-8 max-w-6xl mx-auto">
+              <ReviewTab goals={goals} projects={projects} />
           </ModernTabsContent>
         </ModernTabs>
 
