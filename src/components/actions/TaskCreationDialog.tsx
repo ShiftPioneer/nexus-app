@@ -7,28 +7,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import TaskFormFields from "./dialog/TaskFormFields";
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  completed: boolean;
-  urgent?: boolean;
-  important?: boolean;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  category: string;
-  dueDate?: Date;
-  createdAt: Date;
-  tags?: string[];
-  type: 'todo' | 'not-todo';
-}
+import { UnifiedTask, TaskPriority } from "@/types/unified-tasks";
 
 interface TaskCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreateTask: (task: Partial<Task>) => void;
+  onCreateTask: (task: Partial<UnifiedTask>) => void;
   taskType: 'todo' | 'not-todo';
-  editingTask?: Task | null;
+  editingTask?: UnifiedTask | null;
 }
 
 const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
