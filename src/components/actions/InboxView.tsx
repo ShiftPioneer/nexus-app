@@ -38,10 +38,10 @@ const InboxView: React.FC = () => {
   };
 
   const getQuadrantInfo = (urgent: boolean, important: boolean) => {
-    if (urgent && important) return { label: "Do It", color: "from-red-500 to-orange-500", description: "Urgent & Important" };
-    if (!urgent && important) return { label: "Schedule It", color: "from-blue-500 to-indigo-500", description: "Not Urgent & Important" };
-    if (urgent && !important) return { label: "Delegate It", color: "from-yellow-500 to-orange-400", description: "Urgent & Not Important" };
-    return { label: "Delete It", color: "from-gray-500 to-slate-500", description: "Not Urgent & Not Important" };
+    if (urgent && important) return { label: "Do First", color: "from-red-500 to-orange-500", description: "Urgent & Important" };
+    if (!urgent && important) return { label: "Schedule", color: "from-blue-500 to-indigo-500", description: "Important, not urgent" };
+    if (urgent && !important) return { label: "Delegate", color: "from-yellow-500 to-orange-400", description: "Urgent, not important" };
+    return { label: "Consider", color: "from-slate-500 to-slate-600", description: "Low impact / optional" };
   };
 
   if (inboxTasks.length === 0) {
