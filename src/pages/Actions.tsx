@@ -29,16 +29,23 @@ const ActionsContent = () => {
     setIsCreatingTask(true);
   };
 
-  const handleCreateTask = (taskData: Partial<UnifiedTask>) => {
+const handleCreateTask = (taskData: Partial<UnifiedTask>) => {
+    // Derive priority from Eisenhower values
+    const urgent = taskData.urgent ?? false;
+    const important = taskData.important ?? true;
+    const priority = urgent && important ? "urgent" : 
+                     !urgent && important ? "high" : 
+                     urgent && !important ? "medium" : "low";
+    
     addTask({
       title: taskData.title || "",
       description: taskData.description,
-      type: "todo",
+      type: taskData.type || "todo",
       status: "active",
-      priority: taskData.priority || "medium",
+      priority,
       category: taskData.category || "general",
-      urgent: taskData.urgent,
-      important: taskData.important,
+      urgent,
+      important,
       clarified: true,
       dueDate: taskData.dueDate,
       tags: taskData.tags,

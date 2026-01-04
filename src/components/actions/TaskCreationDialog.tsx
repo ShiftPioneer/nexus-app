@@ -6,14 +6,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { CheckCircle, XCircle } from "lucide-react";
 import TaskFormFields from "./dialog/TaskFormFields";
-import { UnifiedTask, TaskPriority } from "@/types/unified-tasks";
+import { UnifiedTask, TaskType } from "@/types/unified-tasks";
+import { cn } from "@/lib/utils";
 
 interface TaskCreationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreateTask: (task: Partial<UnifiedTask>) => void;
-  taskType: 'todo' | 'not-todo';
+  taskType?: 'todo' | 'not-todo';
   editingTask?: UnifiedTask | null;
 }
 
@@ -21,9 +23,10 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
   open,
   onOpenChange,
   onCreateTask,
-  taskType,
+  taskType: initialTaskType = 'todo',
   editingTask
 }) => {
+  const [taskType, setTaskType] = useState<'todo' | 'not-todo'>(initialTaskType);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [urgent, setUrgent] = useState(false);
@@ -38,6 +41,7 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
     if (open && editingTask) {
       setTitle(editingTask.title || "");
       setDescription(editingTask.description || "");
+      setTaskType(editingTask.type === 'not-todo' ? 'not-todo' : 'todo');
 
       // Prefer Eisenhower fields; fall back to legacy priority mapping.
       const derivedUrgent =
@@ -58,6 +62,7 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
     } else if (open && !editingTask) {
       setTitle("");
       setDescription("");
+      setTaskType(initialTaskType);
       setUrgent(false);
       setImportant(true);
       setCategory("");
@@ -65,7 +70,7 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
       setTags([]);
     }
     setTagInput("");
-  }, [open, editingTask]);
+  }, [open, editingTask, initialTaskType]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,6 +79,7 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
     onCreateTask({
       title,
       description,
+      type: taskType,
       urgent,
       important,
       category: category || 'General',
@@ -110,14 +116,46 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-slate-950 border-slate-700 max-w-md">
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-white">
+          <DialogTitle>
             {isEditMode ? 'Edit' : 'Create New'} {taskType === 'todo' ? 'Task' : 'Avoidance Item'}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Task Type Toggle */}
+          {!isEditMode && (
+            <div className="flex items-center gap-2 p-1 bg-muted/50 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setTaskType("todo")}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all font-medium text-sm",
+                  taskType === "todo" 
+                    ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <CheckCircle className="h-4 w-4" />
+                To Do
+              </button>
+              <button
+                type="button"
+                onClick={() => setTaskType("not-todo")}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-all font-medium text-sm",
+                  taskType === "not-todo" 
+                    ? "bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-lg" 
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                <XCircle className="h-4 w-4" />
+                Not To Do
+              </button>
+            </div>
+          )}
+
           <TaskFormFields
             title={title}
             description={description}
@@ -144,15 +182,19 @@ const TaskCreationDialog: React.FC<TaskCreationDialogProps> = ({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="border-slate-600 text-slate-300"
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+              className={cn(
+                "text-white",
+                taskType === "todo" 
+                  ? "bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600" 
+                  : "bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600"
+              )}
             >
-              {isEditMode ? 'Update' : 'Create'} {taskType === 'todo' ? 'Task' : 'Avoidance Item'}
+              {isEditMode ? 'Update' : 'Create'} {taskType === 'todo' ? 'Task' : 'Avoidance'}
             </Button>
           </div>
         </form>
