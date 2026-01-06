@@ -224,14 +224,24 @@ export const useGoogleCalendar = () => {
   // Fetch events from Google Calendar
   const fetchGoogleEvents = useCallback(
     async (timeMin?: string, timeMax?: string): Promise<GoogleCalendarEvent[]> => {
-      // IMPORTANT: don't manually override invoke headers; supabase-js will attach the current user JWT.
-      // Overriding headers can drop required defaults in some environments.
       if (!user) throw new Error("Not authenticated");
+      
+      // Get fresh session to access provider_token
+      const { data: sessionData } = await supabase.auth.getSession();
+      const providerToken = sessionData?.session?.provider_token;
+      
+      if (!providerToken) {
+        setConnectionStatus("linked");
+        throw new Error("Google sync needs re-authentication. Click Connect/Reconnect Google.");
+      }
 
       setIsSyncing(true);
 
       try {
         const { data, error } = await supabase.functions.invoke("google-calendar-sync", {
+          headers: {
+            "x-google-token": providerToken,
+          },
           body: {
             action: "fetch",
             timeMin,
@@ -240,8 +250,8 @@ export const useGoogleCalendar = () => {
         });
 
         if (error) {
-          // Normalize common auth failure into a reconnect prompt.
           const msg = error.message || "Edge Function returned a non-2xx status code";
+          console.error("Google Calendar fetch error:", msg);
           if (/no session|jwt|unauthorized|401/i.test(msg)) {
             setConnectionStatus(isLinked ? "linked" : "disconnected");
             throw new Error("Google sync needs re-authentication. Click Connect/Reconnect Google.");
@@ -256,6 +266,7 @@ export const useGoogleCalendar = () => {
 
         if (data?.error) throw new Error(data.error);
 
+        console.log("Successfully fetched Google Calendar events:", data?.events?.length || 0);
         setLastSyncTime(new Date());
         return data?.events || [];
       } finally {
@@ -277,10 +288,22 @@ export const useGoogleCalendar = () => {
     ) => {
       if (!user) throw new Error("Not authenticated");
 
+      // Get fresh session to access provider_token
+      const { data: sessionData } = await supabase.auth.getSession();
+      const providerToken = sessionData?.session?.provider_token;
+      
+      if (!providerToken) {
+        setConnectionStatus("linked");
+        throw new Error("Google sync needs re-authentication. Click Connect/Reconnect Google.");
+      }
+
       setIsSyncing(true);
 
       try {
         const { data, error } = await supabase.functions.invoke("google-calendar-sync", {
+          headers: {
+            "x-google-token": providerToken,
+          },
           body: {
             action: "push",
             events,
@@ -289,6 +312,7 @@ export const useGoogleCalendar = () => {
 
         if (error) {
           const msg = error.message || "Edge Function returned a non-2xx status code";
+          console.error("Google Calendar push error:", msg);
           if (/no session|jwt|unauthorized|401/i.test(msg)) {
             setConnectionStatus(isLinked ? "linked" : "disconnected");
             throw new Error("Google sync needs re-authentication. Click Connect/Reconnect Google.");
@@ -301,6 +325,7 @@ export const useGoogleCalendar = () => {
           throw new Error(data.error || "Please reconnect your Google account");
         }
 
+        console.log("Successfully pushed events to Google Calendar:", data?.results?.length || 0);
         return data?.results || [];
       } finally {
         setIsSyncing(false);

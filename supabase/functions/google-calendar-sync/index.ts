@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-google-token',
 };
 
 serve(async (req) => {
@@ -13,9 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    // Verify authentication
+    // Verify authorization header exists
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
+      console.error('No authorization header provided');
       return new Response(JSON.stringify({ error: 'Authorization required' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -29,21 +30,25 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    // Get user session and provider token
-    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+    // Get user to verify auth - getUser is more reliable than getSession for edge functions
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser();
 
-    if (sessionError || !session) {
-      console.error('Session error:', sessionError?.message || 'No session');
-      return new Response(JSON.stringify({ error: 'No valid session' }), {
+    if (userError || !user) {
+      console.error('User auth error:', userError?.message || 'No user');
+      return new Response(JSON.stringify({ error: 'Authentication failed' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    const providerToken = session.provider_token;
+    console.log('User authenticated:', user.id);
+
+    // Get provider token from request header (passed from client)
+    // This is the Google OAuth token needed for Calendar API calls
+    const googleToken = req.headers.get('x-google-token');
     
-    if (!providerToken) {
-      console.error('No provider token available');
+    if (!googleToken) {
+      console.error('No Google token provided in x-google-token header');
       return new Response(JSON.stringify({ 
         error: 'No Google access token available. Please reconnect your Google account.',
         needsReconnect: true 
@@ -53,14 +58,17 @@ serve(async (req) => {
       });
     }
 
-    const { action, events, timeMin, timeMax } = await req.json();
+    console.log('Google token received, length:', googleToken.length);
+
+    const body = await req.json();
+    const { action, events, timeMin, timeMax } = body;
     console.log('Google Calendar sync action:', action);
 
     if (action === 'fetch') {
       // Fetch events from Google Calendar
       const now = new Date();
       const defaultTimeMin = timeMin || now.toISOString();
-      const defaultTimeMax = timeMax || new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(); // 30 days ahead
+      const defaultTimeMax = timeMax || new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000).toISOString();
 
       const calendarUrl = new URL('https://www.googleapis.com/calendar/v3/calendars/primary/events');
       calendarUrl.searchParams.set('timeMin', defaultTimeMin);
@@ -69,11 +77,11 @@ serve(async (req) => {
       calendarUrl.searchParams.set('orderBy', 'startTime');
       calendarUrl.searchParams.set('maxResults', '100');
 
-      console.log('Fetching Google Calendar events...');
+      console.log('Fetching Google Calendar events from:', calendarUrl.toString());
       
       const response = await fetch(calendarUrl.toString(), {
         headers: {
-          'Authorization': `Bearer ${providerToken}`,
+          'Authorization': `Bearer ${googleToken}`,
           'Accept': 'application/json',
         },
       });
@@ -82,9 +90,9 @@ serve(async (req) => {
         const errorText = await response.text();
         console.error('Google Calendar API error:', response.status, errorText);
         
-        if (response.status === 401) {
+        if (response.status === 401 || response.status === 403) {
           return new Response(JSON.stringify({ 
-            error: 'Google token expired. Please reconnect your Google account.',
+            error: 'Google token expired or invalid. Please reconnect your Google account.',
             needsReconnect: true 
           }), {
             status: 401,
@@ -92,7 +100,7 @@ serve(async (req) => {
           });
         }
         
-        return new Response(JSON.stringify({ error: 'Failed to fetch calendar events' }), {
+        return new Response(JSON.stringify({ error: `Failed to fetch calendar events: ${errorText}` }), {
           status: response.status,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -113,7 +121,7 @@ serve(async (req) => {
         htmlLink: event.htmlLink,
       }));
 
-      return new Response(JSON.stringify({ events: transformedEvents }), {
+      return new Response(JSON.stringify({ events: transformedEvents, success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
 
@@ -126,6 +134,7 @@ serve(async (req) => {
         });
       }
 
+      console.log(`Pushing ${events.length} events to Google Calendar`);
       const results = [];
       
       for (const event of events) {
@@ -148,7 +157,7 @@ serve(async (req) => {
             {
               method: 'POST',
               headers: {
-                'Authorization': `Bearer ${providerToken}`,
+                'Authorization': `Bearer ${googleToken}`,
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify(googleEvent),
@@ -157,6 +166,7 @@ serve(async (req) => {
 
           if (response.ok) {
             const createdEvent = await response.json();
+            console.log('Created event:', createdEvent.id);
             results.push({ success: true, eventId: createdEvent.id, title: event.title });
           } else {
             const errorText = await response.text();
@@ -169,12 +179,12 @@ serve(async (req) => {
         }
       }
 
-      return new Response(JSON.stringify({ results }), {
+      return new Response(JSON.stringify({ results, success: true }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    return new Response(JSON.stringify({ error: 'Invalid action' }), {
+    return new Response(JSON.stringify({ error: 'Invalid action. Use "fetch" or "push".' }), {
       status: 400,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
