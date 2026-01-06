@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthError } from "@supabase/supabase-js";
-import { Eye, EyeOff, Globe } from "lucide-react";
+import { Eye, EyeOff, Globe, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+
 const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
@@ -16,16 +18,45 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const {
-    toast
-  } = useToast();
+  const [oauthError, setOauthError] = useState<string | null>(null);
+  const { toast } = useToast();
   const navigate = useNavigate();
-  const {
-    user
-  } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
+
+  // Check for OAuth error in URL parameters (Supabase redirects with error in hash or query)
+  useEffect(() => {
+    const error = searchParams.get("error");
+    const errorDescription = searchParams.get("error_description");
+    
+    // Also check hash fragment for errors
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const hashError = hashParams.get("error");
+    const hashErrorDescription = hashParams.get("error_description");
+    
+    const finalError = error || hashError;
+    const finalDescription = errorDescription || hashErrorDescription;
+    
+    if (finalError) {
+      let userFriendlyMessage = "Google sign-in failed. ";
+      
+      if (finalError === "server_error" || finalDescription?.includes("Error getting user profile")) {
+        userFriendlyMessage += "There's a configuration issue with Google OAuth. Please contact support or try email/password login.";
+      } else if (finalError === "access_denied") {
+        userFriendlyMessage += "You denied access to your Google account.";
+      } else {
+        userFriendlyMessage += finalDescription || "Please try again or use email/password.";
+      }
+      
+      setOauthError(userFriendlyMessage);
+      
+      // Clear the error from URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [searchParams]);
 
   // If user is already authenticated, redirect to dashboard
-  React.useEffect(() => {
+  useEffect(() => {
     if (user) {
       navigate("/");
     }
@@ -95,29 +126,41 @@ const Auth = () => {
     }
   };
   const handleGoogleAuth = async () => {
+    setOauthError(null); // Clear previous errors
+    setLoading(true);
+    
     try {
-      const {
-        data,
-        error
-      } = await supabase.auth.signInWithOAuth({
+      // IMPORTANT: For Google OAuth to work properly, we need:
+      // 1. openid, email, profile - for user authentication (required by Supabase)
+      // 2. calendar scopes - for Google Calendar integration (optional but useful)
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
+          scopes: 'openid email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events',
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-            scope: 'https://www.googleapis.com/auth/calendar.readonly'
           },
-          redirectTo: `${window.location.origin}/`
+          redirectTo: `${window.location.origin}/auth`,
         }
       });
+      
       if (error) throw error;
+      
+      // If we get here without redirect, something went wrong
+      if (!data?.url) {
+        throw new Error("Failed to initiate Google sign-in. Please try again.");
+      }
     } catch (error: unknown) {
       const authError = error as AuthError;
+      setOauthError(authError.message || "An error occurred during Google authentication.");
       toast({
         title: "Google Authentication Error",
         description: authError.message || "An error occurred during Google authentication.",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
   return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -140,6 +183,13 @@ const Auth = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {oauthError && (
+              <Alert variant="destructive" className="mb-4">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Authentication Error</AlertTitle>
+                <AlertDescription>{oauthError}</AlertDescription>
+              </Alert>
+            )}
             <form onSubmit={handleAuth} className="space-y-6">
               <div className="space-y-4">
                 <div className="space-y-2">

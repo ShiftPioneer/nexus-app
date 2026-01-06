@@ -121,11 +121,12 @@ export const useGoogleCalendar = () => {
   // Connect to Google Calendar via OAuth
   const connectGoogleCalendar = async () => {
     try {
+      // Use consistent scopes including profile scopes for proper authentication
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
           scopes:
-            "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events",
+            "openid email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events",
           redirectTo: `${window.location.origin}/time-design`,
           queryParams: {
             access_type: "offline",
@@ -154,7 +155,7 @@ export const useGoogleCalendar = () => {
         provider: "google",
         options: {
           scopes:
-            "https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events",
+            "openid email profile https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events",
           redirectTo: `${window.location.origin}/time-design`,
           queryParams: {
             access_type: "offline",
