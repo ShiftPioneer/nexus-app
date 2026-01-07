@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import ModernAppLayout from "@/components/layout/ModernAppLayout";
 import { ModernTabs, ModernTabsList, ModernTabsTrigger, ModernTabsContent } from "@/components/ui/modern-tabs";
 import { Calendar, Activity, BarChart3, Settings } from "lucide-react";
@@ -11,13 +11,23 @@ import TimeDesignSettings from "@/components/timedesign/TimeDesignSettings";
 import ActivityDialog from "@/components/timedesign/ActivityDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabaseTimeDesignStorage } from "@/hooks/use-supabase-timedesign-storage";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 const TimeDesign = () => {
+  const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("calendar");
   const [showActivityDialog, setShowActivityDialog] = useState(false);
 
   // Time Design state
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewType, setViewType] = useState<"day" | "two-day" | "week" | "month">("week");
+  const [viewType, setViewType] = useState<"day" | "two-day" | "week" | "month">(isMobile ? "day" : "week");
+  
+  // Update view type when mobile status changes
+  useEffect(() => {
+    if (isMobile) {
+      setViewType("day");
+    }
+  }, [isMobile]);
   const {
     activities,
     loading,
