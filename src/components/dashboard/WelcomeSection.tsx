@@ -116,28 +116,29 @@ const WelcomeSection = () => {
   };
 
   return (
-    <section className="mb-8">
+    <section className="mb-6 sm:mb-8">
       <Card className="overflow-hidden bg-slate-950/90 backdrop-blur-sm border-slate-700/50 shadow-2xl">
-        <CardContent className="p-8">
-          <div className="flex flex-col lg:flex-row gap-8 items-center">
-            <div className="flex-1 space-y-6">
-              <div className="space-y-3">
-                <h1 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
+        <CardContent className="p-4 sm:p-6 md:p-8">
+          <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start lg:items-center">
+            <div className="flex-1 space-y-4 sm:space-y-6 min-w-0 w-full">
+              <div className="space-y-2 sm:space-y-3">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
                   <span className="bg-gradient-to-r from-primary via-orange-500 to-red-500 bg-clip-text text-transparent">
                     {getGreeting()}
                   </span>
-                  , {userName}
+                  <span className="block sm:inline">, {userName}</span>
                 </h1>
-                <p className="text-slate-300 text-lg lg:text-xl leading-relaxed">
+                <p className="text-slate-300 text-sm sm:text-base md:text-lg lg:text-xl leading-relaxed">
                   Ready to make today extraordinary? Your life operating system is primed for action.
                 </p>
               </div>
               
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-2 sm:gap-3 md:gap-4">
                 <UnifiedActionButton 
                   onClick={handleStartDay}
                   icon={Sparkles}
                   variant="primary"
+                  className="text-sm sm:text-base flex-1 sm:flex-none min-w-[140px]"
                 >
                   Start Your Day
                 </UnifiedActionButton>
@@ -145,44 +146,47 @@ const WelcomeSection = () => {
                   onClick={handleViewPlan}
                   icon={Calendar}
                   variant="secondary"
+                  className="text-sm sm:text-base flex-1 sm:flex-none min-w-[140px]"
                 >
                   View Today's Plan
                 </UnifiedActionButton>
               </div>
             </div>
             
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-row lg:flex-col gap-3 sm:gap-4 w-full lg:w-auto">
               {/* XP Progress */}
-              <XPIndicator
-                currentXP={currentXP}
-                levelXP={levelXP}
-                nextLevelXP={nextLevelXP}
-                level={level}
-                variant="compact"
-              />
+              <div className="flex-1 lg:flex-none">
+                <XPIndicator
+                  currentXP={currentXP}
+                  levelXP={levelXP}
+                  nextLevelXP={nextLevelXP}
+                  level={level}
+                  variant="compact"
+                />
+              </div>
               
               {/* Time Display */}
-              <div className="flex flex-col items-center gap-2 p-4 bg-slate-900/50 border border-slate-700/50 rounded-xl backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-primary" />
-                  <span className="text-2xl font-bold text-white">{formattedTime}</span>
+              <div className="flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 bg-slate-900/50 border border-slate-700/50 rounded-xl backdrop-blur-sm flex-1 lg:flex-none">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <span className="text-lg sm:text-xl md:text-2xl font-bold text-white">{formattedTime}</span>
                 </div>
-                <span className="text-slate-400 text-sm">{formattedDate}</span>
+                <span className="text-slate-400 text-xs sm:text-sm text-center">{formattedDate}</span>
               </div>
             </div>
           </div>
           
-          <div className="mt-8 p-6 rounded-2xl border border-slate-700/50 bg-gradient-to-r from-slate-900/30 to-slate-800/30 backdrop-blur-sm">
-            <blockquote className="text-xl font-medium text-slate-200 italic leading-relaxed">
+          <div className="mt-4 sm:mt-6 md:mt-8 p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl border border-slate-700/50 bg-gradient-to-r from-slate-900/30 to-slate-800/30 backdrop-blur-sm">
+            <blockquote className="text-base sm:text-lg md:text-xl font-medium text-slate-200 italic leading-relaxed">
               "{quote.text}"
             </blockquote>
-            <div className="mt-4 flex justify-between items-center">
-              <span className="text-slate-400 font-medium">— {quote.author}</span>
+            <div className="mt-3 sm:mt-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-4">
+              <span className="text-slate-400 font-medium text-sm sm:text-base">— {quote.author}</span>
               <UnifiedActionButton
                 onClick={handleNewQuote}
                 icon={RotateCcw}
                 variant="secondary"
-                className="text-sm px-4 py-2"
+                className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 w-full sm:w-auto"
               >
                 New Quote
               </UnifiedActionButton>
