@@ -141,8 +141,8 @@ const StatsSection = () => {
     color: "text-purple-400 bg-purple-900/40",
     progressColor: "bg-purple-400"
   }];
-  return <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-      {statsData.map((stat, index) => <motion.div key={index} className="relative overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/50 p-5 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-slate-700 hover:bg-slate-800/60 hover:shadow-primary/10" initial={{
+  return <section className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6">
+      {statsData.map((stat, index) => <motion.div key={index} className="relative overflow-hidden rounded-xl sm:rounded-2xl border border-slate-800 bg-slate-900/50 p-3 sm:p-4 md:p-5 shadow-lg backdrop-blur-sm transition-all duration-300 hover:border-slate-700 hover:bg-slate-800/60 hover:shadow-primary/10" initial={{
       opacity: 0,
       y: 20
     }} animate={{
@@ -152,18 +152,18 @@ const StatsSection = () => {
       duration: 0.5,
       delay: index * 0.1
     }}>
-          <div className="flex items-start justify-between">
-            <div className="flex flex-col">
-              <p className="text-sm text-slate-400">{stat.title}</p>
-              <h3 className="text-2xl font-bold text-slate-50 mt-1">{stat.value}</h3>
+          <div className="flex items-start justify-between gap-2">
+            <div className="flex flex-col min-w-0 flex-1">
+              <p className="text-xs sm:text-sm text-slate-400 truncate">{stat.title}</p>
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-50 mt-0.5 sm:mt-1 truncate">{stat.value}</h3>
             </div>
-            <div className={`rounded-lg p-3 ${stat.color}`}>
-              <stat.icon className="h-6 w-6" />
+            <div className={`rounded-lg p-2 sm:p-3 flex-shrink-0 ${stat.color}`}>
+              <stat.icon className="h-4 w-4 sm:h-5 md:h-6 sm:w-5 md:w-6" />
             </div>
           </div>
-          <div className="mt-4">
-            <div className="h-2 w-full rounded-full bg-slate-700/50">
-              <motion.div className={`h-2 rounded-full ${stat.progressColor}`} initial={{
+          <div className="mt-3 sm:mt-4">
+            <div className="h-1.5 sm:h-2 w-full rounded-full bg-slate-700/50">
+              <motion.div className={`h-1.5 sm:h-2 rounded-full ${stat.progressColor}`} initial={{
               width: 0
             }} animate={{
               width: `${stat.progress}%`
@@ -173,7 +173,7 @@ const StatsSection = () => {
               delay: 0.5 + index * 0.1
             }} />
             </div>
-            <p className="mt-2 text-xs text-slate-500">{stat.change}</p>
+            <p className="mt-1.5 sm:mt-2 text-[10px] sm:text-xs text-slate-500 truncate">{stat.change}</p>
           </div>
         </motion.div>)}
     </section>;

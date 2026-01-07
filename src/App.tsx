@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +18,7 @@ import Energy from "./pages/Energy";
 import Mindset from "./pages/Mindset";
 import Settings from "./pages/Settings";
 import Focus from "./pages/Focus";
+import Install from "./pages/Install";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
@@ -46,6 +46,7 @@ const App = () => (
                 <Route path="/mindset" element={<Mindset />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/focus" element={<Focus />} />
+                <Route path="/install" element={<Install />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
               </Routes>

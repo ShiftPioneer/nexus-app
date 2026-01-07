@@ -1,23 +1,62 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#FF6500" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="NEXUS" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-TileColor" content="#0B192C" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- Apple Touch Icon -->
+    <link rel="apple-touch-icon" href="/lovable-uploads/nexus-logo-orange.png" />
+    <link rel="apple-touch-icon" sizes="152x152" href="/lovable-uploads/nexus-logo-orange.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/lovable-uploads/nexus-logo-orange.png" />
+    <link rel="apple-touch-icon" sizes="167x167" href="/lovable-uploads/nexus-logo-orange.png" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="/lovable-uploads/nexus-logo-orange.png" />
+    <link rel="shortcut icon" href="/lovable-uploads/nexus-logo-orange.png" />
+    
     <title>NEXUS | Ultimate Operating System</title>
     <meta name="description" content="NEXUS - The all-in-one Productivity and Personal Growth Platform">
-    <meta name="author" content="Life OS" />
+    <meta name="author" content="NEXUS" />
+    <meta name="keywords" content="productivity, habits, goals, journal, time management, personal growth" />
 
-    <meta property="og:title" content="Life OS | Your Personal Operating System" />
-    <meta property="og:description" content="Life OS - The all-in-one productivity, goal-setting, habit-building and personal growth platform" />
+    <!-- Open Graph -->
+    <meta property="og:title" content="NEXUS | Your Life Operating System" />
+    <meta property="og:description" content="NEXUS - The all-in-one productivity, goal-setting, habit-building and personal growth platform" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/pSIyujeKqEQUR4rj1nRqBMVeu6J2/social-images/social-1757436406552-nexus_logo.png">
 
+    <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://storage.googleapis.com/gpt-engineer-file-uploads/pSIyujeKqEQUR4rj1nRqBMVeu6J2/social-images/social-1757436406552-nexus_logo.png">
-    <link rel="icon" type="image/x-icon" href="https://storage.googleapis.com/gpt-engineer-file-uploads/pSIyujeKqEQUR4rj1nRqBMVeu6J2/uploads/1757436091820-nexus_logo.png">
-</head>
+    
+    <!-- Safe Area Insets for notched devices -->
+    <style>
+      :root {
+        --sat: env(safe-area-inset-top);
+        --sar: env(safe-area-inset-right);
+        --sab: env(safe-area-inset-bottom);
+        --sal: env(safe-area-inset-left);
+      }
+      
+      body {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+    </style>
+  </head>
 
   <body>
     <div id="root"></div>
