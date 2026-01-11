@@ -7,7 +7,6 @@ import { Bot, Send, Mic, MicOff, Loader2, MessageCircle, X, Check, XCircle, Aler
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useScribe } from "@elevenlabs/react";
 import { useUnifiedTasks } from "@/contexts/UnifiedTasksContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -32,6 +31,8 @@ interface AIAssistantProps {
   onToggle: () => void;
 }
 
+// Note: Using 'any' for speech recognition events since browser types vary
+
 const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -45,24 +46,20 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ isOpen, onToggle }) => {
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const [isConnectingVoice, setIsConnectingVoice] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<any>(null);
   const { toast } = useToast();
   const isMobile = useIsMobile();
 
   // Get unified tasks context for task management
   const tasksContext = useTasksContext();
 
-  // ElevenLabs Scribe for voice transcription
-  const scribe = useScribe({
-    onPartialTranscript: (data) => {
-      setInputValue(data.text);
-    },
-    onCommittedTranscript: (data) => {
-      setInputValue(prev => prev + " " + data.text);
-    },
-  });
+  // Check for speech recognition support
+  const isSpeechSupported = typeof window !== 'undefined' && 
+    (window.SpeechRecognition || window.webkitSpeechRecognition);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -579,8 +576,19 @@ ${completionRate >= 70 ? "Great job! You're on fire! 🔥" : completionRate >= 5
   };
 
   const handleVoiceInput = async () => {
-    if (scribe.isConnected) {
-      scribe.disconnect();
+    // If already listening, stop
+    if (isListening && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+      return;
+    }
+
+    if (!isSpeechSupported) {
+      toast({
+        title: "Voice Not Supported",
+        description: "Your browser doesn't support voice input. Please try Chrome or Edge.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -590,29 +598,71 @@ ${completionRate >= 70 ? "Great job! You're on fire! 🔥" : completionRate >= 5
       // Request microphone permission
       await navigator.mediaDevices.getUserMedia({ audio: true });
 
-      // Get token from edge function
-      const { data, error } = await supabase.functions.invoke("elevenlabs-scribe-token");
+      const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognitionAPI();
       
-      if (error || !data?.token) {
-        throw new Error(error?.message || "Failed to get voice token");
-      }
-
-      await scribe.connect({
-        token: data.token,
-        microphone: {
-          echoCancellation: true,
-          noiseSuppression: true,
-        },
-      });
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+      
+      recognition.onstart = () => {
+        setIsListening(true);
+        setIsConnectingVoice(false);
+        toast({
+          title: "Listening...",
+          description: "Speak now. Click Stop when done.",
+        });
+      };
+      
+      recognition.onresult = (event: any) => {
+        let interimTranscript = '';
+        let finalTranscript = '';
+        
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + ' ';
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        
+        if (finalTranscript) {
+          setInputValue(prev => (prev + ' ' + finalTranscript).trim());
+        }
+      };
+      
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        setIsConnectingVoice(false);
+        
+        if (event.error !== 'aborted') {
+          toast({
+            title: "Voice Error",
+            description: event.error === 'no-speech' 
+              ? "No speech detected. Please try again." 
+              : "Voice recognition failed. Please try again.",
+            variant: "destructive",
+          });
+        }
+      };
+      
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+      
+      recognitionRef.current = recognition;
+      recognition.start();
+      
     } catch (error: any) {
       console.error("Voice input error:", error);
+      setIsConnectingVoice(false);
       toast({
-        title: "Voice Input Error",
-        description: error.message || "Failed to start voice input. Please try again.",
+        title: "Microphone Access Denied",
+        description: "Please allow microphone access in your browser settings.",
         variant: "destructive",
       });
-    } finally {
-      setIsConnectingVoice(false);
     }
   };
 
@@ -805,31 +855,34 @@ ${completionRate >= 70 ? "Great job! You're on fire! 🔥" : completionRate >= 5
                 <span className="text-xs font-medium text-slate-300">Input Mode</span>
                 <div className="flex items-center gap-2">
                   <Button
-                    variant={scribe.isConnected ? "default" : "outline"}
+                    variant={isListening ? "default" : "outline"}
                     size="sm"
                     onClick={handleVoiceInput}
-                    disabled={isLoading || isConnectingVoice}
+                    disabled={isLoading || isConnectingVoice || !isSpeechSupported}
                     className={`h-8 px-3 text-xs transition-all duration-200 ${
-                      scribe.isConnected 
+                      isListening 
                         ? "bg-error/80 hover:bg-error text-white border-error" 
                         : "bg-slate-800/60 border-slate-600/60 hover:bg-slate-700/80"
                     }`}
-                    aria-label={scribe.isConnected ? "Stop voice input" : "Start voice input"}
+                    aria-label={isListening ? "Stop voice input" : "Start voice input"}
                   >
                     {isConnectingVoice ? (
                       <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                    ) : scribe.isConnected ? (
+                    ) : isListening ? (
                       <MicOff className="h-3 w-3 mr-1" />
                     ) : (
                       <Mic className="h-3 w-3 mr-1" />
                     )}
-                    {isConnectingVoice ? "Connecting..." : scribe.isConnected ? "Stop" : "Voice"}
+                    {isConnectingVoice ? "Connecting..." : isListening ? "Stop" : "Voice"}
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      if (scribe.isConnected) scribe.disconnect();
+                      if (isListening && recognitionRef.current) {
+                        recognitionRef.current.stop();
+                        setIsListening(false);
+                      }
                       inputRef.current?.focus();
                     }}
                     disabled={isLoading}
@@ -842,7 +895,7 @@ ${completionRate >= 70 ? "Great job! You're on fire! 🔥" : completionRate >= 5
                 </div>
               </div>
 
-              {scribe.isConnected && (
+              {isListening && (
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -850,16 +903,6 @@ ${completionRate >= 70 ? "Great job! You're on fire! 🔥" : completionRate >= 5
                 >
                   <div className="w-2 h-2 bg-error rounded-full animate-pulse"></div>
                   <span className="text-xs text-error font-medium">Listening... Speak now</span>
-                </motion.div>
-              )}
-
-              {scribe.partialTranscript && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="p-2 rounded-lg bg-primary/10 border border-primary/30 mb-3"
-                >
-                  <span className="text-xs text-primary font-medium italic">"{scribe.partialTranscript}"</span>
                 </motion.div>
               )}
             </div>
@@ -872,7 +915,7 @@ ${completionRate >= 70 ? "Great job! You're on fire! 🔥" : completionRate >= 5
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyPress}
-                    placeholder={scribe.isConnected ? "Voice input active..." : "Type your message..."}
+                    placeholder={isListening ? "Voice input active..." : "Type your message..."}
                     className="bg-slate-800/60 border-slate-600/60 text-white placeholder-slate-400 focus:border-primary/60 focus:ring-1 focus:ring-primary/30 transition-all duration-200 rounded-xl min-h-[44px] text-base"
                     disabled={isLoading}
                     aria-label="AI assistant message"
