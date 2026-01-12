@@ -6,7 +6,8 @@ import { UnifiedPageHeader } from "@/components/ui/unified-page-header";
 import { SkillsetTab } from "@/components/knowledge/SkillsetTab";
 import { ResourcesTab } from "@/components/knowledge/ResourcesTab";
 import BookshelfTab from "@/components/knowledge/BookshelfTab";
-import { BookOpen, LayoutGrid, Brain, Lightbulb } from "lucide-react";
+import { InsightsTab } from "@/components/knowledge/InsightsTab";
+import { BookOpen, LayoutGrid, Brain, Lightbulb, BarChart3 } from "lucide-react";
 import { navigationIcons } from "@/lib/navigation-icons";
 
 const Knowledge = () => {
@@ -23,13 +24,19 @@ const Knowledge = () => {
       value: "resources", 
       label: "Resources", 
       icon: LayoutGrid, 
-      gradient: "from-blue-500 via-cyan-500 to-teal-500"
+      gradient: "from-cyan-500 via-teal-500 to-emerald-500"
     },
     { 
       value: "bookshelf", 
       label: "Bookshelf", 
       icon: BookOpen, 
       gradient: "from-emerald-500 via-green-500 to-teal-500"
+    },
+    { 
+      value: "insights", 
+      label: "Insights", 
+      icon: BarChart3, 
+      gradient: "from-primary via-orange-500 to-red-500"
     }
   ];
   
@@ -41,11 +48,11 @@ const Knowledge = () => {
           title="Knowledge"
           description="Track your learning progress and manage your educational resources"
           icon={navigationIcons.knowledge}
-          gradient="from-teal-500 via-cyan-500 to-blue-500"
+          gradient="from-teal-500 via-cyan-500 to-emerald-500"
         />
         
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList className="grid w-full grid-cols-3 max-w-3xl mx-auto">
+          <ModernTabsList className="grid w-full grid-cols-4 max-w-4xl mx-auto">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
@@ -69,6 +76,10 @@ const Knowledge = () => {
           
           <ModernTabsContent value="bookshelf" className="mt-8 max-w-6xl mx-auto">
               <BookshelfTab />
+          </ModernTabsContent>
+          
+          <ModernTabsContent value="insights" className="mt-8 max-w-6xl mx-auto">
+              <InsightsTab />
             </ModernTabsContent>
           </ModernTabs>
         </div>
