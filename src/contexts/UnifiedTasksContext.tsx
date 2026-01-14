@@ -1,4 +1,6 @@
-import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useCallback, useEffect, useRef } from 'react';
+import { useAuth } from "@/contexts/AuthContext";
+import { useSecureTasksStorage } from "@/hooks/use-secure-tasks-storage";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { toastHelpers } from "@/utils/toast-helpers";
 import { useGamification } from "@/hooks/use-gamification";
@@ -46,7 +48,7 @@ const migrateOldTasks = (): UnifiedTask[] => {
             category: task.category || 'general',
             urgent: task.urgent,
             important: task.important,
-            clarified: true, // Actions tasks are already clarified
+            clarified: true,
             dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
             createdAt: task.createdAt ? new Date(task.createdAt) : new Date(),
             deletedAt: task.deletedAt ? new Date(task.deletedAt) : undefined,
@@ -69,7 +71,6 @@ const migrateOldTasks = (): UnifiedTask[] => {
         if (!migratedIds.has(task.id)) {
           migratedIds.add(task.id);
           
-          // Map GTD status to unified status
           let status: TaskStatus = 'inbox';
           if (task.status === 'completed') status = 'completed';
           else if (task.status === 'deleted') status = 'deleted';
@@ -78,7 +79,6 @@ const migrateOldTasks = (): UnifiedTask[] => {
           else if (task.status === 'inbox' || !task.clarified) status = 'inbox';
           else status = 'active';
           
-          // Map GTD type to unified type
           let type: TaskType = 'todo';
           if (task.type === 'project') type = 'project';
           else if (task.type === 'reference') type = 'reference';
@@ -114,25 +114,49 @@ const migrateOldTasks = (): UnifiedTask[] => {
 };
 
 export const UnifiedTasksProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [tasks, setTasks] = useLocalStorage<UnifiedTask[]>("unifiedTasks", []);
+  const { user } = useAuth();
+  const { 
+    tasks: supabaseTasks, 
+    loading: supabaseLoading, 
+    saveTask, 
+    removeTask, 
+    saveTasks,
+    isAuthenticated 
+  } = useSecureTasksStorage();
+  
+  const [localTasks, setLocalTasks] = useLocalStorage<UnifiedTask[]>("unifiedTasks", []);
   const [hasMigrated, setHasMigrated] = useLocalStorage<boolean>("tasksMigrated", false);
   const { rewardTaskComplete, levelUp, clearLevelUp, XP_REWARDS } = useGamification();
+  
+  // Use Supabase tasks when authenticated, localStorage otherwise
+  const tasks = isAuthenticated ? supabaseTasks : localTasks;
+  const setTasks = useCallback((newTasks: UnifiedTask[] | ((prev: UnifiedTask[]) => UnifiedTask[])) => {
+    const resolvedTasks = typeof newTasks === 'function' ? newTasks(tasks) : newTasks;
+    
+    if (isAuthenticated) {
+      // Save to Supabase
+      saveTasks(resolvedTasks).catch(console.error);
+    } else {
+      // Save to localStorage
+      setLocalTasks(resolvedTasks);
+    }
+  }, [isAuthenticated, tasks, saveTasks, setLocalTasks]);
 
   // Celebration state
   const [showConfetti, setShowConfetti] = useState(false);
   const [milestone, setMilestone] = useState<{ title: string; description: string } | null>(null);
 
-  // Run migration on first load
+  // Run migration on first load for localStorage
   useEffect(() => {
-    if (!hasMigrated && tasks.length === 0) {
+    if (!isAuthenticated && !hasMigrated && localTasks.length === 0) {
       const migratedTasks = migrateOldTasks();
       if (migratedTasks.length > 0) {
-        setTasks(migratedTasks);
+        setLocalTasks(migratedTasks);
         console.log(`Migrated ${migratedTasks.length} tasks to unified format`);
       }
       setHasMigrated(true);
     }
-  }, [hasMigrated, tasks.length, setTasks, setHasMigrated]);
+  }, [hasMigrated, localTasks.length, setLocalTasks, setHasMigrated, isAuthenticated]);
 
   // Priority derivation helpers
   const derivePriorityFromEisenhower = useCallback((urgent: boolean, important: boolean): TaskPriority => {
@@ -177,26 +201,35 @@ export const UnifiedTasksProvider: React.FC<{ children: ReactNode }> = ({ childr
   const deletedTasks = normalizedTasks.filter(t => t.status === 'deleted');
   const projectTasks = normalizedTasks.filter(t => t.type === 'project' && t.status !== 'deleted');
 
-  // Task operations
-  const addTask = useCallback((task: Omit<UnifiedTask, "id" | "createdAt">) => {
+  // Task operations with Supabase sync
+  const addTask = useCallback(async (task: Omit<UnifiedTask, "id" | "createdAt">) => {
     const newTask: UnifiedTask = {
       ...task,
       id: Date.now().toString(),
       createdAt: new Date(),
     };
     
-    // Ensure Eisenhower values are set
     if (newTask.urgent === undefined || newTask.important === undefined) {
       const derived = deriveEisenhowerFromPriority(newTask.priority);
       newTask.urgent = derived.urgent;
       newTask.important = derived.important;
     }
     
-    setTasks([...normalizedTasks, newTask]);
-  }, [normalizedTasks, setTasks, deriveEisenhowerFromPriority]);
+    const updatedTasks = [...normalizedTasks, newTask];
+    
+    if (isAuthenticated) {
+      try {
+        await saveTask(newTask);
+      } catch (error) {
+        console.error('Failed to save task to Supabase:', error);
+      }
+    }
+    
+    setTasks(updatedTasks);
+  }, [normalizedTasks, setTasks, deriveEisenhowerFromPriority, isAuthenticated, saveTask]);
 
-  const updateTask = useCallback((taskId: string, updates: Partial<UnifiedTask>) => {
-    setTasks(normalizedTasks.map(t => {
+  const updateTask = useCallback(async (taskId: string, updates: Partial<UnifiedTask>) => {
+    const updatedTasks = normalizedTasks.map(t => {
       if (t.id !== taskId) return t;
       
       const nextUrgent = typeof updates.urgent === "boolean" ? updates.urgent : t.urgent ?? false;
@@ -210,37 +243,97 @@ export const UnifiedTasksProvider: React.FC<{ children: ReactNode }> = ({ childr
         important: nextImportant,
         priority: updates.priority ?? nextPriority,
       };
-    }));
-  }, [normalizedTasks, setTasks, derivePriorityFromEisenhower]);
+    });
+    
+    if (isAuthenticated) {
+      const updatedTask = updatedTasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        try {
+          await saveTask(updatedTask);
+        } catch (error) {
+          console.error('Failed to update task in Supabase:', error);
+        }
+      }
+    }
+    
+    setTasks(updatedTasks);
+  }, [normalizedTasks, setTasks, derivePriorityFromEisenhower, isAuthenticated, saveTask]);
 
-  const deleteTask = useCallback((taskId: string) => {
-    setTasks(normalizedTasks.map(t => 
+  const deleteTask = useCallback(async (taskId: string) => {
+    const updatedTasks = normalizedTasks.map(t => 
       t.id === taskId ? { ...t, status: 'deleted' as TaskStatus, deletedAt: new Date() } : t
-    ));
-  }, [normalizedTasks, setTasks]);
+    );
+    
+    if (isAuthenticated) {
+      const updatedTask = updatedTasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        try {
+          await saveTask(updatedTask);
+        } catch (error) {
+          console.error('Failed to delete task in Supabase:', error);
+        }
+      }
+    }
+    
+    setTasks(updatedTasks);
+  }, [normalizedTasks, setTasks, isAuthenticated, saveTask]);
 
-  const restoreTask = useCallback((taskId: string) => {
-    setTasks(normalizedTasks.map(t => 
+  const restoreTask = useCallback(async (taskId: string) => {
+    const updatedTasks = normalizedTasks.map(t => 
       t.id === taskId ? { ...t, status: 'active' as TaskStatus, deletedAt: undefined } : t
-    ));
-  }, [normalizedTasks, setTasks]);
+    );
+    
+    if (isAuthenticated) {
+      const updatedTask = updatedTasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        try {
+          await saveTask(updatedTask);
+        } catch (error) {
+          console.error('Failed to restore task in Supabase:', error);
+        }
+      }
+    }
+    
+    setTasks(updatedTasks);
+  }, [normalizedTasks, setTasks, isAuthenticated, saveTask]);
 
-  const permanentlyDeleteTask = useCallback((taskId: string) => {
+  const permanentlyDeleteTask = useCallback(async (taskId: string) => {
+    if (isAuthenticated) {
+      try {
+        await removeTask(taskId);
+      } catch (error) {
+        console.error('Failed to permanently delete task from Supabase:', error);
+      }
+    }
+    
     setTasks(normalizedTasks.filter(t => t.id !== taskId));
-  }, [normalizedTasks, setTasks]);
+  }, [normalizedTasks, setTasks, isAuthenticated, removeTask]);
 
-  const completeTask = useCallback((taskId: string) => {
+  const completeTask = useCallback(async (taskId: string) => {
     const task = normalizedTasks.find(t => t.id === taskId);
     const wasCompleted = task?.completed;
     
-    setTasks(normalizedTasks.map(t => 
+    const updatedTasks = normalizedTasks.map(t => 
       t.id === taskId ? { 
         ...t, 
         completed: !t.completed, 
         status: !t.completed ? 'completed' as TaskStatus : 'active' as TaskStatus,
         completedAt: !t.completed ? new Date() : undefined
       } : t
-    ));
+    );
+    
+    if (isAuthenticated) {
+      const updatedTask = updatedTasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        try {
+          await saveTask(updatedTask);
+        } catch (error) {
+          console.error('Failed to complete task in Supabase:', error);
+        }
+      }
+    }
+    
+    setTasks(updatedTasks);
     
     if (!wasCompleted && task) {
       setShowConfetti(true);
@@ -257,7 +350,7 @@ export const UnifiedTasksProvider: React.FC<{ children: ReactNode }> = ({ childr
         });
       }
     }
-  }, [normalizedTasks, setTasks, rewardTaskComplete, XP_REWARDS, todoTasks]);
+  }, [normalizedTasks, setTasks, rewardTaskComplete, XP_REWARDS, todoTasks, isAuthenticated, saveTask]);
 
   // Quick capture - adds directly to inbox
   const quickCapture = useCallback((title: string, type: TaskType = 'todo', priority: TaskPriority = 'medium') => {
@@ -275,14 +368,19 @@ export const UnifiedTasksProvider: React.FC<{ children: ReactNode }> = ({ childr
       createdAt: new Date(),
       completed: false,
     };
+    
+    if (isAuthenticated) {
+      saveTask(newTask).catch(console.error);
+    }
+    
     setTasks([...normalizedTasks, newTask]);
     toastHelpers.success("Captured!", { description: `"${title}" added to inbox` });
-  }, [normalizedTasks, setTasks, deriveEisenhowerFromPriority]);
+  }, [normalizedTasks, setTasks, deriveEisenhowerFromPriority, isAuthenticated, saveTask]);
 
   // Clarify task - move from inbox to active with Eisenhower placement
-  const clarifyTask = useCallback((taskId: string, urgent: boolean, important: boolean) => {
+  const clarifyTask = useCallback(async (taskId: string, urgent: boolean, important: boolean) => {
     const priority = derivePriorityFromEisenhower(urgent, important);
-    setTasks(normalizedTasks.map(t => 
+    const updatedTasks = normalizedTasks.map(t => 
       t.id === taskId ? { 
         ...t, 
         clarified: true, 
@@ -291,40 +389,106 @@ export const UnifiedTasksProvider: React.FC<{ children: ReactNode }> = ({ childr
         important,
         priority
       } : t
-    ));
-  }, [normalizedTasks, setTasks, derivePriorityFromEisenhower]);
+    );
+    
+    if (isAuthenticated) {
+      const updatedTask = updatedTasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        try {
+          await saveTask(updatedTask);
+        } catch (error) {
+          console.error('Failed to clarify task in Supabase:', error);
+        }
+      }
+    }
+    
+    setTasks(updatedTasks);
+  }, [normalizedTasks, setTasks, derivePriorityFromEisenhower, isAuthenticated, saveTask]);
 
   // Schedule task for Time Design
-  const scheduleTask = useCallback((taskId: string, scheduledDate: Date) => {
-    setTasks(normalizedTasks.map(t => 
+  const scheduleTask = useCallback(async (taskId: string, scheduledDate: Date) => {
+    const updatedTasks = normalizedTasks.map(t => 
       t.id === taskId ? { ...t, scheduledDate } : t
-    ));
-  }, [normalizedTasks, setTasks]);
+    );
+    
+    if (isAuthenticated) {
+      const updatedTask = updatedTasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        try {
+          await saveTask(updatedTask);
+        } catch (error) {
+          console.error('Failed to schedule task in Supabase:', error);
+        }
+      }
+    }
+    
+    setTasks(updatedTasks);
+  }, [normalizedTasks, setTasks, isAuthenticated, saveTask]);
 
   // Move to waiting for
-  const moveToWaitingFor = useCallback((taskId: string, delegatedTo: string) => {
-    setTasks(normalizedTasks.map(t => 
+  const moveToWaitingFor = useCallback(async (taskId: string, delegatedTo: string) => {
+    const updatedTasks = normalizedTasks.map(t => 
       t.id === taskId ? { ...t, status: 'waiting-for' as TaskStatus, delegatedTo } : t
-    ));
-  }, [normalizedTasks, setTasks]);
+    );
+    
+    if (isAuthenticated) {
+      const updatedTask = updatedTasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        try {
+          await saveTask(updatedTask);
+        } catch (error) {
+          console.error('Failed to move task to waiting in Supabase:', error);
+        }
+      }
+    }
+    
+    setTasks(updatedTasks);
+  }, [normalizedTasks, setTasks, isAuthenticated, saveTask]);
 
   // Move to someday/maybe
-  const moveToSomeday = useCallback((taskId: string) => {
-    setTasks(normalizedTasks.map(t => 
+  const moveToSomeday = useCallback(async (taskId: string) => {
+    const updatedTasks = normalizedTasks.map(t => 
       t.id === taskId ? { ...t, status: 'someday' as TaskStatus } : t
-    ));
-  }, [normalizedTasks, setTasks]);
+    );
+    
+    if (isAuthenticated) {
+      const updatedTask = updatedTasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        try {
+          await saveTask(updatedTask);
+        } catch (error) {
+          console.error('Failed to move task to someday in Supabase:', error);
+        }
+      }
+    }
+    
+    setTasks(updatedTasks);
+  }, [normalizedTasks, setTasks, isAuthenticated, saveTask]);
 
   // Move to active
-  const moveToActive = useCallback((taskId: string) => {
-    setTasks(normalizedTasks.map(t => 
+  const moveToActive = useCallback(async (taskId: string) => {
+    const updatedTasks = normalizedTasks.map(t => 
       t.id === taskId ? { ...t, status: 'active' as TaskStatus } : t
-    ));
-  }, [normalizedTasks, setTasks]);
+    );
+    
+    if (isAuthenticated) {
+      const updatedTask = updatedTasks.find(t => t.id === taskId);
+      if (updatedTask) {
+        try {
+          await saveTask(updatedTask);
+        } catch (error) {
+          console.error('Failed to move task to active in Supabase:', error);
+        }
+      }
+    }
+    
+    setTasks(updatedTasks);
+  }, [normalizedTasks, setTasks, isAuthenticated, saveTask]);
 
-  // Sync with old localStorage keys for backward compatibility
+  // Sync with old localStorage keys for backward compatibility (only when not authenticated)
   useEffect(() => {
-    // Keep "tasks" key in sync for components that haven't been migrated yet
+    if (isAuthenticated) return;
+    
     const actionsFormat = normalizedTasks
       .filter(t => (t.type === 'todo' || t.type === 'not-todo') && t.clarified)
       .map(t => ({
@@ -345,9 +509,8 @@ export const UnifiedTasksProvider: React.FC<{ children: ReactNode }> = ({ childr
       }));
     localStorage.setItem('tasks', JSON.stringify(actionsFormat));
     
-    // Dispatch event for components listening for task updates
     window.dispatchEvent(new CustomEvent('tasksUpdated'));
-  }, [normalizedTasks]);
+  }, [normalizedTasks, isAuthenticated]);
 
   return (
     <UnifiedTasksContext.Provider value={{
