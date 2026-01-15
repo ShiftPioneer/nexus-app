@@ -161,9 +161,66 @@
   }
 }
 
-/* ==================== PHASE 1: STANDARDIZED UTILITIES ==================== */
+/* ==================== PHASE 1-6: ENHANCED DESIGN SYSTEM ==================== */
 
-/* Enhanced scrollbar styling */
+/* ==================== GLASSMORPHISM LEVELS ==================== */
+.glass-level-1 {
+  @apply bg-slate-900/40 backdrop-blur-sm;
+}
+
+.glass-level-2 {
+  @apply bg-slate-900/60 backdrop-blur-md border border-slate-700/40;
+}
+
+.glass-level-3 {
+  @apply bg-slate-900/80 backdrop-blur-lg border border-slate-600/50 shadow-2xl;
+}
+
+.glass-elevated {
+  @apply bg-slate-800/70 backdrop-blur-xl border border-slate-600/60;
+  box-shadow: 0 0 30px rgba(255, 101, 0, 0.1);
+}
+
+/* ==================== GLOW EFFECTS ==================== */
+.glow-primary {
+  box-shadow: 0 0 20px rgba(255, 101, 0, 0.3);
+}
+
+.glow-primary-lg {
+  box-shadow: 0 0 40px rgba(255, 101, 0, 0.2);
+}
+
+.glow-success {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+}
+
+.glow-subtle {
+  box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 30px rgba(255, 101, 0, 0.15);
+}
+
+/* ==================== AMBIENT BACKGROUNDS ==================== */
+.bg-ambient {
+  position: relative;
+  overflow: hidden;
+}
+
+.bg-ambient::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(255, 101, 0, 0.05) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(249, 115, 22, 0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* ==================== ENHANCED SCROLLBAR ==================== */
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -607,5 +664,206 @@
   100% {
     transform: translateY(100vh) rotate(720deg);
     opacity: 0;
+  }
+}
+
+/* ==================== PHASE 4-6: ADVANCED ANIMATIONS ==================== */
+
+/* Card entry stagger animation */
+.stagger-enter > * {
+  animation: stagger-fade-in 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+.stagger-enter > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-enter > *:nth-child(2) { animation-delay: 50ms; }
+.stagger-enter > *:nth-child(3) { animation-delay: 100ms; }
+.stagger-enter > *:nth-child(4) { animation-delay: 150ms; }
+.stagger-enter > *:nth-child(5) { animation-delay: 200ms; }
+.stagger-enter > *:nth-child(6) { animation-delay: 250ms; }
+
+@keyframes stagger-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse glow animation for active/focused elements */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(255, 101, 0, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(255, 101, 0, 0.5);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Float animation for ambient elements */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Shimmer effect for loading/skeleton states */
+@keyframes shimmer-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer-effect::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    transparent 100%
+  );
+  animation: shimmer-slide 2s infinite;
+}
+
+/* Interactive card lift effect */
+.card-lift {
+  @apply transition-all duration-300 ease-out;
+}
+
+.card-lift:hover {
+  @apply -translate-y-1 shadow-xl;
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.3);
+}
+
+/* Interactive border glow */
+.border-glow {
+  @apply transition-all duration-300;
+}
+
+.border-glow:hover {
+  border-color: rgba(255, 101, 0, 0.4);
+  box-shadow: 0 0 20px rgba(255, 101, 0, 0.1);
+}
+
+/* ==================== STAT CARD STANDARDIZATION ==================== */
+.stat-card {
+  @apply relative overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50 backdrop-blur-sm;
+  @apply transition-all duration-300;
+  @apply hover:border-slate-700 hover:bg-slate-800/60;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.02) 100%);
+  pointer-events: none;
+}
+
+/* Stat value styling */
+.stat-value {
+  @apply text-xl sm:text-2xl font-bold text-white;
+}
+
+.stat-label {
+  @apply text-xs sm:text-sm text-slate-400;
+}
+
+.stat-change {
+  @apply text-[10px] sm:text-xs text-slate-500;
+}
+
+/* Micro progress bar */
+.micro-progress {
+  @apply h-1 sm:h-1.5 w-full rounded-full bg-slate-700/50 overflow-hidden;
+}
+
+.micro-progress-bar {
+  @apply h-full rounded-full transition-all duration-1000 ease-out;
+}
+
+/* ==================== EMPTY STATE PATTERNS ==================== */
+.empty-state {
+  @apply flex flex-col items-center justify-center text-center py-12 sm:py-16;
+}
+
+.empty-state-icon {
+  @apply w-16 h-16 sm:w-20 sm:h-20 rounded-full;
+  @apply bg-slate-800/50 backdrop-blur-sm border border-slate-700/50;
+  @apply flex items-center justify-center mb-4 sm:mb-6;
+}
+
+.empty-state-title {
+  @apply text-lg sm:text-xl font-semibold text-white mb-2;
+}
+
+.empty-state-description {
+  @apply text-sm sm:text-base text-slate-400 max-w-md mb-4 sm:mb-6;
+}
+
+/* ==================== TAB SYSTEM ENHANCEMENTS ==================== */
+.tab-count {
+  @apply ml-1.5 px-1.5 py-0.5 text-[10px] font-medium rounded-full;
+  @apply bg-slate-700/50 text-slate-400;
+}
+
+.tab-count-active {
+  @apply bg-white/20 text-white;
+}
+
+/* Tab active indicator animation */
+.tab-indicator {
+  @apply absolute bottom-0 left-0 h-0.5 bg-primary rounded-full;
+  @apply transition-all duration-300 ease-out;
+}
+
+/* ==================== RESPONSIVE TOUCH TARGETS ==================== */
+@media (max-width: 768px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  .mobile-text-adjust {
+    font-size: 0.9375rem; /* 15px - slightly larger for mobile readability */
+  }
+}
+
+/* ==================== REDUCED MOTION SUPPORT ==================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  .animate-pulse-glow,
+  .animate-float,
+  .shimmer-effect::after {
+    animation: none !important;
   }
 }
