@@ -20,7 +20,8 @@ const Mindset = () => {
     label: "Vision Board",
     icon: Eye,
     gradient: "from-purple-500 via-pink-500 to-rose-500",
-    description: "Visualize your dreams and aspirations"
+    description: "Visualize your dreams and aspirations",
+    count: stats.goalsSet
   }, {
     value: "mission",
     label: "Mission",
@@ -32,7 +33,8 @@ const Mindset = () => {
     label: "Core Values",
     icon: Heart,
     gradient: "from-emerald-500 via-teal-500 to-cyan-500",
-    description: "Identify what matters most to you"
+    description: "Identify what matters most to you",
+    count: stats.valuesDefined
   }, {
     value: "beliefs",
     label: "Key Beliefs",
@@ -44,7 +46,8 @@ const Mindset = () => {
     label: "Affirmations",
     icon: Sparkles,
     gradient: "from-cyan-500 via-blue-500 to-indigo-500",
-    description: "Daily positive reinforcement"
+    description: "Daily positive reinforcement",
+    count: stats.affirmations
   }];
   const mindsetStats = [{
     label: "Days Active",
@@ -141,9 +144,9 @@ const Mindset = () => {
 
           <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <ModernTabsList className="grid w-full grid-cols-5 max-w-4xl mx-auto bg-slate-900/50 backdrop-blur-sm border border-slate-700/50">
-              {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} className="flex-1 data-[state=active]:bg-slate-800/50">
-                  {tab.label}
-                </ModernTabsTrigger>)}
+            {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} count={tab.count} className="flex-1 data-[state=active]:bg-slate-800/50">
+                {tab.label}
+              </ModernTabsTrigger>)}
             </ModernTabsList>
             
             <ModernTabsContent value="vision" className="mt-8">

@@ -65,7 +65,8 @@ const FocusContent = () => {
       value: "history", 
       label: "Session History", 
       icon: BarChart2,
-      gradient: "from-blue-500 via-indigo-500 to-purple-500"
+      gradient: "from-blue-500 via-indigo-500 to-purple-500",
+      count: focusSessions.length
     },
     { 
       value: "insights", 
@@ -101,6 +102,7 @@ const FocusContent = () => {
               value={tab.value}
               gradient={tab.gradient}
               icon={tab.icon}
+              count={tab.count}
               className="flex-1"
             >
               {tab.label}

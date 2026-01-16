@@ -105,12 +105,10 @@ const handleCreateTask = (taskData: Partial<UnifiedTask>) => {
                 value={tab.value} 
                 gradient={tab.gradient} 
                 icon={tab.icon}
+                count={tab.count}
                 className="flex-1"
               >
                 {tab.label}
-                {tab.count > 0 && (
-                  <span className="ml-1.5 text-xs opacity-70">({tab.count})</span>
-                )}
               </ModernTabsTrigger>
             ))}
           </ModernTabsList>

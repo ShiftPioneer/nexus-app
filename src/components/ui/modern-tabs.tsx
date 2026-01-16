@@ -69,12 +69,13 @@ const ModernTabsTrigger = React.forwardRef<
       {children}
     </span>
     
-    {/* Count badge */}
-    {count !== undefined && count > 0 && (
+    {/* Count badge - show when count is defined (including 0) */}
+    {count !== undefined && (
       <span className={cn(
-        "ml-1 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-medium rounded-full transition-all duration-300",
+        "ml-1 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-medium rounded-full transition-all duration-300 min-w-[18px] text-center",
         "group-data-[state=active]:bg-white/20 group-data-[state=active]:text-white",
-        "bg-slate-700/50 text-slate-400"
+        "bg-slate-700/50 text-slate-400",
+        count === 0 && "opacity-60"
       )}>
         {count > 99 ? '99+' : count}
       </span>

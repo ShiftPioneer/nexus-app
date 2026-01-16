@@ -66,7 +66,8 @@ const Journal = () => {
     label: "Entries",
     icon: BookOpen,
     gradient: "from-blue-500 via-indigo-500 to-purple-500",
-    description: "Browse your journal history"
+    description: "Browse your journal history",
+    count: entries.length
   }, {
     value: "notes",
     label: "Notes",
@@ -195,7 +196,7 @@ const Journal = () => {
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full max-w-7xl mx-auto px-6 bg-slate-900">
           <ModernTabsList className="grid w-full grid-cols-4 bg-slate-900/50 backdrop-blur-sm border border-slate-700/50">
-            {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} className="flex-1 data-[state=active]:bg-slate-800/50">
+            {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} count={tab.count} className="flex-1 data-[state=active]:bg-slate-800/50">
                 {tab.label}
               </ModernTabsTrigger>)}
           </ModernTabsList>

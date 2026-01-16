@@ -99,7 +99,8 @@ const TimeDesign = () => {
     value: "activities",
     label: "Activities",
     icon: Activity,
-    gradient: "from-emerald-500 via-teal-500 to-cyan-500"
+    gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+    count: activities.length
   }, {
     value: "analytics",
     label: "Analytics",
@@ -118,7 +119,7 @@ const TimeDesign = () => {
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <ModernTabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
-            {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} className="flex-1">
+            {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} count={tab.count} className="flex-1">
                 {tab.label}
               </ModernTabsTrigger>)}
           </ModernTabsList>

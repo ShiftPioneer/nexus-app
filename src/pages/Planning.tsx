@@ -106,19 +106,22 @@ const Planning = () => {
       value: "goals", 
       label: "Goals & Objectives", 
       icon: Target,
-      gradient: "from-emerald-500 via-teal-500 to-cyan-500"
+      gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+      count: goals.length
     },
     { 
       value: "board", 
       label: "Project Board", 
       icon: Layout,
-      gradient: "from-blue-500 via-indigo-500 to-purple-500"
+      gradient: "from-blue-500 via-indigo-500 to-purple-500",
+      count: projects.length
     },
     { 
       value: "list", 
       label: "Task List", 
       icon: BarChart3,
-      gradient: "from-purple-500 via-pink-500 to-rose-500"
+      gradient: "from-purple-500 via-pink-500 to-rose-500",
+      count: goals.length + projects.length
     },
     { 
       value: "review", 
@@ -163,6 +166,7 @@ const Planning = () => {
                 value={tab.value}
                 gradient={tab.gradient}
                 icon={tab.icon}
+                count={tab.count}
                 className="flex-1"
               >
                 {tab.label}
