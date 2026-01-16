@@ -25,7 +25,7 @@ export const UnifiedPageHeader: React.FC<UnifiedPageHeaderProps> = ({
       className={cn(
         "relative overflow-hidden rounded-xl sm:rounded-2xl",
         "border border-slate-700/50 bg-slate-900/50 backdrop-blur-sm",
-        "shadow-xl",
+        "shadow-xl min-h-[80px] sm:min-h-[100px] md:min-h-[120px]",
         className
       )}
       initial={{ opacity: 0, y: -10 }}
@@ -38,7 +38,7 @@ export const UnifiedPageHeader: React.FC<UnifiedPageHeaderProps> = ({
       {/* Ambient glow */}
       <div className={`absolute -top-20 -right-20 w-40 h-40 bg-gradient-to-br ${gradient} opacity-20 blur-3xl rounded-full`} />
       
-      <div className="relative p-4 sm:p-6 md:p-8">
+      <div className="relative p-4 sm:p-6 md:p-8 h-full flex items-center">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           {/* Icon */}
           <motion.div 

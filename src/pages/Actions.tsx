@@ -87,7 +87,7 @@ const handleCreateTask = (taskData: Partial<UnifiedTask>) => {
 
   return (
     <div className="page-container">
-      <div className="page-content px-[20px]">
+      <div className="page-content">
         <UnifiedPageHeader 
           title="Actions" 
           description="Capture, clarify, and get things done with the GTD workflow" 
