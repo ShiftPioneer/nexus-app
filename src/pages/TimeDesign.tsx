@@ -114,7 +114,7 @@ const TimeDesign = () => {
   }];
   return <ModernAppLayout>
       <div className="page-container">
-        <div className="page-content px-[20px]">
+        <div className="page-content">
           <UnifiedPageHeader title="Time Design" description="Design your perfect day and optimize your time allocation" icon={navigationIcons.timeDesign} gradient="from-blue-500 via-indigo-500 to-purple-500" />
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">

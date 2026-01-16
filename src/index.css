@@ -271,13 +271,15 @@
   @apply bg-slate-800/70 backdrop-blur-lg border border-slate-600/50 rounded-2xl shadow-2xl;
 }
 
-/* Standardized Page Layout */
+/* Standardized Page Layout - Symmetric across all pages */
 .page-container {
   @apply bg-slate-900 min-h-full animate-fade-in;
 }
 
 .page-content {
-  @apply space-y-8;
+  @apply space-y-6 px-4 py-6 sm:px-6 sm:py-8 md:px-8 lg:px-10;
+  max-width: 1440px;
+  margin: 0 auto;
 }
 
 /* Standardized Section Spacing */
@@ -287,6 +289,11 @@
 
 .section-spacing-compact {
   @apply space-y-4;
+}
+
+/* Unified Header Sizing - ensures all page headers are symmetric */
+.unified-header {
+  @apply py-6 sm:py-8;
 }
 
 /* Standardized Typography Classes */
