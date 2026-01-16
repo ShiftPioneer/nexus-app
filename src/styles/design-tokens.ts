@@ -214,12 +214,20 @@ export const containers = {
 
 // ==================== COMPONENT VARIANTS ====================
 export const variants = {
-  // Button variants
+  // Button variants - Unified across the app
   button: {
-    primary: "bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-xl shadow-primary/25",
-    secondary: "border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white",
-    ghost: "hover:bg-slate-800/50 text-slate-300 hover:text-white",
-    glow: "bg-gradient-to-r from-primary to-orange-500 text-white shadow-glow hover:shadow-glow-lg",
+    // Primary action button with gradient
+    primary: "bg-gradient-to-r from-primary via-orange-500 to-red-500 hover:from-primary/90 hover:via-orange-500/90 hover:to-red-500/90 text-white shadow-xl shadow-primary/25 border-none",
+    // Secondary outline button
+    secondary: "border-2 border-slate-600/50 hover:bg-slate-700/30 hover:border-slate-500/50 text-slate-300 hover:text-white bg-transparent",
+    // Ghost button for minimal UI
+    ghost: "hover:bg-slate-800/50 text-slate-300 hover:text-white bg-transparent border-none",
+    // Glow effect button
+    glow: "bg-gradient-to-r from-primary to-orange-500 text-white shadow-glow hover:shadow-glow-lg border-none",
+    // Destructive action
+    destructive: "bg-red-500/10 text-red-400 border border-red-500/30 hover:bg-red-500/20 hover:border-red-500/50",
+    // Success action
+    success: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20 hover:border-emerald-500/50",
   },
   
   // Badge variants
@@ -229,6 +237,7 @@ export const variants = {
     success: "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30",
     error: "bg-red-500/10 text-red-400 border border-red-500/30",
     warning: "bg-amber-500/10 text-amber-400 border border-amber-500/30",
+    info: "bg-blue-500/10 text-blue-400 border border-blue-500/30",
   },
   
   // Card variants
@@ -236,7 +245,26 @@ export const variants = {
     default: "bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-xl",
     interactive: "bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-xl hover:bg-slate-800/60 hover:border-slate-600/70 hover:-translate-y-1 hover:shadow-xl transition-all duration-300 cursor-pointer",
     glow: "bg-slate-900/50 backdrop-blur-sm border border-slate-700/50 rounded-xl hover:shadow-glow transition-all duration-300",
+    elevated: "bg-slate-800/70 backdrop-blur-lg border border-slate-600/50 rounded-xl shadow-2xl",
   },
+} as const;
+
+// ==================== ICON SIZES ====================
+export const iconSizes = {
+  xs: "h-3 w-3",       // 12px - For badges, indicators
+  sm: "h-4 w-4",       // 16px - For inline text
+  md: "h-5 w-5",       // 20px - For buttons (standard)
+  lg: "h-6 w-6",       // 24px - For standalone icons
+  xl: "h-8 w-8",       // 32px - For cards, headers
+  "2xl": "h-10 w-10",  // 40px - For empty states
+  "3xl": "h-12 w-12",  // 48px - For hero sections
+} as const;
+
+// ==================== TAB COUNT PATTERNS ====================
+export const tabCount = {
+  badge: "ml-1.5 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-medium rounded-full transition-all duration-300",
+  active: "bg-white/20 text-white",
+  inactive: "bg-slate-700/50 text-slate-400",
 } as const;
 
 // ==================== STAT CARD PATTERNS ====================

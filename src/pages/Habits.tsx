@@ -255,6 +255,7 @@ const Habits = () => {
                 value="habits"
                 icon={CheckCircle}
                 gradient="from-emerald-500 via-teal-500 to-cyan-500"
+                count={habits.length}
               >
                 Track Habits
               </ModernTabsTrigger>
