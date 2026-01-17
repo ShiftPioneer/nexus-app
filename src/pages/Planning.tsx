@@ -141,11 +141,12 @@ const Planning = () => {
             icon={navigationIcons.planning}
             gradient="from-emerald-500 via-teal-500 to-cyan-500"
           />
-        <div className="flex justify-end gap-3">
+        <div className="flex flex-col sm:flex-row justify-end gap-2 sm:gap-3">
           <UnifiedActionButton
             onClick={handleCreateGoal}
             icon={Plus}
             variant="primary"
+            className="w-full sm:w-auto"
           >
             New Goal
           </UnifiedActionButton>
@@ -153,13 +154,14 @@ const Planning = () => {
             onClick={handleCreateProject}
             icon={Plus}
             variant="secondary"
+            className="w-full sm:w-auto"
           >
             New Project
           </UnifiedActionButton>
         </div>
 
         <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList className="grid w-full grid-cols-4 max-w-4xl mx-auto">
+          <ModernTabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-4xl mx-auto gap-2 sm:gap-0">
             {tabItems.map((tab) => (
               <ModernTabsTrigger 
                 key={tab.value}
@@ -167,9 +169,10 @@ const Planning = () => {
                 gradient={tab.gradient}
                 icon={tab.icon}
                 count={tab.count}
-                className="flex-1"
+                className="flex-1 min-h-[44px] text-xs sm:text-sm"
               >
-                {tab.label}
+                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="sm:hidden">{tab.label.split(' ')[0]}</span>
               </ModernTabsTrigger>
             ))}
           </ModernTabsList>

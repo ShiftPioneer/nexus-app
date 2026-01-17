@@ -67,10 +67,11 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ isCollapsed }) =>
                   title={item.name}
                 >
                   <Icon className="h-5 w-5" />
+                  {/* Active dot indicator for collapsed - more aesthetic */}
                   {active && (
                     <motion.div 
                       layoutId="nav-indicator-collapsed"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full"
+                      className="absolute -right-1 top-1/2 -translate-y-1/2 w-2 h-2 bg-primary rounded-full shadow-lg shadow-primary/50"
                     />
                   )}
                 </div>
@@ -100,18 +101,18 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({ isCollapsed }) =>
               <Link to={item.path} className="block">
                 <div
                   className={cn(
-                    "relative flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group",
-                    isMobile && "min-h-[48px] px-4 py-3",
+                    "relative flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 group",
+                    isMobile && "min-h-[52px] px-4 py-3.5",
                     active
                       ? "bg-gradient-to-r from-primary/15 via-primary/10 to-transparent text-white border border-primary/20 shadow-lg shadow-primary/5"
                       : "text-slate-400 hover:bg-slate-800/60 hover:text-white hover:translate-x-1"
                   )}
                 >
-                  {/* Active indicator */}
+                  {/* Active indicator - aligned with button via inset-y-0 */}
                   {active && (
                     <motion.div 
                       layoutId="nav-indicator"
-                      className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-primary rounded-r-full"
+                      className="absolute left-0 inset-y-2 w-1 bg-primary rounded-r-full"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}

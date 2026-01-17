@@ -62,10 +62,10 @@ const ModernAppLayout = ({
     <div className="flex h-screen w-full overflow-hidden bg-background">
       <SidebarProvider>
         <GTDProvider>
-          {/* Mobile Overlay */}
+          {/* Mobile Overlay - Enhanced with blur */}
           {isMobile && !isCollapsed && (
             <div 
-              className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm transition-opacity duration-300" 
+              className="fixed inset-0 bg-black/60 z-40 backdrop-blur-sm mobile-overlay transition-opacity duration-300" 
               onClick={toggleSidebar} 
               aria-label="Close sidebar" 
             />
@@ -93,9 +93,15 @@ const ModernAppLayout = ({
             
             <main 
               ref={mainRef}
-              className="flex-1 overflow-y-auto scrollbar-none bg-background h-full"
+              className={cn(
+                "flex-1 overflow-y-auto scrollbar-none bg-background h-full mobile-scroll",
+                isMobile && "overscroll-behavior-contain"
+              )}
             >
-              <div className="h-full w-full p-3 sm:p-4 md:p-6 text-foreground min-h-full bg-background px-0 py-0">
+              <div className={cn(
+                "h-full w-full text-foreground min-h-full bg-background",
+                isMobile ? "p-0" : "p-3 sm:p-4 md:p-6 px-0 py-0"
+              )}>
                 {children}
               </div>
             </main>
