@@ -165,17 +165,94 @@ export const transitions = {
   slow: "transition-all duration-500 ease-out",
   spring: "transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]",
   bounce: "transition-all duration-400 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
+  smooth: "transition-all duration-400 ease-[cubic-bezier(0.4,0,0.2,1)]",
 } as const;
 
 export const motionPresets = {
   // Page transitions
-  pageEnter: { initial: { opacity: 0, y: 12 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4 } },
+  pageEnter: { 
+    initial: { opacity: 0, y: 16, filter: "blur(4px)" }, 
+    animate: { opacity: 1, y: 0, filter: "blur(0px)" }, 
+    transition: { duration: 0.5, ease: [0.23, 1, 0.32, 1] } 
+  },
   // Card stagger entry
-  cardStagger: { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } },
+  cardStagger: { 
+    initial: { opacity: 0, y: 24 }, 
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
+  },
   // Scale pop
-  scaleIn: { initial: { opacity: 0, scale: 0.95 }, animate: { opacity: 1, scale: 1 } },
+  scaleIn: { 
+    initial: { opacity: 0, scale: 0.9 }, 
+    animate: { opacity: 1, scale: 1 },
+    transition: { duration: 0.35, ease: [0.23, 1, 0.32, 1] }
+  },
   // Slide in
-  slideIn: { initial: { opacity: 0, x: -20 }, animate: { opacity: 1, x: 0 } },
+  slideIn: { 
+    initial: { opacity: 0, x: -20 }, 
+    animate: { opacity: 1, x: 0 },
+    transition: { duration: 0.4, ease: [0.23, 1, 0.32, 1] }
+  },
+  // Fade in
+  fadeIn: {
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    transition: { duration: 0.3, ease: "easeOut" }
+  },
+  // Reveal up (for important elements)
+  revealUp: {
+    initial: { opacity: 0, y: 32, filter: "blur(8px)" },
+    animate: { opacity: 1, y: 0, filter: "blur(0px)" },
+    transition: { duration: 0.6, ease: [0.23, 1, 0.32, 1] }
+  },
+} as const;
+
+// ==================== FUTURISTIC EFFECTS ====================
+export const futuristicEffects = {
+  // Glass variants
+  glass: {
+    subtle: "glass-level-1",
+    medium: "glass-level-2", 
+    heavy: "glass-level-3",
+    elevated: "glass-elevated",
+    futuristic: "glass-futuristic",
+  },
+  // Glow utilities
+  glow: {
+    primary: "glow-primary",
+    primaryLg: "glow-primary-lg",
+    success: "glow-success",
+    subtle: "glow-subtle",
+    ambient: "glow-ambient",
+  },
+  // Animation utilities
+  animate: {
+    pulseGlow: "animate-pulse-glow",
+    float: "animate-float",
+    breathe: "animate-breathe",
+    rotateSlow: "animate-rotate-slow",
+    bounceSub: "animate-bounce-subtle",
+    revealUp: "animate-reveal-up",
+    scalePop: "animate-scale-pop",
+    slideLeft: "animate-slide-in-left",
+  },
+  // Interactive states
+  interactive: {
+    press: "press-effect",
+    ripple: "ripple-effect",
+    magnetic: "magnetic-hover",
+    cardLift: "card-lift",
+    borderGlow: "border-glow",
+    focusGlow: "focus-glow",
+  },
+  // Decorative
+  decorative: {
+    scanLines: "scan-lines",
+    cornerAccent: "corner-accent",
+    dataStream: "data-stream-bg",
+    shimmer: "shimmer-effect",
+    borderGradient: "border-gradient-animated",
+  },
 } as const;
 
 // ==================== HOVER EFFECTS ====================
