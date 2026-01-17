@@ -1,15 +1,18 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 import { backgrounds, radius, shadows, padding } from "@/styles/design-tokens";
+import { motion } from "framer-motion";
 
 interface UnifiedCardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "primary" | "secondary" | "interactive" | "glass" | "elevated";
+  variant?: "primary" | "secondary" | "interactive" | "glass" | "elevated" | "futuristic";
   noPadding?: boolean;
+  animated?: boolean;
+  glowOnHover?: boolean;
   children: React.ReactNode;
 }
 
 export const UnifiedCard = React.forwardRef<HTMLDivElement, UnifiedCardProps>(
-  ({ variant = "primary", noPadding = false, className, children, ...props }, ref) => {
+  ({ variant = "primary", noPadding = false, animated = false, glowOnHover = false, className, children, ...props }, ref) => {
     const baseClasses = cn(
       // Background and border based on variant
       variant === "primary" && backgrounds.card.primary,
@@ -17,6 +20,7 @@ export const UnifiedCard = React.forwardRef<HTMLDivElement, UnifiedCardProps>(
       variant === "interactive" && backgrounds.card.interactive,
       variant === "glass" && backgrounds.card.glass,
       variant === "elevated" && backgrounds.elevated,
+      variant === "futuristic" && "glass-futuristic",
       
       // Common styles
       radius.large,
@@ -26,9 +30,27 @@ export const UnifiedCard = React.forwardRef<HTMLDivElement, UnifiedCardProps>(
       // Mobile padding adjustment
       !noPadding && "sm:p-6 p-4",
       
+      // Glow on hover
+      glowOnHover && "border-glow",
+      
       // Custom className
       className
     );
+
+    if (animated) {
+      return (
+        <motion.div 
+          ref={ref as any} 
+          className={baseClasses}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
+          {...(props as any)}
+        >
+          {children}
+        </motion.div>
+      );
+    }
 
     return (
       <div ref={ref} className={baseClasses} {...props}>
@@ -45,6 +67,7 @@ interface UnifiedCardHeaderProps {
   description?: string;
   action?: React.ReactNode;
   className?: string;
+  glowTitle?: boolean;
 }
 
 export const UnifiedCardHeader: React.FC<UnifiedCardHeaderProps> = ({
@@ -52,11 +75,15 @@ export const UnifiedCardHeader: React.FC<UnifiedCardHeaderProps> = ({
   description,
   action,
   className,
+  glowTitle = false,
 }) => {
   return (
     <div className={cn("flex items-start justify-between mb-6", className)}>
       <div className="space-y-1">
-        <h3 className="text-xl font-semibold text-white">{title}</h3>
+        <h3 className={cn(
+          "text-xl font-semibold text-white",
+          glowTitle && "text-glow"
+        )}>{title}</h3>
         {description && (
           <p className="text-sm text-slate-400">{description}</p>
         )}

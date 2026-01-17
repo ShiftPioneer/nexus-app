@@ -117,13 +117,19 @@ const WelcomeSection = () => {
 
   return (
     <section className="mb-6 sm:mb-8">
-      <Card className="overflow-hidden bg-slate-950/90 backdrop-blur-sm border-slate-700/50 shadow-2xl">
-        <CardContent className="p-4 sm:p-6 md:p-8">
+      <Card className="overflow-hidden glass-futuristic shadow-2xl relative group">
+        {/* Ambient glow effects */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute -top-32 -left-32 w-64 h-64 bg-primary/10 rounded-full blur-3xl opacity-50 group-hover:opacity-70 transition-opacity duration-700" />
+          <div className="absolute -bottom-32 -right-32 w-64 h-64 bg-orange-500/5 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
+        </div>
+        
+        <CardContent className="p-4 sm:p-6 md:p-8 relative z-10">
           <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 lg:gap-8 items-start lg:items-center">
             <div className="flex-1 space-y-4 sm:space-y-6 min-w-0 w-full">
               <div className="space-y-2 sm:space-y-3">
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white leading-tight">
-                  <span className="bg-gradient-to-r from-primary via-orange-500 to-red-500 bg-clip-text text-transparent">
+                  <span className="bg-gradient-to-r from-primary via-orange-500 to-red-500 bg-clip-text text-transparent text-glow">
                     {getGreeting()}
                   </span>
                   <span className="block sm:inline">, {userName}</span>
@@ -138,7 +144,7 @@ const WelcomeSection = () => {
                   onClick={handleStartDay}
                   icon={Sparkles}
                   variant="primary"
-                  className="text-sm sm:text-base flex-1 sm:flex-none min-w-[140px]"
+                  className="text-sm sm:text-base flex-1 sm:flex-none min-w-[140px] press-effect"
                 >
                   Start Your Day
                 </UnifiedActionButton>
@@ -146,7 +152,7 @@ const WelcomeSection = () => {
                   onClick={handleViewPlan}
                   icon={Calendar}
                   variant="secondary"
-                  className="text-sm sm:text-base flex-1 sm:flex-none min-w-[140px]"
+                  className="text-sm sm:text-base flex-1 sm:flex-none min-w-[140px] press-effect"
                 >
                   View Today's Plan
                 </UnifiedActionButton>
@@ -166,9 +172,9 @@ const WelcomeSection = () => {
               </div>
               
               {/* Time Display */}
-              <div className="flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 bg-slate-900/50 border border-slate-700/50 rounded-xl backdrop-blur-sm flex-1 lg:flex-none">
+              <div className="flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 card-glass-depth rounded-xl flex-1 lg:flex-none border-glow">
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-primary animate-pulse-glow" />
                   <span className="text-lg sm:text-xl md:text-2xl font-bold text-white">{formattedTime}</span>
                 </div>
                 <span className="text-slate-400 text-xs sm:text-sm text-center">{formattedDate}</span>
@@ -176,7 +182,7 @@ const WelcomeSection = () => {
             </div>
           </div>
           
-          <div className="mt-4 sm:mt-6 md:mt-8 p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl border border-slate-700/50 bg-gradient-to-r from-slate-900/30 to-slate-800/30 backdrop-blur-sm">
+          <div className="mt-4 sm:mt-6 md:mt-8 p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl border border-slate-700/30 bg-gradient-to-r from-slate-900/40 to-slate-800/20 backdrop-blur-md glow-ambient">
             <blockquote className="text-base sm:text-lg md:text-xl font-medium text-slate-200 italic leading-relaxed">
               "{quote.text}"
             </blockquote>
@@ -186,7 +192,7 @@ const WelcomeSection = () => {
                 onClick={handleNewQuote}
                 icon={RotateCcw}
                 variant="secondary"
-                className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 w-full sm:w-auto"
+                className="text-xs sm:text-sm px-3 sm:px-4 py-1.5 sm:py-2 w-full sm:w-auto press-effect"
               >
                 New Quote
               </UnifiedActionButton>
