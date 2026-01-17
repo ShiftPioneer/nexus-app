@@ -6,29 +6,30 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-active",
   {
     variants: {
       variant: {
-        default: "bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 border border-primary/20",
-        destructive: "bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0",
-        outline: "border-2 border-slate-300 bg-slate-950 text-slate-100 hover:bg-slate-800 hover:text-white hover:border-slate-400 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        secondary: "bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0",
-        ghost: "hover:bg-slate-800 hover:text-white text-slate-300 rounded-lg",
+        default: "bg-primary text-white hover:bg-primary/90 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] border border-primary/20",
+        destructive: "bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]",
+        outline: "border-2 border-slate-300 bg-slate-950 text-slate-100 hover:bg-slate-800 hover:text-white hover:border-slate-400 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]",
+        secondary: "bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]",
+        ghost: "hover:bg-slate-800 hover:text-white text-slate-300 rounded-lg active:scale-[0.98]",
         link: "text-primary underline-offset-4 hover:underline hover:text-primary/80",
-        success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 border border-slate-300",
-        warning: "bg-lime-500 text-slate-950 hover:bg-lime-400 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 font-bold border border-slate-300",
-        // Updated variants with slate-300 borders
-        tab: "bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-300 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary shadow-sm hover:shadow-md",
+        success: "bg-emerald-600 text-white hover:bg-emerald-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] border border-slate-300",
+        warning: "bg-lime-500 text-slate-950 hover:bg-lime-400 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] font-bold border border-slate-300",
+        tab: "bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-300 data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:border-primary shadow-sm hover:shadow-md active:scale-[0.98]",
         "tab-active": "bg-primary text-white border border-slate-300 shadow-lg",
-        navigation: "bg-slate-950 text-slate-200 hover:bg-slate-800 hover:text-white border border-slate-300 shadow-sm hover:shadow-md hover:-translate-y-0.5",
+        navigation: "bg-slate-950 text-slate-200 hover:bg-slate-800 hover:text-white border border-slate-300 shadow-sm hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]",
       },
       size: {
-        default: "h-11 px-6 py-2.5",
-        sm: "h-9 rounded-lg px-4 text-xs",
-        lg: "h-13 rounded-xl px-8 text-base",
-        icon: "h-11 w-11",
-        xs: "h-7 rounded-lg px-2 text-xs",
+        default: "h-11 px-6 py-2.5 min-h-[44px]",
+        sm: "h-9 rounded-lg px-4 text-xs min-h-[36px]",
+        lg: "h-13 rounded-xl px-8 text-base min-h-[52px]",
+        icon: "h-11 w-11 min-h-[44px] min-w-[44px]",
+        xs: "h-7 rounded-lg px-2 text-xs min-h-[28px]",
+        // Mobile-optimized size
+        mobile: "h-12 rounded-xl px-6 text-base min-h-[48px]",
       },
     },
     defaultVariants: {

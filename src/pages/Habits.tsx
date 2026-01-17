@@ -190,6 +190,7 @@ const Habits = () => {
               }}
               icon={Plus}
               variant="primary"
+              className="w-full sm:w-auto"
             >
               New Habit
             </UnifiedActionButton>
@@ -269,23 +270,23 @@ const Habits = () => {
             </ModernTabsList>
 
             <ModernTabsContent value="habits" className="space-y-8">
-              {/* Controls */}
-              <div className="flex flex-col sm:flex-row gap-4">
-                <div className="relative flex-1">
+              {/* Controls - Mobile optimized */}
+              <div className="flex flex-col gap-3 sm:gap-4">
+                <div className="relative w-full">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input
                     placeholder="Search habits..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-slate-900 border-slate-700 text-white mx-[10px]"
+                    className="pl-10 bg-slate-900 border-slate-700 text-white w-full min-h-[44px]"
                   />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-slate-400" />
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Filter className="h-4 w-4 text-slate-400 flex-shrink-0" />
                   <select
                     value={filterCategory}
                     onChange={(e) => setFilterCategory(e.target.value)}
-                    className="px-3 py-2 border rounded-md text-sm bg-slate-900 border-slate-700 text-white"
+                    className="flex-1 sm:flex-none px-4 py-3 sm:py-2 border rounded-xl text-sm bg-slate-900 border-slate-700 text-white min-h-[44px]"
                   >
                     {categories.map((cat) => (
                       <option key={cat} value={cat}>

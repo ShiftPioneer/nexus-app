@@ -1166,15 +1166,229 @@
   @apply transition-all duration-300 ease-out;
 }
 
-/* ==================== RESPONSIVE TOUCH TARGETS ==================== */
+/* ==================== PHASE 5: MOBILE OPTIMIZATION ==================== */
+
+/* Enhanced touch targets for mobile */
 @media (max-width: 768px) {
-  .touch-target {
+  /* Minimum touch target sizes */
+  .touch-target,
+  button,
+  a,
+  [role="button"],
+  input[type="checkbox"],
+  input[type="radio"] {
     min-height: 44px;
     min-width: 44px;
   }
   
+  /* Mobile text adjustments for readability */
   .mobile-text-adjust {
-    font-size: 0.9375rem; /* 15px - slightly larger for mobile readability */
+    font-size: 0.9375rem; /* 15px */
+    line-height: 1.5;
+  }
+  
+  /* Larger tap areas for interactive elements */
+  .mobile-tap-area {
+    padding: 12px 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Mobile-specific card padding */
+  .card-primary,
+  .card-secondary,
+  .card-glass {
+    padding: 16px;
+    border-radius: 16px;
+  }
+  
+  /* Improved button spacing on mobile */
+  .btn-mobile {
+    padding: 14px 20px;
+    font-size: 16px;
+    border-radius: 12px;
+  }
+  
+  /* Mobile header adjustments */
+  h1 {
+    font-size: 1.75rem;
+    line-height: 1.25;
+  }
+  
+  h2 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+  }
+  
+  h3 {
+    font-size: 1.125rem;
+  }
+  
+  /* Mobile stat cards */
+  .stat-card {
+    padding: 14px;
+  }
+  
+  .stat-value {
+    font-size: 1.375rem;
+  }
+  
+  /* Mobile page content spacing */
+  .page-content {
+    padding: 16px 12px;
+  }
+  
+  /* Improved scrolling on mobile */
+  .mobile-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Mobile dialog improvements */
+  [role="dialog"],
+  .dialog-content {
+    max-height: 85vh;
+    margin: 16px;
+    border-radius: 20px;
+  }
+  
+  /* Mobile safe area padding */
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+  
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+}
+
+/* Mobile navigation specific */
+@media (max-width: 768px) {
+  /* Improved nav item touch targets */
+  .nav-item {
+    min-height: 52px;
+    padding: 14px 16px;
+    margin-bottom: 4px;
+  }
+  
+  /* Mobile sidebar width */
+  .sidebar-mobile {
+    width: 85vw;
+    max-width: 320px;
+  }
+  
+  /* Mobile overlay improvements */
+  .mobile-overlay {
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+}
+
+/* Tablet optimizations */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .page-content {
+    padding: 20px 24px;
+  }
+  
+  .tablet-grid-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .stat-card {
+    padding: 16px;
+  }
+}
+
+/* Mobile-first interactive states */
+@media (hover: none) and (pointer: coarse) {
+  /* Touch-specific active states */
+  .touch-active:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+    transition: transform 0.1s ease, opacity 0.1s ease;
+  }
+  
+  /* Disable hover effects on touch devices */
+  .hover-only {
+    pointer-events: none;
+  }
+  
+  /* Better focus states for touch */
+  *:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+  
+  /* Remove hover animations on touch */
+  .card-lift:hover,
+  .interactive:hover {
+    transform: none;
+  }
+}
+
+/* Mobile bottom sheet improvements */
+.mobile-bottom-sheet {
+  border-radius: 24px 24px 0 0;
+  max-height: 90vh;
+  padding-bottom: env(safe-area-inset-bottom, 20px);
+}
+
+.mobile-bottom-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 2px;
+  margin: 10px auto 16px;
+}
+
+/* Mobile-optimized input fields */
+@media (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px; /* Prevents zoom on iOS */
+    padding: 14px 16px;
+    border-radius: 12px;
+  }
+  
+  /* Mobile form spacing */
+  .form-group {
+    margin-bottom: 16px;
+  }
+  
+  /* Better label sizing */
+  label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: block;
+  }
+}
+
+/* Swipe gesture support */
+.swipe-container {
+  touch-action: pan-x pan-y;
+  overscroll-behavior-x: contain;
+}
+
+/* Mobile animation performance */
+@media (max-width: 768px) {
+  /* Prefer GPU-accelerated transforms */
+  .mobile-animate {
+    transform: translateZ(0);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+  }
+  
+  /* Reduce motion complexity on mobile */
+  .animate-pulse-glow {
+    animation-duration: 3s;
+  }
+  
+  .shimmer-effect::after {
+    animation-duration: 2.5s;
   }
 }
 
@@ -1190,5 +1404,21 @@
   .animate-float,
   .shimmer-effect::after {
     animation: none !important;
+  }
+}
+
+/* ==================== MOBILE LANDSCAPE MODE ==================== */
+@media (max-width: 768px) and (orientation: landscape) {
+  .page-content {
+    padding: 12px 16px;
+  }
+  
+  .unified-header {
+    padding: 12px 0;
+  }
+  
+  /* Reduce vertical spacing in landscape */
+  .section-spacing {
+    gap: 12px;
   }
 }

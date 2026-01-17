@@ -22,10 +22,10 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
   aiAssistant
 }) => {
   const { user } = useUser();
-  return <header className="h-14 sm:h-16 border-b border-slate-300 backdrop-blur-xl flex items-center justify-between px-3 sm:px-4 md:px-6 z-30 flex-shrink-0 shadow-sm bg-slate-950/95">
+  return <header className="h-14 sm:h-16 border-b border-slate-300 backdrop-blur-xl flex items-center justify-between px-3 sm:px-4 md:px-6 z-30 flex-shrink-0 shadow-sm bg-slate-950/95 safe-area-top">
       <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
-        {/* Mobile Menu Button */}
-        {isMobile && <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="h-9 w-9 rounded-lg hover:bg-slate-800 transition-colors flex-shrink-0 border border-slate-300" aria-label={isCollapsed ? "Open sidebar" : "Close sidebar"}>
+        {/* Mobile Menu Button - Enhanced touch target */}
+        {isMobile && <Button variant="ghost" size="icon" onClick={onToggleSidebar} className="h-11 w-11 rounded-xl hover:bg-slate-800 transition-colors flex-shrink-0 border border-slate-300 active:scale-95" aria-label={isCollapsed ? "Open sidebar" : "Close sidebar"}>
             {isCollapsed ? <Menu className="h-5 w-5 text-slate-300" /> : <X className="h-5 w-5 text-slate-300" />}
           </Button>}
 
@@ -40,9 +40,9 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
         </div>
       </div>
       
-      <div className="flex items-center gap-1 sm:gap-2 md:gap-3 flex-shrink-0">
+      <div className="flex items-center gap-1.5 sm:gap-2 md:gap-3 flex-shrink-0">
         {/* Search - Hidden on small mobile */}
-        <Button variant="ghost" size="icon" className={cn("h-9 w-9 sm:h-10 sm:w-10 rounded-xl hover:bg-slate-800 transition-all duration-200 border border-slate-300", "text-slate-400 hover:text-slate-200", "hidden xs:flex")} aria-label="Search">
+        <Button variant="ghost" size="icon" className={cn("h-10 w-10 sm:h-10 sm:w-10 rounded-xl hover:bg-slate-800 transition-all duration-200 border border-slate-300 active:scale-95", "text-slate-400 hover:text-slate-200", "hidden xs:flex")} aria-label="Search">
           <Search className="h-4 w-4 sm:h-5 sm:w-5" />
         </Button>
         
@@ -51,13 +51,13 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
           <ThemeToggle />
         </div>
         
-        {/* AI Assistant */}
+        {/* AI Assistant - Enhanced mobile touch target */}
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={aiAssistant.toggle}
           className={cn(
-            "h-9 w-9 sm:h-10 sm:w-10 rounded-xl transition-all duration-200 border border-slate-300 relative group overflow-hidden",
+            "h-10 w-10 sm:h-10 sm:w-10 rounded-xl transition-all duration-200 border border-slate-300 relative group overflow-hidden active:scale-95",
             aiAssistant.isOpen 
               ? "bg-gradient-to-br from-primary/30 to-orange-500/30 text-white border-primary/50 shadow-lg shadow-primary/25" 
               : "hover:bg-gradient-to-br hover:from-primary/10 hover:to-orange-500/10 text-slate-400 hover:text-white hover:border-primary/30"
@@ -76,10 +76,10 @@ const ModernTopBar: React.FC<ModernTopBarProps> = ({
           <Sparkles className="h-2 w-2 absolute -top-0.5 -right-0.5 text-primary animate-pulse opacity-75" />
         </Button>
 
-        {/* Notifications */}
-        <Button variant="ghost" size="icon" className={cn("h-9 w-9 sm:h-10 sm:w-10 rounded-xl hover:bg-slate-800 transition-all duration-200 relative border border-slate-300", "text-slate-400 hover:text-slate-200")} aria-label="Notifications">
+        {/* Notifications - Enhanced mobile touch target */}
+        <Button variant="ghost" size="icon" className={cn("h-10 w-10 sm:h-10 sm:w-10 rounded-xl hover:bg-slate-800 transition-all duration-200 relative border border-slate-300 active:scale-95", "text-slate-400 hover:text-slate-200")} aria-label="Notifications">
           <Bell className="h-4 w-4 sm:h-5 sm:w-5" />
-          <span className="absolute -top-1 -right-1 h-3 w-3 sm:h-4 sm:w-4 bg-primary rounded-full text-[10px] sm:text-xs flex items-center justify-center text-white shadow-glow font-medium border border-slate-300">
+          <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary rounded-full text-[10px] flex items-center justify-center text-white shadow-glow font-medium border border-slate-300">
             3
           </span>
         </Button>
