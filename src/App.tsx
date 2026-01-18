@@ -8,9 +8,8 @@ import { ThemeProvider } from "next-themes";
 import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CanonicalHostRedirect } from "@/components/routing/CanonicalHostRedirect";
-import PageLoader from "@/components/ui/PageLoader";
 
-// Lazy load all pages for code splitting
+// Lazy load all pages for code splitting - no loader shown (instant feel)
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
 const Actions = lazy(() => import("./pages/Actions"));
@@ -40,6 +39,11 @@ const queryClient = new QueryClient({
   },
 });
 
+// Minimal fallback - just maintains background color, no intrusive loader
+const MinimalFallback = () => (
+  <div className="min-h-screen bg-background" />
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
@@ -50,7 +54,7 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <CanonicalHostRedirect />
-              <Suspense fallback={<PageLoader />}>
+              <Suspense fallback={<MinimalFallback />}>
                 <Routes>
                   <Route path="/" element={<Index />} />
                   <Route path="/auth" element={<Auth />} />
