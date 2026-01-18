@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,23 +8,37 @@ import { ThemeProvider } from "next-themes";
 import { UserProvider } from "@/contexts/UserContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CanonicalHostRedirect } from "@/components/routing/CanonicalHostRedirect";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import Actions from "./pages/Actions";
-import Habits from "./pages/Habits";
-import Journal from "./pages/Journal";
-import Planning from "./pages/Planning";
-import TimeDesign from "./pages/TimeDesign";
-import Knowledge from "./pages/Knowledge";
-import Energy from "./pages/Energy";
-import Mindset from "./pages/Mindset";
-import Settings from "./pages/Settings";
-import Focus from "./pages/Focus";
-import Install from "./pages/Install";
-import PrivacyPolicy from "./pages/PrivacyPolicy";
-import TermsOfService from "./pages/TermsOfService";
+import PageLoader from "@/components/ui/PageLoader";
 
-const queryClient = new QueryClient();
+// Lazy load all pages for code splitting
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const Actions = lazy(() => import("./pages/Actions"));
+const Habits = lazy(() => import("./pages/Habits"));
+const Journal = lazy(() => import("./pages/Journal"));
+const Planning = lazy(() => import("./pages/Planning"));
+const TimeDesign = lazy(() => import("./pages/TimeDesign"));
+const Knowledge = lazy(() => import("./pages/Knowledge"));
+const Energy = lazy(() => import("./pages/Energy"));
+const Mindset = lazy(() => import("./pages/Mindset"));
+const Settings = lazy(() => import("./pages/Settings"));
+const Focus = lazy(() => import("./pages/Focus"));
+const Install = lazy(() => import("./pages/Install"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const TermsOfService = lazy(() => import("./pages/TermsOfService"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+
+// Configure React Query with optimized defaults
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      gcTime: 1000 * 60 * 30, // 30 minutes (formerly cacheTime)
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -35,23 +50,26 @@ const App = () => (
             <Sonner />
             <BrowserRouter>
               <CanonicalHostRedirect />
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/actions" element={<Actions />} />
-                <Route path="/habits" element={<Habits />} />
-                <Route path="/journal" element={<Journal />} />
-                <Route path="/planning" element={<Planning />} />
-                <Route path="/time-design" element={<TimeDesign />} />
-                <Route path="/knowledge" element={<Knowledge />} />
-                <Route path="/energy" element={<Energy />} />
-                <Route path="/mindset" element={<Mindset />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="/focus" element={<Focus />} />
-                <Route path="/install" element={<Install />} />
-                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="/terms-of-service" element={<TermsOfService />} />
-              </Routes>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                  <Route path="/auth" element={<Auth />} />
+                  <Route path="/actions" element={<Actions />} />
+                  <Route path="/habits" element={<Habits />} />
+                  <Route path="/journal" element={<Journal />} />
+                  <Route path="/planning" element={<Planning />} />
+                  <Route path="/time-design" element={<TimeDesign />} />
+                  <Route path="/knowledge" element={<Knowledge />} />
+                  <Route path="/energy" element={<Energy />} />
+                  <Route path="/mindset" element={<Mindset />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/focus" element={<Focus />} />
+                  <Route path="/install" element={<Install />} />
+                  <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                  <Route path="/terms-of-service" element={<TermsOfService />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </BrowserRouter>
           </TooltipProvider>
         </UserProvider>
