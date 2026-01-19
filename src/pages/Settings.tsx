@@ -10,11 +10,14 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
-import { User, Bell, Brain, Trophy, Shield, Smartphone, Palette, Volume2, Moon, Sun, Globe, Lock, Database, Trash2, Download, ChevronDown, ChevronRight, Eye, EyeOff, AlertTriangle } from 'lucide-react';
+import { User, Bell, Brain, Trophy, Shield, Smartphone, Palette, Volume2, Moon, Sun, Globe, Lock, Database, Trash2, Download, ChevronDown, ChevronRight, Eye, EyeOff, AlertTriangle, Calendar, RefreshCw, Check, X, Loader2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Theme, useTheme } from "@/components/ui/theme-provider";
 import AvatarSelector from "@/components/settings/AvatarSelector";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { useGoogleCalendar } from "@/hooks/use-google-calendar";
+import { Badge } from "@/components/ui/badge";
+import { formatDistanceToNow } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 const Settings = () => {
   const navigate = useNavigate();
@@ -38,10 +41,43 @@ const Settings = () => {
     notifications: false,
     ai: false,
     gamification: false,
+    integrations: false,
     privacy: false,
     account: false,
     device: false
   });
+  
+  // Google Calendar integration
+  const {
+    isConnected: isGoogleConnected,
+    connectionStatus: googleConnectionStatus,
+    isSyncing: isGoogleSyncing,
+    lastSyncTime: googleLastSyncTime,
+    syncSettings: googleSyncSettings,
+    connectGoogleCalendar,
+    disconnectGoogleCalendar,
+    updateSyncSetting: updateGoogleSyncSetting,
+  } = useGoogleCalendar();
+  const [isConnectingGoogle, setIsConnectingGoogle] = useState(false);
+  
+  const handleConnectGoogle = async () => {
+    setIsConnectingGoogle(true);
+    try {
+      await connectGoogleCalendar();
+    } catch (error) {
+      // Error handled in hook
+    } finally {
+      setIsConnectingGoogle(false);
+    }
+  };
+  
+  const handleDisconnectGoogle = async () => {
+    try {
+      await disconnectGoogleCalendar();
+    } catch (error) {
+      // Error handled in hook
+    }
+  };
   
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({
@@ -584,6 +620,122 @@ const Settings = () => {
                   <p className="text-sm text-muted-foreground">Celebrate streak milestones</p>
                 </div>
                 <Switch checked={settings.gamification.streakNotifications} />
+              </div>
+            </div>
+          </SettingSection>
+
+          {/* Integrations - Google Calendar */}
+          <SettingSection title="Integrations" icon={Calendar} sectionKey="integrations">
+            <div className="space-y-4">
+              <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-700/50">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-red-500 flex items-center justify-center">
+                      <Calendar className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <h4 className="font-medium text-slate-200">Google Calendar</h4>
+                      <p className="text-sm text-slate-400">
+                        {googleConnectionStatus === "connected"
+                          ? "Auto-sync enabled"
+                          : googleConnectionStatus === "linked"
+                            ? "Linked - reconnect to enable sync"
+                            : "Not connected"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {googleConnectionStatus === "connected" ? (
+                      <Badge variant="outline" className="bg-green-500/20 text-green-400 border-green-500/50">
+                        <Check className="h-3 w-3 mr-1" /> Connected
+                      </Badge>
+                    ) : googleConnectionStatus === "linked" ? (
+                      <Badge variant="outline" className="bg-amber-500/20 text-amber-300 border-amber-500/50">
+                        <Check className="h-3 w-3 mr-1" /> Linked
+                      </Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-slate-500/20 text-slate-400 border-slate-500/50">
+                        <X className="h-3 w-3 mr-1" /> Not Connected
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                {isGoogleConnected && googleLastSyncTime && (
+                  <div className="flex items-center gap-2 p-2 rounded bg-slate-800/50 text-sm mb-3">
+                    <RefreshCw className="h-3 w-3 text-primary" />
+                    <span className="text-slate-300">
+                      Last synced {formatDistanceToNow(googleLastSyncTime, { addSuffix: true })}
+                    </span>
+                  </div>
+                )}
+
+                {isGoogleConnected && (
+                  <div className="space-y-3 border-t border-slate-700/50 pt-3">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <label className="text-sm text-slate-200">Import from Google Calendar</label>
+                        <p className="text-xs text-slate-400">Pull events into Time Design</p>
+                      </div>
+                      <Switch 
+                        checked={googleSyncSettings.importEvents}
+                        onCheckedChange={(value) => updateGoogleSyncSetting("importEvents", value)}
+                      />
+                    </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <label className="text-sm text-slate-200">Export to Google Calendar</label>
+                        <p className="text-xs text-slate-400">Push activities to Google Calendar</p>
+                      </div>
+                      <Switch 
+                        checked={googleSyncSettings.exportEvents}
+                        onCheckedChange={(value) => updateGoogleSyncSetting("exportEvents", value)}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <label className="text-sm text-slate-200">Auto-Sync</label>
+                        <p className="text-xs text-slate-400">Automatically sync when activities change</p>
+                      </div>
+                      <Switch 
+                        checked={googleSyncSettings.autoSync}
+                        onCheckedChange={(value) => updateGoogleSyncSetting("autoSync", value)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="mt-4">
+                  {isGoogleConnected ? (
+                    <Button
+                      variant="outline"
+                      onClick={handleDisconnectGoogle}
+                      className="w-full border-slate-600 text-slate-200 hover:bg-slate-800"
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Disconnect Google Calendar
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={handleConnectGoogle}
+                      disabled={isConnectingGoogle}
+                      className="w-full bg-gradient-to-r from-blue-500 to-red-500 hover:from-blue-600 hover:to-red-600"
+                    >
+                      {isConnectingGoogle ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Calendar className="h-4 w-4 mr-2" />
+                      )}
+                      {isConnectingGoogle
+                        ? "Connecting..."
+                        : googleConnectionStatus === "linked"
+                          ? "Reconnect Google Calendar"
+                          : "Connect Google Calendar"}
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </SettingSection>

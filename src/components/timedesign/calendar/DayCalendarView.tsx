@@ -19,6 +19,7 @@ interface DayCalendarViewProps {
   onMouseDown?: (e: React.MouseEvent, hour: number) => void;
   onMouseUp?: (e: React.MouseEvent, hour: number) => void;
   isDragging?: boolean;
+  currentViewDate: Date;
 }
 
 const DayCalendarView: React.FC<DayCalendarViewProps> = ({
@@ -31,7 +32,8 @@ const DayCalendarView: React.FC<DayCalendarViewProps> = ({
   onCreateActivity,
   onMouseDown,
   onMouseUp,
-  isDragging = false
+  isDragging = false,
+  currentViewDate
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragData, setDragData] = useState<{ startY: number; currentY: number } | null>(null);
@@ -69,12 +71,13 @@ const DayCalendarView: React.FC<DayCalendarViewProps> = ({
       const startTime = pixelsToTime(start);
       const endTime = pixelsToTime(end);
 
-      const today = new Date();
+      // Use currentViewDate instead of today
+      const activityDate = currentViewDate;
 
       if (startTime !== endTime) {
         onCreateActivity({
-            startDate: today,
-            endDate: today,
+            startDate: activityDate,
+            endDate: activityDate,
             startTime,
             endTime
         });

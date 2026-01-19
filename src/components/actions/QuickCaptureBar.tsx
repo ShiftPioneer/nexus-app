@@ -40,16 +40,21 @@ const QuickCaptureBar: React.FC = () => {
                      !urgent && important ? "high" : 
                      urgent && !important ? "medium" : "low";
 
+    // If user explicitly set urgent/important in expanded form, mark as clarified
+    // and send directly to active status
+    const wasExpanded = isExpanded;
+    const alreadyClarified = wasExpanded && (urgent || important);
+    
     addTask({
       title: title.trim(),
       description: description.trim() || undefined,
       type: taskType,
-      status: "inbox",
+      status: alreadyClarified ? "active" : "inbox",
       priority,
       category: "general",
       urgent,
       important,
-      clarified: false,
+      clarified: alreadyClarified,
       completed: false,
     });
 
