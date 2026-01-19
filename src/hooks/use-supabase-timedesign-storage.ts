@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useGoogleCalendar } from "@/hooks/use-google-calendar";
 
 interface DbTimeActivity {
   id: string;
@@ -66,6 +67,10 @@ export const useSupabaseTimeDesignStorage = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { isConnected: isGoogleConnected, syncSettings, pushEventsToGoogle } = useGoogleCalendar();
+  
+  // Ref to prevent infinite loops
+  const isSyncing = useRef(false);
 
   // Fetch activities from Supabase
   const fetchActivities = useCallback(async () => {
@@ -114,6 +119,32 @@ export const useSupabaseTimeDesignStorage = () => {
 
       const newActivity = transformFromDb(data);
       setActivities(prev => [...prev, newActivity]);
+      
+      // Auto-sync to Google Calendar if enabled
+      if (isGoogleConnected && syncSettings.autoSync && syncSettings.exportEvents && !isSyncing.current) {
+        isSyncing.current = true;
+        try {
+          const startDate = new Date(activity.startDate);
+          const endDate = new Date(activity.endDate);
+          const [startHour, startMin] = activity.startTime.split(':').map(Number);
+          const [endHour, endMin] = activity.endTime.split(':').map(Number);
+          
+          startDate.setHours(startHour, startMin, 0, 0);
+          endDate.setHours(endHour, endMin, 0, 0);
+          
+          await pushEventsToGoogle([{
+            title: activity.title,
+            description: activity.description || '',
+            startDateTime: startDate.toISOString(),
+            endDateTime: endDate.toISOString(),
+          }]);
+        } catch (syncError) {
+          console.error('Auto-sync to Google Calendar failed:', syncError);
+        } finally {
+          isSyncing.current = false;
+        }
+      }
+      
       return newActivity;
     } catch (error) {
       console.error('Error creating activity:', error);
@@ -124,7 +155,7 @@ export const useSupabaseTimeDesignStorage = () => {
       });
       return null;
     }
-  }, [user, toast]);
+  }, [user, toast, isGoogleConnected, syncSettings, pushEventsToGoogle]);
 
   // Update activity
   const updateActivity = useCallback(async (activity: TimeActivity): Promise<TimeActivity | null> => {

@@ -277,6 +277,7 @@ const TimeDesignCalendar: React.FC<TimeDesignCalendarProps> = ({
             onMouseDown={(e, hour) => handleMouseDown(e, currentViewDate, hour)}
             onMouseUp={(e, hour) => handleMouseUp(e, currentViewDate, hour)}
             isDragging={isDragging}
+            currentViewDate={currentViewDate}
           />
         )}
         {viewType === "two-day" && (
