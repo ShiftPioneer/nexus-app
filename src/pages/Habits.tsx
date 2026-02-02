@@ -16,6 +16,8 @@ import HabitStreakCard from "@/components/habits/HabitStreakCard";
 import WeeklyActivityCard from "@/components/habits/WeeklyActivityCard";
 import ModernAnalyticsCard from "@/components/habits/ModernAnalyticsCard";
 import { navigationIcons } from "@/lib/navigation-icons";
+import ScheduleDialog from "@/components/timedesign/ScheduleDialog";
+import { useSupabaseTimeDesignStorage } from "@/hooks/use-supabase-timedesign-storage";
 
 const Habits = () => {
   const { toast } = useToast();
@@ -24,6 +26,8 @@ const Habits = () => {
   const [selectedHabit, setSelectedHabit] = useState<Habit | null>(null);
   const [filterCategory, setFilterCategory] = useState<string>("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [habitToSchedule, setHabitToSchedule] = useState<Habit | null>(null);
 
   // IMPORTANT: use Supabase-backed habits so data syncs across devices.
   const {
@@ -36,7 +40,58 @@ const Habits = () => {
     isAuthenticated,
   } = useSecureHabitsStorage();
 
+  const { activities, saveActivity } = useSupabaseTimeDesignStorage();
+
   const [accountabilityScore, setAccountabilityScore] = useLocalStorage("accountabilityScore", 0);
+
+  const handleOpenSchedule = (habit: Habit) => {
+    setHabitToSchedule(habit);
+    setScheduleDialogOpen(true);
+  };
+
+  const handleScheduleHabit = async (
+    itemId: string,
+    itemTitle: string,
+    itemType: "task" | "habit",
+    activityId: string | null,
+    date: Date,
+    startTime: string,
+    endTime: string
+  ) => {
+    if (activityId) {
+      // Attach to existing activity
+      const activity = activities.find((a) => a.id === activityId);
+      if (activity) {
+        const updatedLinkedItems = [
+          ...(activity.linkedItems || []),
+          { id: itemId, type: itemType, title: itemTitle, completed: false },
+        ];
+        await saveActivity({ ...activity, linkedItems: updatedLinkedItems });
+      }
+    } else {
+      // Create new activity as a time block for this habit
+      const newActivity: TimeActivity = {
+        id: "",
+        title: `🔄 ${itemTitle}`,
+        description: `Scheduled habit: ${itemTitle}`,
+        category: "health",
+        color: "green",
+        startDate: date,
+        endDate: date,
+        startTime,
+        endTime,
+        syncWithGoogleCalendar: false,
+        linkedItems: [{ id: itemId, type: itemType, title: itemTitle, completed: false }],
+      };
+      await saveActivity(newActivity);
+    }
+    setScheduleDialogOpen(false);
+    setHabitToSchedule(null);
+    toast({
+      title: "Habit Scheduled",
+      description: `${itemTitle} has been added to your calendar.`,
+    });
+  };
 
   // Calculate real accountability score based on streaks, completions, and multi-daily progress
   useEffect(() => {
@@ -331,6 +386,7 @@ const Habits = () => {
                       onComplete={completeHabit}
                       onSkip={missHabit}
                       onEdit={handleEditHabit}
+                      onSchedule={handleOpenSchedule}
                     />
                   ))}
                 </div>
@@ -360,6 +416,15 @@ const Habits = () => {
         onOpenChange={setShowHabitDialog}
         onHabitCreate={handleCreateHabit}
         initialHabit={selectedHabit}
+      />
+
+      {/* Schedule Dialog */}
+      <ScheduleDialog
+        open={scheduleDialogOpen}
+        onOpenChange={setScheduleDialogOpen}
+        item={habitToSchedule ? { id: habitToSchedule.id, title: habitToSchedule.title, type: "habit" } : null}
+        activities={activities}
+        onSchedule={handleScheduleHabit}
       />
     </ModernAppLayout>
   );

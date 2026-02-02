@@ -2,7 +2,7 @@ import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Circle, Clock, Calendar, Target, TrendingUp, Repeat } from "lucide-react";
+import { CheckCircle, Circle, Clock, Calendar, Target, TrendingUp, Repeat, CalendarClock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CircularProgress } from "@/components/ui/circular-progress";
 import { StreakFire } from "@/components/ui/streak-fire";
@@ -12,9 +12,10 @@ interface ModernHabitCardProps {
   onComplete: (id: string) => void;
   onSkip: (id: string) => void;
   onEdit: (habit: Habit) => void;
+  onSchedule?: (habit: Habit) => void;
 }
 
-const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, onSkip, onEdit }) => {
+const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, onSkip, onEdit, onSchedule }) => {
   const getCategoryColor = (category: string) => {
     switch (category) {
       case 'health': return 'bg-emerald-500/20 text-emerald-400 border-slate-300';
@@ -190,10 +191,23 @@ const ModernHabitCard: React.FC<ModernHabitCardProps> = ({ habit, onComplete, on
               >
                 {isMultiDaily ? `Complete (${todayCompletions + 1}/${dailyTarget})` : "Complete"}
               </Button>
+              {onSchedule && (
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-primary/50 text-primary hover:bg-primary/10"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSchedule(habit);
+                  }}
+                >
+                  <CalendarClock className="h-4 w-4" />
+                </Button>
+              )}
               <Button 
                 size="sm" 
                 variant="outline" 
-                className="flex-1 border-slate-300 text-red-400 hover:bg-red-500/10"
+                className="border-slate-300 text-red-400 hover:bg-red-500/10"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSkip(habit.id);

@@ -38,13 +38,30 @@ const DayCalendarView: React.FC<DayCalendarViewProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [dragData, setDragData] = useState<{ startY: number; currentY: number } | null>(null);
 
+  // 1.2 pixels per minute (72px per hour / 60 minutes = 1.2)
+  const PIXELS_PER_MINUTE = 1.2;
+  const MIN_DURATION_MINUTES = 15;
+
   const pixelsToTime = (pixels: number) => {
-    const totalMinutes = pixels / 1.2;
+    const totalMinutes = Math.max(0, pixels / PIXELS_PER_MINUTE);
     const hour = Math.floor(totalMinutes / 60);
-    const minute = Math.round((totalMinutes % 60) / 15) * 15;
-    const normalizedHour = hour > 23 ? 23 : hour;
+    const minute = Math.round((totalMinutes % 60) / 15) * 15; // Snap to 15-min increments
+    const normalizedHour = Math.min(23, Math.max(0, hour));
     const normalizedMinute = minute >= 60 ? 45 : minute;
     return `${String(normalizedHour).padStart(2, "0")}:${String(normalizedMinute).padStart(2, "0")}`;
+  };
+
+  const calculateDurationPreview = () => {
+    if (!dragData) return null;
+    const startPx = Math.min(dragData.startY, dragData.currentY);
+    const endPx = Math.max(dragData.startY, dragData.currentY);
+    const durationMinutes = Math.max(MIN_DURATION_MINUTES, (endPx - startPx) / PIXELS_PER_MINUTE);
+    const hours = Math.floor(durationMinutes / 60);
+    const minutes = Math.round(durationMinutes % 60);
+    if (hours > 0) {
+      return minutes > 0 ? `${hours}h ${minutes}m` : `${hours}h`;
+    }
+    return `${minutes}m`;
   };
 
   const handleMouseDown = (e: MouseEvent<HTMLDivElement>) => {
@@ -58,29 +75,33 @@ const DayCalendarView: React.FC<DayCalendarViewProps> = ({
     if (dragData) {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      const currentY = e.clientY - rect.top;
+      const currentY = Math.max(0, e.clientY - rect.top);
       setDragData({ ...dragData, currentY });
     }
   };
 
   const handleMouseUp = () => {
-    if (dragData && Math.abs(dragData.startY - dragData.currentY) > 10) {
-      const start = Math.min(dragData.startY, dragData.currentY);
-      const end = Math.max(dragData.startY, dragData.currentY);
-      
-      const startTime = pixelsToTime(start);
-      const endTime = pixelsToTime(end);
+    if (dragData) {
+      const dragDistance = Math.abs(dragData.startY - dragData.currentY);
+      // Only create if minimum drag distance (equivalent to ~15 minutes)
+      if (dragDistance >= MIN_DURATION_MINUTES * PIXELS_PER_MINUTE) {
+        const startPx = Math.min(dragData.startY, dragData.currentY);
+        const endPx = Math.max(dragData.startY, dragData.currentY);
+        
+        const startTime = pixelsToTime(startPx);
+        const endTime = pixelsToTime(endPx);
 
-      // Use currentViewDate instead of today
-      const activityDate = currentViewDate;
+        // Use currentViewDate instead of today
+        const activityDate = currentViewDate;
 
-      if (startTime !== endTime) {
-        onCreateActivity({
+        if (startTime !== endTime) {
+          onCreateActivity({
             startDate: activityDate,
             endDate: activityDate,
             startTime,
             endTime
-        });
+          });
+        }
       }
     }
     setDragData(null);
@@ -105,12 +126,16 @@ const DayCalendarView: React.FC<DayCalendarViewProps> = ({
 
         {dragData && (
           <div
-            className="absolute w-full bg-primary/30 border-2 border-primary rounded-lg z-20 pointer-events-none"
+            className="absolute w-full bg-primary/30 border-2 border-primary rounded-lg z-20 pointer-events-none flex items-center justify-center"
             style={{
               top: `${Math.min(dragData.startY, dragData.currentY)}px`,
-              height: `${Math.abs(dragData.currentY - dragData.startY)}px`,
+              height: `${Math.max(18, Math.abs(dragData.currentY - dragData.startY))}px`,
             }}
-          />
+          >
+            <span className="text-xs font-semibold text-primary-foreground bg-primary px-2 py-0.5 rounded-full shadow-lg">
+              {calculateDurationPreview()}
+            </span>
+          </div>
         )}
 
         <CurrentTimeIndicator getCurrentTimePosition={getCurrentTimePosition} />
