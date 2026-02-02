@@ -18,6 +18,7 @@ import {
   CheckCircle,
   XCircle,
   Search,
+  CalendarClock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUnifiedTasks } from "@/contexts/UnifiedTasksContext";
@@ -31,6 +32,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import EisenhowerMatrixView from "./EisenhowerMatrixView";
+import ScheduleDialog from "@/components/timedesign/ScheduleDialog";
+import { useSupabaseTimeDesignStorage } from "@/hooks/use-supabase-timedesign-storage";
 
 interface ActiveViewProps {
   onAddTask: () => void;
@@ -45,6 +48,8 @@ const ActiveView: React.FC<ActiveViewProps> = ({ onAddTask }) => {
   const [query, setQuery] = useState("");
   const [taskTypeFilter, setTaskTypeFilter] = useState<TaskTypeFilter>("all");
   const [quadrantFilter, setQuadrantFilter] = useState<QuadrantFilter>("all");
+  const [scheduleDialogOpen, setScheduleDialogOpen] = useState(false);
+  const [taskToSchedule, setTaskToSchedule] = useState<UnifiedTask | null>(null);
 
   const {
     activeTasks,
@@ -53,6 +58,53 @@ const ActiveView: React.FC<ActiveViewProps> = ({ onAddTask }) => {
     moveToWaitingFor,
     moveToSomeday,
   } = useUnifiedTasks();
+
+  const { activities, saveActivity } = useSupabaseTimeDesignStorage();
+
+  const handleOpenSchedule = (task: UnifiedTask) => {
+    setTaskToSchedule(task);
+    setScheduleDialogOpen(true);
+  };
+
+  const handleScheduleTask = async (
+    itemId: string,
+    itemTitle: string,
+    itemType: "task" | "habit",
+    activityId: string | null,
+    date: Date,
+    startTime: string,
+    endTime: string
+  ) => {
+    if (activityId) {
+      // Attach to existing activity
+      const activity = activities.find((a) => a.id === activityId);
+      if (activity) {
+        const updatedLinkedItems = [
+          ...(activity.linkedItems || []),
+          { id: itemId, type: itemType, title: itemTitle, completed: false },
+        ];
+        await saveActivity({ ...activity, linkedItems: updatedLinkedItems });
+      }
+    } else {
+      // Create new activity as a time block for this task
+      const newActivity: TimeActivity = {
+        id: "",
+        title: `📌 ${itemTitle}`,
+        description: `Scheduled ${itemType}: ${itemTitle}`,
+        category: "work",
+        color: itemType === "task" ? "blue" : "green",
+        startDate: date,
+        endDate: date,
+        startTime,
+        endTime,
+        syncWithGoogleCalendar: false,
+        linkedItems: [{ id: itemId, type: itemType, title: itemTitle, completed: false }],
+      };
+      await saveActivity(newActivity);
+    }
+    setScheduleDialogOpen(false);
+    setTaskToSchedule(null);
+  };
 
   const getPriorityBadge = (urgent?: boolean, important?: boolean) => {
     if (urgent && important)
@@ -197,6 +249,11 @@ const ActiveView: React.FC<ActiveViewProps> = ({ onAddTask }) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => handleOpenSchedule(task)}>
+                        <CalendarClock className="h-4 w-4 mr-2" />
+                        Schedule
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => moveToWaitingFor(task.id, "")}>
                         <Clock className="h-4 w-4 mr-2" />
                         Move to Waiting
@@ -296,10 +353,15 @@ const ActiveView: React.FC<ActiveViewProps> = ({ onAddTask }) => {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
+                      <DropdownMenuItem onClick={() => handleOpenSchedule(task)}>
+                        <CalendarClock className="h-4 w-4 mr-2" />
+                        Schedule
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => completeTask(task.id)}>
                         <CheckCircle className="h-4 w-4 mr-2" />
                         Complete
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={() => moveToWaitingFor(task.id, "")}>
                         <Clock className="h-4 w-4 mr-2" />
                         Move to Waiting
@@ -506,6 +568,15 @@ const ActiveView: React.FC<ActiveViewProps> = ({ onAddTask }) => {
           </AnimatePresence>
         </div>
       )}
+
+      {/* Schedule Dialog */}
+      <ScheduleDialog
+        open={scheduleDialogOpen}
+        onOpenChange={setScheduleDialogOpen}
+        item={taskToSchedule ? { id: taskToSchedule.id, title: taskToSchedule.title, type: "task" } : null}
+        activities={activities}
+        onSchedule={handleScheduleTask}
+      />
     </div>
   );
 };

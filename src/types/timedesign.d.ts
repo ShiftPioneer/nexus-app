@@ -1,4 +1,12 @@
 
+// Linked item representing a task or habit attached to an activity
+interface LinkedItem {
+  id: string;
+  type: "task" | "habit";
+  title: string;
+  completed?: boolean;
+}
+
 interface TimeActivity {
   id: string;
   title: string;
@@ -17,4 +25,6 @@ interface TimeActivity {
   recurrencePattern?: "daily" | "weekly" | "monthly" | "yearly" | "custom";
   recurrenceEnd?: Date;
   recurrenceDays?: string[];
+  // Linked tasks/habits attached to this activity
+  linkedItems?: LinkedItem[];
 }
