@@ -21,6 +21,10 @@ interface Habit {
   dailyTarget?: number; // How many times per day (e.g., 5 for prayers)
   todayCompletions?: number; // How many times completed today
   completionHistory?: HabitCompletion[]; // Detailed completion history
+  // Calendar scheduling
+  scheduledDate?: Date; // When to do this habit
+  scheduledTime?: string; // Start time for calendar block (e.g., "08:00")
+  scheduledEndTime?: string; // End time for calendar block (e.g., "08:30")
 }
 
 interface HabitStatistics {

@@ -405,10 +405,20 @@ export const UnifiedTasksProvider: React.FC<{ children: ReactNode }> = ({ childr
     setTasks(updatedTasks);
   }, [normalizedTasks, setTasks, derivePriorityFromEisenhower, isAuthenticated, saveTask]);
 
-  // Schedule task for Time Design
-  const scheduleTask = useCallback(async (taskId: string, scheduledDate: Date) => {
+  // Schedule task for Time Design - includes time slot
+  const scheduleTask = useCallback(async (
+    taskId: string, 
+    scheduledDate: Date, 
+    scheduledTime?: string, 
+    scheduledEndTime?: string
+  ) => {
     const updatedTasks = normalizedTasks.map(t => 
-      t.id === taskId ? { ...t, scheduledDate } : t
+      t.id === taskId ? { 
+        ...t, 
+        scheduledDate,
+        scheduledTime: scheduledTime || t.scheduledTime,
+        scheduledEndTime: scheduledEndTime || t.scheduledEndTime
+      } : t
     );
     
     if (isAuthenticated) {

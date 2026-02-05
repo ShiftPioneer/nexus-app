@@ -1,4 +1,3 @@
-
 import React from "react";
 import WeekHeader from "./WeekHeader";
 import WeekTimeColumn from "./WeekTimeColumn";
@@ -10,16 +9,28 @@ interface WeekCalendarViewProps {
   formatHour: (hour: number) => string;
   getCurrentTimePosition: () => number;
   filteredActivities: TimeActivity[];
-  getActivityStyle: (activity: TimeActivity) => {
-    top: string;
-    height: string;
-    className: string;
-  };
+  scheduledTasks?: Array<{
+    id: string;
+    title: string;
+    scheduledDate?: Date;
+    scheduledTime?: string;
+    scheduledEndTime?: string;
+    completed?: boolean;
+  }>;
+  scheduledHabits?: Array<{
+    id: string;
+    title: string;
+    scheduledDate?: Date;
+    scheduledTime?: string;
+    scheduledEndTime?: string;
+    status?: string;
+  }>;
   onEditActivity: (activity: TimeActivity) => void;
-  onCreateActivity: (data: { startDate: Date; endDate: Date; startTime: string; endTime: string; }) => void;
-  onMouseDown?: (e: React.MouseEvent, date: Date, hour: number) => void;
-  onMouseUp?: (e: React.MouseEvent, date: Date, hour: number) => void;
-  isDragging?: boolean;
+  onEditTask?: (taskId: string) => void;
+  onEditHabit?: (habitId: string) => void;
+  onToggleTaskComplete?: (taskId: string) => void;
+  onToggleHabitComplete?: (habitId: string) => void;
+  onCreateActivity: (data: { startDate: Date; endDate: Date; startTime: string; endTime: string }) => void;
 }
 
 const WeekCalendarView: React.FC<WeekCalendarViewProps> = ({
@@ -28,20 +39,22 @@ const WeekCalendarView: React.FC<WeekCalendarViewProps> = ({
   formatHour,
   getCurrentTimePosition,
   filteredActivities,
-  getActivityStyle,
+  scheduledTasks = [],
+  scheduledHabits = [],
   onEditActivity,
+  onEditTask,
+  onEditHabit,
+  onToggleTaskComplete,
+  onToggleHabitComplete,
   onCreateActivity,
-  onMouseDown,
-  onMouseUp,
-  isDragging = false
 }) => {
   return (
     <div className="min-h-[1728px] overflow-x-auto">
       <WeekHeader weekDays={weekDays} />
-      
+
       <div className="grid grid-cols-[3.5rem,repeat(7,1fr)] relative">
         <WeekTimeColumn hours={hours} formatHour={formatHour} />
-        
+
         {weekDays.map((day, dayIndex) => (
           <WeekDayColumn
             key={dayIndex}
@@ -49,9 +62,14 @@ const WeekCalendarView: React.FC<WeekCalendarViewProps> = ({
             dayIndex={dayIndex}
             hours={hours}
             activities={filteredActivities}
-            getActivityStyle={getActivityStyle}
+            scheduledTasks={scheduledTasks}
+            scheduledHabits={scheduledHabits}
             getCurrentTimePosition={getCurrentTimePosition}
             onEditActivity={onEditActivity}
+            onEditTask={onEditTask}
+            onEditHabit={onEditHabit}
+            onToggleTaskComplete={onToggleTaskComplete}
+            onToggleHabitComplete={onToggleHabitComplete}
             onCreateActivity={onCreateActivity}
           />
         ))}

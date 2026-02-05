@@ -57,6 +57,7 @@ const ActiveView: React.FC<ActiveViewProps> = ({ onAddTask }) => {
     deleteTask,
     moveToWaitingFor,
     moveToSomeday,
+    scheduleTask,
   } = useUnifiedTasks();
 
   const { activities, saveActivity } = useSupabaseTimeDesignStorage();
@@ -75,8 +76,13 @@ const ActiveView: React.FC<ActiveViewProps> = ({ onAddTask }) => {
     startTime: string,
     endTime: string
   ) => {
+    // First, save the scheduled time to the task itself so it shows in calendar
+    if (itemType === "task") {
+      await scheduleTask(itemId, date, startTime, endTime);
+    }
+
+    // If attaching to an activity, update the activity's linked items
     if (activityId) {
-      // Attach to existing activity
       const activity = activities.find((a) => a.id === activityId);
       if (activity) {
         const updatedLinkedItems = [
@@ -85,23 +91,8 @@ const ActiveView: React.FC<ActiveViewProps> = ({ onAddTask }) => {
         ];
         await saveActivity({ ...activity, linkedItems: updatedLinkedItems });
       }
-    } else {
-      // Create new activity as a time block for this task
-      const newActivity: TimeActivity = {
-        id: "",
-        title: `📌 ${itemTitle}`,
-        description: `Scheduled ${itemType}: ${itemTitle}`,
-        category: "work",
-        color: itemType === "task" ? "blue" : "green",
-        startDate: date,
-        endDate: date,
-        startTime,
-        endTime,
-        syncWithGoogleCalendar: false,
-        linkedItems: [{ id: itemId, type: itemType, title: itemTitle, completed: false }],
-      };
-      await saveActivity(newActivity);
     }
+
     setScheduleDialogOpen(false);
     setTaskToSchedule(null);
   };
