@@ -55,6 +55,8 @@ export interface UnifiedTask {
   // Time
   dueDate?: Date;
   scheduledDate?: Date;      // When to work on it (Time Design integration)
+  scheduledTime?: string;    // Start time for calendar block (e.g., "09:00")
+  scheduledEndTime?: string; // End time for calendar block (e.g., "10:00")
   timeEstimate?: number;     // In minutes
   createdAt: Date;
   completedAt?: Date;
@@ -97,8 +99,8 @@ export interface UnifiedTasksContextType {
   // Clarify - move from inbox to active with matrix placement
   clarifyTask: (taskId: string, urgent: boolean, important: boolean) => void;
   
-  // Schedule task (Time Design integration)
-  scheduleTask: (taskId: string, scheduledDate: Date) => void;
+  // Schedule task (Time Design integration) - with optional time slot
+  scheduleTask: (taskId: string, scheduledDate: Date, scheduledTime?: string, scheduledEndTime?: string) => void;
   
   // Move to different status
   moveToWaitingFor: (taskId: string, delegatedTo: string) => void;

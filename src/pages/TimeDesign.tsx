@@ -12,6 +12,8 @@ import ActivityDialog from "@/components/timedesign/ActivityDialog";
 import { useToast } from "@/hooks/use-toast";
 import { useSupabaseTimeDesignStorage } from "@/hooks/use-supabase-timedesign-storage";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useUnifiedTasks } from "@/contexts/UnifiedTasksContext";
+import { useSecureHabitsStorage } from "@/hooks/use-secure-habits-storage";
 
 const TimeDesign = () => {
   const isMobile = useIsMobile();
@@ -21,57 +23,121 @@ const TimeDesign = () => {
   // Time Design state
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewType, setViewType] = useState<"day" | "two-day" | "week" | "month">(isMobile ? "day" : "week");
-  
+
+  // Get tasks and habits for calendar display
+  const { activeTasks, completeTask } = useUnifiedTasks();
+  const { habits, markHabitComplete } = useSecureHabitsStorage();
+
+  // Filter scheduled tasks (those with scheduledDate and scheduledTime)
+  const scheduledTasks = activeTasks
+    .filter((task) => task.scheduledDate && task.scheduledTime)
+    .map((task) => ({
+      id: task.id,
+      title: task.title,
+      scheduledDate: task.scheduledDate,
+      scheduledTime: task.scheduledTime,
+      scheduledEndTime: task.scheduledEndTime,
+      completed: task.completed,
+    }));
+
+  // Filter scheduled habits (those with scheduledDate and scheduledTime)
+  const scheduledHabits = habits
+    .filter((habit: any) => habit.scheduledDate && habit.scheduledTime)
+    .map((habit: any) => ({
+      id: habit.id,
+      title: habit.title,
+      scheduledDate: habit.scheduledDate,
+      scheduledTime: habit.scheduledTime,
+      scheduledEndTime: habit.scheduledEndTime,
+      status: habit.status,
+    }));
+
   // Update view type when mobile status changes
   useEffect(() => {
     if (isMobile) {
       setViewType("day");
     }
   }, [isMobile]);
+
   const {
     activities,
     loading,
     saveActivity,
     deleteActivity,
-    refetch
+    refetch,
   } = useSupabaseTimeDesignStorage();
+
   const [editingActivity, setEditingActivity] = useState<TimeActivity | null>(null);
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
+
   const handleActivitySave = async (activity: TimeActivity) => {
-    console.log('Activity saved:', activity);
+    console.log("Activity saved:", activity);
     try {
       const savedActivity = await saveActivity(activity);
       if (savedActivity) {
         toast({
           title: editingActivity?.id ? "Activity Updated" : "Activity Created",
-          description: `Your activity has been successfully ${editingActivity?.id ? 'updated' : 'created'}.`
+          description: `Your activity has been successfully ${editingActivity?.id ? "updated" : "created"}.`,
         });
         setShowActivityDialog(false);
         setEditingActivity(null);
       }
     } catch (error) {
-      console.error('Error saving activity:', error);
+      console.error("Error saving activity:", error);
     }
   };
+
   const handleEditActivity = (activity: TimeActivity) => {
     setEditingActivity(activity);
     setShowActivityDialog(true);
   };
+
+  const handleEditTask = (taskId: string) => {
+    // Navigate to task or open task dialog
+    toast({
+      title: "Task Selected",
+      description: "Task editing coming soon. For now, manage tasks in the Actions page.",
+    });
+  };
+
+  const handleEditHabit = (habitId: string) => {
+    // Navigate to habit or open habit dialog
+    toast({
+      title: "Habit Selected",
+      description: "Habit editing coming soon. For now, manage habits in the Habits page.",
+    });
+  };
+
+  const handleToggleTaskComplete = (taskId: string) => {
+    completeTask(taskId);
+    toast({
+      title: "Task Updated",
+      description: "Task completion status updated.",
+    });
+  };
+
+  const handleToggleHabitComplete = (habitId: string) => {
+    markHabitComplete(habitId);
+    toast({
+      title: "Habit Updated",
+      description: "Habit marked as complete for today.",
+    });
+  };
+
   const handleDeleteActivity = async (id: string) => {
     try {
       const success = await deleteActivity(id);
       if (success) {
         toast({
           title: "Activity Deleted",
-          description: "Your activity has been successfully deleted."
+          description: "Your activity has been successfully deleted.",
         });
       }
     } catch (error) {
-      console.error('Error deleting activity:', error);
+      console.error("Error deleting activity:", error);
     }
   };
+
   const handleCreateActivity = (data: {
     startDate: Date;
     endDate: Date;
@@ -85,69 +151,117 @@ const TimeDesign = () => {
       category: "work",
       color: "purple",
       ...data,
-      syncWithGoogleCalendar: false
+      syncWithGoogleCalendar: false,
     };
     setEditingActivity(newActivity);
     setShowActivityDialog(true);
   };
-  const tabItems = [{
-    value: "calendar",
-    label: "Calendar",
-    icon: Calendar,
-    gradient: "from-blue-500 via-indigo-500 to-purple-500"
-  }, {
-    value: "activities",
-    label: "Activities",
-    icon: Activity,
-    gradient: "from-emerald-500 via-teal-500 to-cyan-500",
-    count: activities.length
-  }, {
-    value: "analytics",
-    label: "Analytics",
-    icon: BarChart3,
-    gradient: "from-orange-500 via-red-500 to-pink-500"
-  }, {
-    value: "settings",
-    label: "Settings",
-    icon: Settings,
-    gradient: "from-purple-500 via-pink-500 to-rose-500"
-  }];
-  return <ModernAppLayout>
+
+  const tabItems = [
+    {
+      value: "calendar",
+      label: "Calendar",
+      icon: Calendar,
+      gradient: "from-blue-500 via-indigo-500 to-purple-500",
+    },
+    {
+      value: "activities",
+      label: "Activities",
+      icon: Activity,
+      gradient: "from-emerald-500 via-teal-500 to-cyan-500",
+      count: activities.length,
+    },
+    {
+      value: "analytics",
+      label: "Analytics",
+      icon: BarChart3,
+      gradient: "from-orange-500 via-red-500 to-pink-500",
+    },
+    {
+      value: "settings",
+      label: "Settings",
+      icon: Settings,
+      gradient: "from-purple-500 via-pink-500 to-rose-500",
+    },
+  ];
+
+  return (
+    <ModernAppLayout>
       <div className="page-container">
         <div className="page-content">
-          <UnifiedPageHeader title="Time Design" description="Design your perfect day and optimize your time allocation" icon={navigationIcons.timeDesign} gradient="from-blue-500 via-indigo-500 to-purple-500" />
+          <UnifiedPageHeader
+            title="Time Design"
+            description="Design your perfect day and optimize your time allocation"
+            icon={navigationIcons.timeDesign}
+            gradient="from-blue-500 via-indigo-500 to-purple-500"
+          />
 
-        <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <ModernTabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
-            {tabItems.map(tab => <ModernTabsTrigger key={tab.value} value={tab.value} gradient={tab.gradient} icon={tab.icon} count={tab.count} className="flex-1">
-                {tab.label}
-              </ModernTabsTrigger>)}
-          </ModernTabsList>
-          
-          <ModernTabsContent value="calendar" className="mt-8">
-            <TimeDesignCalendar currentDate={currentDate} viewType={viewType} onViewTypeChange={setViewType} activities={activities} onEditActivity={handleEditActivity} onCreateActivity={handleCreateActivity} />
-          </ModernTabsContent>
-          
-          <ModernTabsContent value="activities" className="mt-8">
-            <TimeDesignActivities activities={activities} onEditActivity={handleEditActivity} onDeleteActivity={handleDeleteActivity} />
-          </ModernTabsContent>
-          
-          <ModernTabsContent value="analytics" className="mt-8">
-            <TimeDesignAnalytics activities={activities} />
-          </ModernTabsContent>
-          
-          <ModernTabsContent value="settings" className="mt-8">
-            <TimeDesignSettings onImportEvents={() => {
-              // Refetch activities after importing from Google Calendar
-              refetch();
-            }} />
-          </ModernTabsContent>
-        </ModernTabs>
+          <ModernTabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <ModernTabsList className="grid w-full grid-cols-4 max-w-2xl mx-auto">
+              {tabItems.map((tab) => (
+                <ModernTabsTrigger
+                  key={tab.value}
+                  value={tab.value}
+                  gradient={tab.gradient}
+                  icon={tab.icon}
+                  count={tab.count}
+                  className="flex-1"
+                >
+                  {tab.label}
+                </ModernTabsTrigger>
+              ))}
+            </ModernTabsList>
 
-        {/* Activity Dialog */}
-        <ActivityDialog open={showActivityDialog} onOpenChange={setShowActivityDialog} activity={editingActivity} onSave={handleActivitySave} onDelete={handleDeleteActivity} />
+            <ModernTabsContent value="calendar" className="mt-8">
+              <TimeDesignCalendar
+                currentDate={currentDate}
+                viewType={viewType}
+                onViewTypeChange={setViewType}
+                activities={activities}
+                scheduledTasks={scheduledTasks}
+                scheduledHabits={scheduledHabits}
+                onEditActivity={handleEditActivity}
+                onEditTask={handleEditTask}
+                onEditHabit={handleEditHabit}
+                onToggleTaskComplete={handleToggleTaskComplete}
+                onToggleHabitComplete={handleToggleHabitComplete}
+                onCreateActivity={handleCreateActivity}
+              />
+            </ModernTabsContent>
+
+            <ModernTabsContent value="activities" className="mt-8">
+              <TimeDesignActivities
+                activities={activities}
+                onEditActivity={handleEditActivity}
+                onDeleteActivity={handleDeleteActivity}
+              />
+            </ModernTabsContent>
+
+            <ModernTabsContent value="analytics" className="mt-8">
+              <TimeDesignAnalytics activities={activities} />
+            </ModernTabsContent>
+
+            <ModernTabsContent value="settings" className="mt-8">
+              <TimeDesignSettings
+                onImportEvents={() => {
+                  refetch();
+                }}
+              />
+            </ModernTabsContent>
+          </ModernTabs>
+
+          {/* Activity Dialog */}
+          <ActivityDialog
+            open={showActivityDialog}
+            onOpenChange={setShowActivityDialog}
+            activity={editingActivity}
+            onSave={handleActivitySave}
+            onDelete={handleDeleteActivity}
+          />
         </div>
       </div>
-    </ModernAppLayout>;
+    </ModernAppLayout>
+  );
 };
+
 export default TimeDesign;

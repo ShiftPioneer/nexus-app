@@ -58,8 +58,17 @@ const Habits = () => {
     startTime: string,
     endTime: string
   ) => {
+    // First, save the scheduled time to the habit itself so it shows in calendar
+    if (itemType === "habit") {
+      await updateHabit(itemId, {
+        scheduledDate: date,
+        scheduledTime: startTime,
+        scheduledEndTime: endTime,
+      });
+    }
+
+    // If attaching to an activity, update the activity's linked items
     if (activityId) {
-      // Attach to existing activity
       const activity = activities.find((a) => a.id === activityId);
       if (activity) {
         const updatedLinkedItems = [
@@ -68,23 +77,8 @@ const Habits = () => {
         ];
         await saveActivity({ ...activity, linkedItems: updatedLinkedItems });
       }
-    } else {
-      // Create new activity as a time block for this habit
-      const newActivity: TimeActivity = {
-        id: "",
-        title: `🔄 ${itemTitle}`,
-        description: `Scheduled habit: ${itemTitle}`,
-        category: "health",
-        color: "green",
-        startDate: date,
-        endDate: date,
-        startTime,
-        endTime,
-        syncWithGoogleCalendar: false,
-        linkedItems: [{ id: itemId, type: itemType, title: itemTitle, completed: false }],
-      };
-      await saveActivity(newActivity);
     }
+
     setScheduleDialogOpen(false);
     setHabitToSchedule(null);
     toast({
